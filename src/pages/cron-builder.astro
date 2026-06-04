@@ -1,0 +1,1087 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a cron job?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A cron job is a scheduled task on Unix-like systems managed by the cron daemon. It runs a command or script automatically at a defined time interval — for example, daily, hourly, or every 5 minutes. Each job is defined by a cron expression (5 or 6 space-separated fields) in a file called the crontab. Cron jobs are widely used for backups, log rotation, report generation, and any recurring automation task."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I generate a cron expression for every 5 minutes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the step syntax: */5 * * * *. The */5 in the minute field means every 5th minute — at :00, :05, :10, :15 … :55. You can generate this automatically by selecting 'Every 5 min' from the Minute dropdown in this cron expression generator, or by clicking the 'Every 5 minutes' preset button."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between AWS cron and Linux cron syntax?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AWS EventBridge cron uses 6 fields (adds a year field at the end) vs the standard 5-field Linux crontab format. AWS also requires a ? wildcard in either the day-of-month or day-of-week field — you cannot specify both. AWS weekdays are 1–7 (Sunday=1) while Linux uses 0–6 (Sunday=0). All AWS cron times run in UTC. Use the AWS CloudWatch tab in this generator to convert any Linux expression automatically."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I create a Kubernetes cron job schedule?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kubernetes CronJobs use standard 5-field cron syntax in the spec.schedule field of a CronJob manifest. For example, schedule: '0 9 * * 1-5' runs a job at 9 AM on weekdays. Use the Kubernetes tab in this cron expression generator to get a ready-to-use CronJob YAML manifest with your schedule pre-filled."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does */5 mean in a cron expression?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The */n syntax means every nth unit starting from the minimum value of that field. */5 in the minute field expands to 0,5,10,15,20,25,30,35,40,45,50,55 — running the job every 5 minutes. You can use step values in any field: */2 in the hour field means every 2 hours, and */15 in the minute field means every 15 minutes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I run a cron job every weekday at 9am?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the expression: 0 9 * * 1-5. The 0 in the minute field means at :00, 9 means 9 AM, and 1-5 in the day-of-week field means Monday through Friday. On AWS EventBridge the equivalent is cron(0 9 ? * MON-FRI *). Click the 'Weekdays 9–5' preset in this generator to start from a similar template, then adjust as needed."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Cron Expression Generator",
+  "url": "https://opsbash.com/cron-builder",
+  "description": "Generate and validate cron expressions visually. Supports Linux, AWS CloudWatch, GitHub Actions and Kubernetes.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+};
+---
+
+<Layout
+  title="Cron Expression Generator — Free Online Cron Builder | opsbash.com"
+  description="Generate and validate cron expressions visually. Supports Linux, AWS CloudWatch, GitHub Actions and Kubernetes. Instantly see next run times in your timezone."
+  canonicalURL="https://opsbash.com/cron-builder"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto px-4 pt-12 pb-6 text-center">
+  <div class="inline-flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-medium px-3 py-1.5 rounded-full mb-4 border border-indigo-100 dark:border-indigo-900">
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Free Cron Expression Generator
+  </div>
+  <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+    Free Cron Expression Generator
+  </h1>
+  <p class="text-gray-500 dark:text-gray-400 text-base max-w-xl mx-auto">
+    Generate, validate, and understand cron expressions with a visual editor. Supports Linux crontab, AWS CloudWatch, GitHub Actions, and Kubernetes formats.
+  </p>
+</section>
+
+<!-- MAIN TOOL -->
+<main class="w-full max-w-6xl mx-auto px-4 pb-16">
+
+  <!-- PRESETS -->
+  <div class="mb-6">
+    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Common Presets</p>
+    <div class="flex flex-wrap gap-2">
+      <button data-preset="* * * * *"      class="preset-btn">Every minute</button>
+      <button data-preset="0 * * * *"      class="preset-btn">Every hour</button>
+      <button data-preset="0 0 * * *"      class="preset-btn">Daily at midnight</button>
+      <button data-preset="0 9 * * *"      class="preset-btn">Daily at 9 AM</button>
+      <button data-preset="0 0 * * 0"      class="preset-btn">Every Sunday</button>
+      <button data-preset="0 0 * * 1"      class="preset-btn">Every Monday</button>
+      <button data-preset="0 0 1 * *"      class="preset-btn">1st of month</button>
+      <button data-preset="*/5 * * * *"    class="preset-btn">Every 5 minutes</button>
+      <button data-preset="*/15 * * * *"   class="preset-btn">Every 15 minutes</button>
+      <button data-preset="*/30 * * * *"   class="preset-btn">Every 30 minutes</button>
+      <button data-preset="0 9-17 * * 1-5" class="preset-btn">Weekdays 9–5</button>
+      <button data-preset="0 0 1 1 *"      class="preset-btn">New Year's midnight</button>
+    </div>
+  </div>
+
+  <!--
+    Mobile order (HTML order): builder card → right-col items → FAQ
+    Desktop order (CSS grid): builder card (col 1-3 row 1) | right col (col 4-5 rows 1-2)
+                                FAQ (col 1-3 row 2)
+  -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+    <!-- BUILDER CARD — col 1-3 row 1 on desktop; first on mobile -->
+    <div class="lg:col-span-3">
+
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+
+        <!-- PLATFORM TABS — horizontal scroll, scrollbar hidden -->
+        <div class="border-b border-gray-200 dark:border-gray-800 flex overflow-x-auto tabs-scroll">
+          <button data-platform="linux"  class="platform-tab active-tab">Linux / Unix</button>
+          <button data-platform="aws"    class="platform-tab">AWS CloudWatch</button>
+          <button data-platform="github" class="platform-tab">GitHub Actions</button>
+          <button data-platform="k8s"    class="platform-tab">Kubernetes</button>
+        </div>
+
+        <div class="p-4 sm:p-5">
+          <!-- Platform hint -->
+          <div id="platformHint" class="mb-5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700/50 leading-relaxed"></div>
+
+          <!-- VISUAL DROPDOWNS — single column on mobile, flex-wrap on sm+ -->
+          <div class="mb-5">
+            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Visual Builder</p>
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2.5" id="dropdownGrid">
+              <div class="flex flex-col gap-1.5 w-full sm:flex-1 sm:min-w-[90px]">
+                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Minute</label>
+                <select id="selMinute" class="cron-select"></select>
+              </div>
+              <div class="flex flex-col gap-1.5 w-full sm:flex-1 sm:min-w-[90px]">
+                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Hour</label>
+                <select id="selHour" class="cron-select"></select>
+              </div>
+              <div class="flex flex-col gap-1.5 w-full sm:flex-1 sm:min-w-[80px]">
+                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Day</label>
+                <select id="selDay" class="cron-select"></select>
+              </div>
+              <div class="flex flex-col gap-1.5 w-full sm:flex-1 sm:min-w-[90px]">
+                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Month</label>
+                <select id="selMonth" class="cron-select"></select>
+              </div>
+              <div class="flex flex-col gap-1.5 w-full sm:flex-1 sm:min-w-[90px]" id="weekdayCol">
+                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Weekday</label>
+                <select id="selWeekday" class="cron-select"></select>
+              </div>
+              <div class="flex flex-col gap-1.5 w-full sm:flex-1 sm:min-w-[90px] hidden" id="yearCol">
+                <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Year</label>
+                <select id="selYear" class="cron-select"></select>
+              </div>
+            </div>
+          </div>
+
+          <!-- EXPRESSION INPUT -->
+          <div class="mb-4">
+            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Expression</p>
+            <div class="flex gap-2">
+              <input id="cronInput" type="text" spellcheck="false"
+                class="flex-1 min-w-0 font-mono text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                placeholder="* * * * *" />
+              <button id="copyBtn"
+                class="shrink-0 h-10 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap">
+                <svg id="copyIcon" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <span id="copyLabel">Copy</span>
+              </button>
+            </div>
+            <p id="cronError" class="mt-2 text-xs text-red-500 dark:text-red-400 hidden"></p>
+          </div>
+
+          <!-- PLATFORM CODE OUTPUT -->
+          <div id="platformOutput" class="hidden">
+            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Platform Format</p>
+            <div class="relative">
+              <pre id="platformCode" class="font-mono text-xs bg-gray-950 text-green-400 rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre-wrap break-all"></pre>
+              <button id="copyPlatformBtn" class="absolute top-2 right-2 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-2.5 py-1 rounded-lg transition-colors">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN — col 4-5 rows 1-2 on desktop; second on mobile -->
+    <div class="lg:col-span-2 lg:row-span-2 space-y-5">
+
+      <!-- PLAIN ENGLISH -->
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Plain English</h2>
+        <p id="explanation" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed font-medium min-h-[20px]"></p>
+        <div id="fieldBreakdown" class="mt-4 flex gap-2 flex-wrap"></div>
+      </div>
+
+      <!-- NEXT RUNS -->
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Next 10 Runs</h2>
+          <span id="tzLabel" class="text-xs text-gray-400 dark:text-gray-500 font-mono truncate max-w-[140px]"></span>
+        </div>
+        <ol id="nextRuns" class="space-y-2"></ol>
+        <p id="nextRunsEmpty" class="hidden text-xs text-gray-400 dark:text-gray-500 italic">No upcoming runs found in the next 50 years.</p>
+      </div>
+
+      <!-- FIELD REFERENCE -->
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Field Reference</h2>
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center gap-3 text-xs">
+            <code class="w-14 shrink-0 font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded text-center">*</code>
+            <span class="text-gray-600 dark:text-gray-400">Any / every value</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <code class="w-14 shrink-0 font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded text-center">*/n</code>
+            <span class="text-gray-600 dark:text-gray-400">Every nth unit</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <code class="w-14 shrink-0 font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded text-center">a-b</code>
+            <span class="text-gray-600 dark:text-gray-400">Range from a to b</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <code class="w-14 shrink-0 font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded text-center">a,b,c</code>
+            <span class="text-gray-600 dark:text-gray-400">Specific values list</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <code class="w-14 shrink-0 font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded text-center">a-b/n</code>
+            <span class="text-gray-600 dark:text-gray-400">Range with step</span>
+          </div>
+        </div>
+        <div class="border-t border-gray-100 dark:border-gray-800 pt-3">
+          <table class="w-full text-xs text-gray-600 dark:text-gray-400">
+            <thead><tr class="text-gray-400 dark:text-gray-500 text-left">
+              <th class="pb-2 font-medium">Field</th>
+              <th class="pb-2 font-medium">Range</th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="py-0.5 font-mono text-indigo-600 dark:text-indigo-400">Minute</td><td>0–59</td></tr>
+              <tr><td class="py-0.5 font-mono text-indigo-600 dark:text-indigo-400">Hour</td><td>0–23</td></tr>
+              <tr><td class="py-0.5 font-mono text-indigo-600 dark:text-indigo-400">Day</td><td>1–31</td></tr>
+              <tr><td class="py-0.5 font-mono text-indigo-600 dark:text-indigo-400">Month</td><td>1–12</td></tr>
+              <tr><td class="py-0.5 font-mono text-indigo-600 dark:text-indigo-400">Weekday</td><td>0–7 (0,7=Sun)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FAQ — col 1-3 row 2 on desktop; last on mobile -->
+    <div class="lg:col-span-3">
+
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+        <div class="p-5 border-b border-gray-200 dark:border-gray-800">
+          <h2 class="text-base font-semibold text-gray-900 dark:text-white">Frequently Asked Questions</h2>
+        </div>
+        <div class="divide-y divide-gray-100 dark:divide-gray-800">
+
+          <div class="faq-item">
+            <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">What is a cron job?</span>
+              <svg class="faq-chevron w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-content hidden px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              A <strong class="text-gray-800 dark:text-gray-200">cron job</strong> is a scheduled task on Unix-like systems managed by the <em>cron</em> daemon. It automatically runs a command or script at a defined time interval — hourly, daily, weekly, or any custom schedule. Each cron job is defined by a <strong class="text-gray-800 dark:text-gray-200">cron expression</strong>: 5 (or 6) space-separated fields representing minute, hour, day-of-month, month, and day-of-week. Jobs are stored in a file called the <code class="ic">crontab</code> (cron table). Common uses include database backups, log rotation, cache warming, and sending scheduled reports.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">How do I generate a cron expression for every 5 minutes?</span>
+              <svg class="faq-chevron w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-content hidden px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              Use the step syntax: <code class="ic">*/5 * * * *</code>. The <code class="ic">*/5</code> in the minute field means "every 5th minute" — at :00, :05, :10, :15 … :55. To generate this automatically, select <strong class="text-gray-800 dark:text-gray-200">Every 5 min</strong> from the Minute dropdown above, or click the <strong class="text-gray-800 dark:text-gray-200">Every 5 minutes</strong> preset button. The same step syntax works in any field: <code class="ic">*/2</code> means every 2 units, <code class="ic">*/15</code> means every 15 units.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">What is the difference between AWS cron and Linux cron syntax?</span>
+              <svg class="faq-chevron w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-content hidden px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-2">
+              <p>AWS EventBridge / CloudWatch uses a <strong class="text-gray-800 dark:text-gray-200">6-field format</strong> that appends a <em>year</em> field: <code class="ic">minute hour day month weekday year</code>. Key differences from Linux crontab:</p>
+              <ul class="list-disc list-inside space-y-1 ml-2">
+                <li>AWS requires <code class="ic">?</code> in either day-of-month <em>or</em> day-of-week — you cannot set a specific value in both.</li>
+                <li>AWS weekdays are <strong>1–7</strong> (Sunday = 1); Linux uses <strong>0–6</strong> (Sunday = 0 or 7).</li>
+                <li>AWS does not support <code class="ic">@daily</code>, <code class="ic">@hourly</code>, or other shorthand aliases.</li>
+                <li>All AWS cron schedules run in <strong>UTC</strong>.</li>
+              </ul>
+              <p>Use the <strong class="text-gray-800 dark:text-gray-200">AWS CloudWatch</strong> tab in this generator to convert any Linux expression automatically.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">How do I create a Kubernetes cron job schedule?</span>
+              <svg class="faq-chevron w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-content hidden px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              Kubernetes CronJobs use standard 5-field cron syntax in the <code class="ic">spec.schedule</code> field of a CronJob manifest. For example, <code class="ic">schedule: "0 9 * * 1-5"</code> runs a job at 9 AM on weekdays. Kubernetes also supports the shorthand aliases <code class="ic">@hourly</code>, <code class="ic">@daily</code>, <code class="ic">@weekly</code>, and <code class="ic">@monthly</code>. Use the <strong class="text-gray-800 dark:text-gray-200">Kubernetes</strong> tab in this cron job generator to get a complete, ready-to-apply CronJob YAML manifest with your schedule pre-filled.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">What does */5 mean in a cron expression?</span>
+              <svg class="faq-chevron w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-content hidden px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              The <code class="ic">*/n</code> syntax means "every nth unit starting from the field minimum." The <code class="ic">*</code> expands to the full range and <code class="ic">/n</code> is the step interval. So <code class="ic">*/5</code> in the minute field expands to <code class="ic">0,5,10,15,20,25,30,35,40,45,50,55</code>. You can also step over a range: <code class="ic">8-18/2</code> in the hour field means every 2 hours from 8 AM to 6 PM. This generator supports all step syntax in every field.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+              <span class="text-sm font-medium text-gray-900 dark:text-white">How do I run a cron job every weekday at 9 AM?</span>
+              <svg class="faq-chevron w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-content hidden px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              Use the expression <code class="ic">0 9 * * 1-5</code>. The <code class="ic">0</code> sets the minute to :00, <code class="ic">9</code> sets the hour to 9 AM, and <code class="ic">1-5</code> in the day-of-week field means Monday through Friday. On AWS EventBridge the equivalent is <code class="ic">cron(0 9 ? * MON-FRI *)</code>. Click the <strong class="text-gray-800 dark:text-gray-200">Weekdays 9–5</strong> preset in this generator as a starting point, then adjust the hour dropdown to narrow it to exactly 9 AM.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- SEO CONTENT -->
+<section class="max-w-6xl mx-auto px-4 pb-20">
+  <div class="border-t border-gray-100 dark:border-gray-800 pt-12">
+    <div class="prose-section max-w-4xl mx-auto">
+
+      <h2 class="seo-h2">What is a Cron Job?</h2>
+      <p class="seo-p">
+        A <strong>cron job</strong> is a scheduled task that runs automatically on a Unix-like server at a defined time or interval, managed by the <em>cron</em> daemon. The name comes from the Greek word <em>chronos</em> (time). Cron has been a core part of Linux and Unix system administration since the 1970s and remains the standard mechanism for task scheduling today.
+      </p>
+      <p class="seo-p">
+        Each cron job is defined by a <strong>cron expression</strong> — a compact string of 5 space-separated fields representing minute, hour, day-of-month, month, and day-of-week — paired with the command to execute. These entries are stored per-user in a file called the <strong>crontab</strong> (cron table), edited with <code class="ic">crontab -e</code>. The cron daemon wakes up every minute, reads the crontab, and runs any job whose schedule matches the current time. Common use cases include nightly database backups, hourly cache invalidation, weekly security scans, daily report emails, and continuous monitoring scripts. Modern cloud platforms — AWS EventBridge, GitHub Actions, and Kubernetes CronJobs — all use cron syntax for their own schedulers, making it a universal skill for DevOps and platform engineers.
+      </p>
+
+      <h2 class="seo-h2">How to Use This Cron Expression Generator</h2>
+      <p class="seo-p">
+        This free <strong>online cron generator</strong> works entirely in your browser — no sign-up, no install. There are three ways to build an expression:
+      </p>
+      <p class="seo-p">
+        <strong>1. Use a preset.</strong> Click any preset button at the top — "Every 5 minutes," "Daily at 9 AM," "Weekdays 9–5," and more. The expression field and all dropdowns update instantly.
+      </p>
+      <p class="seo-p">
+        <strong>2. Use the visual dropdowns.</strong> Select values for Minute, Hour, Day, Month, and Weekday from the dropdowns. Each dropdown includes common shorthand options like "Every minute," "Every 6 hrs," and "Weekdays" alongside specific numeric values. The expression field updates in real time and the <strong>Plain English</strong> panel explains what the schedule means in plain language.
+      </p>
+      <p class="seo-p">
+        <strong>3. Type directly.</strong> Enter any cron expression — including step values (<code class="ic">*/5</code>), ranges (<code class="ic">9-17</code>), and comma lists (<code class="ic">1,15</code>) — into the Expression field. The generator validates it instantly and syncs the dropdowns to match. Once you have your expression, switch between the <strong>Linux</strong>, <strong>AWS CloudWatch</strong>, <strong>GitHub Actions</strong>, and <strong>Kubernetes</strong> tabs to get the platform-specific format. The <strong>Next 10 Runs</strong> panel shows the next 10 execution times in your local timezone so you can verify the schedule is correct before deploying.
+      </p>
+
+      <h2 class="seo-h2">Cron Expression Examples for Linux, AWS and Kubernetes</h2>
+      <p class="seo-p">
+        The table below lists the most commonly needed <strong>cron job schedules</strong> with their Linux crontab expressions. Click any expression to load it directly into the generator above.
+      </p>
+      <div class="overflow-x-auto my-5">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800 text-left">
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Expression</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Schedule</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700 hidden sm:table-cell">AWS EventBridge</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">* * * * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Every minute</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(* * * * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">*/5 * * * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Every 5 minutes</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(*/5 * * * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 9 * * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Daily at 9:00 AM</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 9 * * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 9 * * 1-5</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Weekdays at 9:00 AM</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 9 ? * MON-FRI *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 1 * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">1st of every month, midnight</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 0 1 * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 * * 0</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Every Sunday at midnight</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 0 ? * 1 *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">30 5 1,15 * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">5:30 AM on the 1st and 15th</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(30 5 1,15 * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 2 * * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Nightly backup at 2:00 AM</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 2 * * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 */6 * * *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Every 6 hours</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 */6 * * ? *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 1 1 *</td>
+              <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Once a year — Jan 1 midnight</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">cron(0 0 1 1 ? *)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="seo-p text-xs text-gray-400 dark:text-gray-500">
+        Tip: click any expression in the table to load it into the generator.
+      </p>
+
+      <h2 class="seo-h2">Cron Job Syntax Guide — All Fields Explained</h2>
+      <p class="seo-p">
+        A standard Linux <strong>cron job syntax</strong> has five fields in this order:
+      </p>
+      <div class="overflow-x-auto my-5">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800 text-left">
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Position</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Field</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Allowed values</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700 hidden sm:table-cell">Special chars</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700">1</td>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Minute</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">0–59</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">* , - /</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700">2</td>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Hour</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">0–23</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">* , - /</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700">3</td>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Day of month</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">1–31</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">* , - / ?</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700">4</td>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Month</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">1–12 or JAN–DEC</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">* , -</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-gray-200 dark:border-gray-700">5</td>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Day of week</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">0–7 (0,7=Sun) or SUN–SAT</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-500 dark:text-gray-500 border border-gray-200 dark:border-gray-700 hidden sm:table-cell">* , - /</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="seo-p">
+        The four special characters work in all fields: <code class="ic">*</code> means every value, <code class="ic">,</code> separates a list (e.g. <code class="ic">1,15</code>), <code class="ic">-</code> defines a range (e.g. <code class="ic">9-17</code>), and <code class="ic">/</code> sets a step interval (e.g. <code class="ic">*/5</code>). Many Linux distributions also accept shorthand aliases: <code class="ic">@hourly</code>, <code class="ic">@daily</code>, <code class="ic">@weekly</code>, <code class="ic">@monthly</code>, and <code class="ic">@reboot</code> (runs once at system startup). These aliases are not supported by AWS EventBridge or standard Kubernetes deployments.
+      </p>
+
+      <h2 class="seo-h2">AWS Cron Expression Generator vs Linux Crontab</h2>
+      <p class="seo-p">
+        The <strong>AWS cron expression generator</strong> tab in this tool handles the most error-prone part of writing AWS EventBridge schedules: the format differences from standard Linux crontab. Here is a side-by-side comparison of the two syntaxes:
+      </p>
+      <div class="overflow-x-auto my-5">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800 text-left">
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Feature</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">Linux crontab</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border border-gray-200 dark:border-gray-700">AWS EventBridge</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            <tr>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Field count</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">5 fields</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">6 fields (adds year)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Format wrapper</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">0 9 * * 1-5</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">cron(0 9 ? * MON-FRI *)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Day/weekday conflict</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">OR logic — both can be set</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">Requires <code class="ic">?</code> in one field</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Weekday numbering</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">0–6 (Sunday = 0)</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">1–7 (Sunday = 1)</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Timezone</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">System local time</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">UTC only</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">Shorthand aliases</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">@daily, @hourly, @reboot</td>
+              <td class="px-4 py-2 text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">Not supported</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="seo-p">
+        The most common mistake when porting a Linux cron expression to AWS EventBridge is forgetting the <code class="ic">?</code> wildcard. For example, <code class="ic">0 9 * * 1-5</code> (weekdays at 9 AM in Linux) translates to <code class="ic">cron(0 9 ? * MON-FRI *)</code> in AWS — note the <code class="ic">?</code> in the day-of-month position, the named weekday abbreviations, and the trailing <code class="ic">*</code> for the year field. This generator's <strong>AWS CloudWatch tab</strong> performs the conversion automatically and shows the complete <code class="ic">cron()</code> string ready to paste into an EventBridge rule. Since all AWS schedules run in UTC, use the <strong>Next 10 Runs</strong> panel to check the converted times against your local timezone before deploying.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  @reference "../styles/global.css";
+
+  /* Hide scrollbar on platform tabs while keeping scroll functional */
+  .tabs-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+  .tabs-scroll::-webkit-scrollbar { display: none; }
+
+  .preset-btn {
+    @apply text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all cursor-pointer select-none;
+  }
+  .platform-tab {
+    @apply shrink-0 px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer whitespace-nowrap bg-transparent;
+  }
+  .active-tab {
+    @apply text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500;
+  }
+  .cron-select {
+    @apply w-full text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all cursor-pointer;
+  }
+  .ic {
+    @apply font-mono text-xs bg-gray-100 dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded;
+  }
+  .field-chip-value {
+    @apply font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900 rounded-lg px-2 py-1.5;
+  }
+  .field-chip-label {
+    @apply text-[10px] text-gray-400 dark:text-gray-500 mt-0.5;
+  }
+  .seo-h2 {
+    @apply text-xl font-bold text-gray-900 dark:text-white mt-10 mb-4 tracking-tight;
+  }
+  .seo-p {
+    @apply text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4;
+  }
+</style>
+
+<script>
+// ─── CRON ENGINE ────────────────────────────────────────────────────────────
+
+function expandField(field, min, max) {
+  if (field === '*' || field === '?') return null;
+  const values = new Set();
+  for (const part of field.split(',')) {
+    if (part.includes('/')) {
+      const [range, step] = part.split('/');
+      const s = Math.max(1, parseInt(step));
+      const [lo, hi] = range === '*' ? [min, max] : range.split('-').map(Number);
+      for (let i = lo; i <= (hi ?? lo); i += s) values.add(i);
+    } else if (part.includes('-')) {
+      const [lo, hi] = part.split('-').map(Number);
+      for (let i = lo; i <= hi; i++) values.add(i);
+    } else {
+      const n = parseInt(part);
+      values.add(n === 7 ? 0 : n); // normalize Sun 7→0
+    }
+  }
+  return [...values].sort((a, b) => a - b);
+}
+
+function isValidCron(expr) {
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length < 5 || parts.length > 6) return false;
+  const ranges = [[0,59],[0,23],[1,31],[1,12],[0,7]];
+  for (let i = 0; i < 5; i++) {
+    const p = parts[i];
+    if (p === '*' || p === '?') continue;
+    for (const t of p.split(',')) {
+      const [rangePart, step] = t.split('/');
+      if (step !== undefined && (isNaN(parseInt(step)) || parseInt(step) < 1)) return false;
+      const dashParts = rangePart === '*' ? [] : rangePart.split('-');
+      const [mn, mx] = ranges[i];
+      for (const d of dashParts) {
+        const n = parseInt(d);
+        if (isNaN(n) || n < mn || n > mx) return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Smart next-run calculator: skips months/days/hours rather than iterating minute-by-minute
+function getNextRuns(expr, count = 10) {
+  const parts = expr.trim().split(/\s+/);
+  const [mF, hF, domF, monF, dowF] = parts;
+
+  const allowedMinutes  = expandField(mF,   0, 59);
+  const allowedHours    = expandField(hF,   0, 23);
+  const allowedDoms     = expandField(domF, 1, 31);
+  const allowedMonths   = expandField(monF, 1, 12);
+  const allowedWeekdays = expandField(dowF, 0,  6);
+
+  const results = [];
+  const d = new Date();
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() + 1);
+
+  // 50-year horizon handles rare schedules (Feb 29 needs ~40 years for 10 results)
+  const limit = new Date(d.getTime() + 50 * 365 * 24 * 60 * 60 * 1000);
+
+  while (results.length < count && d < limit) {
+
+    // ── Month check ──
+    const mon = d.getMonth() + 1;
+    if (allowedMonths && !allowedMonths.includes(mon)) {
+      d.setMonth(d.getMonth() + 1, 1);
+      d.setHours(0, 0, 0, 0);
+      continue;
+    }
+
+    // ── Day-of-month / Day-of-week check ──
+    const dom = d.getDate();
+    const dow = d.getDay(); // 0=Sun
+    const domOk = !allowedDoms || allowedDoms.includes(dom);
+    const dowOk = !allowedWeekdays || allowedWeekdays.includes(dow);
+    // Linux OR-logic when both fields are explicitly set; AND-logic otherwise
+    const dayOk = (allowedDoms && allowedWeekdays) ? (domOk || dowOk) : (domOk && dowOk);
+
+    if (!dayOk) {
+      d.setDate(d.getDate() + 1);
+      d.setHours(0, 0, 0, 0);
+      continue;
+    }
+
+    // ── Hour check ──
+    const hr = d.getHours();
+    if (allowedHours && !allowedHours.includes(hr)) {
+      const nextHr = allowedHours.find(h => h > hr);
+      if (nextHr !== undefined) {
+        d.setHours(nextHr, 0, 0, 0);
+      } else {
+        d.setDate(d.getDate() + 1);
+        d.setHours(allowedHours[0], 0, 0, 0);
+      }
+      continue;
+    }
+
+    // ── Minute check ──
+    const mn = d.getMinutes();
+    if (allowedMinutes && !allowedMinutes.includes(mn)) {
+      const nextMin = allowedMinutes.find(m => m > mn);
+      if (nextMin !== undefined) {
+        d.setMinutes(nextMin, 0, 0);
+      } else {
+        d.setHours(d.getHours() + 1, allowedMinutes[0], 0, 0);
+      }
+      continue;
+    }
+
+    // ── Match ──
+    results.push(new Date(d));
+    d.setMinutes(d.getMinutes() + 1, 0, 0);
+  }
+  return results;
+}
+
+// ─── EXPLANATION ENGINE ─────────────────────────────────────────────────────
+
+function explainField(field, unit, names) {
+  if (field === '*' || field === '?') return `every ${unit}`;
+  if (field.startsWith('*/')) return `every ${field.slice(2)} ${unit}s`;
+  if (field.includes('-') && field.includes('/')) {
+    const [range, step] = field.split('/');
+    const [a, b] = range.split('-');
+    const na = names ? (names[parseInt(a)] ?? a) : a;
+    const nb = names ? (names[parseInt(b)] ?? b) : b;
+    return `every ${step} ${unit}s from ${na} to ${nb}`;
+  }
+  if (field.includes('-')) {
+    const [a, b] = field.split('-');
+    const na = names ? (names[parseInt(a)] ?? a) : a;
+    const nb = names ? (names[parseInt(b)] ?? b) : b;
+    return `${na}–${nb}`;
+  }
+  if (field.includes(',')) {
+    const vals = field.split(',').map(v => names ? (names[parseInt(v)] ?? v) : v);
+    const last = vals.pop();
+    return vals.length ? `${vals.join(', ')} and ${last}` : last;
+  }
+  if (names) return names[parseInt(field)] ?? field;
+  return field;
+}
+
+function buildExplanation(expr) {
+  const parts = expr.trim().split(/\s+/);
+  const [mF, hF, domF, monF, dowF] = parts;
+
+  if (mF === '*' && hF === '*' && domF === '*' && monF === '*' && (dowF === '*' || dowF === undefined)) {
+    return 'Runs every minute, all day, every day.';
+  }
+
+  const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dowNames   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  const dom     = explainField(domF, 'day',     null);
+  const month   = explainField(monF, 'month',   monthNames);
+  const weekday = explainField(dowF, 'weekday', dowNames);
+
+  let parts2 = [];
+
+  // Time part
+  const mIsStep = mF.startsWith('*/');
+  const hIsStep = hF.startsWith('*/');
+
+  if (mF === '0' && hF !== '*' && !hIsStep && !hF.includes(',')) {
+    const n = parseInt(hF);
+    const ampm = n < 12 ? 'AM' : 'PM';
+    const h = n % 12 || 12;
+    if (hF.includes('-')) {
+      parts2.push(`at :00 during ${explainField(hF, 'hour', null)}`);
+    } else {
+      parts2.push(`at ${h}:00 ${ampm}`);
+    }
+  } else if (!mIsStep && !hIsStep && mF !== '*' && hF !== '*' && !mF.includes('/') && !hF.includes('/') && !mF.includes(',') && !hF.includes(',')) {
+    const mn = mF.padStart(2, '0');
+    const n = parseInt(hF);
+    const ampm = n < 12 ? 'AM' : 'PM';
+    const h = n % 12 || 12;
+    parts2.push(`at ${h}:${mn} ${ampm}`);
+  } else {
+    if (mF !== '*' && !mIsStep) parts2.push(`at minute ${mF}`);
+    if (hF !== '*' && !hIsStep) parts2.push(`during hour ${hF}`);
+  }
+
+  // Day part
+  const domWild = domF === '*' || domF === '?';
+  const dowWild = dowF === '*' || dowF === '?' || dowF === undefined;
+  if (!domWild && dowWild)  parts2.push(`on the ${dom}`);
+  else if (domWild && !dowWild) parts2.push(`on ${weekday}`);
+  else if (!domWild && !dowWild) parts2.push(`on the ${dom} or on ${weekday}`);
+
+  // Month part
+  if (monF !== '*' && monF !== '?') parts2.push(`in ${month}`);
+
+  // Prefix
+  let prefix;
+  if (mIsStep && (hF === '*' || hIsStep)) {
+    prefix = `Runs every ${mF.slice(2)} minutes`;
+  } else if (hIsStep) {
+    const minStr = mF === '0' ? ' on the hour' : mF === '*' ? '' : ` at minute ${mF}`;
+    prefix = `Runs every ${hF.slice(2)} hours${minStr}`;
+  } else if (parts2.length === 0) {
+    prefix = 'Runs every minute';
+  } else {
+    prefix = 'Runs';
+  }
+
+  return prefix + (parts2.length ? ' ' + parts2.join(', ') : '') + '.';
+}
+
+// ─── DROPDOWN OPTIONS ────────────────────────────────────────────────────────
+
+function ord(n) {
+  const s = ['th','st','nd','rd'], v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+}
+
+function makeOptions(sel, items) {
+  sel.innerHTML = '';
+  items.forEach(([val, label]) => {
+    const o = document.createElement('option');
+    o.value = val; o.textContent = label;
+    sel.appendChild(o);
+  });
+}
+
+const minuteOpts = () => {
+  const o = [['*','Every minute'],['*/2','Every 2 min'],['*/5','Every 5 min'],['*/10','Every 10 min'],['*/15','Every 15 min'],['*/30','Every 30 min']];
+  for (let i = 0; i <= 59; i++) o.push([String(i), `:${String(i).padStart(2,'0')}`]);
+  return o;
+};
+
+const hourOpts = () => {
+  const o = [['*','Every hour'],['*/2','Every 2 hrs'],['*/3','Every 3 hrs'],['*/4','Every 4 hrs'],['*/6','Every 6 hrs'],['*/8','Every 8 hrs'],['*/12','Every 12 hrs']];
+  for (let i = 0; i <= 23; i++) {
+    const a = i < 12 ? 'AM' : 'PM', h = i % 12 || 12;
+    o.push([String(i), `${h} ${a}`]);
+  }
+  return o;
+};
+
+const dayOpts = () => {
+  const o = [['*','Every day']];
+  for (let i = 1; i <= 31; i++) o.push([String(i), `${i}${ord(i)}`]);
+  return o;
+};
+
+const monthOpts = () => {
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const o = [['*','Every month']];
+  names.forEach((n, i) => o.push([String(i + 1), n]));
+  return o;
+};
+
+const weekdayOpts = () => [
+  ['*',   'Every day'],
+  ['1-5', 'Weekdays'],
+  ['0', 'Sunday'], ['1', 'Monday'], ['2', 'Tuesday'], ['3', 'Wednesday'],
+  ['4', 'Thursday'], ['5', 'Friday'], ['6', 'Saturday'],
+];
+
+const yearOpts = () => {
+  const o = [['*','Every year']];
+  const y = new Date().getFullYear();
+  for (let i = y; i <= y + 5; i++) o.push([String(i), String(i)]);
+  return o;
+};
+
+// ─── PLATFORM DEFINITIONS ───────────────────────────────────────────────────
+
+const PLATFORMS = {
+  linux: {
+    hint: 'Standard 5-field cron syntax used in crontab and most Unix schedulers. Fields: minute hour day-of-month month day-of-week.',
+    transform: e => e,
+    showCode: false,
+  },
+  aws: {
+    hint: 'AWS EventBridge / CloudWatch uses a 6-field format that adds a year field at the end. Use ? in day-of-month OR day-of-week (not both). Weekdays are 1–7 (Sunday=1). All times are UTC.',
+    transform: expr => {
+      const p = expr.trim().split(/\s+/);
+      let [m, h, dom, mon, dow] = p;
+      if (dom === '*' && dow !== '*') dom = '?';
+      else if (dow === '*' && dom !== '*') dow = '?';
+      else if (dom === '*' && dow === '*') dow = '?';
+      if (dow !== '*' && dow !== '?') {
+        dow = dow.replace(/\b(\d)\b/g, (_, n) => String(parseInt(n) + 1));
+      }
+      return `cron(${m} ${h} ${dom} ${mon} ${dow} *)`;
+    },
+    showCode: true,
+  },
+  github: {
+    hint: 'GitHub Actions uses standard 5-field cron in the schedule trigger. All times are UTC. GitHub enforces a minimum interval of 5 minutes.',
+    transform: expr => `on:\n  schedule:\n    - cron: '${expr}'`,
+    showCode: true,
+  },
+  k8s: {
+    hint: 'Kubernetes CronJob spec uses standard 5-field cron syntax. Supports @hourly, @daily, @weekly, @monthly, @yearly shorthand aliases.',
+    transform: expr =>
+      `apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: my-cronjob\nspec:\n  schedule: "${expr}"\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n          - name: job\n            image: busybox\n          restartPolicy: OnFailure`,
+    showCode: true,
+  },
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+let currentPlatform  = 'linux';
+let currentExpr      = '* * * * *';
+let syncingDropdowns = false;
+
+// ─── DOM REFS ────────────────────────────────────────────────────────────────
+
+const cronInput       = document.getElementById('cronInput');
+const cronError       = document.getElementById('cronError');
+const explanation     = document.getElementById('explanation');
+const fieldBreakdown  = document.getElementById('fieldBreakdown');
+const nextRunsList    = document.getElementById('nextRuns');
+const nextRunsEmpty   = document.getElementById('nextRunsEmpty');
+const tzLabel         = document.getElementById('tzLabel');
+const platformHint    = document.getElementById('platformHint');
+const platformOutput  = document.getElementById('platformOutput');
+const platformCode    = document.getElementById('platformCode');
+const copyBtn         = document.getElementById('copyBtn');
+const copyLabel       = document.getElementById('copyLabel');
+const copyPlatformBtn = document.getElementById('copyPlatformBtn');
+const selMinute  = document.getElementById('selMinute');
+const selHour    = document.getElementById('selHour');
+const selDay     = document.getElementById('selDay');
+const selMonth   = document.getElementById('selMonth');
+const selWeekday = document.getElementById('selWeekday');
+const selYear    = document.getElementById('selYear');
+const weekdayCol = document.getElementById('weekdayCol');
+const yearCol    = document.getElementById('yearCol');
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+
+makeOptions(selMinute,  minuteOpts());
+makeOptions(selHour,    hourOpts());
+makeOptions(selDay,     dayOpts());
+makeOptions(selMonth,   monthOpts());
+makeOptions(selWeekday, weekdayOpts());
+makeOptions(selYear,    yearOpts());
+
+tzLabel.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+// ─── UPDATE ──────────────────────────────────────────────────────────────────
+
+function updateUI(expr) {
+  currentExpr = expr;
+  cronInput.value = expr;
+
+  const valid = isValidCron(expr);
+
+  if (!valid && expr.trim() !== '') {
+    cronError.textContent = 'Invalid cron expression — check field values and ranges.';
+    cronError.classList.remove('hidden');
+    explanation.textContent = '—';
+    nextRunsList.innerHTML = '';
+    nextRunsEmpty.classList.add('hidden');
+    return;
+  }
+  cronError.classList.add('hidden');
+  if (!expr.trim()) return;
+
+  // Plain English
+  explanation.textContent = buildExplanation(expr);
+
+  // Field breakdown chips
+  const exprParts = expr.trim().split(/\s+/);
+  const labels = ['Min', 'Hour', 'Day', 'Mon', 'Wday'];
+  fieldBreakdown.innerHTML = exprParts.slice(0, 5).map((p, i) => `
+    <div class="flex flex-col items-center gap-0.5 text-center">
+      <span class="field-chip-value">${p}</span>
+      <span class="field-chip-label">${labels[i]}</span>
+    </div>`).join('');
+
+  // Next 10 runs
+  const runs = getNextRuns(expr, 10);
+  if (runs.length === 0) {
+    nextRunsList.innerHTML = '';
+    nextRunsEmpty.classList.remove('hidden');
+  } else {
+    nextRunsEmpty.classList.add('hidden');
+    const fmt = new Intl.DateTimeFormat(undefined, {
+      weekday: 'short', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true,
+    });
+    nextRunsList.innerHTML = runs.map((d, i) => `
+      <li class="flex items-center gap-3 text-xs">
+        <span class="w-5 h-5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-semibold text-[10px] shrink-0 border border-indigo-100 dark:border-indigo-900">${i + 1}</span>
+        <span class="font-mono text-gray-700 dark:text-gray-300">${fmt.format(d)}</span>
+      </li>`).join('');
+  }
+
+  // Platform
+  const plat = PLATFORMS[currentPlatform];
+  platformHint.textContent = plat.hint;
+  if (plat.showCode) {
+    platformOutput.classList.remove('hidden');
+    platformCode.textContent = plat.transform(expr);
+  } else {
+    platformOutput.classList.add('hidden');
+  }
+
+  syncDropdowns(expr);
+}
+
+function syncDropdowns(expr) {
+  if (syncingDropdowns) return;
+  syncingDropdowns = true;
+  const [mF = '*', hF = '*', domF = '*', monF = '*', dowF = '*'] = expr.trim().split(/\s+/);
+  const trySet = (sel, val) => {
+    if (![...sel.options].some(o => { if (o.value === val) { sel.value = val; return true; } })) {
+      sel.value = sel.options[0].value;
+    }
+  };
+  trySet(selMinute, mF); trySet(selHour, hF); trySet(selDay, domF);
+  trySet(selMonth, monF); trySet(selWeekday, dowF);
+  syncingDropdowns = false;
+}
+
+function exprFromDropdowns() {
+  return [selMinute.value, selHour.value, selDay.value, selMonth.value, selWeekday.value].join(' ');
+}
+
+// ─── EVENT HANDLERS ──────────────────────────────────────────────────────────
+
+[selMinute, selHour, selDay, selMonth, selWeekday].forEach(sel =>
+  sel.addEventListener('change', () => { if (!syncingDropdowns) updateUI(exprFromDropdowns()); })
+);
+
+cronInput.addEventListener('input', () => {
+  const v = cronInput.value.trim();
+  if (v) updateUI(v);
+});
+
+document.querySelectorAll('[data-preset]').forEach(btn =>
+  btn.addEventListener('click', () => updateUI(btn.dataset.preset))
+);
+
+document.querySelectorAll('.platform-tab').forEach(tab =>
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active-tab'));
+    tab.classList.add('active-tab');
+    currentPlatform = tab.dataset.platform;
+    const isAws = currentPlatform === 'aws';
+    weekdayCol.classList.toggle('hidden', isAws);
+    yearCol.classList.toggle('hidden', !isAws);
+    updateUI(currentExpr);
+  })
+);
+
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(currentExpr).then(() => {
+    copyLabel.textContent = 'Copied!';
+    copyBtn.classList.replace('bg-indigo-600', 'bg-green-600');
+    copyBtn.classList.replace('hover:bg-indigo-700', 'hover:bg-green-700');
+    setTimeout(() => {
+      copyLabel.textContent = 'Copy';
+      copyBtn.classList.replace('bg-green-600', 'bg-indigo-600');
+      copyBtn.classList.replace('hover:bg-green-700', 'hover:bg-indigo-700');
+    }, 2000);
+  });
+});
+
+copyPlatformBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(platformCode.textContent).then(() => {
+    copyPlatformBtn.textContent = 'Copied!';
+    setTimeout(() => { copyPlatformBtn.textContent = 'Copy'; }, 2000);
+  });
+});
+
+// ─── FAQ ACCORDION ───────────────────────────────────────────────────────────
+
+document.querySelectorAll('.faq-trigger').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item    = btn.closest('.faq-item');
+    const content = item.querySelector('.faq-content');
+    const chevron = btn.querySelector('.faq-chevron');
+    const isOpen  = !content.classList.contains('hidden');
+    content.classList.toggle('hidden', isOpen);
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+  });
+});
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+updateUI('* * * * *');
+</script>
+
+</Layout>
