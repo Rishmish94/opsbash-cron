@@ -1,2 +1,46 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #ffffff;
+  --card:        #f6f8fa;
+  --border:      #d0d7de;
+  --fg:          #24292f;
+  --fg2:         #57606a;
+  --fg3:         #8c959f;
+  --hdr-bg:      rgba(255, 255, 255, 0.92);
+  --ftr-bg:      #f6f8fa;
+  --accent:      #6366f1;
+  --accent2:     #8b5cf6;
+  --code-bg:     #f0f0f0;
+}
+
+.dark {
+  --bg:          #0d1117;
+  --card:        #161b22;
+  --border:      #30363d;
+  --fg:          #e6edf3;
+  --fg2:         #8b949e;
+  --fg3:         #484f58;
+  --hdr-bg:      rgba(13, 17, 23, 0.92);
+  --ftr-bg:      #010409;
+  --accent:      #6366f1;
+  --accent2:     #8b5cf6;
+  --code-bg:     #21262d;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+/* ── Footer links ───────────────────────────────────────────────────────────── */
+.footer-link {
+  color: var(--fg2);
+  transition: color 0.15s;
+  text-decoration: none;
+}
+.footer-link:hover {
+  color: var(--fg);
+}

@@ -9,13 +9,16 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "playwright test",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "astro": "^6.4.4"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.2",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/vite": "^4.3.0",
     "playwright": "^1.60.0",
     "tailwindcss": "^4.3.0"
