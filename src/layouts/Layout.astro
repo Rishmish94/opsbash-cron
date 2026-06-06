@@ -35,10 +35,10 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
   <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
   <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <!-- Fira Code for monospace -->
+  <!-- Fonts: Inter + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
   <slot name="head" />
   <!-- Google tag (gtag.js) -->
   <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
@@ -59,90 +59,188 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
     })();
   </script>
 </head>
-<body class="transition-colors duration-200 min-h-screen font-sans antialiased flex flex-col">
+<body class="transition-colors duration-200 antialiased" style="background: var(--bg);">
 
-  <!-- NAV -->
-  <header class="sticky top-0 z-50 backdrop-blur-sm" style="background: var(--hdr-bg); border-bottom: 1px solid var(--border);">
-    <div class="w-full max-w-[1400px] mx-auto px-4 min-h-14 flex items-center justify-between gap-4">
+  <!-- Background effects -->
+  <div class="dot-grid" aria-hidden="true"></div>
+  <div class="glow-orb-1" aria-hidden="true"></div>
+  <div class="glow-orb-2" aria-hidden="true"></div>
 
-      <a href="/" class="font-bold tracking-tight shrink-0 text-xl" style="color: var(--fg); text-decoration: none;">
-        OpsBash<span style="color: #8b949e;">.com</span>
-      </a>
+  <!-- Main layout above background -->
+  <div class="relative flex flex-col min-h-screen" style="z-index: 1;">
 
-      <nav class="flex items-center gap-1">
-        <a href="/"
-           class="text-xs px-2.5 py-1.5 rounded-lg transition-colors font-medium"
-           style="color: var(--fg2); text-decoration: none;"
-           onmouseover="this.style.color='var(--fg)'"
-           onmouseout="this.style.color='var(--fg2)'">
-          Home
+    <!-- NAV -->
+    <header class="sticky top-0 z-50 backdrop-blur-md" style="background: var(--hdr-bg); border-bottom: 1px solid var(--border);">
+      <div class="w-full max-w-[1400px] mx-auto px-4 min-h-14 flex items-center justify-between gap-4">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2.5 shrink-0" style="text-decoration: none;">
+          <span class="font-bold tracking-tight text-xl" style="color: var(--fg);">
+            OpsBash<span style="color: var(--fg3);">.com</span>
+          </span>
+          <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                style="background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.25);">
+            ⚡ Free Tools
+          </span>
         </a>
 
-        <!-- Dark mode toggle — pill -->
-        <button id="darkToggle" aria-label="Toggle dark mode"
-          class="ml-2 flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium transition-all"
-          style="border-color: var(--border); background: var(--card); color: var(--fg2);">
-          <svg id="sunIcon" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-          <svg id="moonIcon" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-          <span id="darkLabel" class="hidden sm:inline select-none">Dark</span>
-        </button>
-      </nav>
-    </div>
-  </header>
-
-  <slot />
-
-  <!-- FOOTER -->
-  <footer class="mt-auto" style="background: var(--ftr-bg); border-top: 1px solid var(--border);">
-    <div class="max-w-6xl mx-auto px-4 py-12">
-      <div class="grid sm:grid-cols-3 gap-10 mb-10">
-        <div>
-          <a href="/" class="font-bold text-xl mb-3 inline-block" style="color: var(--fg); text-decoration: none;">
-            OpsBash<span style="color: #8b949e;">.com</span>
+        <!-- Desktop center nav -->
+        <nav class="hidden md:flex items-center gap-1">
+          <!-- Direct tool links (always visible) -->
+          <a href="/cron-builder"
+            class="nav-tool-link flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
+            style="color: var(--fg2); text-decoration: none;"
+            onmouseover="this.style.color='var(--fg)'; this.style.background='rgba(16,185,129,0.07)'"
+            onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
+            <span>⏱</span> Cron Builder
           </a>
-          <p class="text-xs leading-relaxed max-w-[200px]" style="color: var(--fg2);">
-            Free developer tools for DevOps engineers and sysadmins.
-          </p>
-        </div>
+          <a href="/cidr-calculator"
+            class="nav-tool-link flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
+            style="color: var(--fg2); text-decoration: none;"
+            onmouseover="this.style.color='var(--fg)'; this.style.background='rgba(16,185,129,0.07)'"
+            onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
+            <span>🌐</span> CIDR Calculator
+          </a>
+          <!-- More tools dropdown (coming soon) -->
+          <div class="relative" id="toolsDropdown">
+            <button id="toolsBtn"
+              class="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
+              style="color: var(--fg2);">
+              More
+              <svg id="toolsChevron" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="toolsMenu"
+              class="hidden absolute top-full left-0 mt-2 w-52 rounded-xl py-1.5"
+              style="background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100;">
+              <div class="flex items-center gap-2.5 px-4 py-2 text-sm" style="color: var(--fg3); cursor: default; opacity: 0.6;">
+                <span>📋</span> JSON Formatter
+                <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded" style="background: rgba(139,148,158,0.15);">Soon</span>
+              </div>
+              <div class="flex items-center gap-2.5 px-4 py-2 text-sm" style="color: var(--fg3); cursor: default; opacity: 0.6;">
+                <span>🔑</span> JWT Decoder
+                <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded" style="background: rgba(139,148,158,0.15);">Soon</span>
+              </div>
+              <div class="flex items-center gap-2.5 px-4 py-2 text-sm" style="color: var(--fg3); cursor: default; opacity: 0.6;">
+                <span>🔒</span> Base64 Encoder
+                <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded" style="background: rgba(139,148,158,0.15);">Soon</span>
+              </div>
+            </div>
+          </div>
+        </nav>
 
-        <div>
-          <h3 class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: var(--fg);">Tools</h3>
-          <ul class="space-y-2.5">
-            <li><a href="/cron-builder"    class="text-xs footer-link">Cron Expression Builder</a></li>
-            <li><a href="/cidr-calculator" class="text-xs footer-link">CIDR Calculator</a></li>
-          </ul>
-        </div>
+        <!-- Right side: GitHub star + dark toggle + hamburger -->
+        <div class="flex items-center gap-2">
 
-        <div>
-          <h3 class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: var(--fg);">Company</h3>
-          <ul class="space-y-2.5">
-            <li><a href="/about"          class="text-xs footer-link">About</a></li>
-            <li><a href="/contact"        class="text-xs footer-link">Contact</a></li>
-            <li><a href="/privacy-policy" class="text-xs footer-link">Privacy Policy</a></li>
-            <li><a href="/terms"          class="text-xs footer-link">Terms of Service</a></li>
-          </ul>
+          <!-- GitHub star -->
+          <a href="https://github.com/rishabh-m/opsbash" target="_blank" rel="noopener noreferrer"
+            class="hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap"
+            style="border-color: var(--border); color: var(--fg2); background: var(--card); text-decoration: none;"
+            onmouseover="this.style.borderColor='#10b981'; this.style.color='var(--fg)'"
+            onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--fg2)'">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            Star
+          </a>
+
+          <!-- Dark mode toggle -->
+          <button id="darkToggle" aria-label="Toggle dark mode"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all"
+            style="border-color: var(--border); background: var(--card); color: var(--fg2);">
+            <svg id="sunIcon" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg id="moonIcon" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <span id="darkLabel" class="hidden sm:inline select-none">Dark</span>
+          </button>
+
+          <!-- Mobile hamburger -->
+          <button id="mobileMenuBtn" class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors" style="color: var(--fg2);" aria-label="Open menu">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style="border-top: 1px solid var(--border);">
-        <p class="text-xs" style="color: var(--fg3);">© {year} OpsBash. All rights reserved.</p>
-        <div class="flex items-center gap-4">
-          <a href="/privacy-policy" class="text-xs footer-link">Privacy</a>
-          <a href="/terms"          class="text-xs footer-link">Terms</a>
+      <!-- Mobile menu -->
+      <div id="mobileNav" class="hidden" style="border-top: 1px solid var(--border); background: var(--card);">
+        <div class="px-4 py-3">
+          <p class="text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Tools</p>
+          <a href="/cron-builder" class="flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm font-medium transition-colors" style="color: var(--fg2); text-decoration: none;"
+             onmouseover="this.style.background='rgba(16,185,129,0.07)'"
+             onmouseout="this.style.background='transparent'">
+            <span>⏱</span> Cron Builder
+          </a>
+          <a href="/cidr-calculator" class="flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm font-medium transition-colors" style="color: var(--fg2); text-decoration: none;"
+             onmouseover="this.style.background='rgba(16,185,129,0.07)'"
+             onmouseout="this.style.background='transparent'">
+            <span>🌐</span> CIDR Calculator
+          </a>
+          <p class="text-[10px] font-semibold uppercase tracking-wider mt-3 mb-2" style="color: var(--fg3);">Coming Soon</p>
+          <div class="flex items-center gap-3 px-2 py-2.5 text-sm" style="color: var(--fg3); opacity: 0.6;"><span>📋</span> JSON Formatter</div>
+          <div class="flex items-center gap-3 px-2 py-2.5 text-sm" style="color: var(--fg3); opacity: 0.6;"><span>🔑</span> JWT Decoder</div>
+          <div class="flex items-center gap-3 px-2 py-2.5 text-sm" style="color: var(--fg3); opacity: 0.6;"><span>🔒</span> Base64 Encoder</div>
         </div>
       </div>
-    </div>
-  </footer>
+    </header>
+
+    <slot />
+
+    <!-- FOOTER -->
+    <footer class="mt-auto" style="background: var(--ftr-bg); border-top: 1px solid var(--border);">
+      <div class="max-w-6xl mx-auto px-4 py-12">
+        <div class="grid sm:grid-cols-3 gap-10 mb-10">
+          <div>
+            <a href="/" class="font-bold text-xl mb-3 inline-block" style="color: var(--fg); text-decoration: none;">
+              OpsBash<span style="color: var(--fg3);">.com</span>
+            </a>
+            <p class="text-xs leading-relaxed max-w-[200px]" style="color: var(--fg2);">
+              Free developer tools for DevOps engineers and sysadmins.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: #34d399;">Tools</h3>
+            <ul class="space-y-2.5">
+              <li><a href="/cron-builder"    class="text-xs footer-link">Cron Expression Builder</a></li>
+              <li><a href="/cidr-calculator" class="text-xs footer-link">CIDR Calculator</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: #34d399;">Company</h3>
+            <ul class="space-y-2.5">
+              <li><a href="/about"          class="text-xs footer-link">About</a></li>
+              <li><a href="/contact"        class="text-xs footer-link">Contact</a></li>
+              <li><a href="/privacy-policy" class="text-xs footer-link">Privacy Policy</a></li>
+              <li><a href="/terms"          class="text-xs footer-link">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style="border-top: 1px solid var(--border);">
+          <p class="text-xs" style="color: var(--fg3);">© {year} OpsBash. All rights reserved.</p>
+          <div class="flex items-center gap-4">
+            <a href="/privacy-policy" class="text-xs footer-link">Privacy</a>
+            <a href="/terms"          class="text-xs footer-link">Terms</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /main layout -->
 
   <script is:inline>
+    // ── Dark mode toggle ──────────────────────────────────────────────────────
     var darkToggle = document.getElementById('darkToggle');
     var sunIcon    = document.getElementById('sunIcon');
     var moonIcon   = document.getElementById('moonIcon');
@@ -156,12 +254,58 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
       localStorage.setItem('theme', dark ? 'dark' : 'light');
     }
 
-    // Sync icon state with whatever the head script already applied
     applyDark(document.documentElement.classList.contains('dark'));
 
     if (darkToggle) {
       darkToggle.addEventListener('click', function () {
         applyDark(!document.documentElement.classList.contains('dark'));
+      });
+    }
+
+    // ── Tools dropdown ────────────────────────────────────────────────────────
+    var toolsBtn     = document.getElementById('toolsBtn');
+    var toolsMenu    = document.getElementById('toolsMenu');
+    var toolsChevron = document.getElementById('toolsChevron');
+
+    if (toolsBtn && toolsMenu) {
+      toolsBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = !toolsMenu.classList.contains('hidden');
+        toolsMenu.classList.toggle('hidden', isOpen);
+        if (toolsChevron) toolsChevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+      });
+      document.addEventListener('click', function() {
+        toolsMenu.classList.add('hidden');
+        if (toolsChevron) toolsChevron.style.transform = '';
+      });
+    }
+
+    // ── Mobile hamburger ──────────────────────────────────────────────────────
+    var mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    var mobileNav     = document.getElementById('mobileNav');
+
+    if (mobileMenuBtn && mobileNav) {
+      mobileMenuBtn.addEventListener('click', function() {
+        mobileNav.classList.toggle('hidden');
+      });
+    }
+
+    // ── Scroll reveal ─────────────────────────────────────────────────────────
+    if ('IntersectionObserver' in window) {
+      var revealObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        revealObs.observe(el);
+      });
+    } else {
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        el.classList.add('visible');
       });
     }
   </script>

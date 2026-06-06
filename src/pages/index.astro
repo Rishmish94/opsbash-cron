@@ -9,139 +9,366 @@ import Layout from '../layouts/Layout.astro';
 >
 
 <main>
-  <!-- HERO -->
-  <section class="max-w-4xl mx-auto px-4 pt-20 pb-16 text-center">
-    <div class="flex justify-center mb-6">
-      <div class="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-        <svg class="w-9 h-9 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-        </svg>
-      </div>
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="flex flex-col items-center justify-center px-4 pt-16 pb-12 text-center animate-fade-in-up"
+           style="min-height: calc(100vh - 56px);">
+
+    <!-- Eyebrow badge -->
+    <div class="hero-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
+         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+      ⚡ Free for engineers, forever
     </div>
-    <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white tracking-tight mb-5 leading-tight">
+
+    <!-- H1 -->
+    <h1 class="hero-main font-black tracking-tight mb-4 leading-tight"
+        style="font-size: clamp(2.4rem, 6vw, 4rem); letter-spacing: -0.04em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; max-width: 700px;">
       DevOps Tools<br class="hidden sm:block" /> for Engineers
     </h1>
-    <p class="text-gray-500 dark:text-gray-400 text-lg max-w-xl mx-auto leading-relaxed mb-8">
-      Free, fast, and no-nonsense tools for operations engineers. No sign-up, no bloat — just the tools you need.
+
+    <!-- Subtitle -->
+    <p class="text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-8" style="color: var(--fg2);">
+      No sign-up. No install. All tools run entirely in your browser.
     </p>
-    <a href="/cron-builder"
-      class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm shadow-md shadow-indigo-500/20">
-      Try Cron Builder
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-    </a>
+
+    <!-- Live mini cron tool -->
+    <div class="hero-terminal w-full max-w-lg mx-auto mb-8 rounded-2xl text-left overflow-hidden"
+         style="background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(16,185,129,0.08);">
+      <!-- Window chrome -->
+      <div class="flex items-center gap-1.5 px-4 py-3" style="background: #0a1a0f; border-bottom: 1px solid var(--border);">
+        <div class="w-3 h-3 rounded-full" style="background: #ff5f57;"></div>
+        <div class="w-3 h-3 rounded-full" style="background: #febc2e;"></div>
+        <div class="w-3 h-3 rounded-full" style="background: #28c840;"></div>
+        <span class="ml-3 text-xs font-mono" style="color: var(--fg3);">cron-expression</span>
+      </div>
+      <!-- Input area -->
+      <div class="p-5">
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Try it live</p>
+        <input id="heroCronInput" type="text" value="* * * * *" spellcheck="false" autocomplete="off"
+          class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all"
+          style="font-family: 'Fira Code', monospace; font-size: 20px; letter-spacing: 0.1em; color: #34d399; background: var(--bg); border: 1px solid #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12);" />
+        <p id="heroCronExpl" class="mt-3 text-sm font-medium leading-snug" style="color: #10b981;">
+          Runs every minute
+        </p>
+        <p id="heroCronNext" class="mt-1 text-xs" style="color: var(--fg3);">Next run in — seconds</p>
+      </div>
+    </div>
+
+    <!-- CTA buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="/cron-builder"
+        class="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all text-sm"
+        style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 16px rgba(16,185,129,0.3); text-decoration: none;">
+        Open Cron Builder
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <a href="/cidr-calculator"
+        class="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all text-sm"
+        style="border: 1px solid var(--border); color: var(--fg); background: var(--card); text-decoration: none;"
+        onmouseover="this.style.borderColor='#10b981'"
+        onmouseout="this.style.borderColor='var(--border)'">
+        CIDR Calculator
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
   </section>
 
-  <!-- TOOLS GRID -->
+  <!-- ── SOCIAL PROOF ───────────────────────────────────────────────────────── -->
+  <section class="max-w-3xl mx-auto px-4 pb-16 reveal">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="social-card rounded-2xl p-5 text-center" style="background: var(--card); border: 1px solid var(--border);">
+        <div class="social-val text-2xl font-black mb-1" style="color: #10b981;">0</div>
+        <p class="text-xs font-medium" style="color: var(--fg2);">Sign-ups required</p>
+      </div>
+      <div class="social-card rounded-2xl p-5 text-center" style="background: var(--card); border: 1px solid var(--border);">
+        <div class="social-val text-2xl font-black mb-1" style="color: #10b981;">100%</div>
+        <p class="text-xs font-medium" style="color: var(--fg2);">Free forever</p>
+      </div>
+      <div class="social-card rounded-2xl p-5 text-center" style="background: var(--card); border: 1px solid var(--border);">
+        <div class="social-val text-xl font-black mb-1" style="color: #10b981;">✓</div>
+        <p class="text-xs font-medium" style="color: var(--fg2);">Works offline</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TOOLS BENTO GRID ───────────────────────────────────────────────────── -->
   <section class="max-w-6xl mx-auto px-4 pb-20">
-    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center mb-8">Available Tools</p>
+    <p class="text-xs font-semibold uppercase tracking-wider text-center mb-8 reveal" style="color: var(--fg3);">Available Tools</p>
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-      <!-- Cron Builder card -->
+      <!-- Cron Builder card (wide, spans 2 cols on lg) -->
       <a href="/cron-builder"
-        class="group relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all">
-        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mb-4 border border-indigo-100 dark:border-indigo-900 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-950 transition-colors">
-          <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-          </svg>
+        class="reveal relative rounded-2xl p-6 transition-all lg:col-span-2"
+        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
+        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
+        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+            <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">Cron Expression Builder</h2>
+            <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">
+              Build and validate cron expressions visually. Get plain-English explanations, next run times in your timezone, and platform-specific output for Linux, AWS, GitHub Actions, and Kubernetes.
+            </p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Linux</span>
+              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">AWS</span>
+              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">GitHub Actions</span>
+              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Kubernetes</span>
+            </div>
+          </div>
         </div>
-        <h2 class="font-semibold text-gray-900 dark:text-white text-sm mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Cron Expression Builder</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
-          Build and validate cron expressions visually. Get plain-English explanations, next run times in your timezone, and platform-specific output for Linux, AWS, GitHub Actions, and Kubernetes.
-        </p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">Linux</span>
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">AWS</span>
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">GitHub Actions</span>
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">Kubernetes</span>
-        </div>
-        <div class="absolute top-5 right-5 text-gray-300 dark:text-gray-700 group-hover:text-indigo-400 transition-colors">
+        <div class="absolute top-5 right-5" style="color: var(--border);">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
 
       <!-- CIDR Calculator card -->
       <a href="/cidr-calculator"
-        class="group relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all">
-        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center mb-4 border border-indigo-100 dark:border-indigo-900 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-950 transition-colors">
-          <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        class="reveal relative rounded-2xl p-6 transition-all"
+        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
+        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
+        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
         </div>
-        <h2 class="font-semibold text-gray-900 dark:text-white text-sm mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">CIDR Calculator</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
-          Calculate subnet details, usable hosts, and network ranges instantly. Split CIDRs into equal subnets, plan AWS VPC layouts, and copy any value with one click.
+        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">CIDR Calculator</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">
+          Calculate subnet details, usable hosts, and network ranges. Split CIDRs, plan AWS VPC layouts, and copy any value with one click.
         </p>
         <div class="flex flex-wrap gap-1.5">
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">IPv4</span>
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">IPv6</span>
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">AWS VPC</span>
-          <span class="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">Subnetting</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">IPv4</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">IPv6</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">AWS VPC</span>
         </div>
-        <div class="absolute top-5 right-5 text-gray-300 dark:text-gray-700 group-hover:text-indigo-400 transition-colors">
+        <div class="absolute top-5 right-5" style="color: var(--border);">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
 
-      <!-- Coming soon cards -->
-      <div class="bg-white dark:bg-gray-900 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-6 opacity-60">
-        <div class="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700">
-          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-gray-500 dark:text-gray-500 text-sm mb-2">Regex Tester</h2>
-        <p class="text-xs text-gray-400 dark:text-gray-600 leading-relaxed">Test and debug regular expressions with live match highlighting.</p>
-        <p class="mt-3 text-[10px] font-medium text-gray-400 dark:text-gray-600 uppercase tracking-wider">Coming soon</p>
-      </div>
-
-      <div class="bg-white dark:bg-gray-900 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-6 opacity-60">
-        <div class="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700">
-          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- Coming soon: JSON Formatter -->
+      <div class="reveal rounded-2xl p-6 opacity-40" style="background: var(--card); border: 1px dashed var(--border);">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: var(--bg); border: 1px solid var(--border);">
+          <svg class="w-5 h-5" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
           </svg>
         </div>
-        <h2 class="font-semibold text-gray-500 dark:text-gray-500 text-sm mb-2">Base64 Encoder / Decoder</h2>
-        <p class="text-xs text-gray-400 dark:text-gray-600 leading-relaxed">Quickly encode and decode Base64 strings and files.</p>
-        <p class="mt-3 text-[10px] font-medium text-gray-400 dark:text-gray-600 uppercase tracking-wider">Coming soon</p>
+        <h2 class="font-semibold text-sm mb-2" style="color: var(--fg2);">JSON Formatter</h2>
+        <p class="text-xs leading-relaxed" style="color: var(--fg3);">Format, validate, and minify JSON with syntax highlighting.</p>
+        <p class="mt-3 text-[10px] font-medium uppercase tracking-wider" style="color: var(--fg3);">Coming soon</p>
+      </div>
+
+      <!-- Coming soon: JWT Decoder -->
+      <div class="reveal rounded-2xl p-6 opacity-40" style="background: var(--card); border: 1px dashed var(--border);">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: var(--bg); border: 1px solid var(--border);">
+          <svg class="w-5 h-5" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h2 class="font-semibold text-sm mb-2" style="color: var(--fg2);">JWT Decoder</h2>
+        <p class="text-xs leading-relaxed" style="color: var(--fg3);">Decode and inspect JWT tokens without sending them anywhere.</p>
+        <p class="mt-3 text-[10px] font-medium uppercase tracking-wider" style="color: var(--fg3);">Coming soon</p>
+      </div>
+
+      <!-- Coming soon: Base64 -->
+      <div class="reveal rounded-2xl p-6 opacity-40" style="background: var(--card); border: 1px dashed var(--border);">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: var(--bg); border: 1px solid var(--border);">
+          <svg class="w-5 h-5" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <h2 class="font-semibold text-sm mb-2" style="color: var(--fg2);">Base64 Encoder</h2>
+        <p class="text-xs leading-relaxed" style="color: var(--fg3);">Encode and decode Base64 strings and files instantly.</p>
+        <p class="mt-3 text-[10px] font-medium uppercase tracking-wider" style="color: var(--fg3);">Coming soon</p>
       </div>
 
     </div>
   </section>
 
-  <!-- WHY SECTION -->
-  <section class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+  <!-- ── WHY SECTION ────────────────────────────────────────────────────────── -->
+  <section style="border-top: 1px solid var(--border); background: var(--ftr-bg);">
     <div class="max-w-4xl mx-auto px-4 py-16 text-center">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Built for the terminal crowd</h2>
-      <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-lg mx-auto mb-10">
-        No ads, no paywalls, no account required. Every tool on opsbash.com is free and works in your browser.
+      <h2 class="text-2xl font-bold mb-4 tracking-tight reveal" style="color: var(--fg);">Built for the terminal crowd</h2>
+      <p class="text-sm leading-relaxed max-w-lg mx-auto mb-10 reveal" style="color: var(--fg2);">
+        No ads, no paywalls, no account required. Every tool runs entirely in your browser.
       </p>
       <div class="grid sm:grid-cols-3 gap-6 text-left">
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-          <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-900 flex items-center justify-center mb-3">
-            <svg class="w-4 h-4 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="reveal rounded-xl p-5" style="background: var(--card); border: 1px solid var(--border);">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+            <svg class="w-4 h-4" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-1">Always free</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">No pricing tiers, no credits, no limits.</p>
+          <p class="text-xs font-semibold mb-1" style="color: var(--fg);">Always free</p>
+          <p class="text-xs leading-relaxed" style="color: var(--fg2);">No pricing tiers, no credits, no limits.</p>
         </div>
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-          <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 flex items-center justify-center mb-3">
-            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div class="reveal rounded-xl p-5" style="background: var(--card); border: 1px solid var(--border);">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+            <svg class="w-4 h-4" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
-          <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-1">Private by default</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Everything runs in your browser. Nothing is sent to our servers.</p>
+          <p class="text-xs font-semibold mb-1" style="color: var(--fg);">Private by default</p>
+          <p class="text-xs leading-relaxed" style="color: var(--fg2);">Everything runs in your browser. Nothing sent to servers.</p>
         </div>
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-          <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900 flex items-center justify-center mb-3">
-            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <div class="reveal rounded-xl p-5" style="background: var(--card); border: 1px solid var(--border);">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+            <svg class="w-4 h-4" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </div>
-          <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-1">Instant results</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">No round trips. Results update as you type.</p>
+          <p class="text-xs font-semibold mb-1" style="color: var(--fg);">Instant results</p>
+          <p class="text-xs leading-relaxed" style="color: var(--fg2);">No round trips. Results update as you type.</p>
         </div>
       </div>
     </div>
   </section>
 </main>
+
+<style>
+  /* ── Hero H1 — solid dark green in light mode ───────────────────────────── */
+  :root:not(.dark) h1.hero-main {
+    background: none !important;
+    -webkit-text-fill-color: #064e3b !important;
+    color: #064e3b !important;
+  }
+
+  /* ── Hero badge ─────────────────────────────────────────────────────────── */
+  :root:not(.dark) .hero-badge {
+    background: #dcfce7 !important;
+    color: #064e3b !important;
+    border-color: #86efac !important;
+  }
+
+  /* ── Social proof stat cards ─────────────────────────────────────────────── */
+  :root:not(.dark) .social-card {
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+  }
+  :root:not(.dark) .social-val {
+    color: #064e3b !important;
+  }
+
+  /* ── Tool card tags ──────────────────────────────────────────────────────── */
+  :root:not(.dark) .tool-tag {
+    background: #dcfce7 !important;
+    color: #065f46 !important;
+    border-color: #86efac !important;
+  }
+
+  /* ── Hero terminal card — keep dark even in light mode ───────────────────── */
+  :root:not(.dark) .hero-terminal {
+    background: #0a1a0f !important;
+    border-color: #1a3a22 !important;
+  }
+  :root:not(.dark) #heroCronInput {
+    background: #030a06 !important;
+    color: #34d399 !important;
+    border-color: #1a4028 !important;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important;
+  }
+  :root:not(.dark) #heroCronExpl {
+    color: #4ade80 !important;
+  }
+  :root:not(.dark) #heroCronNext {
+    color: #4b7a5f !important;
+  }
+  :root:not(.dark) .hero-terminal .text-\[10px\] {
+    color: #4b7a5f !important;
+  }
+</style>
+
+<script is:inline>
+(function() {
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function explainCron(expr) {
+    var e = expr.trim();
+    var p = e.split(/\s+/);
+    if (p.length < 5 || p.length > 6) return 'Type a cron expression (e.g. "*/5 * * * *")';
+
+    if (e === '* * * * *') return 'Runs every minute';
+    if (e === '@yearly' || e === '0 0 1 1 *') return 'Runs once a year at midnight, Jan 1st';
+    if (e === '@monthly' || e === '0 0 1 * *') return 'Runs once a month at midnight';
+    if (e === '@weekly' || e === '0 0 * * 0') return 'Runs once a week on Sunday at midnight';
+    if (e === '@daily' || e === '0 0 * * *')  return 'Runs once a day at midnight';
+    if (e === '@hourly' || e === '0 * * * *')  return 'Runs once an hour at :00';
+
+    var min = p[0], hour = p[1], day = p[2], month = p[3], wday = p[4];
+
+    // Every N minutes
+    var mStep = min.match(/^\*\/(\d+)$/);
+    if (mStep && hour === '*' && day === '*' && month === '*' && wday === '*') {
+      return 'Runs every ' + mStep[1] + ' minutes';
+    }
+
+    // At minute :00, every N hours
+    var hStep = hour.match(/^\*\/(\d+)$/);
+    if (min === '0' && hStep && day === '*' && month === '*' && wday === '*') {
+      return 'Runs every ' + hStep[1] + ' hours';
+    }
+
+    // Daily at specific hour
+    var hNum = hour.match(/^(\d+)$/);
+    if (min === '0' && hNum && day === '*' && month === '*' && wday === '*') {
+      var h = parseInt(hNum[1]);
+      var ampm = h === 0 ? '12:00 AM (midnight)' : h < 12 ? h + ':00 AM' : h === 12 ? '12:00 PM' : (h - 12) + ':00 PM';
+      return 'Runs daily at ' + ampm;
+    }
+
+    // Weekdays (Mon-Fri)
+    if (min === '0' && hNum && day === '*' && month === '*' && (wday === '1-5' || wday === 'MON-FRI')) {
+      var h = parseInt(hNum[1]);
+      var ampm = h === 0 ? 'midnight' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h - 12) + ' PM';
+      return 'Runs on weekdays (Mon–Fri) at ' + ampm;
+    }
+
+    // Every Sunday
+    if (min === '0' && hour === '0' && day === '*' && month === '*' && wday === '0') {
+      return 'Runs every Sunday at midnight';
+    }
+
+    // 1st of month
+    if (min === '0' && hour === '0' && day === '1' && month === '*' && wday === '*') {
+      return 'Runs on the 1st of every month at midnight';
+    }
+
+    return 'Custom schedule: ' + e;
+  }
+
+  var heroCronInput = document.getElementById('heroCronInput');
+  var heroCronExpl  = document.getElementById('heroCronExpl');
+  var heroCronNext  = document.getElementById('heroCronNext');
+
+  if (heroCronInput) {
+    heroCronInput.addEventListener('input', function() {
+      if (heroCronExpl) heroCronExpl.textContent = explainCron(this.value);
+    });
+    // Focus ring style
+    heroCronInput.addEventListener('focus', function() {
+      this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2), 0 0 20px rgba(16,185,129,0.1)';
+    });
+    heroCronInput.addEventListener('blur', function() {
+      this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.12)';
+    });
+  }
+
+  function updateCountdown() {
+    if (!heroCronNext) return;
+    var now  = new Date();
+    var secs = 60 - now.getSeconds();
+    heroCronNext.textContent = 'Next run in ' + secs + ' second' + (secs === 1 ? '' : 's');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
+</script>
 
 </Layout>

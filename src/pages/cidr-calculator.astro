@@ -68,315 +68,289 @@ const webAppSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
 
-<!-- ── PAGE SHELL ─────────────────────────────────────────────────────────────── -->
-<div class="flex flex-1" style="background: var(--bg); min-height: calc(100vh - 56px);">
+<!-- ── PAGE CONTENT ───────────────────────────────────────────────────────────── -->
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
 
-  <!-- SIDEBAR -->
-  <aside class="hidden lg:flex flex-col shrink-0 sticky top-14 overflow-y-auto"
-         style="width: 220px; height: calc(100vh - 56px); border-right: 1px solid var(--border); background: var(--bg);">
-    <div class="px-4 pt-6 pb-2">
-      <span class="text-[10px] font-semibold tracking-[0.12em] uppercase" style="color: var(--fg3);">TOOLS</span>
+  <!-- HERO -->
+  <section class="pt-8 pb-5">
+    <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
+         style="background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2);">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+      Free CIDR &amp; Subnet Calculator
     </div>
-    <nav class="px-2 pb-4">
-      <a href="/cron-builder"    class="sidebar-item"><span>⏱</span><span>Cron Builder</span></a>
-      <a href="/cidr-calculator" class="sidebar-item sidebar-active"><span>🌐</span><span>CIDR Calculator</span></a>
-      <span class="sidebar-item" style="opacity:0.45;cursor:default;pointer-events:none;">
-        <span>📋</span><span>YAML Validator</span>
-        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(139,148,158,0.15);color:var(--fg3);letter-spacing:0.04em;white-space:nowrap;">Soon</span>
-      </span>
-      <span class="sidebar-item" style="opacity:0.45;cursor:default;pointer-events:none;">
-        <span>🔑</span><span>JWT Decoder</span>
-        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(139,148,158,0.15);color:var(--fg3);letter-spacing:0.04em;white-space:nowrap;">Soon</span>
-      </span>
-      <span class="sidebar-item" style="opacity:0.45;cursor:default;pointer-events:none;">
-        <span>📦</span><span>Base64 Encoder</span>
-        <span style="margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(139,148,158,0.15);color:var(--fg3);letter-spacing:0.04em;white-space:nowrap;">Soon</span>
-      </span>
-    </nav>
-  </aside>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight hero-gradient">
+      CIDR &amp; Subnet Calculator
+    </h1>
+    <p class="text-base max-w-xl" style="color: var(--fg2);">
+      Calculate subnet details, usable hosts, and split CIDRs instantly. Supports both IPv4 and IPv6. No sign-up required — runs entirely in your browser.
+    </p>
+  </section>
 
-  <!-- MAIN -->
-  <div class="flex-1 min-w-0">
-
-    <!-- HERO -->
-    <section class="px-4 lg:px-8 pt-8 pb-5">
-      <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
-           style="background: rgba(99,102,241,0.1); color: #818cf8; border: 1px solid rgba(99,102,241,0.2);">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        </svg>
-        Free CIDR &amp; Subnet Calculator
+  <!-- INPUT -->
+  <section class="pb-5">
+    <div class="rounded-[14px] p-5" style="background: var(--card); border: 1px solid var(--border);">
+      <label class="text-xs font-semibold uppercase tracking-wider mb-2 block" style="color: var(--fg3);">IP / CIDR Notation</label>
+      <div class="relative flex gap-3 items-center">
+        <input id="cidrInput" type="text" spellcheck="false" autocomplete="off"
+          class="flex-1 min-w-0 rounded-xl px-4 py-3 transition-all focus:outline-none"
+          style="font-family:'Fira Code','Cascadia Code',monospace; font-size:16px; letter-spacing:0.05em; color:#34d399; background:var(--bg); border:1px solid #10b981; box-shadow:0 0 0 3px rgba(16,185,129,0.12), 0 0 20px rgba(16,185,129,0.08);"
+          placeholder="192.168.1.0/24 or 2001:db8::/32" />
+        <span id="ipvBadge" class="hidden shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
+              style="background:rgba(16,185,129,0.15); color:#34d399;"></span>
       </div>
-      <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight hero-gradient">
-        CIDR &amp; Subnet Calculator
-      </h1>
-      <p class="text-base max-w-xl" style="color: var(--fg2);">
-        Calculate subnet details, usable hosts, and split CIDRs instantly. Supports both IPv4 and IPv6. No sign-up required — runs entirely in your browser.
-      </p>
-    </section>
+      <p id="cidrError" class="mt-2 text-xs text-red-500 hidden"></p>
+    </div>
+  </section>
 
-    <!-- INPUT -->
-    <section class="px-4 lg:px-8 pb-5">
-      <div class="rounded-[14px] p-5" style="background: var(--card); border: 1px solid var(--border);">
-        <label class="text-xs font-semibold uppercase tracking-wider mb-2 block" style="color: var(--fg3);">IP / CIDR Notation</label>
-        <div class="relative flex gap-3 items-center">
-          <input id="cidrInput" type="text" spellcheck="false" autocomplete="off"
-            class="flex-1 min-w-0 rounded-xl px-4 py-3 transition-all focus:outline-none"
-            style="font-family:'Fira Code','Cascadia Code',monospace; font-size:16px; letter-spacing:0.05em; color:#818cf8; background:var(--bg); border:1px solid #6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.15);"
-            placeholder="192.168.1.0/24 or 2001:db8::/32" />
-          <span id="ipvBadge" class="hidden shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
-                style="background:rgba(99,102,241,0.15); color:#818cf8;"></span>
-        </div>
-        <p id="cidrError" class="mt-2 text-xs text-red-500 hidden"></p>
+  <!-- STAT CARDS -->
+  <section class="pb-5">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="stat-card">
+        <div class="stat-label">Total Hosts</div>
+        <div id="statTotal" class="stat-value" style="color:#34d399; font-family:'Fira Code',monospace;">—</div>
       </div>
-    </section>
-
-    <!-- STAT CARDS -->
-    <section class="px-4 lg:px-8 pb-5">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="stat-card">
-          <div class="stat-label">Total Hosts</div>
-          <div id="statTotal" class="stat-value" style="color:#818cf8; font-family:'Fira Code',monospace;">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Usable Hosts</div>
-          <div id="statUsable" class="stat-value" style="color:var(--fg); font-family:'Fira Code',monospace;">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label" id="statClassLabel">Network Class</div>
-          <div id="statClass" class="stat-value" style="color:var(--fg);">—</div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Usable Hosts</div>
+        <div id="statUsable" class="stat-value" style="color:#34d399; font-family:'Fira Code',monospace;">—</div>
       </div>
-    </section>
-
-    <!-- SUBNET DETAILS + INFO PANEL -->
-    <section class="px-4 lg:px-8 pb-5" id="detailsSection">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-        <!-- Details -->
-        <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
-          <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
-            <h2 class="text-xs font-semibold uppercase tracking-wider" style="color:var(--fg2);">Subnet Details</h2>
-          </div>
-          <div id="detailRows"></div>
-        </div>
-
-        <!-- Binary / Info -->
-        <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
-          <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
-            <h2 class="text-xs font-semibold uppercase tracking-wider" id="infoCardTitle" style="color:var(--fg2);">Binary Representation</h2>
-          </div>
-          <div id="infoCard" class="p-5"></div>
-        </div>
-
+      <div class="stat-card">
+        <div class="stat-label" id="statClassLabel">Network Class</div>
+        <div id="statClass" class="stat-value" style="color:#34d399;">—</div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- USABLE HOSTS LIST -->
-    <section class="px-4 lg:px-8 pb-5" id="hostsSection">
-      <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
-        <div class="px-5 pt-4 pb-3 flex items-center justify-between flex-wrap gap-2"
-             style="border-bottom:1px solid var(--border); background:var(--bg);">
-          <h2 class="text-xs font-semibold uppercase tracking-wider" style="color:var(--fg2);">Usable Hosts</h2>
-          <span id="hostCountNote" class="text-[11px]" style="color:var(--fg3);"></span>
-        </div>
-        <div class="p-5">
-          <div id="hostsTable"></div>
-          <div id="hostsPagination" class="flex gap-2 mt-4 flex-wrap"></div>
-        </div>
-      </div>
-    </section>
+  <!-- SUBNET DETAILS + INFO PANEL -->
+  <section class="pb-5" id="detailsSection">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-    <!-- SUBNET SPLITTER -->
-    <section class="px-4 lg:px-8 pb-5">
+      <!-- Details -->
       <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
         <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
-          <h2 class="text-sm font-semibold" style="color:var(--fg);">Visual Subnet Splitter</h2>
-          <p class="text-xs mt-0.5" style="color:var(--fg2);">Split a CIDR block into 2, 4, or 8 equal subnets. Works for IPv4 and IPv6.</p>
+          <h2 class="text-xs font-semibold uppercase tracking-wider" style="color:var(--fg2);">Subnet Details</h2>
         </div>
-        <div class="p-5">
-          <div class="flex flex-col sm:flex-row gap-3 mb-4">
-            <input id="splitInput" type="text" spellcheck="false" autocomplete="off"
-              class="flex-1 min-w-0 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
-              style="font-family:'Fira Code',monospace; background:var(--bg); border:1px solid var(--border); color:var(--fg);"
-              placeholder="10.0.0.0/16" />
-            <div class="flex gap-2 shrink-0">
-              <button class="split-count-btn active-split-btn" data-count="2">÷ 2</button>
-              <button class="split-count-btn" data-count="4">÷ 4</button>
-              <button class="split-count-btn" data-count="8">÷ 8</button>
-            </div>
-          </div>
-          <p id="splitError" class="text-xs text-red-500 mb-3 hidden"></p>
-          <div id="splitResults"></div>
-        </div>
+        <div id="detailRows"></div>
       </div>
-    </section>
 
-    <!-- VPC PLANNER -->
-    <section class="px-4 lg:px-8 pb-5">
+      <!-- Binary / Info -->
       <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
         <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
-          <h2 class="text-sm font-semibold" style="color:var(--fg);">AWS VPC Subnet Planner</h2>
-          <p class="text-xs mt-0.5" style="color:var(--fg2);">Optimal subnet splits for public, private, and database tiers across Availability Zones.</p>
+          <h2 class="text-xs font-semibold uppercase tracking-wider" id="infoCardTitle" style="color:var(--fg2);">Binary Representation</h2>
         </div>
-        <div class="p-5">
-          <div class="flex flex-col sm:flex-row gap-3 mb-4 flex-wrap">
-            <input id="vpcInput" type="text" spellcheck="false" autocomplete="off"
-              class="flex-1 min-w-0 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
-              style="font-family:'Fira Code',monospace; background:var(--bg); border:1px solid var(--border); color:var(--fg);"
-              placeholder="10.0.0.0/16" />
-            <div class="flex gap-2 flex-wrap shrink-0">
-              <button class="vpc-count-btn active-vpc-btn" data-count="2">2 subnets</button>
-              <button class="vpc-count-btn" data-count="4">4 subnets</button>
-              <button class="vpc-count-btn" data-count="6">6 subnets</button>
-              <button class="vpc-count-btn" data-count="8">8 subnets</button>
-            </div>
+        <div id="infoCard" class="p-5"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SUBNET SPLITTER -->
+  <section class="pb-5">
+    <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
+        <h2 class="text-sm font-semibold" style="color:var(--fg);">Visual Subnet Splitter</h2>
+        <p class="text-xs mt-0.5" style="color:var(--fg2);">Split a CIDR block into 2, 4, or 8 equal subnets. Works for IPv4 and IPv6.</p>
+      </div>
+      <div class="p-5">
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <input id="splitInput" type="text" spellcheck="false" autocomplete="off"
+            class="flex-1 min-w-0 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
+            style="font-family:'Fira Code',monospace; background:var(--bg); border:1px solid var(--border); color:var(--fg);"
+            placeholder="10.0.0.0/16" />
+          <div class="flex gap-2 shrink-0">
+            <button class="split-count-btn active-split-btn" data-count="2">÷ 2</button>
+            <button class="split-count-btn" data-count="4">÷ 4</button>
+            <button class="split-count-btn" data-count="8">÷ 8</button>
           </div>
-          <p id="vpcError" class="text-xs text-red-500 mb-3 hidden"></p>
-          <div id="vpcResults"></div>
+        </div>
+        <p id="splitError" class="text-xs text-red-500 mb-3 hidden"></p>
+        <div id="splitResults"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VPC PLANNER -->
+  <section class="pb-5">
+    <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
+        <h2 class="text-sm font-semibold" style="color:var(--fg);">AWS VPC Subnet Planner</h2>
+        <p class="text-xs mt-0.5" style="color:var(--fg2);">Optimal subnet splits for public, private, and database tiers across Availability Zones.</p>
+      </div>
+      <div class="p-5">
+        <div class="flex flex-col sm:flex-row gap-3 mb-4 flex-wrap">
+          <input id="vpcInput" type="text" spellcheck="false" autocomplete="off"
+            class="flex-1 min-w-0 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all"
+            style="font-family:'Fira Code',monospace; background:var(--bg); border:1px solid var(--border); color:var(--fg);"
+            placeholder="10.0.0.0/16" />
+          <div class="flex gap-2 flex-wrap shrink-0">
+            <button class="vpc-count-btn active-vpc-btn" data-count="2">2 subnets</button>
+            <button class="vpc-count-btn" data-count="4">4 subnets</button>
+            <button class="vpc-count-btn" data-count="6">6 subnets</button>
+            <button class="vpc-count-btn" data-count="8">8 subnets</button>
+          </div>
+        </div>
+        <p id="vpcError" class="text-xs text-red-500 mb-3 hidden"></p>
+        <div id="vpcResults"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMON EXAMPLES -->
+  <section class="pb-5">
+    <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
+        <h2 class="text-sm font-semibold" style="color:var(--fg);">Common Examples</h2>
+        <p class="text-xs mt-0.5" style="color:var(--fg2);">Click any example to load it into the calculator above.</p>
+      </div>
+      <div class="p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <button class="example-card" data-cidr="192.168.1.0/24">
+            <code class="example-cidr">192.168.1.0/24</code>
+            <span class="example-desc">Home network — 254 usable hosts</span>
+          </button>
+          <button class="example-card" data-cidr="10.0.0.0/8">
+            <code class="example-cidr">10.0.0.0/8</code>
+            <span class="example-desc">Private Class A — 16.7M hosts</span>
+          </button>
+          <button class="example-card" data-cidr="172.16.0.0/12">
+            <code class="example-cidr">172.16.0.0/12</code>
+            <span class="example-desc">Private Class B — 1M hosts</span>
+          </button>
+          <button class="example-card" data-cidr="10.0.0.0/16">
+            <code class="example-cidr">10.0.0.0/16</code>
+            <span class="example-desc">AWS VPC typical — 65,534 hosts</span>
+          </button>
+          <button class="example-card" data-cidr="192.168.0.0/16">
+            <code class="example-cidr">192.168.0.0/16</code>
+            <span class="example-desc">Private Class B small — 65,534 hosts</span>
+          </button>
+          <button class="example-card" data-cidr="2001:db8::/32">
+            <code class="example-cidr">2001:db8::/32</code>
+            <span class="example-desc">IPv6 documentation range</span>
+          </button>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- COMMON EXAMPLES -->
-    <section class="px-4 lg:px-8 pb-5">
-      <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
-        <div class="px-5 pt-4 pb-3" style="border-bottom:1px solid var(--border); background:var(--bg);">
-          <h2 class="text-sm font-semibold" style="color:var(--fg);">Common Examples</h2>
-          <p class="text-xs mt-0.5" style="color:var(--fg2);">Click any example to load it into the calculator above.</p>
-        </div>
-        <div class="p-5">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <button class="example-card" data-cidr="192.168.1.0/24">
-              <code class="example-cidr">192.168.1.0/24</code>
-              <span class="example-desc">Home network — 254 usable hosts</span>
-            </button>
-            <button class="example-card" data-cidr="10.0.0.0/8">
-              <code class="example-cidr">10.0.0.0/8</code>
-              <span class="example-desc">Private Class A — 16.7M hosts</span>
-            </button>
-            <button class="example-card" data-cidr="172.16.0.0/12">
-              <code class="example-cidr">172.16.0.0/12</code>
-              <span class="example-desc">Private Class B — 1M hosts</span>
-            </button>
-            <button class="example-card" data-cidr="10.0.0.0/16">
-              <code class="example-cidr">10.0.0.0/16</code>
-              <span class="example-desc">AWS VPC typical — 65,534 hosts</span>
-            </button>
-            <button class="example-card" data-cidr="192.168.0.0/16">
-              <code class="example-cidr">192.168.0.0/16</code>
-              <span class="example-desc">Private Class B small — 65,534 hosts</span>
-            </button>
-            <button class="example-card" data-cidr="2001:db8::/32">
-              <code class="example-cidr">2001:db8::/32</code>
-              <span class="example-desc">IPv6 documentation range</span>
-            </button>
-          </div>
+  <!-- USABLE HOSTS LIST -->
+  <section class="pb-5" id="hostsSection">
+    <div class="rounded-[14px] overflow-hidden" style="background:var(--card); border:1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3 flex items-center justify-between flex-wrap gap-2"
+           style="border-bottom:1px solid var(--border); background:var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color:var(--fg2);">Usable Hosts</h2>
+        <span id="hostCountNote" class="text-[11px]" style="color:var(--fg3);"></span>
+      </div>
+      <div class="p-5">
+        <div id="hostsTable"></div>
+        <div id="hostsPagination" class="flex gap-2 mt-4 flex-wrap"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="pb-16">
+    <div class="overflow-hidden rounded-[14px]" style="background:var(--card); border:1px solid var(--border);">
+      <div class="p-5" style="border-bottom:1px solid var(--border); background:var(--bg);">
+        <h2 class="text-base font-semibold" style="color:var(--fg);">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
+          <span class="text-sm font-medium" style="color:var(--fg);">What is CIDR notation?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          CIDR (Classless Inter-Domain Routing) notation is a compact way to express an IP address range. It consists of an IP address followed by a slash and a prefix length — for example, <code class="ic">192.168.1.0/24</code>. The prefix length indicates how many leading bits are the network portion. <code class="ic">/24</code> means the first 24 bits identify the network, leaving 8 bits for host addresses (256 total IPs). CIDR replaced the older Class A/B/C system and allows more efficient allocation of address space.
         </div>
       </div>
-    </section>
 
-    <!-- FAQ -->
-    <section class="px-4 lg:px-8 pb-16">
-      <div class="overflow-hidden rounded-[14px]" style="background:var(--card); border:1px solid var(--border);">
-        <div class="p-5" style="border-bottom:1px solid var(--border); background:var(--bg);">
-          <h2 class="text-base font-semibold" style="color:var(--fg);">Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
+          <span class="text-sm font-medium" style="color:var(--fg);">How do I calculate a subnet mask from a CIDR prefix?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          Set the first N bits to 1, where N is the prefix length, in a 32-bit number. For <code class="ic">/24</code>: <code class="ic">11111111.11111111.11111111.00000000</code> = <code class="ic">255.255.255.0</code>. For <code class="ic">/16</code>: <code class="ic">255.255.0.0</code>. For <code class="ic">/8</code>: <code class="ic">255.0.0.0</code>. The wildcard mask is the bitwise inverse — for /24 that's <code class="ic">0.0.0.255</code>, useful in ACLs and firewall rules. This calculator shows both subnet and wildcard masks instantly.
         </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
-            <span class="text-sm font-medium" style="color:var(--fg);">What is CIDR notation?</span>
-            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-            CIDR (Classless Inter-Domain Routing) notation is a compact way to express an IP address range. It consists of an IP address followed by a slash and a prefix length — for example, <code class="ic">192.168.1.0/24</code>. The prefix length indicates how many leading bits are the network portion. <code class="ic">/24</code> means the first 24 bits identify the network, leaving 8 bits for host addresses (256 total IPs). CIDR replaced the older Class A/B/C system and allows more efficient allocation of address space.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
-            <span class="text-sm font-medium" style="color:var(--fg);">How do I calculate a subnet mask from a CIDR prefix?</span>
-            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-            Set the first N bits to 1, where N is the prefix length, in a 32-bit number. For <code class="ic">/24</code>: <code class="ic">11111111.11111111.11111111.00000000</code> = <code class="ic">255.255.255.0</code>. For <code class="ic">/16</code>: <code class="ic">255.255.0.0</code>. For <code class="ic">/8</code>: <code class="ic">255.0.0.0</code>. The wildcard mask is the bitwise inverse — for /24 that's <code class="ic">0.0.0.255</code>, useful in ACLs and firewall rules. This calculator shows both subnet and wildcard masks instantly.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
-            <span class="text-sm font-medium" style="color:var(--fg);">What is the difference between IPv4 and IPv6 subnetting?</span>
-            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-            IPv4 uses 32-bit addresses (e.g. <code class="ic">192.168.1.0/24</code>) with prefix lengths from /0 to /32. It reserves one address for the network ID and one for broadcast, reducing usable hosts by 2. IPv6 uses 128-bit addresses (e.g. <code class="ic">2001:db8::/32</code>) with prefix lengths from /0 to /128. IPv6 has no broadcast address — every address in the range is usable. IPv6 subnets are typically /64, giving each network 2⁶⁴ ≈ 18 quintillion addresses. ISPs typically assign /48 or /56 prefixes to customers.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
-            <span class="text-sm font-medium" style="color:var(--fg);">How many hosts can a /24 subnet have?</span>
-            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-            A /24 subnet contains <strong style="color:var(--fg);">256 total IPs</strong> (2⁸ = 256). Two are reserved: the network address (e.g. <code class="ic">192.168.1.0</code>) and the broadcast address (e.g. <code class="ic">192.168.1.255</code>), leaving <strong style="color:var(--fg);">254 usable host addresses</strong>. Common subnet sizes: /30 = 2 usable, /29 = 6, /28 = 14, /27 = 30, /26 = 62, /25 = 126, /24 = 254, /23 = 510, /22 = 1022, /21 = 2046, /20 = 4094, /16 = 65,534.
-          </div>
-        </div>
-
-        <div class="faq-item" style="border-bottom:none;">
-          <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
-            <span class="text-sm font-medium" style="color:var(--fg);">How do I plan subnets for an AWS VPC?</span>
-            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-            Start with a <code class="ic">/16</code> VPC CIDR (e.g. <code class="ic">10.0.0.0/16</code>) and create three tiers: <strong style="color:#22c55e;">Public</strong> subnets for ALBs and NAT gateways, <strong style="color:#6366f1;">Private</strong> subnets for application servers and ECS tasks, and <strong style="color:#f59e0b;">Database</strong> subnets for RDS and ElastiCache. Replicate each tier across at least 2 Availability Zones for HA. A /16 split into /18s gives 4 subnets of 16,382 usable hosts each. Use the <strong style="color:var(--fg);">AWS VPC Subnet Planner</strong> above to generate CIDRs automatically.
-          </div>
-        </div>
-
       </div>
-    </section>
 
-  </div><!-- /main -->
-</div><!-- /page shell -->
+      <div class="faq-item">
+        <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
+          <span class="text-sm font-medium" style="color:var(--fg);">What is the difference between IPv4 and IPv6 subnetting?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          IPv4 uses 32-bit addresses (e.g. <code class="ic">192.168.1.0/24</code>) with prefix lengths from /0 to /32. It reserves one address for the network ID and one for broadcast, reducing usable hosts by 2. IPv6 uses 128-bit addresses (e.g. <code class="ic">2001:db8::/32</code>) with prefix lengths from /0 to /128. IPv6 has no broadcast address — every address in the range is usable. IPv6 subnets are typically /64, giving each network 2⁶⁴ ≈ 18 quintillion addresses. ISPs typically assign /48 or /56 prefixes to customers.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
+          <span class="text-sm font-medium" style="color:var(--fg);">How many hosts can a /24 subnet have?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          A /24 subnet contains <strong style="color:var(--fg);">256 total IPs</strong> (2⁸ = 256). Two are reserved: the network address (e.g. <code class="ic">192.168.1.0</code>) and the broadcast address (e.g. <code class="ic">192.168.1.255</code>), leaving <strong style="color:var(--fg);">254 usable host addresses</strong>. Common subnet sizes: /30 = 2 usable, /29 = 6, /28 = 14, /27 = 30, /26 = 62, /25 = 126, /24 = 254, /23 = 510, /22 = 1022, /21 = 2046, /20 = 4094, /16 = 65,534.
+        </div>
+      </div>
+
+      <div class="faq-item" style="border-bottom:none;">
+        <button class="faq-trigger w-full text-left flex items-center justify-between gap-4 p-5">
+          <span class="text-sm font-medium" style="color:var(--fg);">How do I plan subnets for an AWS VPC?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          Start with a <code class="ic">/16</code> VPC CIDR (e.g. <code class="ic">10.0.0.0/16</code>) and create three tiers: <strong style="color:#22c55e;">Public</strong> subnets for ALBs and NAT gateways, <strong style="color:#6366f1;">Private</strong> subnets for application servers and ECS tasks, and <strong style="color:#f59e0b;">Database</strong> subnets for RDS and ElastiCache. Replicate each tier across at least 2 Availability Zones for HA. A /16 split into /18s gives 4 subnets of 16,382 usable hosts each. Use the <strong style="color:var(--fg);">AWS VPC Subnet Planner</strong> above to generate CIDRs automatically.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /container -->
+</div><!-- /page content -->
 
 <style>
   .hero-gradient {
-    background: linear-gradient(135deg, #818cf8, #c084fc);
+    background: linear-gradient(135deg, #ecfdf5 30%, #34d399 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   :root:not(.dark) .hero-gradient {
     background: none;
-    -webkit-text-fill-color: #24292f;
-    color: #24292f;
+    -webkit-text-fill-color: #064e3b;
+    color: #064e3b;
   }
   .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
-  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg2); margin-bottom: 8px; }
+  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg3); margin-bottom: 8px; }
   .stat-value { font-size: 18px; font-weight: 700; line-height: 1.2; }
   .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--fg2); cursor: pointer; transition: background 0.12s, color 0.12s; text-decoration: none; margin-bottom: 2px; }
   .sidebar-item:hover { background: var(--card); color: var(--fg); }
-  .sidebar-active { background: rgba(99,102,241,0.15) !important; color: #818cf8 !important; }
+  .sidebar-active { background: #0f2415 !important; color: #34d399 !important; border-left: 2px solid #10b981 !important; }
   .faq-item { border-bottom: 1px solid var(--border); }
   .faq-trigger { background: transparent; border: none; cursor: pointer; transition: background 0.12s; }
-  .faq-trigger:hover { background: rgba(99,102,241,0.04); }
-  .ic { font-family: 'Fira Code', monospace; font-size: 12px; background: var(--code-bg); color: #818cf8; padding: 2px 6px; border-radius: 4px; }
+  .faq-trigger:hover { background: rgba(16,185,129,0.04); }
+  .ic { font-family: 'Fira Code', monospace; font-size: 12px; background: var(--code-bg); color: #34d399; padding: 2px 6px; border-radius: 4px; }
   .split-count-btn, .vpc-count-btn {
     font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px;
     border: 1px solid var(--border); background: var(--bg); color: var(--fg2);
     cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .split-count-btn:hover, .vpc-count-btn:hover { border-color: #6366f1; color: #818cf8; }
-  .active-split-btn, .active-vpc-btn { background: #6366f1 !important; color: #fff !important; border-color: #6366f1 !important; }
+  .split-count-btn:hover, .vpc-count-btn:hover { border-color: #10b981; color: #34d399; background: #0f2415; }
+  .active-split-btn, .active-vpc-btn { background: #10b981 !important; color: #030a06 !important; border-color: #10b981 !important; }
   .example-card {
     text-align: left; padding: 14px 16px; border-radius: 12px; cursor: pointer;
     border: 1px solid var(--border); background: var(--bg);
     transition: border-color 0.15s, background 0.15s;
     display: flex; flex-direction: column; gap: 4px;
   }
-  .example-card:hover { border-color: #6366f1; background: rgba(99,102,241,0.04); }
-  .example-cidr { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 600; color: #818cf8; }
+  .example-card:hover { border-color: #10b981; background: rgba(16,185,129,0.04); }
+  .example-cidr { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 600; color: #34d399; }
   .example-desc { font-size: 11px; color: var(--fg2); }
 </style>
 
@@ -714,7 +688,7 @@ function updateInfoCard(data) {
       var onesPart = bits.slice(0, networkBitsInOctet);
       var zerosPart = bits.slice(networkBitsInOctet);
       var html = '';
-      if (onesPart) html += '<span style="color:#818cf8;font-weight:700;">' + onesPart + '</span>';
+      if (onesPart) html += '<span style="color:#34d399;font-weight:700;">' + onesPart + '</span>';
       if (zerosPart) html += '<span style="color:var(--fg3);">' + zerosPart + '</span>';
       return html;
     }).join('<span style="color:var(--fg2);">.</span>');
@@ -728,7 +702,7 @@ function updateInfoCard(data) {
       + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg3);margin-bottom:6px;">'
       + '<span>Network (' + data.prefix + ' bits)</span><span>Host (' + hostBits + ' bits)</span></div>'
       + '<div style="height:8px;border-radius:9999px;overflow:hidden;background:var(--border);">'
-      + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:9999px;"></div>'
+      + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#10b981,#059669);border-radius:9999px;"></div>'
       + '</div></div>'
       + '<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       + infoChip('Prefix', '/' + data.prefix)
@@ -740,7 +714,7 @@ function updateInfoCard(data) {
     title.textContent = 'IPv6 Address Info';
     var hb = data._hostBits;
     card.innerHTML = '<div style="margin-bottom:14px;">'
-      + '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:9999px;background:rgba(99,102,241,0.12);color:#818cf8;border:1px solid rgba(99,102,241,0.25);">IPv6 — ' + data.addrType + '</span>'
+      + '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:9999px;background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);">IPv6 — ' + data.addrType + '</span>'
       + '</div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       + infoChip('Prefix Length', '/' + data.prefix)
@@ -822,9 +796,9 @@ function renderHostsPage(data, page) {
   for (var p = 0; p < totalPages; p++) {
     var isActive = p === page;
     pHTML += '<button data-pg="' + p + '" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid '
-      + (isActive ? '#6366f1' : 'var(--border)') + ';background:'
-      + (isActive ? '#6366f1' : 'var(--bg)') + ';color:'
-      + (isActive ? '#fff' : 'var(--fg2)') + ';cursor:pointer;font-weight:' + (isActive ? '600' : '400') + ';">'
+      + (isActive ? '#10b981' : 'var(--border)') + ';background:'
+      + (isActive ? '#10b981' : 'var(--bg)') + ';color:'
+      + (isActive ? '#030a06' : 'var(--fg2)') + ';cursor:pointer;font-weight:' + (isActive ? '600' : '400') + ';">'
       + (p * PAGE_SIZE + 1) + '–' + Math.min((p + 1) * PAGE_SIZE, totalShown)
       + '</button>';
   }
@@ -845,7 +819,7 @@ function renderSplitResults(subnets) {
     + '<th style="' + thStyle + '">Usable Hosts</th>';
   var trs = subnets.map(function(s) {
     return '<tr>'
-      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#818cf8;">' + s.cidr + '</td>'
+      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#34d399;">' + s.cidr + '</td>'
       + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:var(--fg2);">' + s.network + '</td>'
       + (isV4 ? '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:var(--fg2);">' + s.broadcast + '</td>' : '')
       + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:var(--fg2);">' + s.first + '</td>'
@@ -873,7 +847,7 @@ function renderVPCResults(subnets) {
       + '</div>'
       + '<p style="font-size:11px;color:var(--fg3);margin-top:3px;padding-left:15px;">' + s.tierDesc + '</p>'
       + '</td>'
-      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#818cf8;">' + s.cidr + '</td>'
+      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#34d399;">' + s.cidr + '</td>'
       + '<td style="' + tdStyle + 'color:var(--fg);">' + s.hosts + '</td>'
       + '</tr>';
   }).join('');
@@ -911,7 +885,7 @@ function doCalc(val) {
   try {
     var data = parseCIDR(val);
     cidrError.classList.add('hidden');
-    cidrInput.style.borderColor = '#6366f1';
+    cidrInput.style.borderColor = '#10b981';
     updateMainCalc(data);
   } catch(e) {
     cidrError.textContent = e.message;
@@ -1073,7 +1047,7 @@ document.querySelectorAll('.faq-trigger').forEach(function(btn) {
 
 // ─── INPUT FOCUS STYLE ───────────────────────────────────────────────────────
 [splitInput, vpcInput].forEach(function(inp) {
-  inp.addEventListener('focus', function() { this.style.borderColor = '#6366f1'; this.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)'; });
+  inp.addEventListener('focus', function() { this.style.borderColor = '#10b981'; this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.15)'; });
   inp.addEventListener('blur',  function() { if (this.style.borderColor !== 'rgb(239, 68, 68)') { this.style.borderColor = 'var(--border)'; this.style.boxShadow = 'none'; } });
 });
 

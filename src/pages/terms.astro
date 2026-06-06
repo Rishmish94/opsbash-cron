@@ -11,46 +11,46 @@ const updated = 'June 4, 2025';
 <main class="w-full max-w-3xl mx-auto px-4 py-16">
 
   <div class="mb-10">
-    <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">Legal</p>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">Terms of Service</h1>
-    <p class="text-xs text-gray-500 dark:text-gray-400">Last updated: {updated}</p>
+    <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: #34d399;">Legal</p>
+    <h1 class="text-3xl font-bold tracking-tight mb-2" style="color: var(--fg);">Terms of Service</h1>
+    <p class="text-xs" style="color: var(--fg3);">Last updated: {updated}</p>
   </div>
 
   <div class="space-y-5">
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">1. Acceptance of terms</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        By accessing or using opsbash.com ("the Site"), you agree to be bound by these Terms of Service and our <a href="/privacy-policy" class="text-indigo-600 dark:text-indigo-400 hover:underline">Privacy Policy</a>. If you do not agree to these terms, please do not use the Site.
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">1. Acceptance of terms</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        By accessing or using opsbash.com ("the Site"), you agree to be bound by these Terms of Service and our <a href="/privacy-policy" class="hover:underline" style="color: #34d399;">Privacy Policy</a>. If you do not agree to these terms, please do not use the Site.
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">2. Free service</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        All tools and content on opsbash.com are provided <strong class="text-gray-800 dark:text-gray-200">free of charge</strong>. There are no paid plans, no subscription fees, and no feature paywalls. We reserve the right to add optional paid services in the future, but all currently available tools will remain free.
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">2. Free service</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        All tools and content on opsbash.com are provided <strong style="color: var(--fg);">free of charge</strong>. There are no paid plans, no subscription fees, and no feature paywalls. We reserve the right to add optional paid services in the future, but all currently available tools will remain free.
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">3. Educational and informational purposes</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-        The tools and content on opsbash.com are provided <strong class="text-gray-800 dark:text-gray-200">for educational and informational purposes only</strong>. They are intended to help you learn, understand, and prototype cron expressions and related scheduling syntax — not to serve as a substitute for testing in your own environment.
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">3. Educational and informational purposes</h2>
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+        The tools and content on opsbash.com are provided <strong style="color: var(--fg);">for educational and informational purposes only</strong>. They are intended to help you learn, understand, and prototype cron expressions and related scheduling syntax — not to serve as a substitute for testing in your own environment.
       </p>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
         Content on this site, including articles, examples, and tool output, is educational in nature. It should not be relied upon as the sole basis for production configuration decisions.
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">4. No guarantee of accuracy — verify before production use</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-        While we strive to make our tools accurate, <strong class="text-gray-800 dark:text-gray-200">opsbash.com makes no guarantee that any tool output — including generated cron expressions — is correct, complete, or suitable for your specific use case.</strong>
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">4. No guarantee of accuracy — verify before production use</h2>
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+        While we strive to make our tools accurate, <strong style="color: var(--fg);">opsbash.com makes no guarantee that any tool output — including generated cron expressions — is correct, complete, or suitable for your specific use case.</strong>
       </p>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
         Cron syntax differs between platforms (Linux crontab, AWS EventBridge, Kubernetes, GitHub Actions), and edge cases exist that our tools may not handle correctly. Before deploying any cron expression or schedule to a production environment:
       </p>
-      <ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-400 list-disc list-inside ml-2">
+      <ul class="space-y-1.5 text-sm list-disc list-inside ml-2" style="color: var(--fg2);">
         <li>Test the expression in a staging or development environment first.</li>
         <li>Verify the schedule fires at the expected times by reviewing the next run times.</li>
         <li>Consult the official documentation for your target platform (Linux man crontab, AWS EventBridge docs, Kubernetes API reference, etc.).</li>
@@ -58,28 +58,28 @@ const updated = 'June 4, 2025';
       </ul>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">5. Limitation of liability</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
-        <strong class="text-gray-800 dark:text-gray-200">OpsBash is not liable for any issues, damages, or losses caused by the use of incorrect, misconfigured, or misunderstood cron expressions generated or validated using this site.</strong> This includes but is not limited to:
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">5. Limitation of liability</h2>
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+        <strong style="color: var(--fg);">OpsBash is not liable for any issues, damages, or losses caused by the use of incorrect, misconfigured, or misunderstood cron expressions generated or validated using this site.</strong> This includes but is not limited to:
       </p>
-      <ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-400 list-disc list-inside ml-2 mb-3">
+      <ul class="space-y-1.5 text-sm list-disc list-inside ml-2 mb-3" style="color: var(--fg2);">
         <li>Jobs that run too frequently or not at all due to an incorrect expression.</li>
         <li>Data loss, service outages, or billing overruns caused by misconfigured schedules.</li>
         <li>Security incidents resulting from improperly timed automation tasks.</li>
         <li>Any indirect, incidental, consequential, or punitive damages arising from your use of this site.</li>
       </ul>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
         To the fullest extent permitted by applicable law, OpsBash's total liability for any claim arising from use of this site shall not exceed zero dollars ($0), as the Site is provided entirely free of charge.
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">6. Acceptable use</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">6. Acceptable use</h2>
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
         You may use opsbash.com for lawful purposes only. You agree not to:
       </p>
-      <ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-400 list-disc list-inside ml-2">
+      <ul class="space-y-1.5 text-sm list-disc list-inside ml-2" style="color: var(--fg2);">
         <li>Use the Site in any way that violates applicable local, national, or international laws or regulations.</li>
         <li>Attempt to disrupt, compromise, or interfere with the Site's infrastructure or security.</li>
         <li>Scrape, crawl, or systematically index the Site's content without prior written permission.</li>
@@ -87,24 +87,24 @@ const updated = 'June 4, 2025';
       </ul>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">7. Intellectual property</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">7. Intellectual property</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
         All content on opsbash.com — including text, tool designs, and source code — is the property of OpsBash unless otherwise noted. You may not reproduce or redistribute Site content without prior written permission. Generated tool output (such as cron expressions) is not subject to copyright and may be used freely.
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">8. Changes to terms</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">8. Changes to terms</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
         We reserve the right to modify these terms at any time. Changes take effect upon posting to this page. Continued use of the Site after changes are posted constitutes your acceptance of the revised terms.
       </p>
     </div>
 
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">9. Contact</h2>
-      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        Questions about these terms? Email <a href="mailto:contact@opsbash.com" class="text-indigo-600 dark:text-indigo-400 hover:underline font-mono">contact@opsbash.com</a> or <a href="/contact" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">use our contact page →</a>
+    <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-sm font-semibold mb-3" style="color: var(--fg);">9. Contact</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        Questions about these terms? Email <a href="mailto:contact@opsbash.com" class="hover:underline font-mono" style="color: #34d399;">contact@opsbash.com</a> or <a href="/contact" class="hover:underline font-medium" style="color: #34d399;">use our contact page →</a>
       </p>
     </div>
 
