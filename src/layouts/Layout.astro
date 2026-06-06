@@ -8,6 +8,7 @@ const {
   ogDescription = description,
 } = Astro.props;
 const year = new Date().getFullYear();
+const gaId = import.meta.env.PUBLIC_GA_ID;
 ---
 
 <!DOCTYPE html>
@@ -40,12 +41,12 @@ const year = new Date().getFullYear();
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
   <slot name="head" />
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9PD97KB0TM"></script>
-  <script is:inline>
+  <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+  <script define:vars={{ gaId }} is:inline>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-9PD97KB0TM');
+    gtag('config', gaId);
   </script>
   <!-- Anti-FOUC: apply saved theme before first paint -->
   <script is:inline>

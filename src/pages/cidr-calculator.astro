@@ -921,7 +921,8 @@ function doCalc(val) {
   }
 }
 
-cidrInput.addEventListener('input', function() { doCalc(this.value); });
+cidrInput.addEventListener('input',  function() { doCalc(this.value); });
+cidrInput.addEventListener('change', function() { doCalc(this.value); });
 
 // ─── SPLITTER ────────────────────────────────────────────────────────────────
 function doSplit() {
@@ -1031,17 +1032,13 @@ document.addEventListener('click', function(e) {
   }
   if (!text || text === '—') return;
   var orig = btn.innerHTML;
-  function showCheck() {
-    btn.innerHTML = CHECK_SVG;
-    btn.style.borderColor = '#22c55e';
-    setTimeout(function() { btn.innerHTML = orig; btn.style.borderColor = 'var(--border)'; }, 1500);
-  }
+  btn.innerHTML = CHECK_SVG;
+  btn.style.borderColor = '#22c55e';
+  setTimeout(function() { btn.innerHTML = orig; btn.style.borderColor = 'var(--border)'; }, 1500);
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(showCheck).catch(function() {
-      fallbackCopy(text); showCheck();
-    });
+    navigator.clipboard.writeText(text).catch(function() { fallbackCopy(text); });
   } else {
-    fallbackCopy(text); showCheck();
+    fallbackCopy(text);
   }
 });
 

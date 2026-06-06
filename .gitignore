@@ -11,14 +11,18 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-
+dev-server.log
 
 # environment variables
 .env
+.env.local
 .env.production
 
-# macOS-specific files
-.DS_Store
+# test artifacts
+playwright-report/
+test-results/
 
-# jetbrains setting folder
+# editor / tool config
 .idea/
+.DS_Store
+.claude/

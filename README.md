@@ -1,43 +1,60 @@
-# Astro Starter Kit: Minimal
+# OpsBash — Free DevOps Tools
+
+A collection of free, browser-based DevOps tools for engineers and sysadmins. No login required, no data sent to any server.
+
+**Live site:** [https://opsbash.com](https://opsbash.com)
+
+## Tools
+
+| Tool | Description |
+| :--- | :---------- |
+| **Cron Expression Generator** | Build and validate cron expressions with a visual UI and human-readable preview |
+| **CIDR Calculator** | Calculate subnet ranges, broadcast addresses, and host counts for IPv4 and IPv6 |
+
+## Tech Stack
+
+- [Astro JS](https://astro.build) — static site framework
+- [Tailwind CSS](https://tailwindcss.com) — utility-first styling
+- [Cloudflare Pages](https://pages.cloudflare.com) — hosting and CDN
+
+## Local Setup
 
 ```sh
-npm create astro@latest -- --template minimal
+git clone https://github.com/your-username/opsbash-cron.git
+cd opsbash-cron
+npm install
+cp .env.example .env   # then fill in your values
+npm run dev            # starts dev server at http://localhost:4321
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Environment Variables
 
-## 🚀 Project Structure
+| Variable | Description |
+| :------- | :---------- |
+| `PUBLIC_GA_ID` | Google Analytics 4 measurement ID (e.g. `G-XXXXXXXXXX`) |
 
-Inside of your Astro project, you'll see the following folders and files:
+Copy `.env.example` to `.env` and set your own values before running locally.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+### Cloudflare Pages
+
+In the Cloudflare Pages dashboard, set the environment variable under:
+
+**Settings → Environment Variables → Add variable**
+
+| Variable | Value |
+| :------- | :---- |
+| `PUBLIC_GA_ID` | Your GA4 measurement ID |
+
+## Running Tests
+
+End-to-end tests are written with [Playwright](https://playwright.dev). Start the dev server first, then run:
+
+```sh
+npx playwright test
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Test files are in the `tests/` directory.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Contributing
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Issues and pull requests are welcome. Please open an issue to discuss larger changes before submitting a PR.

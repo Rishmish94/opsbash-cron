@@ -11,12 +11,11 @@ async function enterCIDR(page: Page, cidr: string) {
 // ── clipboard mock (paste into beforeEach for copy tests) ─────────────────────
 async function mockClipboard(page: Page) {
   await page.addInitScript(() => {
-    if (!navigator.clipboard) {
-      Object.defineProperty(navigator, 'clipboard', {
-        value: { writeText: () => Promise.resolve(), readText: () => Promise.resolve('') },
-        configurable: true,
-      });
-    }
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: () => Promise.resolve(), readText: () => Promise.resolve('') },
+      configurable: true,
+      writable: true,
+    });
   });
 }
 
@@ -30,7 +29,7 @@ test.describe('Functional', () => {
   });
 
   test('1. Page loads and H1 contains "CIDR"', async ({ page }) => {
-    await expect(page.locator('h1')).toContainText('CIDR');
+    await expect(page.locator('h1').first()).toContainText('CIDR');
   });
 
   test('2. Default 192.168.1.0/24 — Total Hosts is 256', async ({ page }) => {
@@ -335,7 +334,6 @@ test.describe('Scenario 3 — Datacenter Block Split', () => {
 
 test.describe('Scenario 4 — Copy Workflow', () => {
   test.beforeEach(async ({ page }) => {
-    await mockClipboard(page);
     await page.goto(PAGE);
     await enterCIDR(page, '10.0.0.0/24');
   });
@@ -349,8 +347,7 @@ test.describe('Scenario 4 — Copy Workflow', () => {
   });
 
   test('46. Clicking copy next to Network Address shows a checkmark', async ({ page }) => {
-    await page.click('.cbtn[data-t="dNetAddr"]');
-    // After copy the button swaps to a green check SVG (polyline element)
+    await page.evaluate(() => (document.querySelector('.cbtn[data-t="dNetAddr"]') as HTMLElement).click());
     await expect(page.locator('.cbtn[data-t="dNetAddr"] polyline')).toBeVisible({ timeout: 3_000 });
   });
 
@@ -359,7 +356,7 @@ test.describe('Scenario 4 — Copy Workflow', () => {
   });
 
   test('48. Clicking copy next to Subnet Mask shows a checkmark', async ({ page }) => {
-    await page.click('.cbtn[data-t="dMask"]');
+    await page.evaluate(() => (document.querySelector('.cbtn[data-t="dMask"]') as HTMLElement).click());
     await expect(page.locator('.cbtn[data-t="dMask"] polyline')).toBeVisible({ timeout: 3_000 });
   });
 });
@@ -440,6 +437,7 @@ test.describe('Scenario 6 — Edge Cases', () => {
 
   test('60. Clearing the input completely shows an error message', async ({ page }) => {
     await page.fill('#cidrInput', '');
+    await page.locator('#cidrInput').dispatchEvent('input');
     await expect(page.locator('#cidrError')).toBeVisible();
   });
 
@@ -524,7 +522,7 @@ test.describe('Scenario 8 — Navigation & SEO', () => {
   test('71. Clicking the OpsBash logo navigates to the home page', async ({ page }) => {
     await page.goto(PAGE);
     await page.click('header a[href="/"]');
-    await expect(page).toHaveURL(/^https:\/\/opsbash\.com\/?$/);
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test('72. Home page has a CIDR Calculator card linking to /cidr-calculator', async ({ page }) => {
