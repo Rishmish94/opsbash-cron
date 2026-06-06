@@ -22,7 +22,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
+        env:
+          npm_config_legacy_peer_deps: true
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -57,7 +59,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
+        env:
+          npm_config_legacy_peer_deps: true
 
       - name: Build
         run: npm run build
