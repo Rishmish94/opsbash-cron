@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "playwright test",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "test:cidr": "playwright test tests/cidr-calculator.spec.ts",
+    "test:cidr:report": "playwright show-report"
   },
   "dependencies": {
     "astro": "^6.4.4"

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'https://opsbash.com';
-const PAGE_URL = `${BASE_URL}/cron-builder`;
+const PAGE_URL = process.env.BASE_URL ?? 'http://localhost:4321/cron-builder';
+const BASE_URL = new URL(PAGE_URL).origin;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FUNCTIONAL TESTS
@@ -13,7 +13,7 @@ test.describe('Functional', () => {
   });
 
   test('1. H1 says "Free Cron Expression Generator"', async ({ page }) => {
-    await expect(page.locator('h1')).toHaveText('Free Cron Expression Generator');
+    await expect(page.locator('h1').first()).toHaveText('Free Cron Expression Generator');
   });
 
   test('2. Default "* * * * *" shows "every minute" in plain English', async ({ page }) => {
