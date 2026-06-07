@@ -56,6 +56,40 @@ const faqSchema = {
   ]
 };
 
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to generate a cron expression",
+  "description": "Step by step guide to creating a cron expression for Linux, AWS, GitHub Actions or Kubernetes",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Choose your platform",
+      "text": "Select your target platform from Linux/Unix, AWS EventBridge, GitHub Actions or Kubernetes tabs"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Set the schedule using dropdowns",
+      "text": "Use the visual builder dropdowns to select minute, hour, day, month and weekday values"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Read the plain English explanation",
+      "text": "The tool instantly shows what your cron expression means in plain English"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check the next run times",
+      "text": "Verify your schedule is correct by checking the next 10 run times shown in your local timezone"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Copy the expression",
+      "text": "Click the Copy button to copy the expression to your clipboard ready to use"
+    }
+  ]
+};
+
 const webAppSchema = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -79,6 +113,7 @@ const webAppSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
 
 <!-- ── PAGE CONTENT ───────────────────────────────────────────────────────────── -->
 <div style="background: var(--bg);">
@@ -319,6 +354,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item">
+        <p class="direct-answer">A cron job is a scheduled task on Unix/Linux systems that runs automatically at defined time intervals, managed by the cron daemon. It uses a 5-field cron expression to define when to run a command.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">What is a cron job?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -329,6 +365,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item">
+        <p class="direct-answer">Use <code class="ic">*/5 * * * *</code> — the <code class="ic">*/5</code> in the minute field means every 5th minute, running at :00, :05, :10 … :55. Click the "Every 5 minutes" preset button above to generate it automatically.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">How do I generate a cron expression for every 5 minutes?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -339,6 +376,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item">
+        <p class="direct-answer">AWS EventBridge cron uses 6 fields (adds a year field) vs 5-field Linux crontab, and requires <code class="ic">?</code> in either day-of-month or day-of-week. All AWS schedules run in UTC; Linux crontab uses local system time.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">What is the difference between AWS cron and Linux cron syntax?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -356,6 +394,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item">
+        <p class="direct-answer">Kubernetes CronJobs use standard 5-field cron syntax in the <code class="ic">spec.schedule</code> field. For example, <code class="ic">schedule: "0 9 * * 1-5"</code> runs a job at 9 AM on weekdays.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">How do I create a Kubernetes cron job schedule?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -366,6 +405,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item">
+        <p class="direct-answer"><code class="ic">*/5</code> means "every 5th unit from the minimum value." In the minute field it expands to 0, 5, 10, 15 … 55 — running the job every 5 minutes. The same step syntax works in any cron field.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">What does */5 mean in a cron expression?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -376,6 +416,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item" style="border-bottom: none;">
+        <p class="direct-answer">Use the expression <code class="ic">0 9 * * 1-5</code> — <code class="ic">0</code> sets the minute to :00, <code class="ic">9</code> sets the hour to 9 AM, and <code class="ic">1-5</code> means Monday through Friday.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">How do I run a cron job every weekday at 9 AM?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -774,6 +815,17 @@ const webAppSchema = {
   }
   .faq-trigger:hover {
     background: rgba(16, 185, 129, 0.04);
+  }
+
+  /* ── Direct answers ─────────────────────────────────────────────────────────── */
+  .direct-answer {
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg2);
+    background: rgba(16, 185, 129, 0.05);
+    border-left: 3px solid rgba(16, 185, 129, 0.3);
   }
 
   /* ── SEO tables ─────────────────────────────────────────────────────────────── */

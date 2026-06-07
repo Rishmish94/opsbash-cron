@@ -48,6 +48,40 @@ const faqSchema = {
   ]
 };
 
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to calculate a subnet using CIDR notation",
+  "description": "Step by step guide to calculating subnet details from a CIDR block",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Enter your IP and CIDR prefix",
+      "text": "Type your IP address and prefix length in the input box, for example 192.168.1.0/24"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "View subnet details instantly",
+      "text": "The calculator instantly shows network address, broadcast address, subnet mask, and usable host range"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check total and usable hosts",
+      "text": "See the total number of addresses and usable host addresses in the stat cards"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Split your subnet if needed",
+      "text": "Use the subnet splitter to divide your CIDR block into 2, 4 or 8 equal subnets"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Plan your AWS VPC",
+      "text": "Use the AWS VPC planner to get optimal subnet recommendations for public, private and database tiers"
+    }
+  ]
+};
+
 const webAppSchema = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -67,6 +101,7 @@ const webAppSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
 
 <!-- ── PAGE CONTENT ───────────────────────────────────────────────────────────── -->
 <div style="background: var(--bg);">

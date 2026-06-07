@@ -9,6 +9,22 @@ const {
 } = Astro.props;
 const year = new Date().getFullYear();
 const gaId = import.meta.env.PUBLIC_GA_ID;
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "OpsBash",
+  "url": "https://opsbash.com",
+  "logo": "https://opsbash.com/favicon-512x512.png",
+  "description": "Free DevOps tools for engineers. Cron expression generator, CIDR calculator and more.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "contact@opsbash.com",
+    "contactType": "customer support"
+  },
+  "sameAs": [
+    "https://github.com/Rishmish94/opsbash-cron"
+  ]
+};
 ---
 
 <!DOCTYPE html>
@@ -39,6 +55,7 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
   <slot name="head" />
   <!-- Google tag (gtag.js) -->
   <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
