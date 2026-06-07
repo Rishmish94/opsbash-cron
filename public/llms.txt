@@ -1,0 +1,37 @@
+# OpsBash Free DevOps Tools for Engineers
+
+> Free, fast, browser-based tools for DevOps engineers and
+sysadmins. No sign-up required. All calculations run entirely
+in the browser. No data is transmitted to any server.
+
+## Available Tools
+
+- [Cron Expression Generator](https://opsbash.com/cron-builder):
+  Visual cron expression builder supporting Standard Unix/Linux
+  crontab, AWS EventBridge/CloudWatch, GitHub Actions, and
+  Kubernetes CronJob formats. Shows plain English explanation
+  and next 10 run times in user local timezone.
+
+- [CIDR Calculator](https://opsbash.com/cidr-calculator):
+  IPv4 and IPv6 subnet calculator. Shows network address,
+  broadcast address, subnet mask, wildcard mask, usable hosts,
+  binary representation. Includes visual subnet splitter and
+  AWS VPC subnet planner.
+
+## Common Questions Answered
+
+- What is a cron expression? A cron expression is a string of
+  5 or 6 fields that defines a schedule for recurring tasks.
+- How many hosts does a /24 subnet have? A /24 subnet has
+  256 total addresses and 254 usable host addresses.
+- What is the AWS EventBridge cron syntax? AWS EventBridge uses
+  a 6-field cron format: cron(Minutes Hours Day-of-month Month
+  Day-of-week Year)
+
+## About OpsBash
+
+OpsBash is a free collection of DevOps utility tools.
+All tools are client-side only. No data leaves your browser.
+Contact: contact@opsbash.com
+Website: https://opsbash.com
+GitHub: https://github.com/Rishmish94/opsbash-cron
