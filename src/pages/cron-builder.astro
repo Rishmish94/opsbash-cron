@@ -346,6 +346,293 @@ const webAppSchema = {
 
   </div><!-- /2-column grid -->
 
+  <!-- SECTION 1: What is a Cron Expression? -->
+  <div class="mb-6" id="what-is-cron-expression">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">What is a Cron Expression?</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">A cron expression is a string of five or six fields that defines a recurring schedule for automated tasks. Each field represents a unit of time: minute, hour, day of month, month, and day of week. Cron jobs run automatically on Linux servers, AWS EventBridge, GitHub Actions, and Kubernetes without any manual intervention.</p>
+        <div class="overflow-x-auto my-4">
+          <table class="w-full text-sm border-collapse seo-table">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">Field</th>
+                <th class="seo-th">Position</th>
+                <th class="seo-th">Allowed Values</th>
+                <th class="seo-th">Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Minute</td>
+                <td class="seo-td" style="color: var(--fg2);">1st</td>
+                <td class="seo-td" style="color: var(--fg2);">0–59</td>
+                <td class="seo-td seo-aws">*/5 (every 5 minutes)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Hour</td>
+                <td class="seo-td" style="color: var(--fg2);">2nd</td>
+                <td class="seo-td" style="color: var(--fg2);">0–23</td>
+                <td class="seo-td seo-aws">9 (9 AM)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Day of Month</td>
+                <td class="seo-td" style="color: var(--fg2);">3rd</td>
+                <td class="seo-td" style="color: var(--fg2);">1–31</td>
+                <td class="seo-td seo-aws">1 (1st of month)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Month</td>
+                <td class="seo-td" style="color: var(--fg2);">4th</td>
+                <td class="seo-td" style="color: var(--fg2);">1–12</td>
+                <td class="seo-td seo-aws">* (every month)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Day of Week</td>
+                <td class="seo-td" style="color: var(--fg2);">5th</td>
+                <td class="seo-td" style="color: var(--fg2);">0–7 (0 and 7 are Sunday)</td>
+                <td class="seo-td seo-aws">1-5 (weekdays)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Cron Special Characters -->
+  <div class="mb-6" id="cron-special-characters">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Cron Special Characters Explained</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Cron expressions use five special characters to define complex schedules. Understanding these characters lets you build any recurring schedule without memorizing syntax.</p>
+        <div class="overflow-x-auto my-4">
+          <table class="w-full text-sm border-collapse seo-table">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">Character</th>
+                <th class="seo-th">Name</th>
+                <th class="seo-th">Meaning</th>
+                <th class="seo-th">Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">*</td>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Asterisk</td>
+                <td class="seo-td" style="color: var(--fg2);">Every value in field</td>
+                <td class="seo-td" style="color: var(--fg3);">* in hour means every hour</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">,</td>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Comma</td>
+                <td class="seo-td" style="color: var(--fg2);">Multiple values</td>
+                <td class="seo-td" style="color: var(--fg3);">8,12,16 means 8AM, 12PM, 4PM</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">-</td>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Hyphen</td>
+                <td class="seo-td" style="color: var(--fg2);">Range of values</td>
+                <td class="seo-td" style="color: var(--fg3);">1-5 means Monday to Friday</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">/</td>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Slash</td>
+                <td class="seo-td" style="color: var(--fg2);">Step interval</td>
+                <td class="seo-td" style="color: var(--fg3);">*/15 means every 15 minutes</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">?</td>
+                <td class="seo-td" style="color: var(--fg); font-weight: 500;">Question mark</td>
+                <td class="seo-td" style="color: var(--fg2);">No specific value (AWS/Kubernetes only)</td>
+                <td class="seo-td" style="color: var(--fg3);">Used when day-of-month or day-of-week is unspecified</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Cron Shortcuts -->
+  <div class="mb-6" id="cron-shortcuts">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Cron Shortcuts Reference</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Most cron implementations support shortcut strings that replace the five-field expression with a readable keyword.</p>
+        <div class="overflow-x-auto my-4">
+          <table class="w-full text-sm border-collapse seo-table">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">Shortcut</th>
+                <th class="seo-th">Equivalent</th>
+                <th class="seo-th">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td seo-aws">@reboot</td>
+                <td class="seo-td" style="color: var(--fg2);">N/A</td>
+                <td class="seo-td" style="color: var(--fg2);">Run once at startup</td>
+              </tr>
+              <tr>
+                <td class="seo-td seo-aws">@yearly</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:11px; color: var(--fg2);">0 0 1 1 *</td>
+                <td class="seo-td" style="color: var(--fg2);">Once a year on January 1st</td>
+              </tr>
+              <tr>
+                <td class="seo-td seo-aws">@monthly</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:11px; color: var(--fg2);">0 0 1 * *</td>
+                <td class="seo-td" style="color: var(--fg2);">Once a month on the 1st</td>
+              </tr>
+              <tr>
+                <td class="seo-td seo-aws">@weekly</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:11px; color: var(--fg2);">0 0 * * 0</td>
+                <td class="seo-td" style="color: var(--fg2);">Once a week on Sunday</td>
+              </tr>
+              <tr>
+                <td class="seo-td seo-aws">@daily</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:11px; color: var(--fg2);">0 0 * * *</td>
+                <td class="seo-td" style="color: var(--fg2);">Once a day at midnight</td>
+              </tr>
+              <tr>
+                <td class="seo-td seo-aws">@hourly</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:11px; color: var(--fg2);">0 * * * *</td>
+                <td class="seo-td" style="color: var(--fg2);">Once an hour</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: AWS EventBridge Cron Syntax -->
+  <div class="mb-6" id="aws-eventbridge-cron">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">AWS EventBridge Cron Syntax</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">AWS EventBridge uses a six-field cron expression wrapped in cron() syntax: <code class="ic">cron(Minutes Hours Day-of-month Month Day-of-week Year)</code>. Unlike Linux cron, EventBridge requires a question mark (?) in either the Day-of-month or Day-of-week field when the other is specified.</p>
+        <div class="overflow-x-auto my-4">
+          <table class="w-full text-sm border-collapse seo-table">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">Use Case</th>
+                <th class="seo-th">Expression</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every day at 10:15 AM UTC</td>
+                <td class="seo-td seo-aws">cron(15 10 * * ? *)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every weekday at 9 AM UTC</td>
+                <td class="seo-td seo-aws">cron(0 9 ? * MON-FRI *)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">First day of every month</td>
+                <td class="seo-td seo-aws">cron(0 0 1 * ? *)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every 5 minutes</td>
+                <td class="seo-td seo-aws">cron(0/5 * * * ? *)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: GitHub Actions Cron Syntax -->
+  <div class="mb-6" id="github-actions-cron">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">GitHub Actions Cron Syntax</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">GitHub Actions uses standard 5-field Unix cron syntax in the schedule trigger. All schedules run in UTC timezone. The minimum interval GitHub Actions supports is every 5 minutes.</p>
+        <pre class="font-mono text-xs rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre" style="background: #0a1a0f; color: #4ade80;">on:
+  schedule:
+    - cron: '0 9 * * 1-5'  # Every weekday at 9 AM UTC</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Cron Expression Examples -->
+  <div class="mb-6" id="cron-examples">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Cron Expression Examples</h2>
+      </div>
+      <div class="p-5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse seo-table">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">Use Case</th>
+                <th class="seo-th">Expression</th>
+                <th class="seo-th hidden sm:table-cell">Platform</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every minute</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">* * * * *</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every 5 minutes</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">*/5 * * * *</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every day at midnight</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 * * *</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every weekday at 9 AM</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 9 * * 1-5</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">First day of month</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 1 * *</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every Sunday at midnight</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 * * 0</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Every 15 minutes</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">*/15 * * * *</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color: var(--fg2);">Twice daily at 8AM and 8PM</td>
+                <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 8,20 * * *</td>
+                <td class="seo-td hidden sm:table-cell" style="color: var(--fg3);">Linux</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="seo-p text-xs mt-3" style="color: var(--fg3);">Tip: click any expression to load it into the generator above.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- FAQ (full width) -->
   <div class="mb-0">
     <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
@@ -360,18 +647,18 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          A <strong style="color: var(--fg);">cron job</strong> is a scheduled task on Unix-like systems managed by the <em>cron</em> daemon. It automatically runs a command or script at a defined time interval — hourly, daily, weekly, or any custom schedule. Each cron job is defined by a <strong style="color: var(--fg);">cron expression</strong>: 5 (or 6) space-separated fields representing minute, hour, day-of-month, month, and day-of-week. Jobs are stored in a file called the <code class="ic">crontab</code> (cron table). Common uses include database backups, log rotation, cache warming, and sending scheduled reports.
+          A <strong style="color: var(--fg);">cron job</strong> is a scheduled task on Unix-like systems managed by the <em>cron</em> daemon. It automatically runs a command or script at a defined time interval, such as hourly, daily, weekly, or any custom schedule. Each cron job is defined by a <strong style="color: var(--fg);">cron expression</strong>: 5 (or 6) space-separated fields representing minute, hour, day-of-month, month, and day-of-week. Jobs are stored in a file called the <code class="ic">crontab</code> (cron table). Common uses include database backups, log rotation, cache warming, and sending scheduled reports.
         </div>
       </div>
 
       <div class="faq-item">
-        <p class="direct-answer">Use <code class="ic">*/5 * * * *</code> — the <code class="ic">*/5</code> in the minute field means every 5th minute, running at :00, :05, :10 … :55. Click the "Every 5 minutes" preset button above to generate it automatically.</p>
+        <p class="direct-answer">Use <code class="ic">*/5 * * * *</code>. The <code class="ic">*/5</code> in the minute field means every 5th minute, running at :00, :05, :10 ... :55. Click the "Every 5 minutes" preset button above to generate it automatically.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">How do I generate a cron expression for every 5 minutes?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Use the step syntax: <code class="ic">*/5 * * * *</code>. The <code class="ic">*/5</code> in the minute field means "every 5th minute" — at :00, :05, :10, :15 … :55. To generate this automatically, select <strong style="color: var(--fg);">Every 5 min</strong> from the Minute dropdown above, or click the <strong style="color: var(--fg);">Every 5 minutes</strong> preset button. The same step syntax works in any field: <code class="ic">*/2</code> means every 2 units, <code class="ic">*/15</code> means every 15 units.
+          Use the step syntax: <code class="ic">*/5 * * * *</code>. The <code class="ic">*/5</code> in the minute field means "every 5th minute", running at :00, :05, :10, :15 ... :55. To generate this automatically, select <strong style="color: var(--fg);">Every 5 min</strong> from the Minute dropdown above, or click the <strong style="color: var(--fg);">Every 5 minutes</strong> preset button. The same step syntax works in any field: <code class="ic">*/2</code> means every 2 units, <code class="ic">*/15</code> means every 15 units.
         </div>
       </div>
 
@@ -384,7 +671,7 @@ const webAppSchema = {
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed space-y-2" style="color: var(--fg2);">
           <p>AWS EventBridge / CloudWatch uses a <strong style="color: var(--fg);">6-field format</strong> that appends a <em>year</em> field: <code class="ic">minute hour day month weekday year</code>. Key differences from Linux crontab:</p>
           <ul class="list-disc list-inside space-y-1 ml-2">
-            <li>AWS requires <code class="ic">?</code> in either day-of-month <em>or</em> day-of-week — you cannot set a specific value in both.</li>
+            <li>AWS requires <code class="ic">?</code> in either day-of-month <em>or</em> day-of-week. You cannot set a specific value in both.</li>
             <li>AWS weekdays are <strong>1–7</strong> (Sunday = 1); Linux uses <strong>0–6</strong> (Sunday = 0 or 7).</li>
             <li>AWS does not support <code class="ic">@daily</code>, <code class="ic">@hourly</code>, or other shorthand aliases.</li>
             <li>All AWS cron schedules run in <strong>UTC</strong>.</li>
@@ -405,7 +692,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item">
-        <p class="direct-answer"><code class="ic">*/5</code> means "every 5th unit from the minimum value." In the minute field it expands to 0, 5, 10, 15 … 55 — running the job every 5 minutes. The same step syntax works in any cron field.</p>
+        <p class="direct-answer"><code class="ic">*/5</code> means "every 5th unit from the minimum value." In the minute field it expands to 0, 5, 10, 15 ... 55, running the job every 5 minutes. The same step syntax works in any cron field.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">What does */5 mean in a cron expression?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -416,7 +703,7 @@ const webAppSchema = {
       </div>
 
       <div class="faq-item" style="border-bottom: none;">
-        <p class="direct-answer">Use the expression <code class="ic">0 9 * * 1-5</code> — <code class="ic">0</code> sets the minute to :00, <code class="ic">9</code> sets the hour to 9 AM, and <code class="ic">1-5</code> means Monday through Friday.</p>
+        <p class="direct-answer">Use the expression <code class="ic">0 9 * * 1-5</code>: <code class="ic">0</code> sets the minute to :00, <code class="ic">9</code> sets the hour to 9 AM, and <code class="ic">1-5</code> means Monday through Friday.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">How do I run a cron job every weekday at 9 AM?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -441,14 +728,14 @@ const webAppSchema = {
             A <strong style="color: var(--fg);">cron job</strong> is a scheduled task that runs automatically on a Unix-like server at a defined time or interval, managed by the <em>cron</em> daemon. The name comes from the Greek word <em>chronos</em> (time). Cron has been a core part of Linux and Unix system administration since the 1970s and remains the standard mechanism for task scheduling today.
           </p>
           <p class="seo-p">
-            Each cron job is defined by a <strong style="color: var(--fg);">cron expression</strong> — a compact string of 5 space-separated fields representing minute, hour, day-of-month, month, and day-of-week — paired with the command to execute. These entries are stored per-user in a file called the <strong style="color: var(--fg);">crontab</strong> (cron table), edited with <code class="ic">crontab -e</code>. The cron daemon wakes up every minute, reads the crontab, and runs any job whose schedule matches the current time. Common use cases include nightly database backups, hourly cache invalidation, weekly security scans, daily report emails, and continuous monitoring scripts.
+            Each cron job is defined by a <strong style="color: var(--fg);">cron expression</strong>: a compact string of 5 space-separated fields representing minute, hour, day-of-month, month, and day-of-week, paired with the command to execute. These entries are stored per-user in a file called the <strong style="color: var(--fg);">crontab</strong> (cron table), edited with <code class="ic">crontab -e</code>. The cron daemon wakes up every minute, reads the crontab, and runs any job whose schedule matches the current time. Common use cases include nightly database backups, hourly cache invalidation, weekly security scans, daily report emails, and continuous monitoring scripts.
           </p>
 
           <h2 class="seo-h2">How to Use This Cron Expression Generator</h2>
           <p class="seo-p">This free <strong style="color: var(--fg);">online cron generator</strong> works entirely in your browser — no sign-up, no install. There are three ways to build an expression:</p>
           <p class="seo-p"><strong style="color: var(--fg);">1. Use a preset.</strong> Click any preset button at the top — "Every 5 minutes," "Daily at 9 AM," "Weekdays 9–5," and more. The expression field and all dropdowns update instantly.</p>
           <p class="seo-p"><strong style="color: var(--fg);">2. Use the visual dropdowns.</strong> Select values for Minute, Hour, Day, Month, and Weekday from the dropdowns. The expression field updates in real time and the <strong style="color: var(--fg);">Plain English</strong> panel explains what the schedule means in plain language.</p>
-          <p class="seo-p"><strong style="color: var(--fg);">3. Type directly.</strong> Enter any cron expression — including step values (<code class="ic">*/5</code>), ranges (<code class="ic">9-17</code>), and comma lists (<code class="ic">1,15</code>) — into the Expression field. The generator validates it instantly and syncs the dropdowns to match.</p>
+          <p class="seo-p"><strong style="color: var(--fg);">3. Type directly.</strong> Enter any cron expression, including step values (<code class="ic">*/5</code>), ranges (<code class="ic">9-17</code>), and comma lists (<code class="ic">1,15</code>), into the Expression field. The generator validates it instantly and syncs the dropdowns to match.</p>
 
           <h2 class="seo-h2">Cron Expression Examples for Linux, AWS and Kubernetes</h2>
           <p class="seo-p">

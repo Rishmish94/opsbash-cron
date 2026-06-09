@@ -13,10 +13,13 @@
     "test": "playwright test",
     "test:report": "playwright show-report",
     "test:cidr": "playwright test tests/cidr-calculator.spec.ts",
-    "test:cidr:report": "playwright show-report"
+    "test:cidr:report": "playwright show-report",
+    "test:yaml": "playwright test tests/json-yaml-converter.spec.ts"
   },
   "dependencies": {
-    "astro": "^6.4.4"
+    "@types/js-yaml": "^4.0.9",
+    "astro": "^6.4.4",
+    "js-yaml": "^4.2.0"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.2",

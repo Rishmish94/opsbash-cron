@@ -1,0 +1,521 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why is YAML preferred over JSON for configuration files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "YAML is preferred because it is easier for humans to read and write. It drops the brackets, braces, and mandatory quotes that JSON requires, and it supports inline comments using the hash symbol. This matters a lot when you are writing Kubernetes manifests or GitHub Actions workflows by hand every day. JSON has no comment support at all, which makes it frustrating for configuration files that need explanation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert any valid JSON file into YAML without losing data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. YAML is a superset of JSON, meaning it can represent everything JSON can. Strings, numbers, booleans, arrays, objects and null values all convert cleanly. The curly braces become indentation levels and the square brackets become list items. The data itself is never lost."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are YAML comments preserved when converting to JSON?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, they are not. JSON has no concept of comments, so any lines starting with a hash in your YAML get stripped out during conversion. If your comments matter, keep a copy of the original YAML file before converting."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the most common errors when converting between these formats?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When going from JSON to YAML the usual culprits are malformed JSON inputs like missing closing braces, unescaped quotes inside strings, or trailing commas after the last item in an array. When going from YAML to JSON the most common issue is indentation, specifically mixing tabs and spaces or forgetting the space that must come after every colon separator."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool send my data anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Everything runs locally in your browser using JavaScript. Nothing is uploaded, stored, or sent to any server. This makes it safe to paste in production config files, API keys in environment blocks, or any other sensitive data you need to convert quickly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does JSON compare to YAML on performance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON is significantly faster to parse. Browsers have native support for JSON through JSON.parse which is implemented in optimised C++ under the hood. YAML has no native browser support and requires loading a third party library. For high traffic APIs and microservices JSON is the right choice. For config files that humans write and maintain, YAML wins because it is much easier to read."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON to YAML Converter",
+  "url": "https://opsbash.com/json-yaml-converter",
+  "description": "Convert JSON to YAML and YAML to JSON instantly in your browser. Free, secure, client-side tool with no login required.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+};
+---
+
+<Layout
+  title="JSON to YAML Converter — Free Online Tool | OpsBash"
+  description="Convert JSON to YAML and YAML to JSON instantly in your browser. Free, secure, client side tool with no login required."
+  canonicalURL="https://opsbash.com/json-yaml-converter"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ─────────────────────────────────────────────────────────────────── -->
+  <section class="pt-12 pb-10 text-center animate-fade-in-up">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
+         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+      ⚡ Free Online Tool
+    </div>
+    <h1 class="jy-hero-h1 font-black tracking-tight mb-4 leading-tight"
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+      Online JSON to YAML and YAML to JSON Converter
+    </h1>
+    <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
+      Paste in JSON or YAML and get instant output in the other format. Runs entirely in your browser. Nothing is uploaded or stored anywhere.
+    </p>
+  </section>
+
+  <!-- ── MAIN TOOL ─────────────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+
+    <!-- Controls bar -->
+    <div class="flex flex-wrap items-center gap-3 mb-5 justify-between">
+
+      <!-- Indentation selector -->
+      <div class="flex items-center gap-2.5">
+        <span class="text-xs font-medium" style="color: var(--fg3);">Indent</span>
+        <div class="flex rounded-lg overflow-hidden" style="border: 1px solid var(--border); background: var(--card);">
+          <button id="indent2Btn"
+            class="px-3 py-1.5 text-xs font-medium transition-all"
+            style="color: var(--fg); background: rgba(16,185,129,0.12);">
+            2 spaces
+          </button>
+          <button id="indent4Btn"
+            class="px-3 py-1.5 text-xs font-medium transition-all"
+            style="color: var(--fg3); background: transparent;">
+            4 spaces
+          </button>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-2">
+        <button id="loadSampleBtn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+          style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Load Sample
+        </button>
+        <button id="clearBtn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+          style="background: var(--card); color: var(--fg2); border: 1px solid var(--border);">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Editor grid -->
+    <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
+
+      <!-- LEFT: Input panel -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center h-8">
+          <span id="inputLabel" class="text-sm font-semibold" style="color: var(--fg);">JSON Input</span>
+        </div>
+        <div id="inputWrapper" class="rounded-xl overflow-hidden transition-all"
+             style="background: var(--card); border: 1px solid var(--border);">
+          <div style="display: flex; height: 420px; overflow: hidden;">
+            <div id="inputLineNums"
+              style="min-width: 2.75rem; padding: 12px 8px; text-align: right; overflow: hidden; user-select: none; font-family: 'Fira Code', monospace; font-size: 0.8125rem; line-height: 1.5rem; color: var(--fg3); border-right: 1px solid var(--border); white-space: pre; flex-shrink: 0;">1</div>
+            <textarea id="inputArea"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="Paste your JSON here..."
+              style="flex: 1; padding: 12px; background: transparent; border: none; outline: none; resize: none; font-family: 'Fira Code', monospace; font-size: 0.8125rem; line-height: 1.5rem; color: var(--fg); overflow-y: auto; tab-size: 2; white-space: pre; overflow-wrap: normal; min-width: 0;"></textarea>
+          </div>
+        </div>
+        <div id="inputError"
+          style="display: none; font-size: 0.75rem; padding: 8px 12px; border-radius: 8px; background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); word-break: break-word;">
+        </div>
+      </div>
+
+      <!-- MIDDLE: Direction toggle -->
+      <div class="flex md:flex-col items-center justify-center gap-3 py-2 md:pt-10 order-last md:order-none">
+        <button id="directionToggle"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+          style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.3); min-width: 148px; justify-content: center;">
+          JSON to YAML
+        </button>
+      </div>
+
+      <!-- RIGHT: Output panel -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between h-8">
+          <span id="outputLabel" class="text-sm font-semibold" style="color: var(--fg);">YAML Output</span>
+          <button id="copyBtn"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copyBtnText">Copy</span>
+          </button>
+        </div>
+        <div class="rounded-xl overflow-hidden"
+             style="background: var(--card); border: 1px solid var(--border);">
+          <div style="display: flex; height: 420px; overflow: hidden;">
+            <div id="outputLineNums"
+              style="min-width: 2.75rem; padding: 12px 8px; text-align: right; overflow: hidden; user-select: none; font-family: 'Fira Code', monospace; font-size: 0.8125rem; line-height: 1.5rem; color: var(--fg3); border-right: 1px solid var(--border); white-space: pre; flex-shrink: 0;">1</div>
+            <textarea id="outputArea"
+              readonly
+              spellcheck="false"
+              placeholder="Output will appear here..."
+              style="flex: 1; padding: 12px; background: transparent; border: none; outline: none; resize: none; font-family: 'Fira Code', monospace; font-size: 0.8125rem; line-height: 1.5rem; color: var(--fg); overflow-y: auto; white-space: pre; overflow-wrap: normal; cursor: default; min-width: 0;"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────────────────────────── -->
+  <section class="pb-16 reveal">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold mb-8 text-center" style="color: var(--fg);">Frequently Asked Questions</h2>
+
+      <div class="space-y-3">
+
+        <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
+            Why is YAML preferred over JSON for configuration files?
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            YAML is preferred because it is easier for humans to read and write. It drops the brackets, braces, and mandatory quotes that JSON requires, and it supports inline comments using the hash symbol. This matters a lot when you are writing Kubernetes manifests or GitHub Actions workflows by hand every day. JSON has no comment support at all, which makes it frustrating for configuration files that need explanation.
+          </div>
+        </div>
+
+        <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
+            Can I convert any valid JSON file into YAML without losing data?
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            Yes. YAML is a superset of JSON, meaning it can represent everything JSON can. Strings, numbers, booleans, arrays, objects and null values all convert cleanly. The curly braces become indentation levels and the square brackets become list items. The data itself is never lost.
+          </div>
+        </div>
+
+        <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
+            Are YAML comments preserved when converting to JSON?
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            No, they are not. JSON has no concept of comments, so any lines starting with a hash in your YAML get stripped out during conversion. If your comments matter, keep a copy of the original YAML file before converting.
+          </div>
+        </div>
+
+        <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
+            What are the most common errors when converting between these formats?
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            When going from JSON to YAML the usual culprits are malformed JSON inputs like missing closing braces, unescaped quotes inside strings, or trailing commas after the last item in an array. When going from YAML to JSON the most common issue is indentation, specifically mixing tabs and spaces or forgetting the space that must come after every colon separator.
+          </div>
+        </div>
+
+        <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
+            Does this tool send my data anywhere?
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            No. Everything runs locally in your browser using JavaScript. Nothing is uploaded, stored, or sent to any server. This makes it safe to paste in production config files, API keys in environment blocks, or any other sensitive data you need to convert quickly.
+          </div>
+        </div>
+
+        <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
+            How does JSON compare to YAML on performance?
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            JSON is significantly faster to parse. Browsers have native support for JSON through JSON.parse which is implemented in optimised C++ under the hood. YAML has no native browser support and requires loading a third party library. For high traffic APIs and microservices JSON is the right choice. For config files that humans write and maintain, YAML wins because it is much easier to read.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────────── -->
+  <section class="pb-20 max-w-3xl mx-auto">
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">What is the Difference Between JSON and YAML?</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        JSON uses curly braces for objects, square brackets for arrays, and double quotes around every string key and value. YAML represents the same structures using indentation for nesting and a colon-space separator for key-value pairs. JSON has no comment support whatsoever, which is a real limitation when you are trying to document configuration. YAML natively supports hash symbol comments on any line. Both formats describe the same underlying data types: strings, numbers, booleans, arrays, and objects. Kubernetes manifests, Docker Compose files, and CI/CD pipeline definitions nearly always use YAML because engineers write and edit them by hand. REST API payloads and npm package files tend to use JSON because it parses faster and is natively supported in every browser and server runtime.
+      </p>
+    </div>
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">When Should You Convert JSON to YAML?</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        The most common reason to reach for a json to yaml converter is when you have an API response or generated JSON file that you want to turn into a Kubernetes manifest, Ansible playbook, or Helm chart values file. OpenAPI specifications are often generated as JSON by tooling but are far easier to read and hand-edit in YAML. GitHub Actions workflow files and Terraform variable files are also written in YAML, so converting a JSON config is a natural first step when setting up automation. Any time a human will need to read, review, or modify the file regularly, YAML is the more comfortable format to work with.
+      </p>
+    </div>
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">When Should You Convert YAML to JSON?</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        A yaml to json converter is most useful when you need to send configuration data to a REST API that expects a JSON body, when preparing state for a frontend application that consumes JSON, or when feeding YAML configuration into a tool that only accepts JSON. npm package files, package-lock.json, and most frontend build tool configurations require strict JSON. Anywhere that JSON.parse speed is a concern at runtime, converting YAML to JSON ahead of time is the right move. Debugging is another common use case: JSON is easier to inspect in browser DevTools and most logging platforms.
+      </p>
+    </div>
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">JSON vs YAML Syntax</h2>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        Object nesting in JSON requires an opening brace, comma-separated key-value pairs with colons, and a closing brace at every level. In YAML the same object is expressed as indented lines with no surrounding punctuation. Arrays in JSON use square brackets with comma-separated values. In YAML they are written as lines prefixed with a two-character sequence: a hyphen and a space marking each item. String escaping differs as well: JSON requires double quotes around all strings and backslash escaping for special characters, while YAML strings can be unquoted in most cases. Comment support is where the formats diverge most sharply: JSON has none, and YAML supports hash symbol comments anywhere on a line. Trailing commas after the last item in a JSON array or object are a syntax error, a common mistake when editing by hand. When you use a yaml to json online converter, comments are silently stripped because the JSON format has nowhere to put them.
+      </p>
+    </div>
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">How to Convert JSON to YAML on the Command Line</h2>
+      <p class="text-sm leading-relaxed mb-5" style="color: var(--fg2);">
+        The <code style="font-family: 'Fira Code', monospace; font-size: 0.8em; padding: 2px 5px; border-radius: 4px; background: var(--code-bg); color: var(--fg);">yq</code> tool handles both directions cleanly and is well suited to automated pipelines and bash scripts. Install it once and use it in any CI workflow that needs format conversion.
+      </p>
+      <div class="rounded-xl p-4 mb-3" style="background: var(--code-bg); border: 1px solid var(--border);">
+        <p class="text-xs mb-2" style="font-family: 'Fira Code', monospace; color: var(--fg3);"># Convert JSON to YAML</p>
+        <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #34d399;">yq -Poy input.json &gt; output.yml</code>
+      </div>
+      <div class="rounded-xl p-4" style="background: var(--code-bg); border: 1px solid var(--border);">
+        <p class="text-xs mb-2" style="font-family: 'Fira Code', monospace; color: var(--fg3);"># Convert YAML to JSON</p>
+        <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #34d399;">yq -o json file.yaml &gt; output.json</code>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+</div>
+
+<style>
+  :root:not(.dark) .jy-hero-h1 {
+    background: none !important;
+    -webkit-text-fill-color: #064e3b !important;
+    color: #064e3b !important;
+  }
+</style>
+
+<script>
+  import jsyaml from 'js-yaml';
+
+  type Direction = 'json2yaml' | 'yaml2json';
+
+  let direction: Direction = 'json2yaml';
+  let indentSize = 2;
+
+  const SAMPLE_JSON = JSON.stringify({
+    name: 'web-service',
+    version: '2.1.0',
+    environment: 'production',
+    server: { host: '0.0.0.0', port: 8080, timeout: 30 },
+    database: {
+      host: 'db.internal',
+      port: 5432,
+      name: 'appdb',
+      pool: { min: 2, max: 10 }
+    },
+    features: { cache: true, metrics: true, debug: false },
+    allowedOrigins: ['https://app.example.com', 'https://api.example.com'],
+    tags: ['backend', 'api', 'v2']
+  }, null, 2);
+
+  const inputArea     = document.getElementById('inputArea')      as HTMLTextAreaElement;
+  const outputArea    = document.getElementById('outputArea')     as HTMLTextAreaElement;
+  const inputLabel    = document.getElementById('inputLabel')!;
+  const outputLabel   = document.getElementById('outputLabel')!;
+  const inputLineNums = document.getElementById('inputLineNums')!;
+  const outputLineNums= document.getElementById('outputLineNums')!;
+  const inputError    = document.getElementById('inputError')!;
+  const inputWrapper  = document.getElementById('inputWrapper')!;
+  const dirToggle     = document.getElementById('directionToggle')!;
+  const copyBtn       = document.getElementById('copyBtn')!;
+  const copyBtnText   = document.getElementById('copyBtnText')!;
+  const loadSampleBtn = document.getElementById('loadSampleBtn')!;
+  const clearBtn      = document.getElementById('clearBtn')!;
+  const indent2Btn    = document.getElementById('indent2Btn')!;
+  const indent4Btn    = document.getElementById('indent4Btn')!;
+
+  function updateLineNums(ta: HTMLTextAreaElement, el: HTMLElement) {
+    const n = ta.value ? ta.value.split('\n').length : 1;
+    el.textContent = Array.from({ length: n }, (_, i) => i + 1).join('\n');
+    el.scrollTop = ta.scrollTop;
+  }
+
+  function convert() {
+    const raw = inputArea.value;
+    if (!raw.trim()) {
+      outputArea.value = '';
+      inputError.style.display = 'none';
+      inputWrapper.style.borderColor = 'var(--border)';
+      updateLineNums(outputArea, outputLineNums);
+      return;
+    }
+    try {
+      let result: string;
+      if (direction === 'json2yaml') {
+        const parsed = JSON.parse(raw);
+        result = jsyaml.dump(parsed, { indent: indentSize, lineWidth: -1, noRefs: true });
+      } else {
+        const parsed = jsyaml.load(raw);
+        result = JSON.stringify(parsed, null, indentSize);
+      }
+      outputArea.value = result.trimEnd();
+      inputError.style.display = 'none';
+      inputWrapper.style.borderColor = 'var(--border)';
+    } catch (e: unknown) {
+      outputArea.value = '';
+      const msg = (e instanceof Error ? e.message : String(e))
+        .replace(/^JS-YAML:\s*/i, '');
+      inputError.textContent = msg || 'Invalid input';
+      inputError.style.display = 'block';
+      inputWrapper.style.borderColor = 'rgba(239,68,68,0.45)';
+    }
+    updateLineNums(outputArea, outputLineNums);
+  }
+
+  function setDirection(d: Direction) {
+    direction = d;
+    if (d === 'json2yaml') {
+      dirToggle.textContent = 'JSON to YAML';
+      inputLabel.textContent = 'JSON Input';
+      outputLabel.textContent = 'YAML Output';
+      inputArea.placeholder = 'Paste your JSON here...';
+    } else {
+      dirToggle.textContent = 'YAML to JSON';
+      inputLabel.textContent = 'YAML Input';
+      outputLabel.textContent = 'JSON Output';
+      inputArea.placeholder = 'Paste your YAML here...';
+    }
+  }
+
+  function setIndent(n: number) {
+    indentSize = n;
+    const activeStyle  = 'rgba(16,185,129,0.12)';
+    const inactiveStyle = 'transparent';
+    (indent2Btn as HTMLElement).style.background = n === 2 ? activeStyle : inactiveStyle;
+    (indent2Btn as HTMLElement).style.color = n === 2 ? 'var(--fg)' : 'var(--fg3)';
+    (indent4Btn as HTMLElement).style.background = n === 4 ? activeStyle : inactiveStyle;
+    (indent4Btn as HTMLElement).style.color = n === 4 ? 'var(--fg)' : 'var(--fg3)';
+    convert();
+  }
+
+  // ── Input events ──────────────────────────────────────────────────────────────
+  inputArea.addEventListener('input', () => {
+    updateLineNums(inputArea, inputLineNums);
+    convert();
+  });
+  inputArea.addEventListener('scroll', () => {
+    inputLineNums.scrollTop = inputArea.scrollTop;
+  });
+  outputArea.addEventListener('scroll', () => {
+    outputLineNums.scrollTop = outputArea.scrollTop;
+  });
+
+  // Tab key inserts spaces
+  inputArea.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = inputArea.selectionStart;
+      const spaces = ' '.repeat(indentSize);
+      inputArea.value = inputArea.value.slice(0, s) + spaces + inputArea.value.slice(inputArea.selectionEnd);
+      inputArea.selectionStart = inputArea.selectionEnd = s + indentSize;
+      updateLineNums(inputArea, inputLineNums);
+      convert();
+    }
+  });
+
+  // ── Button events ─────────────────────────────────────────────────────────────
+  dirToggle.addEventListener('click', () => {
+    setDirection(direction === 'json2yaml' ? 'yaml2json' : 'json2yaml');
+    convert();
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!outputArea.value) return;
+    try {
+      await navigator.clipboard.writeText(outputArea.value);
+    } catch {
+      outputArea.select();
+      document.execCommand('copy');
+    }
+    copyBtnText.textContent = 'Copied!';
+    (copyBtn as HTMLElement).style.background = 'rgba(16,185,129,0.22)';
+    setTimeout(() => {
+      copyBtnText.textContent = 'Copy';
+      (copyBtn as HTMLElement).style.background = 'rgba(16,185,129,0.1)';
+    }, 2000);
+  });
+
+  loadSampleBtn.addEventListener('click', () => {
+    setDirection('json2yaml');
+    inputArea.value = SAMPLE_JSON;
+    updateLineNums(inputArea, inputLineNums);
+    convert();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    inputArea.value = '';
+    outputArea.value = '';
+    inputError.style.display = 'none';
+    inputWrapper.style.borderColor = 'var(--border)';
+    updateLineNums(inputArea, inputLineNums);
+    updateLineNums(outputArea, outputLineNums);
+  });
+
+  indent2Btn.addEventListener('click', () => setIndent(2));
+  indent4Btn.addEventListener('click', () => setIndent(4));
+
+  // ── FAQ accordion ─────────────────────────────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item  = btn.closest('.faq-item')!;
+      const ans   = item.querySelector<HTMLElement>('.faq-a')!;
+      const chev  = btn.querySelector<HTMLElement>('.faq-chevron')!;
+      const open  = !ans.classList.contains('hidden');
+      ans.classList.toggle('hidden', open);
+      chev.style.transform = open ? '' : 'rotate(180deg)';
+    });
+  });
+
+  // Auto-load sample on first open so the tool is immediately interactive
+  inputArea.value = SAMPLE_JSON;
+  updateLineNums(inputArea, inputLineNums);
+  convert();
+</script>
+
+</Layout>

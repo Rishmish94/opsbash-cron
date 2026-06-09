@@ -29,7 +29,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run tests
+      - name: Run all tests
         run: npx playwright test
         env:
           PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
@@ -39,6 +39,23 @@ jobs:
         if: failure()
         with:
           name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      # Explicit step for the JSON/YAML converter — starts dev server on
+      # localhost:4321, waits for it, runs the suite, then kills it.
+      # (Playwright's webServer config in playwright.config.ts manages this
+      # automatically; no manual server wiring needed in the workflow.)
+      - name: Run JSON/YAML converter tests
+        run: npm run test:yaml
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
+
+      - name: Upload JSON/YAML converter test report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-yaml
           path: playwright-report/
           retention-days: 7
 

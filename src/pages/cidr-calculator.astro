@@ -26,7 +26,7 @@ const faqSchema = {
       "name": "What is the difference between IPv4 and IPv6 subnetting?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "IPv4 uses 32-bit addresses (e.g. 192.168.1.0/24) with prefix lengths from /0 to /32, and reserves both a network address and a broadcast address, reducing usable hosts by 2. IPv6 uses 128-bit addresses (e.g. 2001:db8::/32) with prefix lengths from /0 to /128. IPv6 has no broadcast address — the entire range is usable. IPv6 subnets are typically /64, giving each one 2^64 addresses."
+        "text": "IPv4 uses 32-bit addresses (e.g. 192.168.1.0/24) with prefix lengths from /0 to /32, and reserves both a network address and a broadcast address, reducing usable hosts by 2. IPv6 uses 128-bit addresses (e.g. 2001:db8::/32) with prefix lengths from /0 to /128. IPv6 has no broadcast address. The entire range is usable. IPv6 subnets are typically /64, giving each one 2^64 addresses."
       }
     },
     {
@@ -121,7 +121,7 @@ const webAppSchema = {
       CIDR &amp; Subnet Calculator
     </h1>
     <p class="text-base max-w-xl" style="color: var(--fg2);">
-      Calculate subnet details, usable hosts, and split CIDRs instantly. Supports both IPv4 and IPv6. No sign-up required — runs entirely in your browser.
+      Calculate subnet details, usable hosts, and split CIDRs instantly. Supports both IPv4 and IPv6. No sign-up required, runs entirely in your browser.
     </p>
   </section>
 
@@ -286,6 +286,189 @@ const webAppSchema = {
     </div>
   </section>
 
+  <!-- SECTION 1: What is CIDR Notation? -->
+  <section class="pb-5" id="what-is-cidr">
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-sm font-semibold" style="color: var(--fg);">What is CIDR Notation?</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">CIDR (Classless Inter-Domain Routing) notation represents an IP address and its network prefix length in the format IP/prefix, for example 192.168.1.0/24. The prefix number indicates how many bits are used for the network portion, with the remaining bits available for host addresses.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: How to Calculate Subnet Size -->
+  <section class="pb-5" id="subnet-size-calculator">
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-sm font-semibold" style="color: var(--fg);">How to Calculate Subnet Size from CIDR</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">The number of total addresses in a subnet equals 2 raised to the power of the host bits (32 minus the prefix for IPv4). For example, a /24 subnet has 2^8 = 256 total addresses and 254 usable hosts after subtracting the network and broadcast addresses.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">CIDR Prefix</th>
+                <th class="seo-th">Total Addresses</th>
+                <th class="seo-th">Usable Hosts</th>
+                <th class="seo-th hidden sm:table-cell">Common Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/8</td>
+                <td class="seo-td" style="color:var(--fg2);">16,777,216</td>
+                <td class="seo-td" style="color:var(--fg2);">16,777,214</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Large private network (Class A)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/12</td>
+                <td class="seo-td" style="color:var(--fg2);">1,048,576</td>
+                <td class="seo-td" style="color:var(--fg2);">1,048,574</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Medium private network (Class B)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/16</td>
+                <td class="seo-td" style="color:var(--fg2);">65,536</td>
+                <td class="seo-td" style="color:var(--fg2);">65,534</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">AWS VPC typical size</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/20</td>
+                <td class="seo-td" style="color:var(--fg2);">4,096</td>
+                <td class="seo-td" style="color:var(--fg2);">4,094</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">AWS subnet typical size</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/24</td>
+                <td class="seo-td" style="color:var(--fg2);">256</td>
+                <td class="seo-td" style="color:var(--fg2);">254</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Home and small office network</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/28</td>
+                <td class="seo-td" style="color:var(--fg2);">16</td>
+                <td class="seo-td" style="color:var(--fg2);">14</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Small AWS subnet</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/30</td>
+                <td class="seo-td" style="color:var(--fg2);">4</td>
+                <td class="seo-td" style="color:var(--fg2);">2</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Point-to-point links</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/32</td>
+                <td class="seo-td" style="color:var(--fg2);">1</td>
+                <td class="seo-td" style="color:var(--fg2);">0</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Single host route</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: RFC 1918 Private IP Ranges -->
+  <section class="pb-5" id="rfc1918-private-ranges">
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-sm font-semibold" style="color: var(--fg);">RFC 1918 Private IP Address Ranges</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">RFC 1918 defines three private IP address ranges that are not routable on the public internet. These ranges are used for internal networks, cloud VPCs, and home networks.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">Range</th>
+                <th class="seo-th">Subnet Mask</th>
+                <th class="seo-th">Total Hosts</th>
+                <th class="seo-th hidden sm:table-cell">Common Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="rfc-row" data-cidr="10.0.0.0/8" style="cursor: pointer;">
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">10.0.0.0/8</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:var(--fg2);">255.0.0.0</td>
+                <td class="seo-td" style="color:var(--fg2);">16,777,214</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Large enterprise networks</td>
+              </tr>
+              <tr class="rfc-row" data-cidr="172.16.0.0/12" style="cursor: pointer;">
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">172.16.0.0/12</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:var(--fg2);">255.240.0.0</td>
+                <td class="seo-td" style="color:var(--fg2);">1,048,574</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Medium networks</td>
+              </tr>
+              <tr class="rfc-row" data-cidr="192.168.0.0/16" style="cursor: pointer;">
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">192.168.0.0/16</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:var(--fg2);">255.255.0.0</td>
+                <td class="seo-td" style="color:var(--fg2);">65,534</td>
+                <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Home and small office</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="seo-p text-xs mt-3" style="color: var(--fg3);">Click any range to load it into the calculator above.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: AWS VPC Subnetting Guide -->
+  <section class="pb-5" id="aws-vpc-subnetting">
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-sm font-semibold" style="color: var(--fg);">AWS VPC Subnetting Guide</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">AWS reserves 5 IP addresses in every subnet: the network address, VPC router address, DNS server address, future use address, and broadcast address. A /24 subnet in AWS has 251 usable hosts instead of the standard 254.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+                <th class="seo-th">VPC Size</th>
+                <th class="seo-th">Recommended Subnet Layout</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/16 VPC</td>
+                <td class="seo-td" style="color:var(--fg2);">4x /18 subnets (16,382 hosts each)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/16 VPC</td>
+                <td class="seo-td" style="color:var(--fg2);">8x /19 subnets (8,190 hosts each)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/20 VPC</td>
+                <td class="seo-td" style="color:var(--fg2);">4x /22 subnets (1,022 hosts each)</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/24 VPC</td>
+                <td class="seo-td" style="color:var(--fg2);">4x /26 subnets (59 hosts each)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: What is VLSM? -->
+  <section class="pb-5" id="what-is-vlsm">
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-sm font-semibold" style="color: var(--fg);">What is VLSM (Variable Length Subnet Masking)?</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">VLSM allows network engineers to divide an IP address space into subnets of different sizes based on actual host requirements. This eliminates IP address waste compared to using a single fixed subnet size for all network segments.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- FAQ -->
   <section class="pb-16">
     <div class="overflow-hidden rounded-[14px]" style="background:var(--card); border:1px solid var(--border);">
@@ -299,7 +482,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-          CIDR (Classless Inter-Domain Routing) notation is a compact way to express an IP address range. It consists of an IP address followed by a slash and a prefix length — for example, <code class="ic">192.168.1.0/24</code>. The prefix length indicates how many leading bits are the network portion. <code class="ic">/24</code> means the first 24 bits identify the network, leaving 8 bits for host addresses (256 total IPs). CIDR replaced the older Class A/B/C system and allows more efficient allocation of address space.
+          CIDR (Classless Inter-Domain Routing) notation is a compact way to express an IP address range. It consists of an IP address followed by a slash and a prefix length, for example <code class="ic">192.168.1.0/24</code>. The prefix length indicates how many leading bits are the network portion. <code class="ic">/24</code> means the first 24 bits identify the network, leaving 8 bits for host addresses (256 total IPs). CIDR replaced the older Class A/B/C system and allows more efficient allocation of address space.
         </div>
       </div>
 
@@ -319,7 +502,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-          IPv4 uses 32-bit addresses (e.g. <code class="ic">192.168.1.0/24</code>) with prefix lengths from /0 to /32. It reserves one address for the network ID and one for broadcast, reducing usable hosts by 2. IPv6 uses 128-bit addresses (e.g. <code class="ic">2001:db8::/32</code>) with prefix lengths from /0 to /128. IPv6 has no broadcast address — every address in the range is usable. IPv6 subnets are typically /64, giving each network 2⁶⁴ ≈ 18 quintillion addresses. ISPs typically assign /48 or /56 prefixes to customers.
+          IPv4 uses 32-bit addresses (e.g. <code class="ic">192.168.1.0/24</code>) with prefix lengths from /0 to /32. It reserves one address for the network ID and one for broadcast, reducing usable hosts by 2. IPv6 uses 128-bit addresses (e.g. <code class="ic">2001:db8::/32</code>) with prefix lengths from /0 to /128. IPv6 has no broadcast address. Every address in the range is usable. IPv6 subnets are typically /64, giving each network 2⁶⁴ ≈ 18 quintillion addresses. ISPs typically assign /48 or /56 prefixes to customers.
         </div>
       </div>
 
@@ -387,6 +570,10 @@ const webAppSchema = {
   .example-card:hover { border-color: #10b981; background: rgba(16,185,129,0.04); }
   .example-cidr { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 600; color: #34d399; }
   .example-desc { font-size: 11px; color: var(--fg2); }
+  .seo-p { font-size: 14px; color: var(--fg2); line-height: 1.7; margin-bottom: 12px; }
+  .seo-th { padding: 10px 16px; font-size: 11px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--border); }
+  .seo-td { padding: 8px 16px; font-size: 12px; border: 1px solid var(--border); }
+  .rfc-row:hover { background: rgba(16,185,129,0.06); }
 </style>
 
 <script is:inline>
@@ -757,7 +944,7 @@ function updateInfoCard(data) {
       + infoChip('Total Addresses', data.totalHosts)
       + infoChip('No Broadcast', 'All usable')
       + '</div>'
-      + '<p style="margin-top:14px;font-size:12px;color:var(--fg2);line-height:1.6;">IPv6 has no broadcast address — every address in the /' + data.prefix + ' prefix is usable. The first address is conventionally reserved as the network identifier.</p>';
+      + '<p style="margin-top:14px;font-size:12px;color:var(--fg2);line-height:1.6;">IPv6 has no broadcast address. Every address in the /' + data.prefix + ' prefix is usable. The first address is conventionally reserved as the network identifier.</p>';
   }
 }
 
@@ -1084,6 +1271,16 @@ document.querySelectorAll('.faq-trigger').forEach(function(btn) {
 [splitInput, vpcInput].forEach(function(inp) {
   inp.addEventListener('focus', function() { this.style.borderColor = '#10b981'; this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.15)'; });
   inp.addEventListener('blur',  function() { if (this.style.borderColor !== 'rgb(239, 68, 68)') { this.style.borderColor = 'var(--border)'; this.style.boxShadow = 'none'; } });
+});
+
+// ─── RFC 1918 CLICKABLE ROWS ──────────────────────────────────────────────────
+document.querySelectorAll('.rfc-row').forEach(function(row) {
+  row.addEventListener('click', function() {
+    var cidr = this.dataset.cidr;
+    cidrInput.value = cidr;
+    doCalc(cidr);
+    cidrInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 });
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
