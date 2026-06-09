@@ -354,6 +354,32 @@ const webAppSchema = {
     tags: ['backend', 'api', 'v2']
   }, null, 2);
 
+  const SAMPLE_YAML = `name: web-service
+version: 2.1.0
+environment: production
+server:
+  host: 0.0.0.0
+  port: 8080
+  timeout: 30
+database:
+  host: db.internal
+  port: 5432
+  name: appdb
+  pool:
+    min: 2
+    max: 10
+features:
+  cache: true
+  metrics: true
+  debug: false
+allowedOrigins:
+  - https://app.example.com
+  - https://api.example.com
+tags:
+  - backend
+  - api
+  - v2`;
+
   const inputArea     = document.getElementById('inputArea')      as HTMLTextAreaElement;
   const outputArea    = document.getElementById('outputArea')     as HTMLTextAreaElement;
   const inputLabel    = document.getElementById('inputLabel')!;
@@ -461,7 +487,15 @@ const webAppSchema = {
 
   // ── Button events ─────────────────────────────────────────────────────────────
   dirToggle.addEventListener('click', () => {
-    setDirection(direction === 'json2yaml' ? 'yaml2json' : 'json2yaml');
+    const newDir: Direction = direction === 'json2yaml' ? 'yaml2json' : 'json2yaml';
+    setDirection(newDir);
+    if (newDir === 'yaml2json' && inputArea.value === SAMPLE_JSON) {
+      inputArea.value = SAMPLE_YAML;
+      updateLineNums(inputArea, inputLineNums);
+    } else if (newDir === 'json2yaml' && inputArea.value === SAMPLE_YAML) {
+      inputArea.value = SAMPLE_JSON;
+      updateLineNums(inputArea, inputLineNums);
+    }
     convert();
   });
 
@@ -482,8 +516,7 @@ const webAppSchema = {
   });
 
   loadSampleBtn.addEventListener('click', () => {
-    setDirection('json2yaml');
-    inputArea.value = SAMPLE_JSON;
+    inputArea.value = direction === 'yaml2json' ? SAMPLE_YAML : SAMPLE_JSON;
     updateLineNums(inputArea, inputLineNums);
     convert();
   });
