@@ -7,50 +7,50 @@ const faqSchema = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Why is YAML preferred over JSON for configuration files?",
+      "name": "Why convert JSON to YAML?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "YAML is preferred because it is easier for humans to read and write. It drops the brackets, braces, and mandatory quotes that JSON requires, and it supports inline comments using the hash symbol. This matters a lot when you are writing Kubernetes manifests or GitHub Actions workflows by hand every day. JSON has no comment support at all, which makes it frustrating for configuration files that need explanation."
+        "text": "The most common reason is moving configuration data from a machine generated format into something humans can read and edit. JSON is the default output of most APIs and tools, but YAML is what Kubernetes manifests, Docker Compose files, GitHub Actions workflows, and Ansible playbooks use. Converting lets you take an API response or generated config and turn it into something you can maintain in a Git repository without losing your mind reading brackets and quotes."
       }
     },
     {
       "@type": "Question",
-      "name": "Can I convert any valid JSON file into YAML without losing data?",
+      "name": "How do you convert JSON to YAML?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. YAML is a superset of JSON, meaning it can represent everything JSON can. Strings, numbers, booleans, arrays, objects and null values all convert cleanly. The curly braces become indentation levels and the square brackets become list items. The data itself is never lost."
+        "text": "Paste your JSON into the left panel of this tool and the YAML output appears on the right instantly. The conversion maps JSON objects to YAML indentation, JSON arrays to YAML list items with hyphens, and removes the brackets and quotes that JSON requires. You can also toggle to YAML to JSON mode and paste YAML to get JSON back."
       }
     },
     {
       "@type": "Question",
-      "name": "Are YAML comments preserved when converting to JSON?",
+      "name": "Is YAML better than JSON?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No, they are not. JSON has no concept of comments, so any lines starting with a hash in your YAML get stripped out during conversion. If your comments matter, keep a copy of the original YAML file before converting."
+        "text": "It depends on who is reading the file. YAML is better for configuration files that humans write and maintain because it is less cluttered and supports comments. JSON is better for API responses and data exchange between machines because it parses faster and has native browser support. Most DevOps engineers use YAML for configs and JSON for APIs."
       }
     },
     {
       "@type": "Question",
-      "name": "What are the most common errors when converting between these formats?",
+      "name": "Does this converter preserve data types?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "When going from JSON to YAML the usual culprits are malformed JSON inputs like missing closing braces, unescaped quotes inside strings, or trailing commas after the last item in an array. When going from YAML to JSON the most common issue is indentation, specifically mixing tabs and spaces or forgetting the space that must come after every colon separator."
+        "text": "Yes. Strings, numbers, booleans, arrays, objects and null values all convert accurately in both directions. YAML is a superset of JSON so the conversion is lossless. The only exception is YAML comments which are stripped when converting to JSON because JSON has no comment syntax."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this tool send my data anywhere?",
+      "name": "Can I convert YAML back to JSON?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Everything runs locally in your browser using JavaScript. Nothing is uploaded, stored, or sent to any server. This makes it safe to paste in production config files, API keys in environment blocks, or any other sensitive data you need to convert quickly."
+        "text": "Yes. Click the toggle button to switch to YAML to JSON mode, paste your YAML into the input panel and the JSON output appears on the right instantly. The tool handles both directions with the same accuracy."
       }
     },
     {
       "@type": "Question",
-      "name": "How does JSON compare to YAML on performance?",
+      "name": "What if my JSON is invalid?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "JSON is significantly faster to parse. Browsers have native support for JSON through JSON.parse which is implemented in optimised C++ under the hood. YAML has no native browser support and requires loading a third party library. For high traffic APIs and microservices JSON is the right choice. For config files that humans write and maintain, YAML wins because it is much easier to read."
+        "text": "The tool shows a red error message immediately if it detects invalid JSON. Common causes are trailing commas after the last item in an array or object, missing closing brackets, unescaped quotes inside string values, and using single quotes instead of double quotes. Fix the error in the input and the output updates automatically."
       }
     }
   ]
@@ -73,8 +73,8 @@ const webAppSchema = {
 ---
 
 <Layout
-  title="JSON to YAML Converter — Free Online Tool | OpsBash"
-  description="Convert JSON to YAML and YAML to JSON instantly in your browser. Free, secure, client side tool with no login required."
+  title="JSON to YAML Converter – Free Online Tool | OpsBash"
+  description="Instantly convert JSON to YAML and YAML to JSON with our free online converter. Supports Kubernetes and Docker configs. Fast, secure, no login required."
   canonicalURL="https://opsbash.com/json-yaml-converter"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
@@ -91,7 +91,7 @@ const webAppSchema = {
     </div>
     <h1 class="jy-hero-h1 font-black tracking-tight mb-4 leading-tight"
         style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-      Online JSON to YAML and YAML to JSON Converter
+      JSON to YAML Converter – Online JSON and YAML Tool
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
       Paste in JSON or YAML and get instant output in the other format. Runs entirely in your browser. Nothing is uploaded or stored anywhere.
@@ -209,61 +209,61 @@ const webAppSchema = {
 
         <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
           <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
-            Why is YAML preferred over JSON for configuration files?
+            Why convert JSON to YAML?
             <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-            YAML is preferred because it is easier for humans to read and write. It drops the brackets, braces, and mandatory quotes that JSON requires, and it supports inline comments using the hash symbol. This matters a lot when you are writing Kubernetes manifests or GitHub Actions workflows by hand every day. JSON has no comment support at all, which makes it frustrating for configuration files that need explanation.
+            The most common reason is moving configuration data from a machine generated format into something humans can read and edit. JSON is the default output of most APIs and tools, but YAML is what Kubernetes manifests, Docker Compose files, GitHub Actions workflows, and Ansible playbooks use. Converting lets you take an API response or generated config and turn it into something you can maintain in a Git repository without losing your mind reading brackets and quotes.
           </div>
         </div>
 
         <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
           <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
-            Can I convert any valid JSON file into YAML without losing data?
+            How do you convert JSON to YAML?
             <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-            Yes. YAML is a superset of JSON, meaning it can represent everything JSON can. Strings, numbers, booleans, arrays, objects and null values all convert cleanly. The curly braces become indentation levels and the square brackets become list items. The data itself is never lost.
+            Paste your JSON into the left panel of this tool and the YAML output appears on the right instantly. The conversion maps JSON objects to YAML indentation, JSON arrays to YAML list items with hyphens, and removes the brackets and quotes that JSON requires. You can also toggle to YAML to JSON mode and paste YAML to get JSON back.
           </div>
         </div>
 
         <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
           <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
-            Are YAML comments preserved when converting to JSON?
+            Is YAML better than JSON?
             <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-            No, they are not. JSON has no concept of comments, so any lines starting with a hash in your YAML get stripped out during conversion. If your comments matter, keep a copy of the original YAML file before converting.
+            It depends on who is reading the file. YAML is better for configuration files that humans write and maintain because it is less cluttered and supports comments. JSON is better for API responses and data exchange between machines because it parses faster and has native browser support. Most DevOps engineers use YAML for configs and JSON for APIs.
           </div>
         </div>
 
         <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
           <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
-            What are the most common errors when converting between these formats?
+            Does this converter preserve data types?
             <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-            When going from JSON to YAML the usual culprits are malformed JSON inputs like missing closing braces, unescaped quotes inside strings, or trailing commas after the last item in an array. When going from YAML to JSON the most common issue is indentation, specifically mixing tabs and spaces or forgetting the space that must come after every colon separator.
+            Yes. Strings, numbers, booleans, arrays, objects and null values all convert accurately in both directions. YAML is a superset of JSON so the conversion is lossless. The only exception is YAML comments which are stripped when converting to JSON because JSON has no comment syntax.
           </div>
         </div>
 
         <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
           <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
-            Does this tool send my data anywhere?
+            Can I convert YAML back to JSON?
             <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-            No. Everything runs locally in your browser using JavaScript. Nothing is uploaded, stored, or sent to any server. This makes it safe to paste in production config files, API keys in environment blocks, or any other sensitive data you need to convert quickly.
+            Yes. Click the toggle button to switch to YAML to JSON mode, paste your YAML into the input panel and the JSON output appears on the right instantly. The tool handles both directions with the same accuracy.
           </div>
         </div>
 
         <div class="faq-item rounded-xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
           <button class="faq-q w-full text-left px-5 py-4 flex items-center justify-between gap-4 text-sm font-semibold" style="color: var(--fg);">
-            How does JSON compare to YAML on performance?
+            What if my JSON is invalid?
             <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-a hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-            JSON is significantly faster to parse. Browsers have native support for JSON through JSON.parse which is implemented in optimised C++ under the hood. YAML has no native browser support and requires loading a third party library. For high traffic APIs and microservices JSON is the right choice. For config files that humans write and maintain, YAML wins because it is much easier to read.
+            The tool shows a red error message immediately if it detects invalid JSON. Common causes are trailing commas after the last item in an array or object, missing closing brackets, unescaped quotes inside string values, and using single quotes instead of double quotes. Fix the error in the input and the output updates automatically.
           </div>
         </div>
 
@@ -277,35 +277,35 @@ const webAppSchema = {
     <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">What is the Difference Between JSON and YAML?</h2>
       <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-        JSON uses curly braces for objects, square brackets for arrays, and double quotes around every string key and value. YAML represents the same structures using indentation for nesting and a colon-space separator for key-value pairs. JSON has no comment support whatsoever, which is a real limitation when you are trying to document configuration. YAML natively supports hash symbol comments on any line. Both formats describe the same underlying data types: strings, numbers, booleans, arrays, and objects. Kubernetes manifests, Docker Compose files, and CI/CD pipeline definitions nearly always use YAML because engineers write and edit them by hand. REST API payloads and npm package files tend to use JSON because it parses faster and is natively supported in every browser and server runtime.
+        JSON uses curly braces for objects, square brackets for arrays, and double quotes around every key and string value. YAML represents the same structures using indentation for nesting and a colon followed by a space for each key-value pair. JSON has no comment support at all, which makes it awkward for configuration files that need explanation. YAML natively supports hash symbol comments on any line, which is one of the main reasons engineers prefer it for configs. Both formats describe the same underlying data types. Kubernetes manifests, Docker Compose files, and CI/CD pipeline files nearly always use YAML because people write and edit them by hand. REST API payloads and npm package files use JSON because it parses faster and every browser and server runtime supports it natively.
       </p>
     </div>
 
     <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">When Should You Convert JSON to YAML?</h2>
       <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-        The most common reason to reach for a json to yaml converter is when you have an API response or generated JSON file that you want to turn into a Kubernetes manifest, Ansible playbook, or Helm chart values file. OpenAPI specifications are often generated as JSON by tooling but are far easier to read and hand-edit in YAML. GitHub Actions workflow files and Terraform variable files are also written in YAML, so converting a JSON config is a natural first step when setting up automation. Any time a human will need to read, review, or modify the file regularly, YAML is the more comfortable format to work with.
+        The most common reason to reach for a json to yaml converter is when you have an API response or generated config that you need to turn into a Kubernetes manifest, Ansible playbook, or Helm chart values file. OpenAPI specs are often generated as JSON by tooling but are far easier to read and edit in YAML. GitHub Actions workflow files are YAML, so converting a generated JSON structure is a natural first step when setting up automation. Any time a human will need to read, review, or modify the file regularly, YAML is the more comfortable format to work with.
       </p>
     </div>
 
     <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">When Should You Convert YAML to JSON?</h2>
       <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-        A yaml to json converter is most useful when you need to send configuration data to a REST API that expects a JSON body, when preparing state for a frontend application that consumes JSON, or when feeding YAML configuration into a tool that only accepts JSON. npm package files, package-lock.json, and most frontend build tool configurations require strict JSON. Anywhere that JSON.parse speed is a concern at runtime, converting YAML to JSON ahead of time is the right move. Debugging is another common use case: JSON is easier to inspect in browser DevTools and most logging platforms.
+        A yaml to json conversion is most useful when you need to send configuration data to a REST API that expects a JSON body, when preparing state for a frontend application, or when feeding a YAML config into a tool that only accepts JSON. npm package files and most frontend build tool configurations require strict JSON. Anywhere JSON.parse speed matters at runtime, converting YAML to JSON ahead of time is the right call. Debugging is another common case because JSON is much easier to inspect in browser DevTools and most logging platforms display it with syntax highlighting.
       </p>
     </div>
 
     <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">JSON vs YAML Syntax</h2>
       <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-        Object nesting in JSON requires an opening brace, comma-separated key-value pairs with colons, and a closing brace at every level. In YAML the same object is expressed as indented lines with no surrounding punctuation. Arrays in JSON use square brackets with comma-separated values. In YAML they are written as lines prefixed with a two-character sequence: a hyphen and a space marking each item. String escaping differs as well: JSON requires double quotes around all strings and backslash escaping for special characters, while YAML strings can be unquoted in most cases. Comment support is where the formats diverge most sharply: JSON has none, and YAML supports hash symbol comments anywhere on a line. Trailing commas after the last item in a JSON array or object are a syntax error, a common mistake when editing by hand. When you use a yaml to json online converter, comments are silently stripped because the JSON format has nowhere to put them.
+        Object nesting in JSON requires an opening brace, comma-separated key-value pairs with colons, and a closing brace at every level. YAML expresses the same object as indented lines with no surrounding punctuation. Arrays in JSON use square brackets with comma-separated values. In YAML they are lines prefixed with a hyphen and a space. String escaping works differently too: JSON requires double quotes around all strings and backslash escaping for special characters, while most YAML strings can be unquoted. Comment support is where the formats diverge most sharply. JSON has none. YAML supports a hash symbol comment anywhere on a line. Trailing commas after the last item in a JSON array or object are a syntax error and a common mistake when editing JSON by hand. When converting YAML to JSON, comments are stripped because JSON has no syntax to represent them.
       </p>
     </div>
 
     <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">How to Convert JSON to YAML on the Command Line</h2>
       <p class="text-sm leading-relaxed mb-5" style="color: var(--fg2);">
-        The <code style="font-family: 'Fira Code', monospace; font-size: 0.8em; padding: 2px 5px; border-radius: 4px; background: var(--code-bg); color: var(--fg);">yq</code> tool handles both directions cleanly and is well suited to automated pipelines and bash scripts. Install it once and use it in any CI workflow that needs format conversion.
+        The <code style="font-family: 'Fira Code', monospace; font-size: 0.8em; padding: 2px 5px; border-radius: 4px; background: var(--code-bg); color: var(--fg);">yq</code> tool handles both directions cleanly and fits naturally into automated pipelines and bash scripts. Install it once and use it in any CI workflow that needs format conversion.
       </p>
       <div class="rounded-xl p-4 mb-3" style="background: var(--code-bg); border: 1px solid var(--border);">
         <p class="text-xs mb-2" style="font-family: 'Fira Code', monospace; color: var(--fg3);"># Convert JSON to YAML</p>
@@ -315,6 +315,12 @@ const webAppSchema = {
         <p class="text-xs mb-2" style="font-family: 'Fira Code', monospace; color: var(--fg3);"># Convert YAML to JSON</p>
         <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #34d399;">yq -o json file.yaml &gt; output.json</code>
       </div>
+    </div>
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        Working with JWT tokens? Try our <a href="/jwt-decoder" style="color: var(--accent); text-decoration: underline;">JWT decoder</a> to inspect token headers, payloads, and expiry times directly in your browser. Need to generate a gitignore file for your project? Use our <a href="/gitignore-generator" style="color: var(--accent); text-decoration: underline;">gitignore generator</a> to create a clean gitignore for any technology stack in one click.
+      </p>
     </div>
 
   </section>

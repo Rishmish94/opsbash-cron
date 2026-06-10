@@ -7,50 +7,50 @@ const faqSchema = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is a JWT token?",
+      "name": "What is a JWT decoder?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A JWT or JSON Web Token is a compact string used to securely transmit information between two parties. It has three parts separated by dots: a header that describes the algorithm, a payload that contains the actual claims or data, and a signature used to verify the token has not been tampered with. JWTs are widely used for authentication in web applications and APIs."
+        "text": "A JWT decoder is a tool that reads a JSON Web Token and displays its contents in plain readable JSON. A JWT has three parts separated by dots: the header, the payload, and the signature. The header describes the algorithm used to sign the token. The payload contains the actual claims like user ID, expiry time, and issuer. Decoding simply means reading these parts, which are Base64 encoded, not encrypted."
       }
     },
     {
       "@type": "Question",
-      "name": "Is it safe to paste my JWT here?",
+      "name": "Can I decode a JWT without a secret key?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. This tool runs entirely in your browser. Your token is never sent to any server, stored anywhere, or logged. The decoding happens locally using JavaScript. That said, avoid pasting tokens that are still active and grant access to sensitive systems in any public tool as a general security practice."
+        "text": "Yes. Decoding a JWT does not require a secret key because the token is encoded not encrypted. Anyone with the token can read the header and payload by Base64 decoding them. The secret key is only needed to verify the signature, which proves the token was issued by a trusted source and has not been tampered with. This tool decodes but does not verify."
       }
     },
     {
       "@type": "Question",
-      "name": "What does the expiry claim mean?",
+      "name": "What information can I see after decoding a JWT?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The exp claim is a Unix timestamp that tells you when the token stops being valid. Once the current time passes that timestamp the token is considered expired and a server should reject it. This tool converts that timestamp into a readable date and tells you whether the token is still valid or has already expired."
+        "text": "After decoding you can see everything in the header and payload. The header typically shows the token type and signing algorithm such as HS256 or RS256. The payload shows claims like sub which is the subject or user identifier, iss which is the issuer, exp which is the expiry timestamp, and iat which is the time the token was issued. Applications can also add custom claims for their own purposes."
       }
     },
     {
       "@type": "Question",
-      "name": "Why can this tool not verify the signature?",
+      "name": "Is it safe to decode JWT tokens online?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Verifying a JWT signature requires the secret key or public key that was used to sign it. This tool only has the token itself. Without the key there is no way to confirm the signature is genuine. Decoding the payload is always possible because it is just Base64 encoded, but verification is a separate step that requires the key."
+        "text": "It is safe when the tool runs entirely in your browser without sending data to a server. This tool processes everything locally using JavaScript. Your token never leaves your machine. That said avoid pasting tokens that are still active and grant access to sensitive production systems in any public tool as a general security practice."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the difference between decoding and verifying a JWT?",
+      "name": "How do I decode a JWT in JavaScript?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Decoding means reading the contents of the token, specifically the header and payload. Anyone can decode a JWT because the data is only Base64 encoded, not encrypted. Verifying means confirming the signature is valid using the secret key, which proves the token was issued by a trusted party and has not been modified."
+        "text": "You can decode a JWT in JavaScript by splitting the token on the dot character, taking the second part which is the payload, and passing it to atob() to Base64 decode it, then parsing the result with JSON.parse(). For production use the jsonwebtoken library on Node.js handles both decoding and verification and is the industry standard."
       }
     },
     {
       "@type": "Question",
-      "name": "What are common JWT claims?",
+      "name": "What are the three parts of a JWT?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The most common claims are sub which identifies the subject or user, iss which identifies the issuer of the token, exp which is the expiry timestamp, iat which is the time the token was issued, and nbf which means not before and sets the earliest time the token is valid. Applications can also add custom claims for their own purposes."
+        "text": "A JWT consists of three Base64 encoded sections separated by dots. The first is the header which contains the token type and algorithm. The second is the payload which contains the claims or data. The third is the signature which is created by signing the header and payload with a secret key. The signature cannot be decoded, only verified using the original key."
       }
     }
   ]
@@ -73,8 +73,8 @@ const webAppSchema = {
 ---
 
 <Layout
-  title="JWT Decoder — Free Online JWT Token Decoder | OpsBash"
-  description="Decode JWT tokens instantly in your browser. View header, payload and expiry in plain text. No login required, nothing is uploaded."
+  title="JWT Decoder – Free Online Token Decoder | OpsBash"
+  description="Decode JSON Web Tokens instantly with our free online JWT Decoder. View token header, payload and claims securely. No data is sent to any server."
   canonicalURL="https://opsbash.com/jwt-decoder"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
@@ -91,7 +91,7 @@ const webAppSchema = {
     </div>
     <h1 class="jd-hero-h1 font-black tracking-tight mb-4 leading-tight"
         style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-      Free Online JWT Token Decoder
+      JWT Decoder – Free Online JSON Web Token Decoder
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
       Paste a JWT and instantly see the header, payload and expiry details. Runs entirely in your browser. Nothing is uploaded or stored anywhere.
@@ -213,66 +213,66 @@ const webAppSchema = {
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What is a JWT token?
+          What is a JWT decoder?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          A JWT or JSON Web Token is a compact string used to securely transmit information between two parties. It has three parts separated by dots: a header that describes the algorithm, a payload that contains the actual claims or data, and a signature used to verify the token has not been tampered with. JWTs are widely used for authentication in web applications and APIs.
+          A JWT decoder is a tool that reads a JSON Web Token and displays its contents in plain readable JSON. A JWT has three parts separated by dots: the header, the payload, and the signature. The header describes the algorithm used to sign the token. The payload contains the actual claims like user ID, expiry time, and issuer. Decoding simply means reading these parts, which are Base64 encoded, not encrypted.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          Is it safe to paste my JWT here?
+          Can I decode a JWT without a secret key?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Yes. This tool runs entirely in your browser. Your token is never sent to any server, stored anywhere, or logged. The decoding happens locally using JavaScript. That said, avoid pasting tokens that are still active and grant access to sensitive systems in any public tool as a general security practice.
+          Yes. Decoding a JWT does not require a secret key because the token is encoded not encrypted. Anyone with the token can read the header and payload by Base64 decoding them. The secret key is only needed to verify the signature, which proves the token was issued by a trusted source and has not been tampered with. This tool decodes but does not verify.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What does the expiry claim mean?
+          What information can I see after decoding a JWT?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          The exp claim is a Unix timestamp that tells you when the token stops being valid. Once the current time passes that timestamp the token is considered expired and a server should reject it. This tool converts that timestamp into a readable date and tells you whether the token is still valid or has already expired.
+          After decoding you can see everything in the header and payload. The header typically shows the token type and signing algorithm such as HS256 or RS256. The payload shows claims like sub which is the subject or user identifier, iss which is the issuer, exp which is the expiry timestamp, and iat which is the time the token was issued. Applications can also add custom claims for their own purposes.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          Why can this tool not verify the signature?
+          Is it safe to decode JWT tokens online?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Verifying a JWT signature requires the secret key or public key that was used to sign it. This tool only has the token itself. Without the key there is no way to confirm the signature is genuine. Decoding the payload is always possible because it is just Base64 encoded, but verification is a separate step that requires the key.
+          It is safe when the tool runs entirely in your browser without sending data to a server. This tool processes everything locally using JavaScript. Your token never leaves your machine. That said avoid pasting tokens that are still active and grant access to sensitive production systems in any public tool as a general security practice.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What is the difference between decoding and verifying a JWT?
+          How do I decode a JWT in JavaScript?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Decoding means reading the contents of the token, specifically the header and payload. Anyone can decode a JWT because the data is only Base64 encoded, not encrypted. Verifying means confirming the signature is valid using the secret key, which proves the token was issued by a trusted party and has not been modified.
+          You can decode a JWT in JavaScript by splitting the token on the dot character, taking the second part which is the payload, and passing it to atob() to Base64 decode it, then parsing the result with JSON.parse(). For production use the jsonwebtoken library on Node.js handles both decoding and verification and is the industry standard.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What are common JWT claims?
+          What are the three parts of a JWT?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          The most common claims are sub which identifies the subject or user, iss which identifies the issuer of the token, exp which is the expiry timestamp, iat which is the time the token was issued, and nbf which means not before and sets the earliest time the token is valid. Applications can also add custom claims for their own purposes.
+          A JWT consists of three Base64 encoded sections separated by dots. The first is the header which contains the token type and algorithm. The second is the payload which contains the claims or data. The third is the signature which is created by signing the header and payload with a secret key. The signature cannot be decoded, only verified using the original key.
         </div>
       </div>
 
@@ -286,31 +286,37 @@ const webAppSchema = {
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is a JWT Token?</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          A JWT or JSON Web Token is a compact, URL safe string made up of three parts joined by dots. The first part is the header, which describes the signing algorithm in use. The second is the payload, which holds the claims or data you want to transmit. The third is the signature, which lets a server confirm the token has not been altered. Both the header and payload are Base64 encoded, which means anyone can read them with a jwt decoder, but only the server holding the signing key can validate the signature. JWTs are widely used for authentication and authorization in REST APIs and modern web applications.
+          A JWT or JSON Web Token is a compact string made up of three parts joined by dots. The header describes the signing algorithm. The payload holds the claims, which is the actual data being transmitted. The third part is the signature, which a server uses to confirm the token has not been altered. Both the header and payload are Base64 encoded, which means anyone can read them with a jwt decoder without needing a key. Decoding is always possible but verifying the signature requires the original secret. JWTs are the standard mechanism for stateless authentication in REST APIs and web applications because they carry all the information a server needs without a database lookup.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">How JWT Authentication Works</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          When a user logs in, the server verifies their credentials and responds with a signed JWT. The client stores this token and sends it with every subsequent request, typically in the Authorization header. Because the server does not need to look up session data in a database, this is called stateless authentication. The server simply verifies the signature and reads the claims directly from the token. This approach scales naturally across services because any server that knows the signing key can validate requests independently, which is why stateless JWT authentication has become a popular choice in microservices architectures.
+          When a user logs in, the server verifies their credentials and issues a signed JWT. The client stores this token, usually in memory or local storage, and sends it with every subsequent request in the Authorization header as a Bearer token. Because the server does not need to query session state from a database, this pattern is called stateless authentication. Any server that knows the signing key can validate requests independently, which makes JWT a natural fit for microservices where requests may be handled by different instances on each call. The tradeoff is that tokens cannot be invalidated server side before they expire, which is why short expiry times matter.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Understanding JWT Claims</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Claims are the pieces of information stored in the JWT payload. Registered claims are a standardized set defined by the specification: sub identifies the subject such as a user ID, iss names the issuer, exp sets the expiry timestamp, iat records when the token was issued, and nbf sets the earliest time the token becomes valid. Public claims are registered in the IANA JSON Web Token Claims registry to avoid collisions. Private claims are custom values agreed upon by the parties using the token. Real world examples include Kubernetes service account tokens, which use the sub claim for pod identity, and OAuth2 access tokens, which often carry scope and audience claims.
+          Claims are the key-value pairs stored in the JWT payload. The specification defines a set of registered claims: sub identifies the subject, which is usually a user ID; iss names the issuer of the token; exp sets the expiry timestamp; iat records when the token was issued; and nbf sets the earliest time the token becomes valid. Public claims are shared in the IANA registry to avoid naming collisions across different systems. Private claims are custom fields agreed on between the parties. Real world examples include Kubernetes service account tokens, which use sub for pod identity, and OAuth2 access tokens, which commonly carry scope and aud claims to restrict what the token can access.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">JWT Security Best Practices</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Always verify the JWT signature on the server before trusting any claims in the payload. Never rely on the payload alone without checking the signature. Use short expiry times so that stolen tokens become useless quickly. Keep in mind that the payload is only Base64 encoded, not encrypted, so any data visible to the server is also visible to anyone who holds the token. Never store passwords, credit card numbers, or other sensitive information in the payload. Always serve your application over HTTPS to prevent tokens from being intercepted in transit. Rotate your signing keys regularly and revoke old tokens when users log out or when a breach is suspected.
+          Always verify the JWT signature server side before trusting any claim in the payload. Never rely on the payload contents alone. Use short expiry times so that stolen tokens become useless quickly. Keep in mind that the payload is only Base64 encoded and not encrypted, so anyone holding the token can read its contents. Never store passwords, credit card numbers, or other sensitive data in the payload. Always serve your application over HTTPS to prevent tokens being intercepted in transit. Rotate your signing keys on a regular schedule and revoke active tokens immediately when a breach is suspected.
         </p>
       </div>
 
+    </div>
+
+    <div class="reveal mt-6 rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        If you work with JSON data try our <a href="/json-yaml-converter" style="color: var(--accent); text-decoration: underline;">JSON to YAML converter</a> to move configs between formats instantly. Need to set file permissions on your server? Use our <a href="/chmod-calculator" style="color: var(--accent); text-decoration: underline;">chmod calculator</a> to calculate the right octal value for any permission set.
+      </p>
     </div>
   </section>
 

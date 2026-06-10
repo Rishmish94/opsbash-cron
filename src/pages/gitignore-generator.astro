@@ -10,7 +10,7 @@ const faqSchema = {
       "name": "What is a .gitignore file?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A .gitignore file tells Git which files and directories to ignore when tracking changes in a repository. Any file or pattern listed in it will not be committed to your repository. This is essential for keeping build artifacts, dependency folders, environment files, and editor settings out of your codebase and away from other contributors."
+        "text": "A .gitignore file tells Git which files and directories to ignore when tracking changes in a repository. Any file or pattern listed in it will not be committed. This is essential for keeping build artifacts, dependency folders like node_modules, environment files with secrets, and editor settings out of your codebase. Without one your repository quickly fills up with files that should never have been committed in the first place."
       }
     },
     {
@@ -18,7 +18,7 @@ const faqSchema = {
       "name": "Where should I put the .gitignore file?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The .gitignore file should be placed in the root directory of your repository. Git reads it automatically when you run any git command. You can also have multiple .gitignore files in subdirectories if you need to ignore files only within specific parts of your project, but a single root level file covers most use cases."
+        "text": "Place it in the root directory of your repository. Git reads it automatically when you run any git command. You can also have multiple .gitignore files in subdirectories if you need to ignore files only within specific parts of your project, but a single root level file covers most use cases and is the standard convention."
       }
     },
     {
@@ -26,15 +26,7 @@ const faqSchema = {
       "name": "Can I add a .gitignore file after files have already been committed?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes but there is a catch. Adding a pattern to .gitignore only prevents future tracking of that file. If the file was already committed to your repository Git will continue tracking it. To stop tracking a file that was previously committed you need to run git rm --cached filename first, then commit that change. After that the .gitignore rule will take effect."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What is the difference between .gitignore and .gitkeep?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "They serve completely opposite purposes. A .gitignore file tells Git to ignore certain files and not track them. A .gitkeep file is a convention used to force Git to track an otherwise empty directory, since Git does not track empty folders by default. The .gitkeep file itself has no special meaning to Git, it is just a placeholder file that developers use by convention."
+        "text": "Yes but there is a catch. Adding a pattern to .gitignore only prevents future tracking of that file. If the file was already committed Git will continue tracking it. To stop tracking a previously committed file run git rm --cached filename first, then commit that change. After that the .gitignore rule takes effect going forward."
       }
     },
     {
@@ -42,15 +34,23 @@ const faqSchema = {
       "name": "Should I commit my .gitignore file to the repository?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, always commit your .gitignore file. It should be one of the first files you add to any new repository. Committing it ensures that every contributor working on the project gets the same ignore rules automatically when they clone the repository, keeping everyone's working directory clean and consistent."
+        "text": "Yes, always commit it. It should be one of the first files you add to any new repository. Committing ensures every contributor gets the same ignore rules automatically when they clone the repository, keeping everyone's working directory clean and consistent."
       }
     },
     {
       "@type": "Question",
-      "name": "How do I ignore a file that is already being tracked by Git?",
+      "name": "What is the difference between .gitignore and .gitkeep?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "First add the file pattern to your .gitignore file. Then run git rm --cached filename to remove it from Git's tracking index without deleting the actual file from your disk. Finally commit that change. From that point forward Git will ignore the file according to your .gitignore rules even though the file still exists locally."
+        "text": "They serve opposite purposes. A .gitignore file tells Git to ignore certain files. A .gitkeep file is a convention used to force Git to track an otherwise empty directory since Git does not track empty folders by default. The .gitkeep file has no special meaning to Git, it is just a placeholder that developers use by convention."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I ignore a file that is already being tracked?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "First add the file pattern to your .gitignore file. Then run git rm --cached filename to remove it from Git's tracking index without deleting the actual file from your disk. Finally commit that change. From that point Git ignores the file even though it still exists locally."
       }
     }
   ]
@@ -69,7 +69,7 @@ const webAppSchema = {
 ---
 
 <Layout
-  title="gitignore Generator — Free Online .gitignore File Generator | OpsBash"
+  title=".gitignore Generator – Free Online Tool | OpsBash"
   description="Generate .gitignore files instantly for any technology stack. Select your languages and frameworks and download a clean .gitignore file in one click."
   canonicalURL="https://opsbash.com/gitignore-generator"
 >
@@ -87,7 +87,7 @@ const webAppSchema = {
     </div>
     <h1 class="font-black tracking-tight mb-4 leading-tight"
         style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-      Free gitignore Generator
+      .gitignore Generator – Create Custom gitignore Files
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
       Select your languages, frameworks, and tools to generate a production-ready .gitignore file. Runs entirely in your browser with no data sent anywhere.
@@ -239,7 +239,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          A .gitignore file tells Git which files and directories to ignore when tracking changes in a repository. Any file or pattern listed in it will not be committed to your repository. This is essential for keeping build artifacts, dependency folders, environment files, and editor settings out of your codebase and away from other contributors.
+          A .gitignore file tells Git which files and directories to ignore when tracking changes in a repository. Any file or pattern listed in it will not be committed. This is essential for keeping build artifacts, dependency folders like node_modules, environment files with secrets, and editor settings out of your codebase. Without one your repository quickly fills up with files that should never have been committed in the first place.
         </div>
       </div>
 
@@ -250,7 +250,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          The .gitignore file should be placed in the root directory of your repository. Git reads it automatically when you run any git command. You can also have multiple .gitignore files in subdirectories if you need to ignore files only within specific parts of your project, but a single root level file covers most use cases.
+          Place it in the root directory of your repository. Git reads it automatically when you run any git command. You can also have multiple .gitignore files in subdirectories if you need to ignore files only within specific parts of your project, but a single root level file covers most use cases and is the standard convention.
         </div>
       </div>
 
@@ -261,18 +261,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Yes but there is a catch. Adding a pattern to .gitignore only prevents future tracking of that file. If the file was already committed to your repository Git will continue tracking it. To stop tracking a file that was previously committed you need to run git rm --cached filename first, then commit that change. After that the .gitignore rule will take effect.
-        </div>
-      </div>
-
-      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
-        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
-                style="background: var(--card); color: var(--fg);">
-          What is the difference between .gitignore and .gitkeep?
-          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          They serve completely opposite purposes. A .gitignore file tells Git to ignore certain files and not track them. A .gitkeep file is a convention used to force Git to track an otherwise empty directory, since Git does not track empty folders by default. The .gitkeep file itself has no special meaning to Git, it is just a placeholder file that developers use by convention.
+          Yes but there is a catch. Adding a pattern to .gitignore only prevents future tracking of that file. If the file was already committed Git will continue tracking it. To stop tracking a previously committed file run git rm --cached filename first, then commit that change. After that the .gitignore rule takes effect going forward.
         </div>
       </div>
 
@@ -283,18 +272,29 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Yes, always commit your .gitignore file. It should be one of the first files you add to any new repository. Committing it ensures that every contributor working on the project gets the same ignore rules automatically when they clone the repository, keeping everyone's working directory clean and consistent.
+          Yes, always commit it. It should be one of the first files you add to any new repository. Committing ensures every contributor gets the same ignore rules automatically when they clone the repository, keeping everyone's working directory clean and consistent.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          How do I ignore a file that is already being tracked by Git?
+          What is the difference between .gitignore and .gitkeep?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          First add the file pattern to your .gitignore file. Then run git rm --cached filename to remove it from Git's tracking index without deleting the actual file from your disk. Finally commit that change. From that point forward Git will ignore the file according to your .gitignore rules even though the file still exists locally.
+          They serve opposite purposes. A .gitignore file tells Git to ignore certain files. A .gitkeep file is a convention used to force Git to track an otherwise empty directory since Git does not track empty folders by default. The .gitkeep file has no special meaning to Git, it is just a placeholder that developers use by convention.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          How do I ignore a file that is already being tracked?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          First add the file pattern to your .gitignore file. Then run git rm --cached filename to remove it from Git's tracking index without deleting the actual file from your disk. Finally commit that change. From that point Git ignores the file even though it still exists locally.
         </div>
       </div>
 
@@ -308,28 +308,28 @@ const webAppSchema = {
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is a gitignore File and Why Do You Need One?</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          A .gitignore file instructs Git to leave certain files out of version control entirely. Without one, directories like node_modules, Python's venv, and compiled build folders end up committed to your repository, bloating its size and cluttering diffs for every contributor. Sensitive files like .env containing API keys or database passwords are especially dangerous to commit by accident. A gitignore generator saves you from having to memorize platform-specific patterns by producing a ready-to-use file based on the tools you are actually using.
+          A .gitignore file instructs Git to leave certain files out of version control entirely. Without one, directories like node_modules, Python venv, and compiled build folders end up committed to your repository, inflating its size and polluting diffs for every contributor. Files like .env containing API keys or database passwords are particularly dangerous to commit by accident because they are hard to purge from history once they are in. A gitignore generator saves you from memorizing platform-specific patterns by producing a ready-to-use file based on the tools you actually use.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">How to Create a gitignore File for Your Project</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          The simplest approach is to generate one before you make your first commit so nothing unwanted ever enters your history. Save the file as .gitignore in your project root, then run git status to verify that the paths you expected to ignore are no longer listed as untracked files. If they still appear, check that the filename has no extension and the patterns match the actual paths. Revisit the file when you add new tools or dependencies to your project, since the right ignore rules grow with the stack.
+          The simplest approach is to generate one before your first commit so nothing unwanted ever enters the history. Save the file as .gitignore in your project root, then run git status to verify that the paths you expected to ignore are no longer listed as untracked. If they still show up, check that the filename has no extension and that the patterns match the actual paths. Revisit the file when you add new dependencies or tools because the right ignore rules grow with the project over time.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">gitignore Patterns and Syntax Explained</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          An asterisk matches any sequence of characters within a single path segment, so *.log ignores every file ending in .log in any directory. A double asterisk matches across directory boundaries, meaning **/cache/ ignores cache folders anywhere in the tree. A trailing slash marks the pattern as directory-only, so build/ ignores only directories named build. A leading exclamation mark negates a rule, letting you re-include a specific file after a broader ignore pattern. Lines starting with a hash are treated as comments and are ignored by Git entirely.
+          An asterisk matches any sequence of characters within a single path segment, so *.log ignores every file ending in .log in any directory. A double asterisk matches across directory boundaries, so **/cache/ ignores cache folders at any depth in the tree. A trailing slash marks a pattern as directory-only, meaning build/ only ignores directories named build and not files with that name. A leading exclamation mark negates a previous rule, letting you re-include a specific file after a broader pattern excluded it. Lines starting with a hash are comments and are completely ignored by Git.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Common gitignore Rules for Popular Tech Stacks</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Node projects almost universally ignore the node_modules directory along with lock file logs and local environment overrides. Python projects need to exclude the __pycache__ folder, compiled .pyc files, and any virtual environment directories like venv or .venv. Java builds using Maven or Gradle produce a target or build directory full of compiled class files that should never be committed. Docker-based projects typically ignore .env files holding container credentials. Using a gitignore generator that knows these stacks means you get all the right rules without looking them up each time.
+          Node projects almost universally ignore node_modules along with any local environment overrides. Python projects need to exclude __pycache__, compiled .pyc files, and virtual environment directories like venv or .venv. Java builds using Maven or Gradle produce a target or build directory full of compiled class files that should never be committed. Docker-based projects typically ignore .env files holding container credentials and secrets. Using a gitignore generator that understands these stacks means you get all the right rules on the first try. Working on a Docker project? Also check out our <a href="/docker-compose-converter" style="color: var(--accent); text-decoration: underline;">Docker run to Compose converter</a>. If you need to set file permissions on your server, use our <a href="/chmod-calculator" style="color: var(--accent); text-decoration: underline;">chmod calculator</a>.
         </p>
       </div>
 
@@ -704,7 +704,7 @@ const webAppSchema = {
     var url  = URL.createObjectURL(blob);
     var a    = document.createElement('a');
     a.href     = url;
-    a.download = '.gitignore';
+    a.download = 'gitignore.txt';
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();

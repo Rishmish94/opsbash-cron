@@ -42,20 +42,68 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      # Explicit step for the JSON/YAML converter — starts dev server on
-      # localhost:4321, waits for it, runs the suite, then kills it.
-      # (Playwright's webServer config in playwright.config.ts manages this
-      # automatically; no manual server wiring needed in the workflow.)
       - name: Run JSON/YAML converter tests
         run: npm run test:yaml
         env:
           PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
 
-      - name: Upload JSON/YAML converter test report
+      - name: Upload JSON/YAML test report
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report-yaml
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Run JWT Decoder tests
+        run: npm run test:jwt
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
+
+      - name: Upload JWT Decoder test report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-jwt
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Run chmod Calculator tests
+        run: npm run test:chmod
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
+
+      - name: Upload chmod Calculator test report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-chmod
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Run gitignore Generator tests
+        run: npm run test:gitignore
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
+
+      - name: Upload gitignore Generator test report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-gitignore
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Run Docker Compose Converter tests
+        run: npm run test:docker
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
+
+      - name: Upload Docker Compose Converter test report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-docker
           path: playwright-report/
           retention-days: 7
 

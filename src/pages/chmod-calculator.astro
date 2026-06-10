@@ -7,18 +7,10 @@ const faqSchema = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What does chmod mean?",
+      "name": "What does chmod 644 mean?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "chmod stands for change mode. It is a Linux and Unix command used to change the access permissions of files and directories. Every file on a Linux system has a set of permissions that control who can read it, write to it, or execute it. chmod lets you set those permissions using either octal numbers or symbolic notation."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What is the difference between octal and symbolic notation?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Octal notation uses numbers to represent permissions. Each digit represents a group of three permissions collapsed into a single number from 0 to 7. Symbolic notation uses letters like r for read, w for write, and x for execute, arranged in a nine character string like rwxr-xr-x. Both represent the same underlying permissions, just in different formats. Most system administrators use octal because it is faster to type."
+        "text": "chmod 644 gives the owner read and write permissions while group members and everyone else can only read the file. In symbolic notation this is rw-r--r--. This is the standard permission for regular files like configuration files, HTML files, and documents that should be readable by everyone but only editable by the owner. It is the most commonly used permission set for web server files."
       }
     },
     {
@@ -26,15 +18,23 @@ const faqSchema = {
       "name": "What does chmod 755 mean?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "chmod 755 gives the owner full read, write and execute permissions, while group members and everyone else can only read and execute the file but not write to it. This is the standard permission for executable files and directories that should be publicly accessible but only modifiable by the owner."
+        "text": "chmod 755 gives the owner full read, write and execute permissions while group members and everyone else can read and execute the file but not write to it. In symbolic notation this is rwxr-xr-x. This is the standard permission for executable files and directories that should be publicly accessible but only modifiable by the owner. Web server directories typically use 755."
       }
     },
     {
       "@type": "Question",
-      "name": "What does chmod 644 mean?",
+      "name": "How do you calculate chmod permissions?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "chmod 644 gives the owner read and write permissions while group members and everyone else can only read the file. This is the standard permission for regular files like configuration files, HTML files, and documents that should be readable by everyone but only editable by the owner."
+        "text": "Each permission digit represents three binary bits for read, write and execute. Read is worth 4, write is worth 2, and execute is worth 1. You add these values together for each group. So 7 means all three permissions, 6 means read and write, 5 means read and execute, and 4 means read only. A chmod calculator makes this instant by letting you tick checkboxes and showing the number automatically."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does chmod mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "chmod stands for change mode. It is a Linux and Unix command used to change the access permissions of files and directories. Every file on a Linux system has permissions controlling who can read it, write to it, or execute it. You specify permissions either as an octal number like 755 or as symbolic notation like rwxr-xr-x."
       }
     },
     {
@@ -42,7 +42,7 @@ const faqSchema = {
       "name": "What is the execute permission used for?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The execute permission on a file means the system is allowed to run it as a program or script. On a directory, execute permission means the user is allowed to enter the directory and access its contents. Without execute permission on a directory you cannot cd into it even if you can see it listed."
+        "text": "The execute permission on a file means the system is allowed to run it as a program or script. On a directory, execute permission means the user is allowed to enter the directory and access its contents. Without execute permission on a directory you cannot cd into it even if you can see it listed with ls."
       }
     },
     {
@@ -50,7 +50,7 @@ const faqSchema = {
       "name": "Is chmod 777 safe to use?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "chmod 777 gives every user on the system full read, write and execute permissions on a file. This is almost never a good idea on a production server because it allows any user or process on the system to modify or execute the file. It is occasionally useful for temporary debugging but should never be left on sensitive files or directories in a live environment."
+        "text": "chmod 777 gives every user on the system full read, write and execute permissions. This is almost never appropriate on a production server because it allows any user or process to modify or execute the file. It is occasionally useful for temporary debugging but should never be left on sensitive files or directories in a live environment."
       }
     }
   ]
@@ -69,7 +69,7 @@ const webAppSchema = {
 ---
 
 <Layout
-  title="chmod Calculator — Linux File Permission Calculator | OpsBash"
+  title="chmod Calculator – Linux File Permission Tool | OpsBash"
   description="Calculate Linux file permissions instantly. Convert between octal, symbolic and chmod command formats. Free online chmod calculator with visual permission builder."
   canonicalURL="https://opsbash.com/chmod-calculator"
 >
@@ -87,7 +87,7 @@ const webAppSchema = {
     </div>
     <h1 class="font-black tracking-tight mb-4 leading-tight"
         style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-      chmod Calculator
+      chmod Calculator – Unix File Permission Calculator
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
       Build Linux file permissions visually. Click the permission cards to toggle them or type an octal value for instant reverse lookup. Runs entirely in your browser.
@@ -361,22 +361,11 @@ const webAppSchema = {
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What does chmod mean?
+          What does chmod 644 mean?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          chmod stands for change mode. It is a Linux and Unix command used to change the access permissions of files and directories. Every file on a Linux system has a set of permissions that control who can read it, write to it, or execute it. chmod lets you set those permissions using either octal numbers or symbolic notation.
-        </div>
-      </div>
-
-      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
-        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
-                style="background: var(--card); color: var(--fg);">
-          What is the difference between octal and symbolic notation?
-          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Octal notation uses numbers to represent permissions. Each digit represents a group of three permissions collapsed into a single number from 0 to 7. Symbolic notation uses letters like r for read, w for write, and x for execute, arranged in a nine character string like rwxr-xr-x. Both represent the same underlying permissions, just in different formats. Most system administrators use octal because it is faster to type.
+          chmod 644 gives the owner read and write permissions while group members and everyone else can only read the file. In symbolic notation this is rw-r--r--. This is the standard permission for regular files like configuration files, HTML files, and documents that should be readable by everyone but only editable by the owner. It is the most commonly used permission set for web server files.
         </div>
       </div>
 
@@ -387,18 +376,29 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          chmod 755 gives the owner full read, write and execute permissions, while group members and everyone else can only read and execute the file but not write to it. This is the standard permission for executable files and directories that should be publicly accessible but only modifiable by the owner.
+          chmod 755 gives the owner full read, write and execute permissions while group members and everyone else can read and execute the file but not write to it. In symbolic notation this is rwxr-xr-x. This is the standard permission for executable files and directories that should be publicly accessible but only modifiable by the owner. Web server directories typically use 755.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What does chmod 644 mean?
+          How do you calculate chmod permissions?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          chmod 644 gives the owner read and write permissions while group members and everyone else can only read the file. This is the standard permission for regular files like configuration files, HTML files, and documents that should be readable by everyone but only editable by the owner.
+          Each permission digit represents three binary bits for read, write and execute. Read is worth 4, write is worth 2, and execute is worth 1. You add these values together for each group. So 7 means all three permissions, 6 means read and write, 5 means read and execute, and 4 means read only. A chmod calculator makes this instant by letting you tick checkboxes and showing the number automatically.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What does chmod mean?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          chmod stands for change mode. It is a Linux and Unix command used to change the access permissions of files and directories. Every file on a Linux system has permissions controlling who can read it, write to it, or execute it. You specify permissions either as an octal number like 755 or as symbolic notation like rwxr-xr-x.
         </div>
       </div>
 
@@ -409,7 +409,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          The execute permission on a file means the system is allowed to run it as a program or script. On a directory, execute permission means the user is allowed to enter the directory and access its contents. Without execute permission on a directory you cannot cd into it even if you can see it listed.
+          The execute permission on a file means the system is allowed to run it as a program or script. On a directory, execute permission means the user is allowed to enter the directory and access its contents. Without execute permission on a directory you cannot cd into it even if you can see it listed with ls.
         </div>
       </div>
 
@@ -420,7 +420,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          chmod 777 gives every user on the system full read, write and execute permissions on a file. This is almost never a good idea on a production server because it allows any user or process on the system to modify or execute the file. It is occasionally useful for temporary debugging but should never be left on sensitive files or directories in a live environment.
+          chmod 777 gives every user on the system full read, write and execute permissions. This is almost never appropriate on a production server because it allows any user or process to modify or execute the file. It is occasionally useful for temporary debugging but should never be left on sensitive files or directories in a live environment.
         </div>
       </div>
 
@@ -434,28 +434,28 @@ const webAppSchema = {
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What are Linux File Permissions?</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Every file and directory on a Linux system has three sets of permissions attached to it. The first set applies to the owner of the file, the second applies to a group of users, and the third applies to everyone else on the system. Within each set there are three permission types: read allows the contents to be viewed, write allows changes to be made, and execute allows the file to be run as a program. Getting permissions right is a fundamental part of securing any Linux server. You can see the current permissions on any file by running ls -la in your terminal.
+          Every file and directory on a Linux system has three sets of permissions attached to it. The first applies to the owner, the second to a group, and the third to everyone else on the system. Within each set there are three permission types: read lets the contents be viewed, write lets changes be made, and execute lets the file be run as a program. Getting permissions right is a basic requirement for securing any Linux server. An incorrectly permissioned file can expose configuration data, allow unauthorized writes, or let untrusted code run. You can view the current permissions on any file by running ls -la in your terminal.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">How to Use chmod</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          The basic syntax for chmod is the command name followed by the permission value and then the filename. You can express permissions as a three digit octal number like 755 or using symbolic notation like u+x to add execute permission for the owner. To apply the same permissions to every file inside a directory you add the -R flag to make the operation recursive. When setting up a web server for example you would typically run chmod 644 on all your HTML and PHP files and chmod 755 on all your directories so the web server process can read and navigate them.
+          The basic syntax is chmod followed by the permission value and then the filename. You can express permissions as a three digit octal number like 755 or using symbolic notation like u+x to add execute permission for the owner only. To apply the same permissions to every file inside a directory recursively, add the -R flag. On a web server you would typically run chmod 644 on all HTML and config files and chmod 755 on all directories so the web server process can read files and navigate directories without being able to write to them.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Understanding Octal Permission Notation</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Each octal digit maps directly to a group of three permissions. Read is worth 4, write is worth 2, and execute is worth 1. You add up the values for whichever permissions you want to enable. Full permissions gives you 4 plus 2 plus 1 which equals 7, read and write with no execute gives you 4 plus 2 which equals 6, and read only gives you just 4. No permissions at all is 0. So a value of 755 means the owner has 7 for full permissions, and both group and others have 5 for read plus execute. Using a chmod calculator takes the mental arithmetic out of the process entirely.
+          Each octal digit maps directly to a group of three permissions. Read is worth 4, write is worth 2, and execute is worth 1. You add those values for whichever permissions you want. Full permissions is 4 plus 2 plus 1 which equals 7. Read and write with no execute is 4 plus 2 which equals 6. Read only is just 4. No permissions is 0. So 755 means the owner has 7 for full access, and both group and others have 5 for read plus execute. Using a chmod calculator removes the mental arithmetic entirely and shows you the symbolic notation and the ready-to-run command at the same time.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Common chmod Examples for Web Servers</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Web servers like nginx and Apache need to read your files but should not be able to write to them under normal operation. The standard setup for a web application is 644 on all files and 755 on all directories. Files with 644 let the server process read them while preventing it from making changes. Directories with 755 let the server list and navigate into them. If you accidentally set files to 777 the server process gains write access which creates a serious security hole. A compromised script or malicious upload could then overwrite any file it can reach on your server.
+          Web servers like nginx and Apache need to read your files but should never write to them during normal operation. The standard setup is 644 on all files and 755 on all directories. Files with 644 let the server process read them while blocking writes. Directories with 755 let the server navigate into them. Setting files to 777 gives the server process write access, which is a serious security exposure because a compromised script or malicious upload could overwrite any reachable file. Setting up a new server? Use our <a href="/gitignore-generator" style="color: var(--accent); text-decoration: underline;">gitignore generator</a> to create a gitignore file for your project, and check out our <a href="/docker-compose-converter" style="color: var(--accent); text-decoration: underline;">Docker run to Compose converter</a> if you are containerising that server.
         </p>
       </div>
 

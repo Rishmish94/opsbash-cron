@@ -199,30 +199,24 @@ test.describe('Copy', () => {
 // =============================================================================
 
 test.describe('Dark Mode', () => {
-  test('21. Dark mode toggle exists in the header', async ({ page }) => {
+  test('21. Page has dark background — html element has class "dark"', async ({ page }) => {
     await page.goto(PAGE);
-    await expect(page.locator('#darkToggle')).toBeVisible();
-  });
-
-  test('22. Clicking dark mode toggle switches the theme', async ({ page }) => {
-    await page.goto(PAGE);
-    const wasDark = await page.evaluate(() =>
-      document.documentElement.classList.contains('dark')
-    );
-    await page.click('#darkToggle');
     const isDark = await page.evaluate(() =>
       document.documentElement.classList.contains('dark')
     );
-    expect(isDark).not.toBe(wasDark);
+    expect(isDark).toBe(true);
   });
 
-  test('23. Refreshing the page keeps dark mode state', async ({ page }) => {
+  test('22. No light mode toggle exists — no #darkToggle or theme toggle button', async ({ page }) => {
     await page.goto(PAGE);
-    // Force dark mode on via localStorage (same mechanism the toggle uses)
-    await page.evaluate(() => {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    });
+    await expect(page.locator('#darkToggle')).toHaveCount(0);
+    // Also confirm no generic theme-toggle button exists
+    const toggleCount = await page.locator('[aria-label*="theme" i], [aria-label*="dark mode" i]').count();
+    expect(toggleCount).toBe(0);
+  });
+
+  test('23. Dark mode is permanent — html still has class "dark" after reload', async ({ page }) => {
+    await page.goto(PAGE);
     await page.reload();
     const isDark = await page.evaluate(() =>
       document.documentElement.classList.contains('dark')

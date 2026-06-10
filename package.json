@@ -14,7 +14,11 @@
     "test:report": "playwright show-report",
     "test:cidr": "playwright test tests/cidr-calculator.spec.ts",
     "test:cidr:report": "playwright show-report",
-    "test:yaml": "playwright test tests/json-yaml-converter.spec.ts"
+    "test:yaml": "playwright test tests/json-yaml-converter.spec.ts",
+    "test:jwt": "playwright test tests/jwt-decoder.spec.ts",
+    "test:chmod": "playwright test tests/chmod-calculator.spec.ts",
+    "test:gitignore": "playwright test tests/gitignore-generator.spec.ts",
+    "test:docker": "playwright test tests/docker-compose-converter.spec.ts"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",

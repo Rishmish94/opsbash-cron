@@ -7,50 +7,50 @@ const faqSchema = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the difference between docker run and Docker Compose?",
+      "name": "Why convert Docker run commands to Compose?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "docker run is a single command for starting one container at a time with all configuration passed as flags directly in the terminal. Docker Compose is a tool for defining and running containers using a YAML file. For a single container, both achieve the same result, but Docker Compose files are easier to version control, share with teammates, and reproduce consistently across environments. Anyone on your team can clone the repo and run docker compose up to get the exact same setup."
+        "text": "A docker run command works fine for one-off experiments, but it lives only in your shell history. If you close the terminal or hand the project to someone else, the exact flags are gone. A docker-compose.yml file lives in your repository, gets committed alongside your code, and lets anyone on the team reproduce the exact same container by running docker compose up. It also makes it easy to add a second service later without rewriting everything from scratch."
       }
     },
     {
       "@type": "Question",
-      "name": "Can I convert any docker run command to a Compose file?",
+      "name": "How do I convert a Docker run command to Compose?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Most docker run flags have a direct equivalent in Docker Compose. Common ones like name, ports, environment variables, volumes, network, and restart policy all map cleanly. A small number of flags like --rm have no meaningful equivalent in Compose since Compose manages container lifecycle differently. This converter handles all the most common flags accurately including environment variables, bind mounts, named volumes, port mappings, custom networks, and resource limits."
+        "text": "Paste your docker run command into the input area and the converter maps each flag to its Compose equivalent automatically. The -p flag becomes entries under ports, -e flags go under environment, -v mounts go under volumes, and --restart maps directly to the restart field. The result is a ready-to-use docker-compose.yml you can save to your project and run with docker compose up -d."
       }
     },
     {
       "@type": "Question",
-      "name": "What does the version field in docker-compose.yml mean?",
+      "name": "Can Docker Compose replace Kubernetes?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The version field at the top of a docker-compose.yml file specifies which version of the Compose file format to use. Different versions support different features. Many modern setups omit the version field entirely, which tells Docker Compose to use the latest format automatically. This converter generates files without a version field to be forward-compatible with current Docker and Docker Compose releases."
+        "text": "Docker Compose and Kubernetes solve different problems. Compose is for running containers on a single machine, which covers most development environments and many small production deployments. Kubernetes is for running containers across a cluster of machines with automatic failover, rolling deployments, and horizontal scaling. If you are running on one server or a small VPS, Compose is almost always the simpler and better choice. You would move to Kubernetes when you need multi-node orchestration or high availability at scale."
       }
     },
     {
       "@type": "Question",
-      "name": "How do I use a generated docker-compose.yml file?",
+      "name": "What is the difference between docker run and docker-compose up?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Save the output as docker-compose.yml in your project directory. Then run docker compose up -d to start the container in detached mode, docker compose down to stop and remove it, and docker compose logs to view output. You can also run docker compose ps to see running containers defined in your file. If you have Docker Compose V2 installed the command is docker compose as two words. Older versions use docker-compose with a hyphen."
+        "text": "docker run starts a single container from flags you pass on the command line. docker compose up reads a docker-compose.yml file and starts all services defined in it, creating networks and volumes as needed. The two commands ultimately do the same thing for a single container, but Compose lets you define the configuration once in a file rather than retyping it every time. It also handles dependencies between services, so you can say that your web service depends on your database and Compose will start them in the right order."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the restart policy in Docker Compose?",
+      "name": "What version of Docker Compose format should I use?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The restart field controls what Docker does when a container exits unexpectedly. The value no means Docker never restarts the container, which is the default. always means Docker always restarts it even after a manual stop. unless-stopped means Docker restarts it automatically but respects manual stops. on-failure means Docker only restarts if the container exits with a non-zero error code. For production services that need to stay running, unless-stopped is usually the right choice."
+        "text": "The version field in docker-compose.yml is deprecated in Docker Compose V2 and you should omit it entirely. Modern versions of Docker Compose read the file format without needing a version declaration. If you are still using an older docker-compose binary that requires the field, version 3.8 is the most widely compatible choice. This converter generates files without a version field to follow the current Docker recommendation."
       }
     },
     {
       "@type": "Question",
-      "name": "Can Docker Compose replace docker run entirely?",
+      "name": "How do I run the converted Compose file?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "For development and most production use cases, yes. Docker Compose files are strictly better than bare docker run commands because they are declarative, reproducible, and easy to read. You define what you want rather than how to achieve it, and anyone can reproduce the exact same container by running docker compose up. The only time bare docker run is more convenient is for quick one-off commands or testing where the overhead of creating a Compose file is not worth it."
+        "text": "Save the output as docker-compose.yml in your project directory. Then run docker compose up -d to start all services in the background. Use docker compose logs to see output, docker compose ps to check status, and docker compose down to stop and remove the containers. If you are on an older system with the standalone docker-compose binary, the commands are the same but hyphenated: docker-compose up -d."
       }
     }
   ]
@@ -69,8 +69,8 @@ const webAppSchema = {
 ---
 
 <Layout
-  title="Docker Run to Compose Converter — Free Online Tool | OpsBash"
-  description="Convert docker run commands to docker-compose.yml instantly. Paste any docker run command and get a ready-to-use Compose file. Also converts Compose files back to docker run commands."
+  title="Docker Run to Compose Converter – Free Tool | OpsBash"
+  description="Convert Docker run commands to docker-compose.yml instantly. Free online bidirectional converter supporting all major Docker flags. No login required."
   canonicalURL="https://opsbash.com/docker-compose-converter"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
@@ -87,7 +87,7 @@ const webAppSchema = {
     </div>
     <h1 class="font-black tracking-tight mb-4 leading-tight"
         style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-      Docker Run to Compose Converter
+      Docker Run to Compose Converter – Free Online Tool
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
       Paste a docker run command and instantly get a production-ready docker-compose.yml. Switch modes to convert Compose files back to docker run commands.
@@ -215,66 +215,66 @@ const webAppSchema = {
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What is the difference between docker run and Docker Compose?
+          Why convert Docker run commands to Compose?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          docker run is a single command for starting one container at a time with all configuration passed as flags directly in the terminal. Docker Compose is a tool for defining and running containers using a YAML file. For a single container, both achieve the same result, but Docker Compose files are easier to version control, share with teammates, and reproduce consistently across environments. Anyone on your team can clone the repo and run docker compose up to get the exact same setup.
+          A docker run command works fine for one-off experiments, but it lives only in your shell history. If you close the terminal or hand the project to someone else, the exact flags are gone. A docker-compose.yml file lives in your repository, gets committed alongside your code, and lets anyone on the team reproduce the exact same container by running docker compose up. It also makes it easy to add a second service later without rewriting everything from scratch.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          Can I convert any docker run command to a Compose file?
+          How do I convert a Docker run command to Compose?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Most docker run flags have a direct equivalent in Docker Compose. Common ones like name, ports, environment variables, volumes, network, and restart policy all map cleanly. A small number of flags like --rm have no meaningful equivalent in Compose since Compose manages container lifecycle differently. This converter handles all the most common flags accurately including environment variables, bind mounts, named volumes, port mappings, custom networks, and resource limits.
+          Paste your docker run command into the input area and the converter maps each flag to its Compose equivalent automatically. The -p flag becomes entries under ports, -e flags go under environment, -v mounts go under volumes, and --restart maps directly to the restart field. The result is a ready-to-use docker-compose.yml you can save to your project and run with docker compose up -d.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What does the version field in docker-compose.yml mean?
+          Can Docker Compose replace Kubernetes?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          The version field at the top of a docker-compose.yml file specifies which version of the Compose file format to use. Different versions support different features. Many modern setups omit the version field entirely, which tells Docker Compose to use the latest format automatically. This converter generates files without a version field to be forward-compatible with current Docker and Docker Compose releases.
+          Docker Compose and Kubernetes solve different problems. Compose is for running containers on a single machine, which covers most development environments and many small production deployments. Kubernetes is for running containers across a cluster of machines with automatic failover, rolling deployments, and horizontal scaling. If you are running on one server or a small VPS, Compose is almost always the simpler and better choice. You would move to Kubernetes when you need multi-node orchestration or high availability at scale.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          How do I use a generated docker-compose.yml file?
+          What is the difference between docker run and docker-compose up?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          Save the output as docker-compose.yml in your project directory. Then run docker compose up -d to start the container in detached mode, docker compose down to stop and remove it, and docker compose logs to view output. You can also run docker compose ps to see running containers defined in your file. If you have Docker Compose V2 installed the command is docker compose as two words. Older versions use docker-compose with a hyphen.
+          docker run starts a single container from flags you pass on the command line. docker compose up reads a docker-compose.yml file and starts all services defined in it, creating networks and volumes as needed. The two commands ultimately do the same thing for a single container, but Compose lets you define the configuration once in a file rather than retyping it every time. It also handles dependencies between services, so you can say that your web service depends on your database and Compose will start them in the right order.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          What is the restart policy in Docker Compose?
+          What version of Docker Compose format should I use?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          The restart field controls what Docker does when a container exits unexpectedly. The value no means Docker never restarts the container, which is the default. always means Docker always restarts it even after a manual stop. unless-stopped means Docker restarts it automatically but respects manual stops. on-failure means Docker only restarts if the container exits with a non-zero error code. For production services that need to stay running, unless-stopped is usually the right choice.
+          The version field in docker-compose.yml is deprecated in Docker Compose V2 and you should omit it entirely. Modern versions of Docker Compose read the file format without needing a version declaration. If you are still using an older docker-compose binary that requires the field, version 3.8 is the most widely compatible choice. This converter generates files without a version field to follow the current Docker recommendation.
         </div>
       </div>
 
       <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
                 style="background: var(--card); color: var(--fg);">
-          Can Docker Compose replace docker run entirely?
+          How do I run the converted Compose file?
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
-          For development and most production use cases, yes. Docker Compose files are strictly better than bare docker run commands because they are declarative, reproducible, and easy to read. You define what you want rather than how to achieve it, and anyone can reproduce the exact same container by running docker compose up. The only time bare docker run is more convenient is for quick one-off commands or testing where the overhead of creating a Compose file is not worth it.
+          Save the output as docker-compose.yml in your project directory. Then run docker compose up -d to start all services in the background. Use docker compose logs to see output, docker compose ps to check status, and docker compose down to stop and remove the containers. If you are on an older system with the standalone docker-compose binary, the commands are the same but hyphenated: docker-compose up -d.
         </div>
       </div>
 
@@ -286,30 +286,30 @@ const webAppSchema = {
     <div class="grid sm:grid-cols-2 gap-6">
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
-        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is Docker Compose and When Should You Use It?</h2>
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Why Convert docker run Commands to Docker Compose?</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Docker Compose is a tool for defining and managing containerized applications using a single YAML configuration file. While docker run works well for experimenting in a terminal, it becomes difficult to reproduce and maintain as the configuration grows. Compose files live in your repository alongside your code, making them part of your version history. When a new developer joins the project they get the exact same container environment by running one command. For anything beyond a quick one-off container, Compose is the more professional choice.
+          A docker run command only exists in your shell history. Once you close the terminal or switch machines, those flags are gone unless you wrote them down somewhere. A docker-compose.yml file belongs in your repository next to your application code, so every configuration decision is tracked in version control. If something breaks, you can compare the current Compose file against the last working commit and see exactly what changed. For anything you intend to run more than once, converting to Compose is the right call.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
-        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Understanding docker run Command Flags</h2>
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">How Docker Compose YAML Maps to docker run Flags</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Docker run flags control every aspect of a container's runtime behavior. The -d flag runs the container in detached mode so it continues running after you close the terminal. The -p flag maps host ports to container ports. The -e flag sets environment variables inside the container. The -v flag mounts a host directory or named volume into the container. The --restart flag tells Docker what to do if the container crashes or the host reboots. Combining these flags into a reliable docker run command requires memorizing their exact syntax, which is where a docker run to Compose converter saves significant time.
+          Most docker run flags have a direct Compose counterpart. The -p flag maps to entries under ports, written as "host:container". The -e flag maps to entries under environment. The -v flag maps to entries under volumes for both bind mounts and named volumes. The --name flag becomes container_name. The --restart flag maps directly to restart with the same values: no, always, unless-stopped, on-failure. The --network flag becomes network_mode or a reference to a named network under the top-level networks section. The conversion is mostly mechanical once you know the mapping.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
-        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Docker Compose File Structure Explained</h2>
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Docker Compose Best Practices</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          A docker-compose.yml file is organized into top-level sections. The services section is where you define each container. Under each service you declare the image to use, any port mappings under ports, environment variables under environment, volume mounts under volumes, and policies like restart. If your containers use custom networks you define them under a top-level networks section. Named volumes that persist data across container recreations go under a top-level volumes section. The indentation structure is significant in YAML, so each nested level uses two spaces consistently.
+          Keep secrets out of your Compose file by using environment variable substitution with a .env file rather than hardcoding passwords directly in the YAML. Use named volumes for any data you want to persist across container recreations rather than bind-mounting a specific host path, since named volumes work consistently across machines. Pin your image tags to a specific version like postgres:15-alpine rather than latest so you know exactly what you are running. If you have multiple services, use depends_on with service_healthy to make sure dependent services wait until their dependencies are actually ready, not just started.
         </p>
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
-        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Migrating from docker run to Docker Compose</h2>
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Running Your Converted Compose File</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Migrating an existing docker run command to Docker Compose is straightforward once you understand the flag mappings. Most flags translate directly: --name becomes container_name, -p entries become items under ports, -e entries go under environment, and -v entries go under volumes. The --restart flag maps directly to restart. Resource limits like --memory and --cpus become mem_limit and cpus in the Compose file. After converting, stop the running container with docker stop, then start it with docker compose up -d from the directory containing the new Compose file.
+          Save the output as docker-compose.yml in your project directory and run docker compose up -d to start all services in the background. From there docker compose logs tails the output, docker compose ps shows what is running, and docker compose down tears everything down cleanly including the network Docker created for you. If your Compose file defines named volumes that hold data you want to keep, use docker compose down without the --volumes flag or it will delete them. If you need YAML for your other config files, <a href="/json-yaml-converter" style="color: var(--accent); text-decoration: underline;">try our JSON to YAML converter</a>. For generating project-specific ignore rules, <a href="/gitignore-generator" style="color: var(--accent); text-decoration: underline;">use our gitignore generator</a>.
         </p>
       </div>
 
