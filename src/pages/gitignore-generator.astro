@@ -1,0 +1,742 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a .gitignore file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A .gitignore file tells Git which files and directories to ignore when tracking changes in a repository. Any file or pattern listed in it will not be committed to your repository. This is essential for keeping build artifacts, dependency folders, environment files, and editor settings out of your codebase and away from other contributors."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where should I put the .gitignore file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The .gitignore file should be placed in the root directory of your repository. Git reads it automatically when you run any git command. You can also have multiple .gitignore files in subdirectories if you need to ignore files only within specific parts of your project, but a single root level file covers most use cases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I add a .gitignore file after files have already been committed?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes but there is a catch. Adding a pattern to .gitignore only prevents future tracking of that file. If the file was already committed to your repository Git will continue tracking it. To stop tracking a file that was previously committed you need to run git rm --cached filename first, then commit that change. After that the .gitignore rule will take effect."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between .gitignore and .gitkeep?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They serve completely opposite purposes. A .gitignore file tells Git to ignore certain files and not track them. A .gitkeep file is a convention used to force Git to track an otherwise empty directory, since Git does not track empty folders by default. The .gitkeep file itself has no special meaning to Git, it is just a placeholder file that developers use by convention."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I commit my .gitignore file to the repository?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, always commit your .gitignore file. It should be one of the first files you add to any new repository. Committing it ensures that every contributor working on the project gets the same ignore rules automatically when they clone the repository, keeping everyone's working directory clean and consistent."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I ignore a file that is already being tracked by Git?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "First add the file pattern to your .gitignore file. Then run git rm --cached filename to remove it from Git's tracking index without deleting the actual file from your disk. Finally commit that change. From that point forward Git will ignore the file according to your .gitignore rules even though the file still exists locally."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "gitignore Generator",
+  "url": "https://opsbash.com/gitignore-generator",
+  "description": "Generate .gitignore files instantly for any technology stack. Select your languages and frameworks and download a clean .gitignore file in one click.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+};
+---
+
+<Layout
+  title="gitignore Generator — Free Online .gitignore File Generator | OpsBash"
+  description="Generate .gitignore files instantly for any technology stack. Select your languages and frameworks and download a clean .gitignore file in one click."
+  canonicalURL="https://opsbash.com/gitignore-generator"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-12 pb-10 text-center animate-fade-in-up">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
+         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+      ⚡ Free Online Tool
+    </div>
+    <h1 class="font-black tracking-tight mb-4 leading-tight"
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+      Free gitignore Generator
+    </h1>
+    <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
+      Select your languages, frameworks, and tools to generate a production-ready .gitignore file. Runs entirely in your browser with no data sent anywhere.
+    </p>
+  </section>
+
+  <!-- ── TOOL ──────────────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+
+    <!-- Presets -->
+    <div class="mb-5">
+      <p class="text-[10px] font-semibold uppercase tracking-wider mb-3" style="color: var(--fg3);">Quick Start Presets</p>
+      <div class="flex flex-wrap gap-2">
+        <button class="preset-btn rounded-xl px-4 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="web-frontend">Web Frontend</button>
+        <button class="preset-btn rounded-xl px-4 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="python-project">Python Project</button>
+        <button class="preset-btn rounded-xl px-4 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="devops">DevOps</button>
+        <button class="preset-btn rounded-xl px-4 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="java-project">Java Project</button>
+        <button class="preset-btn rounded-xl px-4 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="go-project">Go Project</button>
+        <button class="preset-btn rounded-xl px-4 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="mobile">Mobile</button>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="flex flex-col lg:grid lg:grid-cols-[2fr_3fr] gap-4 items-start">
+
+      <!-- LEFT: Selector panel -->
+      <div class="rounded-2xl p-5" style="background: var(--card); border: 1px solid var(--border);">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">Select Technologies</p>
+          <button id="clearAllBtn"
+            class="hidden text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all"
+            style="color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+            Clear all
+          </button>
+        </div>
+
+        <!-- Search input + dropdown -->
+        <div class="relative mb-4" id="searchContainer">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style="color: var(--fg3);"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="techSearch"
+              type="text"
+              placeholder="Search technologies..."
+              autocomplete="off"
+              spellcheck="false"
+              class="w-full rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none transition-all"
+              style="background: var(--bg); border: 1px solid var(--border); color: var(--fg);" />
+          </div>
+          <div id="techDropdown"
+            class="hidden absolute top-full left-0 right-0 mt-1 rounded-xl py-1.5 z-50 overflow-y-auto"
+            style="background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.28); max-height: 280px;">
+          </div>
+        </div>
+
+        <!-- Selected chips -->
+        <div id="selectedChips" class="flex flex-wrap gap-2">
+          <p id="emptyChipsMsg" class="text-xs leading-relaxed" style="color: var(--fg3);">
+            No technologies selected yet. Search above or pick a preset to get started.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Preview panel -->
+      <div class="rounded-2xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+        <!-- Preview header -->
+        <div class="flex items-center justify-between px-5 py-3.5 gap-3 flex-wrap"
+             style="border-bottom: 1px solid var(--border);">
+          <div class="flex items-center gap-3">
+            <p class="text-xs font-semibold font-mono" style="color: var(--fg);">.gitignore</p>
+            <span id="lineCount"
+                  class="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                  style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+              0 lines
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="copyBtn"
+              class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+              style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span id="copyBtnText">Copy</span>
+            </button>
+            <button id="downloadBtn"
+              class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+              style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="previewEmpty" class="flex flex-col items-center justify-center py-20 px-8 text-center">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+               style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
+            <svg class="w-7 h-7" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <p class="text-sm font-medium mb-2" style="color: var(--fg);">Your .gitignore will appear here</p>
+          <p class="text-xs leading-relaxed max-w-xs" style="color: var(--fg3);">
+            Select technologies from the panel on the left to generate your .gitignore file.
+          </p>
+        </div>
+
+        <!-- Preview content -->
+        <pre id="previewContent"
+          class="hidden overflow-auto p-5 m-0 text-xs leading-5"
+          style="font-family: 'Fira Code', monospace; color: var(--fg2); max-height: 560px; white-space: pre;"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <section class="pb-16 max-w-3xl mx-auto reveal">
+    <h2 class="text-xl font-bold mb-8 text-center" style="color: var(--fg);">Frequently Asked Questions</h2>
+    <div class="space-y-2">
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What is a .gitignore file?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          A .gitignore file tells Git which files and directories to ignore when tracking changes in a repository. Any file or pattern listed in it will not be committed to your repository. This is essential for keeping build artifacts, dependency folders, environment files, and editor settings out of your codebase and away from other contributors.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Where should I put the .gitignore file?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          The .gitignore file should be placed in the root directory of your repository. Git reads it automatically when you run any git command. You can also have multiple .gitignore files in subdirectories if you need to ignore files only within specific parts of your project, but a single root level file covers most use cases.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Can I add a .gitignore file after files have already been committed?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Yes but there is a catch. Adding a pattern to .gitignore only prevents future tracking of that file. If the file was already committed to your repository Git will continue tracking it. To stop tracking a file that was previously committed you need to run git rm --cached filename first, then commit that change. After that the .gitignore rule will take effect.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What is the difference between .gitignore and .gitkeep?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          They serve completely opposite purposes. A .gitignore file tells Git to ignore certain files and not track them. A .gitkeep file is a convention used to force Git to track an otherwise empty directory, since Git does not track empty folders by default. The .gitkeep file itself has no special meaning to Git, it is just a placeholder file that developers use by convention.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Should I commit my .gitignore file to the repository?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Yes, always commit your .gitignore file. It should be one of the first files you add to any new repository. Committing it ensures that every contributor working on the project gets the same ignore rules automatically when they clone the repository, keeping everyone's working directory clean and consistent.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          How do I ignore a file that is already being tracked by Git?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          First add the file pattern to your .gitignore file. Then run git rm --cached filename to remove it from Git's tracking index without deleting the actual file from your disk. Finally commit that change. From that point forward Git will ignore the file according to your .gitignore rules even though the file still exists locally.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-20">
+    <div class="grid sm:grid-cols-2 gap-6">
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is a gitignore File and Why Do You Need One?</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          A .gitignore file instructs Git to leave certain files out of version control entirely. Without one, directories like node_modules, Python's venv, and compiled build folders end up committed to your repository, bloating its size and cluttering diffs for every contributor. Sensitive files like .env containing API keys or database passwords are especially dangerous to commit by accident. A gitignore generator saves you from having to memorize platform-specific patterns by producing a ready-to-use file based on the tools you are actually using.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">How to Create a gitignore File for Your Project</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          The simplest approach is to generate one before you make your first commit so nothing unwanted ever enters your history. Save the file as .gitignore in your project root, then run git status to verify that the paths you expected to ignore are no longer listed as untracked files. If they still appear, check that the filename has no extension and the patterns match the actual paths. Revisit the file when you add new tools or dependencies to your project, since the right ignore rules grow with the stack.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">gitignore Patterns and Syntax Explained</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          An asterisk matches any sequence of characters within a single path segment, so *.log ignores every file ending in .log in any directory. A double asterisk matches across directory boundaries, meaning **/cache/ ignores cache folders anywhere in the tree. A trailing slash marks the pattern as directory-only, so build/ ignores only directories named build. A leading exclamation mark negates a rule, letting you re-include a specific file after a broader ignore pattern. Lines starting with a hash are treated as comments and are ignored by Git entirely.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Common gitignore Rules for Popular Tech Stacks</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Node projects almost universally ignore the node_modules directory along with lock file logs and local environment overrides. Python projects need to exclude the __pycache__ folder, compiled .pyc files, and any virtual environment directories like venv or .venv. Java builds using Maven or Gradle produce a target or build directory full of compiled class files that should never be committed. Docker-based projects typically ignore .env files holding container credentials. Using a gitignore generator that knows these stacks means you get all the right rules without looking them up each time.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</div>
+
+</Layout>
+
+<script is:inline>
+(function () {
+
+  // ── Gitignore data ─────────────────────────────────────────────────────────
+  var GITIGNORE_DATA = {
+
+'Node': '### Node ###\nnode_modules/\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\nlerna-debug.log*\n.pnpm-debug.log*\npids\n*.pid\n*.seed\n*.pid.lock\nlib-cov/\ncoverage/\n*.lcov\n.nyc_output/\n.grunt\nbower_components/\nbuild/Release\njspm_packages/\nweb_modules/\n*.tsbuildinfo\n.npm\n.eslintcache\n.stylelintcache\n.rpt2_cache/\n.rts2_cache_cjs/\n.rts2_cache_es/\n.rts2_cache_umd/\n.node_repl_history\n*.tgz\n.yarn-integrity\n.env\n.env.development.local\n.env.test.local\n.env.production.local\n.env.local\n.cache\n.parcel-cache\n.next/\nout/\n.nuxt\ndist/\n.vuepress/dist\n.serverless/\n.fusebox/\n.dynamodb/\n.tern-port\n.yarn/cache\n.yarn/unplugged\n.yarn/build-state.yml\n.yarn/install-state.gz\n.pnp.*',
+
+'Python': '### Python ###\n__pycache__/\n*.py[cod]\n*$py.class\n*.so\n.Python\nbuild/\ndevelop-eggs/\ndist/\ndownloads/\neggs/\n.eggs/\nlib/\nlib64/\nparts/\nsdist/\nvar/\nwheels/\nshare/python-wheels/\n*.egg-info/\n.installed.cfg\n*.egg\nMANIFEST\npip-log.txt\npip-delete-this-directory.txt\nhtmlcov/\n.tox/\n.nox/\n.coverage\n.coverage.*\n.cache\nnosetests.xml\ncoverage.xml\n*.cover\n*.py,cover\n.hypothesis/\n.pytest_cache/\ncover/\nlocal_settings.py\ndb.sqlite3\ndb.sqlite3-journal\ninstance/\n.webassets-cache\n.scrapy\ndocs/_build/\n.pybuilder/\ntarget/\n.ipynb_checkpoints\nprofile_default/\nipython_config.py\n__pypackages__/\ncelerybeat-schedule\ncelerybeat.pid\n*.sage.py\n.env\n.venv\nenv/\nvenv/\nENV/\nenv.bak/\nvenv.bak/\n.mypy_cache/\n.dmypy.json\ndmypy.json\n.pyre/\n.pytype/\ncython_debug/',
+
+'Java': '### Java ###\n*.class\n*.log\n*.ctxt\n.mtj.tmp/\n*.jar\n*.war\n*.nar\n*.ear\n*.zip\n*.tar.gz\n*.rar\nhs_err_pid*\nreplay_pid*',
+
+'Go': '### Go ###\n*.exe\n*.exe~\n*.dll\n*.so\n*.dylib\n*.test\n*.out\ngo.work\ngo.work.sum\nvendor/',
+
+'Rust': '### Rust ###\ndebug/\ntarget/\n**/*.rs.bk\n*.pdb',
+
+'Ruby': '### Ruby ###\n*.gem\n*.rbc\n/.config\n/coverage/\n/InstalledFiles\n/pkg/\n/spec/reports/\n/spec/examples.txt\n/test/tmp/\n/test/version_tmp/\n/tmp/\n.dat*\n.repl_history\nbuild/\n*.bridgesupport\nbuild-iPhoneOS/\nbuild-iPhoneSimulator/\n/.bundle/\n/vendor/bundle\n/lib/bundler/man/\n.rvmrc',
+
+'PHP': '### PHP ###\n/vendor/\ncomposer.phar\n.env\n.env.backup\n.phpunit.result.cache\n.phpunit.cache\nHomestead.json\nHomestead.yaml\nnpm-debug.log\nyarn-error.log',
+
+'Swift': '### Swift ###\n.DS_Store\n/.build\n/Packages\nxcuserdata/\nDerivedData/\n*.xccheckout\n*.resolved\n.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata\n.netrc',
+
+'Kotlin': '### Kotlin ###\n*.class\n*.log\n.gradle/\n/build/\n/captures/\n/local.properties\n/.idea/\n*.iml\nexternalNativeBuild\n.cxx\n.kotlin/',
+
+'C': '### C ###\n*.d\n*.o\n*.ko\n*.obj\n*.elf\n*.ilk\n*.map\n*.exp\n*.gch\n*.pch\n*.lib\n*.a\n*.la\n*.lo\n*.dll\n*.so\n*.so.*\n*.dylib\n*.exe\n*.out\n*.app\n*.hex\n*.dSYM/\n*.su\n*.idb\n*.pdb\ncmake-build-*/\nCMakeCache.txt\nCMakeFiles/\nCMakeScripts/\nTesting/\ncmake_install.cmake\ninstall_manifest.txt\ncompile_commands.json\nCTestTestfile.cmake\n_deps',
+
+'C++': '### C++ ###\n*.d\n*.slo\n*.lo\n*.o\n*.obj\n*.gch\n*.pch\n*.so\n*.dylib\n*.dll\n*.mod\n*.lai\n*.la\n*.a\n*.lib\n*.exe\n*.out\n*.app\ncmake-build-*/\nCMakeCache.txt\nCMakeFiles/\nCMakeScripts/\nTesting/\ncmake_install.cmake\ninstall_manifest.txt\ncompile_commands.json\nCTestTestfile.cmake\n_deps',
+
+'C#': '### CSharp ###\n*.user\n.vs/\n[Dd]ebug/\n[Dd]ebugPublic/\n[Rr]elease/\n[Rr]eleases/\nx64/\nx86/\nbld/\n[Bb]in/\n[Oo]bj/\n[Ll]og/\n[Ll]ogs/\n.nuget/\n*.nupkg\n*.snupkg\n*.suo\n*.userprefs\n*.pidb\nTestResult.xml\n*.opensdf\n*.sdf\n*.cachefile\n*.VC.db\nGenerated\\ Files/\nServiceFabricBackup/\n*.suo\n*.sln.docstates\nfabricUpgrade*\nipch/',
+
+'React': '### React ###\n/node_modules\n/.pnp\n.pnp.js\n.yarn/install-state.gz\n/coverage\n/build\n.DS_Store\n.env\n.env.local\n.env.development.local\n.env.test.local\n.env.production.local\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*',
+
+'Vue': '### Vue ###\nnode_modules/\n/dist\n.env\n.env.local\n.env.*.local\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\npnpm-debug.log*\n.idea\n.DS_Store\n*.suo\n*.ntvs*\n*.njsproj\n*.sln\n*.sw?',
+
+'Angular': '### Angular ###\n/dist\n/tmp\n/out-tsc\n/bazel-out\nnode_modules/\n.pnp\n.pnp.js\ncoverage\n.angular/cache\n.sass-cache/\n*.ngfactory.ts\n*.ngsummary.json\n.DS_Store\nThumb.db\n.idea/\ntestem.log',
+
+'NextJS': '### Next.js ###\n/node_modules\n/.next/\n/out/\n/build\n.DS_Store\n*.pem\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.pnpm-debug.log*\n.env\n.env.local\n.env.development.local\n.env.test.local\n.env.production.local\n.vercel\n*.tsbuildinfo\nnext-env.d.ts',
+
+'Django': '### Django ###\n*.log\n*.pot\n*.pyc\n__pycache__/\nlocal_settings.py\ndb.sqlite3\ndb.sqlite3-journal\nmedia/\nstaticfiles/\n.env\n.venv\nvenv/\nENV/',
+
+'Laravel': '### Laravel ###\n/node_modules\n/public/hot\n/public/storage\n/storage/*.key\n/vendor\n.env\n.env.backup\n.env.production\n.phpunit.result.cache\ndocker-compose.override.yml\nHomestead.json\nHomestead.yaml\nnpm-debug.log\nyarn-error.log\n/.idea\n/.vagrant',
+
+'Spring': '### Spring ###\nHELP.md\ntarget/\n!.mvn/wrapper/maven-wrapper.jar\n!**/src/main/**/target/\n!**/src/test/**/target/\n.apt_generated\n.classpath\n.factorypath\n.project\n.settings\n.springBeans\n.sts4-cache\n.idea\n*.iws\n*.iml\n*.ipr\n.vscode/',
+
+'Rails': '### Rails ###\n*.rbc\ncapybara-*.html\n.rspec\n/db/*.sqlite3\n/db/*.sqlite3-journal\n/db/*.sqlite3-shm\n/db/*.sqlite3-wal\n/public/system\n/coverage/\n/spec/tmp\n*.orig\nrerun.txt\npickle-email-*.html\n/log/*\n!/log/.keep\n/tmp/*\n!/tmp/.keep\n/vendor/bundle\n/.bundle\n.env\n/config/master.key',
+
+'Docker': '### Docker ###\n.dockerignore\ndocker-compose.override.yml\n.env\n.env.*\n!.env.example\n*.log\n.docker/',
+
+'Kubernetes': '### Kubernetes ###\n*.kubeconfig\nkubeconfig\n.kube/config\nsecrets.yaml\nsecret.yaml\n*-secret.yaml\n*-secrets.yaml\n*.secret.yaml\noverride.yaml\nvalues.local.yaml\nlocal-values.yaml',
+
+'Terraform': '### Terraform ###\n**/.terraform/*\n*.tfstate\n*.tfstate.*\ncrash.log\ncrash.*.log\n*.tfvars\n*.tfvars.json\noverride.tf\noverride.tf.json\n*_override.tf\n*_override.tf.json\n.terraformrc\nterraform.rc\n.terraform.lock.hcl',
+
+'Ansible': '### Ansible ###\n*.retry\n.vault_pass\nvault_password_file\n*.vault_pass\n.ansible/\nansible.log\ninventory/host_vars/*\ninventory/group_vars/*/vault.yml',
+
+'AWS': '### AWS ###\n.aws/credentials\n.aws/config\n*.pem\n*.p12\n*.pfx\n.elasticbeanstalk/*\n!.elasticbeanstalk/*.cfg.yml\n!.elasticbeanstalk/*.global.yml\n.chalice/deployments/\n.chalice/venv/',
+
+'Linux': '### Linux ###\n*~\n.fuse_hidden*\n.directory\n.Trash-*\n.nfs*',
+
+'Windows': '### Windows ###\nThumbs.db\nThumbs.db:encryptable\nehthumbs.db\nehthumbs_vista.db\n*.stackdump\n[Dd]esktop.ini\n$RECYCLE.BIN/\n*.cab\n*.msi\n*.msix\n*.msm\n*.msp\n*.lnk',
+
+'macOS': '### macOS ###\n.DS_Store\n.AppleDouble\n.LSOverride\nIcon\n._*\n.DocumentRevisions-V100\n.fseventsd\n.Spotlight-V100\n.TemporaryItems\n.Trashes\n.VolumeIcon.icns\n.com.apple.timemachine.donotpresent\n.AppleDB\n.AppleDesktop\nNetwork Trash Folder\nTemporary Items\n.apdisk',
+
+'Git': '### Git ###\n*.orig\n*.ORIG\n*.rej\nMERGE_HEAD\nMERGE_MSG\nMERGE_MODE\nCHERRY_PICK_HEAD\nREVERT_HEAD\nBISECT_LOG\n*.patch',
+
+'VSCode': '### VSCode ###\n.vscode/*\n!.vscode/settings.json\n!.vscode/tasks.json\n!.vscode/launch.json\n!.vscode/extensions.json\n!.vscode/*.code-snippets\n.history/\n*.vsix',
+
+'JetBrains': '### JetBrains ###\n.idea/\n*.iws\n*.iml\n*.ipr\nout/\n!**/src/main/**/out/\n!**/src/test/**/out/',
+
+'Vim': '### Vim ###\n[._]*.s[a-v][a-z]\n!*.svg\n[._]*.sw[a-p]\n[._]s[a-rt-v][a-z]\n[._]ss[a-gi-z]\n[._]sw[a-p]\nSession.vim\nSessionx.vim\n.netrwhist\n*~\ntags\n[._]*.un~',
+
+'Xcode': '### Xcode ###\nbuild/\n*.pbxuser\n!default.pbxuser\n*.mode1v3\n!default.mode1v3\n*.mode2v3\n!default.mode2v3\n*.perspectivev3\n!default.perspectivev3\nxcuserdata/\n*.moved-aside\n*.xccheckout\n*.xcscmblueprint\nDerivedData/\n*.hmap\n*.ipa\n*.xcarchive\nPods/\n.symlinks/',
+
+'Android': '### Android ###\n*.iml\n.gradle\n/local.properties\n/.idea/caches\n/.idea/libraries\n/.idea/modules.xml\n/.idea/workspace.xml\n/.idea/navEditor.xml\n/.idea/assetWizardSettings.xml\n.DS_Store\n/build\n/captures\n.externalNativeBuild\n.cxx\nlocal.properties',
+
+'Unity': '### Unity ###\n/[Ll]ibrary/\n/[Tt]emp/\n/[Oo]bj/\n/[Bb]uild/\n/[Bb]uilds/\n/[Ll]ogs/\n/[Uu]ser[Ss]ettings/\n/[Mm]emoryCaptures/\nsysinfo.txt\n*.pidb.meta\n*.pdb.meta\n*.mdb.meta\n/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*\ncrashlytics-build.properties',
+
+'Flutter': '### Flutter ###\n.dart_tool/\n.flutter-plugins\n.flutter-plugins-dependencies\n.packages\n.pub-cache/\n.pub/\n/build/\ndoc/api/\n.buildlog/\nflutter_*.png',
+
+'Gradle': '### Gradle ###\n.gradle\n/build/\n!gradle/wrapper/gradle-wrapper.jar\n!**/gradle/wrapper/gradle-wrapper.jar\ngradle-app.setting\n!gradle/wrapper/gradle-wrapper.properties',
+
+'Maven': '### Maven ###\ntarget/\npom.xml.tag\npom.xml.releaseBackup\npom.xml.versionsBackup\npom.xml.next\nrelease.properties\ndependency-reduced-pom.xml\nbuildNumber.properties\n.mvn/timing.properties\n.mvn/wrapper/maven-wrapper.jar\n!**/src/main/**/target/\n!**/src/test/**/target/',
+
+'npm': '### npm ###\nnode_modules/\nnpm-debug.log*\n.npm\n.npmrc\n.node_repl_history',
+
+'Yarn': '### Yarn ###\nnode_modules/\nyarn-debug.log*\nyarn-error.log*\n.yarn/cache\n.yarn/unplugged\n.yarn/build-state.yml\n.yarn/install-state.gz\n.pnp.*',
+
+'Composer': '### Composer ###\n/vendor/\ncomposer.phar\n/composer.lock',
+
+'Pip': '### pip ###\npip-log.txt\npip-delete-this-directory.txt\n.pip/\npip-selfcheck.json',
+
+'Cargo': '### Cargo ###\ndebug/\ntarget/\n**/*.rs.bk\nCargo.lock',
+
+'Go modules': '### Go Modules ###\nvendor/',
+
+'Jupyter': '### Jupyter ###\n.ipynb_checkpoints\n*/.ipynb_checkpoints/*\nprofile_default/\nipython_config.py\n__pycache__/\n*.py[cod]',
+
+'R': '### R ###\n.Rhistory\n.Rapp.history\n.RData\n.Ruserdata\n.Rproj.user/\n.Renviron\n*.Rcheck/\n/packrat/lib*/\n/packrat/src/\n.httr-oauth\n.secrets\n*.Rproj',
+
+'Scala': '### Scala ###\n*.class\n*.log\ndist/*\ntarget/\nlib_managed/\nsrc_managed/\nproject/boot/\nproject/plugins/project/\n.cache\n.history\n.lib/\n.scala_dependencies\n.worksheet\n.bsp/\n.metals/\n.bloop/',
+
+'Haskell': '### Haskell ###\ndist/\ndist-*/\ncabal-dev/\n*.o\n*.hi\n*.hie\n*.chi\n*.chs.h\n*.dyn_o\n*.dyn_hi\n.hpc\n.hsenv\n.cabal-sandbox/\ncabal.sandbox.config\n*.prof\n*.aux\n*.hp\n*.eventlog\n.stack-work/\ncabal.project.local\ncabal.project.local~\n.HTF/\n.ghc.environment.*',
+
+'Elixir': '### Elixir ###\n/_build/\n/cover/\n/deps/\n/doc/\n/.fetch\nerl_crash.dump\n*.ez\n*.beam\n/config/*.secret.exs\n.elixir_ls/',
+
+'Erlang': '### Erlang ###\n.eunit\ndeps/\n*.o\n*.beam\n*.plt\nerl_crash.dump\nebin/*.beam\nrel/\nlogs/\n_build/',
+
+'Dart': '### Dart ###\n.dart_tool/\n.packages\n.pub/\nbuild/\ndoc/api/\npubspec.lock',
+
+'Lua': '### Lua ###\nluac.out\n*.luac\n/luarocks/',
+
+'Perl': '### Perl ###\n!Build/\n.last_cover_stats\n/META.yml\n/META.json\n/MYMETA.*\n*.o\n*.pm.tdy\n*.pod.tmp\n*.ppd\n/pm_to_blib\n*.tar.gz\n/inc/\n/_build/\n/Build\n/Build.bat\nblib/\n_eumm/'
+
+  };
+
+  // ── Presets ────────────────────────────────────────────────────────────────
+  var PRESETS = {
+    'web-frontend':   ['React', 'Node', 'VSCode'],
+    'python-project': ['Python', 'Jupyter', 'VSCode'],
+    'devops':         ['Docker', 'Kubernetes', 'Terraform', 'Ansible'],
+    'java-project':   ['Java', 'Maven', 'Gradle', 'JetBrains'],
+    'go-project':     ['Go', 'VSCode'],
+    'mobile':         ['Android', 'Flutter', 'Xcode']
+  };
+
+  var ALL_TECHS = Object.keys(GITIGNORE_DATA).sort(function (a, b) {
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+  });
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var selected = [];
+  var dropdownOpen = false;
+
+  // ── DOM refs ─────────────────────────────────────────────────────────────
+  var techSearch      = document.getElementById('techSearch');
+  var techDropdown    = document.getElementById('techDropdown');
+  var selectedChips   = document.getElementById('selectedChips');
+  var emptyChipsMsg   = document.getElementById('emptyChipsMsg');
+  var clearAllBtn     = document.getElementById('clearAllBtn');
+  var previewEmpty    = document.getElementById('previewEmpty');
+  var previewContent  = document.getElementById('previewContent');
+  var lineCount       = document.getElementById('lineCount');
+  var copyBtn         = document.getElementById('copyBtn');
+  var copyBtnText     = document.getElementById('copyBtnText');
+  var downloadBtn     = document.getElementById('downloadBtn');
+
+  // ── Generate content ──────────────────────────────────────────────────────
+  function generateContent() {
+    if (selected.length === 0) return '';
+    var lines = ['# Generated by OpsBash gitignore Generator', '# https://opsbash.com/gitignore-generator', ''];
+    selected.forEach(function (tech) {
+      if (GITIGNORE_DATA[tech]) {
+        lines.push(GITIGNORE_DATA[tech]);
+        lines.push('');
+      }
+    });
+    return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+  }
+
+  // ── Update preview ────────────────────────────────────────────────────────
+  function updatePreview() {
+    var content = generateContent();
+    if (!content) {
+      previewEmpty.style.display = '';
+      previewContent.classList.add('hidden');
+      lineCount.textContent = '0 lines';
+    } else {
+      previewEmpty.style.display = 'none';
+      previewContent.classList.remove('hidden');
+      previewContent.textContent = content;
+      var count = content.split('\n').length;
+      lineCount.textContent = count + (count === 1 ? ' line' : ' lines');
+    }
+  }
+
+  // ── Render chips ──────────────────────────────────────────────────────────
+  function renderChips() {
+    var existing = selectedChips.querySelectorAll('.tech-chip');
+    existing.forEach(function (el) { el.remove(); });
+
+    if (selected.length === 0) {
+      emptyChipsMsg.style.display = '';
+      clearAllBtn.classList.add('hidden');
+    } else {
+      emptyChipsMsg.style.display = 'none';
+      clearAllBtn.classList.remove('hidden');
+      selected.forEach(function (tech) {
+        var chip = document.createElement('div');
+        chip.className = 'tech-chip flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium';
+        chip.style.cssText = 'background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);';
+        chip.innerHTML = '<span>' + escapeHtml(tech) + '</span>'
+          + '<button class="chip-remove flex items-center justify-center w-3.5 h-3.5 rounded-full transition-all" '
+          + 'style="color: rgba(16,185,129,0.7);" data-tech="' + escapeAttr(tech) + '" '
+          + 'aria-label="Remove ' + escapeAttr(tech) + '">'
+          + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10">'
+          + '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+          + '</button>';
+        selectedChips.appendChild(chip);
+      });
+    }
+  }
+
+  // ── Render dropdown ───────────────────────────────────────────────────────
+  function renderDropdown() {
+    var q = techSearch.value.toLowerCase();
+    var filtered = ALL_TECHS.filter(function (t) {
+      return t.toLowerCase().indexOf(q) !== -1;
+    });
+    techDropdown.innerHTML = '';
+    if (filtered.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'px-4 py-3 text-xs';
+      empty.style.color = 'var(--fg3)';
+      empty.textContent = 'No technologies found';
+      techDropdown.appendChild(empty);
+    } else {
+      filtered.forEach(function (tech) {
+        var isSelected = selected.indexOf(tech) !== -1;
+        var item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-left transition-all';
+        item.style.cssText = 'color: ' + (isSelected ? '#10b981' : 'var(--fg2)') + '; background: transparent;';
+        item.setAttribute('data-tech', tech);
+        item.innerHTML = '<span>' + escapeHtml(tech) + '</span>'
+          + (isSelected
+            ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:#10b981"><polyline points="20 6 9 17 4 12"/></svg>'
+            : '');
+        item.addEventListener('mouseover', function () {
+          item.style.background = 'rgba(16,185,129,0.07)';
+          item.style.color = 'var(--fg)';
+        });
+        item.addEventListener('mouseout', function () {
+          item.style.background = 'transparent';
+          item.style.color = isSelected ? '#10b981' : 'var(--fg2)';
+        });
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          toggleTech(tech);
+          techSearch.value = '';
+          renderDropdown();
+        });
+        techDropdown.appendChild(item);
+      });
+    }
+  }
+
+  // ── Toggle technology ─────────────────────────────────────────────────────
+  function toggleTech(tech) {
+    var idx = selected.indexOf(tech);
+    if (idx === -1) {
+      selected.push(tech);
+    } else {
+      selected.splice(idx, 1);
+    }
+    renderChips();
+    updatePreview();
+  }
+
+  // ── Open/close dropdown ───────────────────────────────────────────────────
+  function openDropdown() {
+    renderDropdown();
+    techDropdown.classList.remove('hidden');
+    dropdownOpen = true;
+    techSearch.style.borderColor = '#10b981';
+    techSearch.style.boxShadow   = '0 0 0 3px rgba(16,185,129,0.15)';
+  }
+
+  function closeDropdown() {
+    techDropdown.classList.add('hidden');
+    dropdownOpen = false;
+    techSearch.style.borderColor = 'var(--border)';
+    techSearch.style.boxShadow   = 'none';
+  }
+
+  // ── Search input events ───────────────────────────────────────────────────
+  techSearch.addEventListener('focus', function () { openDropdown(); });
+  techSearch.addEventListener('input', function () {
+    if (!dropdownOpen) openDropdown();
+    else renderDropdown();
+  });
+  techSearch.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeDropdown(); techSearch.blur(); }
+  });
+
+  // ── Chip remove (delegated) ───────────────────────────────────────────────
+  selectedChips.addEventListener('click', function (e) {
+    var btn = e.target.closest('.chip-remove');
+    if (btn) toggleTech(btn.getAttribute('data-tech'));
+  });
+
+  // ── Clear all ─────────────────────────────────────────────────────────────
+  clearAllBtn.addEventListener('click', function () {
+    selected = [];
+    renderChips();
+    updatePreview();
+    if (dropdownOpen) renderDropdown();
+  });
+
+  // ── Preset buttons ────────────────────────────────────────────────────────
+  document.querySelectorAll('.preset-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-preset');
+      if (PRESETS[key]) {
+        selected = [];
+        PRESETS[key].forEach(function (tech) {
+          if (selected.indexOf(tech) === -1) selected.push(tech);
+        });
+        renderChips();
+        updatePreview();
+        if (dropdownOpen) renderDropdown();
+      }
+    });
+    btn.addEventListener('mouseover', function () {
+      btn.style.borderColor = '#10b981';
+      btn.style.color       = 'var(--fg)';
+    });
+    btn.addEventListener('mouseout', function () {
+      btn.style.borderColor = 'var(--border)';
+      btn.style.color       = 'var(--fg2)';
+    });
+  });
+
+  // ── Click outside to close dropdown ──────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    if (dropdownOpen && !document.getElementById('searchContainer').contains(e.target)) {
+      closeDropdown();
+    }
+  });
+
+  // ── Copy button ───────────────────────────────────────────────────────────
+  copyBtn.addEventListener('click', function () {
+    var content = generateContent();
+    if (!content) return;
+    function flash() {
+      copyBtnText.textContent   = 'Copied!';
+      copyBtn.style.background  = 'rgba(16,185,129,0.25)';
+      setTimeout(function () {
+        copyBtnText.textContent = 'Copy';
+        copyBtn.style.background = 'rgba(16,185,129,0.1)';
+      }, 2000);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(content).then(flash).catch(function () { fbCopy(content); flash(); });
+    } else { fbCopy(content); flash(); }
+  });
+
+  function fbCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  // ── Download button ───────────────────────────────────────────────────────
+  downloadBtn.addEventListener('click', function () {
+    var content = generateContent();
+    if (!content) return;
+    var blob = new Blob([content], { type: 'text/plain' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = '.gitignore';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }, 100);
+  });
+
+  // ── FAQ accordion ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.faq-q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.faq-item');
+      var ans  = item.querySelector('.faq-a');
+      var chev = btn.querySelector('.faq-chevron');
+      var open = !ans.classList.contains('hidden');
+      ans.classList.toggle('hidden', open);
+      if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+    });
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function escapeAttr(str) {
+    return str.replace(/"/g,'&quot;');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  renderChips();
+  updatePreview();
+
+})();
+</script>
