@@ -1,0 +1,37 @@
+---
+// src/components/BlogCard.astro
+const { post } = Astro.props;
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<article class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden hover:border-blue-500/50 transition group">
+  <a href={`/blog/${post.slug}/`}>
+    <div class="overflow-hidden">
+      <img
+        src={post.data.heroImage}
+        alt={post.data.heroImageAlt}
+        class="w-full h-40 object-cover group-hover:scale-105 transition duration-300"
+        loading="lazy"
+      />
+    </div>
+    <div class="p-4">
+      <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+        <span class="text-blue-400 font-medium">{post.data.category}</span>
+        <span>{formattedDate}</span>
+        {post.data.draft && (
+          <span class="bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded text-xs">DRAFT</span>
+        )}
+      </div>
+      <h3 class="text-white font-bold text-lg leading-tight group-hover:text-blue-400 transition">
+        {post.data.title}
+      </h3>
+      <p class="text-gray-400 text-sm mt-2 line-clamp-2">
+        {post.data.description}
+      </p>
+    </div>
+  </a>
+</article>

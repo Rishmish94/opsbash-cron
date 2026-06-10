@@ -1,0 +1,95 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts
+    .filter(post => !post.data.draft)
+    .map(post => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+const formattedDate = post.data.pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<Layout
+  title={`${post.data.title} - OpsBash`}
+  description={post.data.description}
+  image={post.data.heroImage}
+>
+  <article class="max-w-3xl mx-auto px-4 py-12">
+
+    <!-- Hero Image -->
+    <img
+      src={post.data.heroImage}
+      alt={post.data.heroImageAlt}
+      class="w-full h-64 md:h-80 object-cover rounded-lg mb-6"
+      loading="eager"
+    />
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-400 mb-4">
+      <span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded font-medium">
+        {post.data.category}
+      </span>
+      <time datetime={post.data.pubDate.toISOString()}>{formattedDate}</time>
+      <span>By {post.data.author}</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+      {post.data.title}
+    </h1>
+
+    <!-- Table of Contents -->
+    {headings.filter(h => h.depth <= 3).length > 3 && (
+      <nav class="bg-gray-800/50 border border-gray-700 rounded-lg p-5 mb-8">
+        <h2 class="text-white font-bold mb-3 text-sm uppercase tracking-wide">Table of Contents</h2>
+        <ul class="space-y-1.5">
+          {headings.filter(h => h.depth <= 3).map(h => (
+            <li class={`${h.depth === 3 ? 'ml-4' : ''}`}>
+              <a
+                href={`#${h.slug}`}
+                class="text-gray-400 hover:text-blue-400 text-sm transition"
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    <!-- Content -->
+    <div class="prose prose-invert prose-blue prose-headings:text-white prose-a:text-blue-400 prose-code:text-blue-300 prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-700 max-w-none">
+      <Content />
+    </div>
+
+    <!-- Tags -->
+    {post.data.tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mt-10 pt-8 border-t border-gray-800">
+        {post.data.tags.map(tag => (
+          <span class="bg-gray-800 text-gray-400 px-3 py-1 rounded-full text-sm">
+            #{tag}
+          </span>
+        ))}
+      </div>
+    )}
+
+    <!-- Newsletter CTA -->
+    <div class="mt-10">
+      <NewsletterSignup />
+    </div>
+
+  </article>
+</Layout>

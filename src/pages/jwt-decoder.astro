@@ -1,0 +1,602 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a JWT token?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A JWT or JSON Web Token is a compact string used to securely transmit information between two parties. It has three parts separated by dots: a header that describes the algorithm, a payload that contains the actual claims or data, and a signature used to verify the token has not been tampered with. JWTs are widely used for authentication in web applications and APIs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to paste my JWT here?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. This tool runs entirely in your browser. Your token is never sent to any server, stored anywhere, or logged. The decoding happens locally using JavaScript. That said, avoid pasting tokens that are still active and grant access to sensitive systems in any public tool as a general security practice."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the expiry claim mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The exp claim is a Unix timestamp that tells you when the token stops being valid. Once the current time passes that timestamp the token is considered expired and a server should reject it. This tool converts that timestamp into a readable date and tells you whether the token is still valid or has already expired."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why can this tool not verify the signature?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Verifying a JWT signature requires the secret key or public key that was used to sign it. This tool only has the token itself. Without the key there is no way to confirm the signature is genuine. Decoding the payload is always possible because it is just Base64 encoded, but verification is a separate step that requires the key."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between decoding and verifying a JWT?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Decoding means reading the contents of the token, specifically the header and payload. Anyone can decode a JWT because the data is only Base64 encoded, not encrypted. Verifying means confirming the signature is valid using the secret key, which proves the token was issued by a trusted party and has not been modified."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are common JWT claims?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most common claims are sub which identifies the subject or user, iss which identifies the issuer of the token, exp which is the expiry timestamp, iat which is the time the token was issued, and nbf which means not before and sets the earliest time the token is valid. Applications can also add custom claims for their own purposes."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JWT Token Decoder",
+  "url": "https://opsbash.com/jwt-decoder",
+  "description": "Decode JWT tokens instantly in your browser. View header, payload and expiry in plain text. No login required, nothing is uploaded.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+};
+---
+
+<Layout
+  title="JWT Decoder — Free Online JWT Token Decoder | OpsBash"
+  description="Decode JWT tokens instantly in your browser. View header, payload and expiry in plain text. No login required, nothing is uploaded."
+  canonicalURL="https://opsbash.com/jwt-decoder"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-12 pb-10 text-center animate-fade-in-up">
+    <div class="jd-eyebrow inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
+         style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.25);">
+      ⚡ Free Online Tool
+    </div>
+    <h1 class="jd-hero-h1 font-black tracking-tight mb-4 leading-tight"
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+      Free Online JWT Token Decoder
+    </h1>
+    <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
+      Paste a JWT and instantly see the header, payload and expiry details. Runs entirely in your browser. Nothing is uploaded or stored anywhere.
+    </p>
+  </section>
+
+  <!-- ── TOOL ──────────────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+
+    <!-- Input card -->
+    <div class="rounded-2xl p-5 sm:p-6 mb-4"
+         style="background: var(--card); border: 1px solid var(--border);">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <p class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">JWT Token</p>
+        <button id="sampleBtn"
+          class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
+          style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+          onmouseover="this.style.background='rgba(99,102,241,0.18)'"
+          onmouseout="this.style.background='var(--accent-muted)'">
+          Load Sample
+        </button>
+      </div>
+      <textarea id="jwtInput"
+        rows="5"
+        spellcheck="false"
+        autocomplete="off"
+        placeholder="Paste a JWT token here..."
+        class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all"
+        style="font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--fg); background: var(--bg); border: 1px solid var(--border); line-height: 1.65; resize: vertical; min-height: 100px;"></textarea>
+      <div id="errorMsg" class="hidden mt-3 px-4 py-3 rounded-xl text-sm font-medium"
+           style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #ef4444;"></div>
+    </div>
+
+    <!-- Status + Algorithm row (hidden until valid JWT decoded) -->
+    <div id="statusRow" class="hidden mb-5">
+      <div class="flex flex-wrap items-center gap-3">
+        <div id="statusBanner" class="flex items-center flex-wrap gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
+             style="border: 1px solid rgba(99,102,241,0.25); background: var(--accent-muted); color: var(--fg);"></div>
+        <div id="algBadge" class="px-3 py-2 rounded-lg text-xs font-mono font-semibold"
+             style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"></div>
+      </div>
+    </div>
+
+    <!-- Output cards (hidden until valid JWT decoded) -->
+    <div id="outputSection" class="hidden">
+      <div id="outputGrid" class="grid grid-cols-1 gap-4" style="align-items: start;">
+
+        <!-- Header card -->
+        <div class="rounded-2xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <div class="flex items-center justify-between px-5 py-3.5"
+               style="border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full" style="background: var(--accent);"></div>
+              <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg);">Header</span>
+            </div>
+            <button data-copy="header"
+              class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
+              style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+              onmouseover="this.style.background='rgba(99,102,241,0.18)'"
+              onmouseout="this.style.background='var(--accent-muted)'">Copy</button>
+          </div>
+          <pre id="headerOutput" class="p-5 text-xs overflow-auto"
+               style="font-family: 'Fira Code', monospace; color: var(--fg2); background: transparent; margin: 0; white-space: pre-wrap; word-break: break-all; max-height: 300px;"></pre>
+        </div>
+
+        <!-- Payload card -->
+        <div class="rounded-2xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <div class="flex items-center justify-between px-5 py-3.5"
+               style="border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full" style="background: var(--accent2);"></div>
+              <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg);">Payload</span>
+            </div>
+            <button data-copy="payload"
+              class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
+              style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+              onmouseover="this.style.background='rgba(99,102,241,0.18)'"
+              onmouseout="this.style.background='var(--accent-muted)'">Copy</button>
+          </div>
+          <!-- Special claims (sub, iss, exp, iat, nbf) -->
+          <div id="specialClaims" class="hidden px-5 pt-4 pb-2"></div>
+          <div id="claimsDivider" class="hidden mx-5 mb-1" style="border-top: 1px solid var(--border);"></div>
+          <pre id="payloadOutput" class="p-5 text-xs overflow-auto"
+               style="font-family: 'Fira Code', monospace; color: var(--fg2); background: transparent; margin: 0; white-space: pre-wrap; word-break: break-all; max-height: 400px;"></pre>
+        </div>
+
+        <!-- Signature card -->
+        <div class="rounded-2xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+          <div class="flex items-center justify-between px-5 py-3.5"
+               style="border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full" style="background: #6ee7b7;"></div>
+              <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg);">Signature</span>
+            </div>
+            <button data-copy="signature"
+              class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
+              style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+              onmouseover="this.style.background='rgba(99,102,241,0.18)'"
+              onmouseout="this.style.background='var(--accent-muted)'">Copy</button>
+          </div>
+          <div class="mx-5 mt-4 mb-3 px-3 py-2.5 rounded-lg text-xs leading-relaxed"
+               style="background: rgba(234,179,8,0.07); border: 1px solid rgba(234,179,8,0.18); color: var(--fg2);">
+            <span style="color: #ca8a04; font-weight: 600;">Note:</span> Signature verification requires the secret key and is not performed by this tool. The value shown is the raw signature string from the token.
+          </div>
+          <pre id="signatureOutput" class="px-5 pb-5 pt-2 text-xs overflow-auto"
+               style="font-family: 'Fira Code', monospace; color: var(--fg2); background: transparent; margin: 0; white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <section class="pb-16 max-w-3xl mx-auto reveal">
+    <h2 class="text-xl font-bold mb-8 text-center" style="color: var(--fg);">Frequently Asked Questions</h2>
+    <div class="space-y-2">
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What is a JWT token?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          A JWT or JSON Web Token is a compact string used to securely transmit information between two parties. It has three parts separated by dots: a header that describes the algorithm, a payload that contains the actual claims or data, and a signature used to verify the token has not been tampered with. JWTs are widely used for authentication in web applications and APIs.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Is it safe to paste my JWT here?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Yes. This tool runs entirely in your browser. Your token is never sent to any server, stored anywhere, or logged. The decoding happens locally using JavaScript. That said, avoid pasting tokens that are still active and grant access to sensitive systems in any public tool as a general security practice.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What does the expiry claim mean?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          The exp claim is a Unix timestamp that tells you when the token stops being valid. Once the current time passes that timestamp the token is considered expired and a server should reject it. This tool converts that timestamp into a readable date and tells you whether the token is still valid or has already expired.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Why can this tool not verify the signature?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Verifying a JWT signature requires the secret key or public key that was used to sign it. This tool only has the token itself. Without the key there is no way to confirm the signature is genuine. Decoding the payload is always possible because it is just Base64 encoded, but verification is a separate step that requires the key.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What is the difference between decoding and verifying a JWT?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Decoding means reading the contents of the token, specifically the header and payload. Anyone can decode a JWT because the data is only Base64 encoded, not encrypted. Verifying means confirming the signature is valid using the secret key, which proves the token was issued by a trusted party and has not been modified.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What are common JWT claims?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          The most common claims are sub which identifies the subject or user, iss which identifies the issuer of the token, exp which is the expiry timestamp, iat which is the time the token was issued, and nbf which means not before and sets the earliest time the token is valid. Applications can also add custom claims for their own purposes.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-20">
+    <div class="grid sm:grid-cols-2 gap-6">
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is a JWT Token?</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          A JWT or JSON Web Token is a compact, URL safe string made up of three parts joined by dots. The first part is the header, which describes the signing algorithm in use. The second is the payload, which holds the claims or data you want to transmit. The third is the signature, which lets a server confirm the token has not been altered. Both the header and payload are Base64 encoded, which means anyone can read them with a jwt decoder, but only the server holding the signing key can validate the signature. JWTs are widely used for authentication and authorization in REST APIs and modern web applications.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">How JWT Authentication Works</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          When a user logs in, the server verifies their credentials and responds with a signed JWT. The client stores this token and sends it with every subsequent request, typically in the Authorization header. Because the server does not need to look up session data in a database, this is called stateless authentication. The server simply verifies the signature and reads the claims directly from the token. This approach scales naturally across services because any server that knows the signing key can validate requests independently, which is why stateless JWT authentication has become a popular choice in microservices architectures.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Understanding JWT Claims</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Claims are the pieces of information stored in the JWT payload. Registered claims are a standardized set defined by the specification: sub identifies the subject such as a user ID, iss names the issuer, exp sets the expiry timestamp, iat records when the token was issued, and nbf sets the earliest time the token becomes valid. Public claims are registered in the IANA JSON Web Token Claims registry to avoid collisions. Private claims are custom values agreed upon by the parties using the token. Real world examples include Kubernetes service account tokens, which use the sub claim for pod identity, and OAuth2 access tokens, which often carry scope and audience claims.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">JWT Security Best Practices</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Always verify the JWT signature on the server before trusting any claims in the payload. Never rely on the payload alone without checking the signature. Use short expiry times so that stolen tokens become useless quickly. Keep in mind that the payload is only Base64 encoded, not encrypted, so any data visible to the server is also visible to anyone who holds the token. Never store passwords, credit card numbers, or other sensitive information in the payload. Always serve your application over HTTPS to prevent tokens from being intercepted in transit. Rotate your signing keys regularly and revoke old tokens when users log out or when a breach is suspected.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</div>
+
+</Layout>
+
+<style>
+  :root:not(.dark) h1.jd-hero-h1 {
+    background: none !important;
+    -webkit-text-fill-color: #064e3b !important;
+    color: #064e3b !important;
+  }
+  :root:not(.dark) .jd-eyebrow {
+    background: #eef2ff !important;
+    color: #4338ca !important;
+    border-color: #c7d2fe !important;
+  }
+  @media (min-width: 1024px) {
+    #outputGrid {
+      grid-template-columns: 1fr 2fr 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+(function () {
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  function b64urlDecode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    var pad = str.length % 4;
+    if (pad === 2) str += '==';
+    else if (pad === 3) str += '=';
+    try {
+      return decodeURIComponent(
+        atob(str).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join('')
+      );
+    } catch (e) { return null; }
+  }
+
+  function formatDate(ts) {
+    return new Date(ts * 1000).toUTCString();
+  }
+
+  function relativeTime(ts) {
+    var nowSec = Math.floor(Date.now() / 1000);
+    var diff = ts - nowSec;
+    var abs = Math.abs(diff);
+    var future = diff > 0;
+    var str;
+    if (abs < 60) { str = abs + ' second' + (abs === 1 ? '' : 's'); }
+    else if (abs < 3600) { var m = Math.floor(abs / 60); str = m + ' minute' + (m === 1 ? '' : 's'); }
+    else if (abs < 86400) { var h = Math.floor(abs / 3600); str = h + ' hour' + (h === 1 ? '' : 's'); }
+    else { var d = Math.floor(abs / 86400); str = d + ' day' + (d === 1 ? '' : 's'); }
+    return future ? 'in ' + str : str + ' ago';
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ── Sample JWT (assembled at runtime so claims are readable) ─────────────
+  var SAMPLE_JWT = (function () {
+    var hdr = '{"alg":"HS256","typ":"JWT"}';
+    var pld = '{"sub":"user_42a8b93f","iss":"https://auth.example.com","aud":"api.example.com","iat":1704067200,"exp":1812499200,"nbf":1704067200,"email":"jane.doe@example.com","name":"Jane Doe","roles":["user","admin"]}';
+    function enc(s) {
+      return btoa(unescape(encodeURIComponent(s)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    return enc(hdr) + '.' + enc(pld) + '.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  })();
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  var jwtInput        = document.getElementById('jwtInput');
+  var errorMsg        = document.getElementById('errorMsg');
+  var statusRow       = document.getElementById('statusRow');
+  var statusBanner    = document.getElementById('statusBanner');
+  var algBadge        = document.getElementById('algBadge');
+  var outputSection   = document.getElementById('outputSection');
+  var headerOutput    = document.getElementById('headerOutput');
+  var payloadOutput   = document.getElementById('payloadOutput');
+  var signatureOutput = document.getElementById('signatureOutput');
+  var specialClaims   = document.getElementById('specialClaims');
+  var claimsDivider   = document.getElementById('claimsDivider');
+
+  // ── Decode ────────────────────────────────────────────────────────────────
+  function decode() {
+    var token = jwtInput.value.trim();
+
+    if (!token) {
+      errorMsg.classList.add('hidden');
+      outputSection.classList.add('hidden');
+      statusRow.classList.add('hidden');
+      return;
+    }
+
+    var parts = token.split('.');
+    if (parts.length !== 3) {
+      showError('Not a valid JWT. A JWT must have exactly three parts separated by dots.');
+      return;
+    }
+
+    var headerStr  = b64urlDecode(parts[0]);
+    var payloadStr = b64urlDecode(parts[1]);
+
+    if (!headerStr) { showError('Could not decode the header section. The token may be malformed.'); return; }
+    if (!payloadStr) { showError('Could not decode the payload section. The token may be malformed.'); return; }
+
+    var header, payload;
+    try { header = JSON.parse(headerStr); } catch (e) { showError('Header section is not valid JSON after decoding.'); return; }
+    try { payload = JSON.parse(payloadStr); } catch (e) { showError('Payload section is not valid JSON after decoding.'); return; }
+
+    errorMsg.classList.add('hidden');
+    outputSection.classList.remove('hidden');
+
+    // Algorithm badge
+    algBadge.textContent = 'Algorithm: ' + (header.alg || 'Unknown');
+
+    // Status banner
+    renderStatusBanner(payload);
+    statusRow.classList.remove('hidden');
+
+    // Outputs
+    headerOutput.textContent    = JSON.stringify(header, null, 2);
+    renderSpecialClaims(payload);
+    payloadOutput.textContent   = JSON.stringify(payload, null, 2);
+    signatureOutput.textContent = parts[2];
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.remove('hidden');
+    outputSection.classList.add('hidden');
+    statusRow.classList.add('hidden');
+  }
+
+  // ── Status banner ─────────────────────────────────────────────────────────
+  function renderStatusBanner(payload) {
+    if (payload.exp === undefined) {
+      statusBanner.innerHTML = '<span style="font-weight:600;">No expiry claim</span><span style="opacity:0.6;font-size:0.78em;margin-left:8px;">This token has no exp field</span>';
+      statusBanner.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:10px 16px;border-radius:12px;border:1px solid rgba(107,114,128,0.25);background:rgba(107,114,128,0.08);font-size:0.875rem;color:var(--fg2);';
+      return;
+    }
+
+    var expired = Date.now() > payload.exp * 1000;
+    var dateStr = formatDate(payload.exp);
+    var relStr  = relativeTime(payload.exp);
+
+    if (expired) {
+      statusBanner.innerHTML =
+        '<span style="color:#ef4444;font-weight:700;">&#x2715; Expired</span>' +
+        '<span style="opacity:0.65;font-size:0.78em;margin-left:8px;">' + escHtml(relStr) + ' &middot; ' + escHtml(dateStr) + '</span>';
+      statusBanner.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:10px 16px;border-radius:12px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.07);font-size:0.875rem;color:var(--fg);';
+    } else {
+      statusBanner.innerHTML =
+        '<span style="color:var(--accent);font-weight:700;">&#x2713; Valid Token</span>' +
+        '<span style="opacity:0.65;font-size:0.78em;margin-left:8px;">Expires ' + escHtml(relStr) + ' &middot; ' + escHtml(dateStr) + '</span>';
+      statusBanner.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:10px 16px;border-radius:12px;border:1px solid rgba(99,102,241,0.3);background:rgba(99,102,241,0.07);font-size:0.875rem;color:var(--fg);';
+    }
+  }
+
+  // ── Special claims ────────────────────────────────────────────────────────
+  function renderSpecialClaims(payload) {
+    var DEFS = [
+      { key: 'sub', label: 'Subject' },
+      { key: 'iss', label: 'Issuer' },
+      { key: 'exp', label: 'Expires' },
+      { key: 'iat', label: 'Issued At' },
+      { key: 'nbf', label: 'Not Before' }
+    ];
+
+    var present = DEFS.filter(function (c) { return payload[c.key] !== undefined; });
+
+    if (present.length === 0) {
+      specialClaims.classList.add('hidden');
+      claimsDivider.classList.add('hidden');
+      return;
+    }
+
+    specialClaims.classList.remove('hidden');
+    claimsDivider.classList.remove('hidden');
+
+    var html = '';
+    present.forEach(function (c, i) {
+      var key   = c.key;
+      var label = c.label;
+      var raw   = payload[key];
+      var infoHtml = '';
+
+      if (key === 'exp') {
+        var expired = Date.now() > raw * 1000;
+        var dStr = formatDate(raw);
+        var rStr = relativeTime(raw);
+        infoHtml = expired
+          ? '<div style="color:#ef4444;font-weight:600;font-size:0.7rem;margin-top:2px;">Expired ' + escHtml(rStr) + '</div><div style="color:var(--fg3);font-size:0.68rem;">' + escHtml(dStr) + '</div>'
+          : '<div style="color:var(--accent);font-weight:600;font-size:0.7rem;margin-top:2px;">Valid (' + escHtml(rStr) + ')</div><div style="color:var(--fg3);font-size:0.68rem;">' + escHtml(dStr) + '</div>';
+      } else if (key === 'iat' || key === 'nbf') {
+        infoHtml = '<div style="color:var(--fg3);font-size:0.68rem;margin-top:2px;">' + escHtml(formatDate(raw)) + '</div>';
+      }
+
+      var isLast = i === present.length - 1;
+      html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;' + (isLast ? '' : 'border-bottom:1px solid var(--border);') + '">';
+      html +=   '<span style="font-family:\'Fira Code\',monospace;font-size:0.71rem;color:var(--accent);min-width:34px;padding-top:2px;">' + escHtml(key) + '</span>';
+      html +=   '<div style="flex:1;min-width:0;">';
+      html +=     '<div style="font-size:0.75rem;color:var(--fg);word-break:break-all;font-family:\'Fira Code\',monospace;">' + escHtml(String(raw)) + '</div>';
+      html +=     infoHtml;
+      html +=   '</div>';
+      html +=   '<span style="font-size:0.67rem;color:var(--fg3);white-space:nowrap;padding-top:2px;">' + escHtml(label) + '</span>';
+      html += '</div>';
+    });
+
+    specialClaims.innerHTML = html;
+  }
+
+  // ── Copy buttons ──────────────────────────────────────────────────────────
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.getAttribute('data-copy');
+      var text =
+        target === 'header'    ? headerOutput.textContent :
+        target === 'payload'   ? payloadOutput.textContent :
+        target === 'signature' ? signatureOutput.textContent : '';
+
+      if (!text) return;
+
+      function flash() {
+        var orig   = btn.textContent;
+        var origBg = btn.style.background || 'rgba(16,185,129,0.1)';
+        btn.textContent    = 'Copied!';
+        btn.style.background = 'rgba(16,185,129,0.22)';
+        setTimeout(function () {
+          btn.textContent    = orig;
+          btn.style.background = origBg;
+        }, 2000);
+      }
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(flash).catch(fallback);
+      } else { fallback(); }
+
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        flash();
+      }
+    });
+  });
+
+  // ── Sample button ─────────────────────────────────────────────────────────
+  var sampleBtn = document.getElementById('sampleBtn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function () {
+      jwtInput.value = SAMPLE_JWT;
+      decode();
+      jwtInput.focus();
+    });
+  }
+
+  // ── Input events ──────────────────────────────────────────────────────────
+  if (jwtInput) {
+    jwtInput.addEventListener('input', decode);
+    jwtInput.addEventListener('paste', function () { setTimeout(decode, 0); });
+  }
+
+  // ── FAQ accordion ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.faq-q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item    = btn.closest('.faq-item');
+      var content = item.querySelector('.faq-a');
+      var chevron = item.querySelector('.faq-chevron');
+      var isOpen  = !content.classList.contains('hidden');
+      content.classList.toggle('hidden', isOpen);
+      if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
+  });
+
+})();
+</script>

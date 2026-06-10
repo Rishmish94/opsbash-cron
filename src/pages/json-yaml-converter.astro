@@ -488,14 +488,42 @@ tags:
   // ── Button events ─────────────────────────────────────────────────────────────
   dirToggle.addEventListener('click', () => {
     const newDir: Direction = direction === 'json2yaml' ? 'yaml2json' : 'json2yaml';
-    setDirection(newDir);
-    if (newDir === 'yaml2json' && inputArea.value === SAMPLE_JSON) {
-      inputArea.value = SAMPLE_YAML;
-      updateLineNums(inputArea, inputLineNums);
-    } else if (newDir === 'json2yaml' && inputArea.value === SAMPLE_YAML) {
-      inputArea.value = SAMPLE_JSON;
-      updateLineNums(inputArea, inputLineNums);
+    const currentInput = inputArea.value;
+
+    if (newDir === 'yaml2json') {
+      // Switching to YAML→JSON: put YAML into the input panel
+      if (!currentInput.trim() || currentInput === SAMPLE_JSON) {
+        // Empty or sample → load default YAML sample
+        inputArea.value = SAMPLE_YAML;
+      } else {
+        // Try to convert the user's JSON to YAML so it becomes the new input
+        try {
+          const parsed = JSON.parse(currentInput);
+          inputArea.value = jsyaml.dump(parsed, { indent: indentSize, lineWidth: -1, noRefs: true }).trimEnd();
+        } catch {
+          // Not valid JSON — fall back to the YAML sample
+          inputArea.value = SAMPLE_YAML;
+        }
+      }
+    } else {
+      // Switching to JSON→YAML: put JSON into the input panel
+      if (!currentInput.trim() || currentInput === SAMPLE_YAML) {
+        // Empty or sample → load default JSON sample
+        inputArea.value = SAMPLE_JSON;
+      } else {
+        // Try to convert the user's YAML to JSON so it becomes the new input
+        try {
+          const parsed = jsyaml.load(currentInput);
+          inputArea.value = JSON.stringify(parsed, null, indentSize);
+        } catch {
+          // Not valid YAML — fall back to the JSON sample
+          inputArea.value = SAMPLE_JSON;
+        }
+      }
     }
+
+    setDirection(newDir);
+    updateLineNums(inputArea, inputLineNums);
     convert();
   });
 

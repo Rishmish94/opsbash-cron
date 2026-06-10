@@ -1,0 +1,100 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import NewsletterSignup from '../../components/NewsletterSignup.astro';
+
+const urlParams = new URLSearchParams(Astro.url.search);
+const isPreview = urlParams.get('preview') === 'opsbash-admin-2026';
+
+const allPosts = await getCollection('blog');
+const visiblePosts = isPreview
+  ? allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  : allPosts
+      .filter(post => !post.data.draft)
+      .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featuredPost = visiblePosts[0];
+const otherPosts = visiblePosts.slice(1);
+const showPreviewBanner = isPreview;
+---
+
+<Layout
+  title="Blog - OpsBash DevOps Tools & Tutorials"
+  description="DevOps tutorials, guides, tool reviews, and how-to articles for DevOps engineers."
+  image="/images/blog/default-og.jpg"
+>
+  <main class="max-w-4xl mx-auto px-4 py-12">
+
+    <!-- Preview Banner -->
+    {showPreviewBanner && (
+      <div class="bg-yellow-500/20 border border-yellow-500 rounded-lg p-4 mb-6">
+        <p class="text-yellow-400 font-bold text-sm">PREVIEW MODE</p>
+        <p class="text-gray-400 text-xs">Draft posts are visible. Share this link only with yourself.</p>
+      </div>
+    )}
+
+    <!-- Header -->
+    <header class="mb-10">
+      <h1 class="text-4xl font-bold text-white mb-2">OpsBash Blog</h1>
+      <p class="text-gray-400">DevOps tutorials, guides, and tool reviews</p>
+    </header>
+
+    <!-- Featured Post -->
+    {featuredPost && (
+      <article class="mb-10">
+        <a href={`/blog/${featuredPost.slug}/`} class="group">
+          <div class="relative overflow-hidden rounded-lg mb-4">
+            <img
+              src={featuredPost.data.heroImage}
+              alt={featuredPost.data.heroImageAlt}
+              class="w-full h-64 md:h-80 object-cover group-hover:scale-105 transition duration-300"
+              loading="eager"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-4 left-4">
+              <span class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded">
+                {featuredPost.data.category}
+              </span>
+            </div>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-bold text-white group-hover:text-blue-400 transition">
+            {featuredPost.data.title}
+          </h2>
+          <p class="text-gray-400 mt-2 line-clamp-2">
+            {featuredPost.data.description}
+          </p>
+          <div class="flex items-center gap-3 text-sm text-gray-500 mt-3">
+            <time datetime={featuredPost.data.pubDate.toISOString()}>
+              {featuredPost.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+            <span>By {featuredPost.data.author}</span>
+            {featuredPost.data.draft && (
+              <span class="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded text-xs">DRAFT</span>
+            )}
+          </div>
+        </a>
+      </article>
+    )}
+
+    <!-- Newsletter CTA -->
+    <NewsletterSignup />
+
+    <!-- Blog Grid -->
+    {otherPosts.length > 0 && (
+      <>
+        <h2 class="text-xl font-bold text-white mt-10 mb-6">Latest Posts</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          {otherPosts.map(post => <BlogCard post={post} />)}
+        </div>
+      </>
+    )}
+
+    {visiblePosts.length === 0 && (
+      <div class="text-center py-12">
+        <p class="text-gray-400">No blog posts yet. Check back soon!</p>
+      </div>
+    )}
+
+  </main>
+</Layout>

@@ -181,29 +181,29 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </a>
 
-      <!-- Coming soon: JWT Decoder -->
-      <div class="reveal rounded-2xl p-6 opacity-40" style="background: var(--card); border: 1px dashed var(--border);">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: var(--bg); border: 1px solid var(--border);">
-          <svg class="w-5 h-5" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <!-- JWT Decoder card -->
+      <a href="/jwt-decoder"
+        class="reveal relative rounded-2xl p-6 transition-all"
+        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
+        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
+        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
         </div>
-        <h2 class="font-semibold text-sm mb-2" style="color: var(--fg2);">JWT Decoder</h2>
-        <p class="text-xs leading-relaxed" style="color: var(--fg3);">Decode and inspect JWT tokens without sending them anywhere.</p>
-        <p class="mt-3 text-[10px] font-medium uppercase tracking-wider" style="color: var(--fg3);">Coming soon</p>
-      </div>
-
-      <!-- Coming soon: Base64 -->
-      <div class="reveal rounded-2xl p-6 opacity-40" style="background: var(--card); border: 1px dashed var(--border);">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: var(--bg); border: 1px solid var(--border);">
-          <svg class="w-5 h-5" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-          </svg>
+        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">JWT Decoder</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">Decode and inspect JWT tokens without sending them anywhere. View header, payload, expiry, and algorithm instantly.</p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Auth</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Token</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Security</span>
         </div>
-        <h2 class="font-semibold text-sm mb-2" style="color: var(--fg2);">Base64 Encoder</h2>
-        <p class="text-xs leading-relaxed" style="color: var(--fg3);">Encode and decode Base64 strings and files instantly.</p>
-        <p class="mt-3 text-[10px] font-medium uppercase tracking-wider" style="color: var(--fg3);">Coming soon</p>
-      </div>
+        <div class="absolute top-5 right-5" style="color: var(--border);">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </a>
 
     </div>
   </section>
