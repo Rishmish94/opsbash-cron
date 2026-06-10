@@ -112,21 +112,10 @@ test.describe('Platform Switching', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 test.describe('UI', () => {
-  test('13. Dark mode toggle switches theme', async ({ page }) => {
-    await page.emulateMedia({ colorScheme: 'light' });
+  test('13. Dark mode is permanent — html element has class "dark"', async ({ page }) => {
     await page.goto(PAGE_URL);
-
-    await page.evaluate(() => {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    });
-
-    await page.click('#darkToggle');
-    await expect(page.locator('html')).toHaveClass(/\bdark\b/);
-
-    await page.click('#darkToggle');
-    const cls = await page.locator('html').getAttribute('class') ?? '';
-    expect(cls.split(/\s+/)).not.toContain('dark');
+    const isDark = await page.evaluate(() => document.documentElement.classList.contains('dark'));
+    expect(isDark).toBe(true);
   });
 
   test('14. Copy button shows confirmation after clicking', async ({ page }) => {

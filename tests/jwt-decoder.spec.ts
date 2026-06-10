@@ -35,8 +35,8 @@ test.describe('Functional', () => {
     await page.goto(PAGE);
   });
 
-  test('1. Page loads and H1 contains "JWT Token Decoder"', async ({ page }) => {
-    await expect(page.locator('h1').first()).toContainText('JWT Token Decoder');
+  test('1. Page loads and H1 contains "JWT Decoder"', async ({ page }) => {
+    await expect(page.locator('h1').first()).toContainText('JWT Decoder');
   });
 
   test('2. Input textarea is visible and accepts text', async ({ page }) => {

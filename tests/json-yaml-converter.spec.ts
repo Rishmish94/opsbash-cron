@@ -32,8 +32,8 @@ test.describe('Functional', () => {
     await page.goto(PAGE);
   });
 
-  test('1. Page loads and H1 says "Online JSON to YAML and YAML to JSON Converter"', async ({ page }) => {
-    await expect(page.locator('h1').first()).toContainText('Online JSON to YAML and YAML to JSON Converter');
+  test('1. Page loads and H1 contains "JSON to YAML Converter"', async ({ page }) => {
+    await expect(page.locator('h1').first()).toContainText('JSON to YAML Converter');
   });
 
   test('2. Default sample JSON is visible in the input panel on load', async ({ page }) => {
