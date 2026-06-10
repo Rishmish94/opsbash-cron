@@ -1,0 +1,1002 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between docker run and Docker Compose?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "docker run is a single command for starting one container at a time with all configuration passed as flags directly in the terminal. Docker Compose is a tool for defining and running containers using a YAML file. For a single container, both achieve the same result, but Docker Compose files are easier to version control, share with teammates, and reproduce consistently across environments. Anyone on your team can clone the repo and run docker compose up to get the exact same setup."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert any docker run command to a Compose file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most docker run flags have a direct equivalent in Docker Compose. Common ones like name, ports, environment variables, volumes, network, and restart policy all map cleanly. A small number of flags like --rm have no meaningful equivalent in Compose since Compose manages container lifecycle differently. This converter handles all the most common flags accurately including environment variables, bind mounts, named volumes, port mappings, custom networks, and resource limits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the version field in docker-compose.yml mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The version field at the top of a docker-compose.yml file specifies which version of the Compose file format to use. Different versions support different features. Many modern setups omit the version field entirely, which tells Docker Compose to use the latest format automatically. This converter generates files without a version field to be forward-compatible with current Docker and Docker Compose releases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I use a generated docker-compose.yml file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Save the output as docker-compose.yml in your project directory. Then run docker compose up -d to start the container in detached mode, docker compose down to stop and remove it, and docker compose logs to view output. You can also run docker compose ps to see running containers defined in your file. If you have Docker Compose V2 installed the command is docker compose as two words. Older versions use docker-compose with a hyphen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the restart policy in Docker Compose?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The restart field controls what Docker does when a container exits unexpectedly. The value no means Docker never restarts the container, which is the default. always means Docker always restarts it even after a manual stop. unless-stopped means Docker restarts it automatically but respects manual stops. on-failure means Docker only restarts if the container exits with a non-zero error code. For production services that need to stay running, unless-stopped is usually the right choice."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can Docker Compose replace docker run entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For development and most production use cases, yes. Docker Compose files are strictly better than bare docker run commands because they are declarative, reproducible, and easy to read. You define what you want rather than how to achieve it, and anyone can reproduce the exact same container by running docker compose up. The only time bare docker run is more convenient is for quick one-off commands or testing where the overhead of creating a Compose file is not worth it."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Docker Run to Compose Converter",
+  "url": "https://opsbash.com/docker-compose-converter",
+  "description": "Convert docker run commands to docker-compose.yml instantly. Paste any docker run command and get a ready-to-use Compose file. Also converts Compose files back to docker run commands.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+};
+---
+
+<Layout
+  title="Docker Run to Compose Converter — Free Online Tool | OpsBash"
+  description="Convert docker run commands to docker-compose.yml instantly. Paste any docker run command and get a ready-to-use Compose file. Also converts Compose files back to docker run commands."
+  canonicalURL="https://opsbash.com/docker-compose-converter"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-12 pb-10 text-center animate-fade-in-up">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
+         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+      ⚡ Free Online Tool
+    </div>
+    <h1 class="font-black tracking-tight mb-4 leading-tight"
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+      Docker Run to Compose Converter
+    </h1>
+    <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
+      Paste a docker run command and instantly get a production-ready docker-compose.yml. Switch modes to convert Compose files back to docker run commands.
+    </p>
+  </section>
+
+  <!-- ── TOOL ──────────────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+
+    <!-- Mode toggle -->
+    <div class="flex items-center gap-4 mb-5 flex-wrap">
+      <div class="flex rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button id="btn-run2compose"
+          class="px-4 py-2.5 text-sm font-semibold transition-all"
+          style="background: rgba(16,185,129,0.12); color: #10b981;">
+          docker run → Compose
+        </button>
+        <button id="btn-compose2run"
+          class="px-4 py-2.5 text-sm font-semibold transition-all"
+          style="background: var(--card); color: var(--fg2);">
+          Compose → docker run
+        </button>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="mb-5">
+      <p class="text-[10px] font-semibold uppercase tracking-wider mb-3" style="color: var(--fg3);">Quick Presets</p>
+      <div class="flex flex-wrap gap-2" id="presetsRow">
+        <button class="preset-btn rounded-xl px-3 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="nginx">Nginx</button>
+        <button class="preset-btn rounded-xl px-3 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="mysql">MySQL</button>
+        <button class="preset-btn rounded-xl px-3 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="redis">Redis</button>
+        <button class="preset-btn rounded-xl px-3 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="postgres">PostgreSQL</button>
+        <button class="preset-btn rounded-xl px-3 py-2 text-sm font-medium transition-all"
+                style="background: var(--card); border: 1px solid var(--border); color: var(--fg2);"
+                data-preset="node">Node App</button>
+      </div>
+    </div>
+
+    <!-- Two-panel grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- INPUT PANEL -->
+      <div class="rounded-2xl overflow-hidden flex flex-col" style="background: var(--card); border: 1px solid var(--border);">
+        <div class="flex items-center justify-between px-4 py-3 shrink-0"
+             style="border-bottom: 1px solid var(--border);">
+          <p id="inputLabel" class="text-xs font-semibold font-mono" style="color: var(--fg);">docker run command</p>
+          <div class="flex items-center gap-2">
+            <button id="sampleBtn"
+              class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
+              style="color: var(--fg2); background: var(--bg); border: 1px solid var(--border);">
+              Sample
+            </button>
+            <button id="clearBtn"
+              class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
+              style="color: var(--fg2); background: var(--bg); border: 1px solid var(--border);">
+              Clear
+            </button>
+          </div>
+        </div>
+        <textarea id="inputArea"
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          class="flex-1 resize-none focus:outline-none text-xs leading-5 p-4"
+          style="font-family: 'Fira Code', monospace; background: var(--bg); color: #6ee7b7; min-height: 340px; border: none;"></textarea>
+      </div>
+
+      <!-- OUTPUT PANEL -->
+      <div class="rounded-2xl overflow-hidden flex flex-col" style="background: var(--card); border: 1px solid var(--border);">
+        <div class="flex items-center justify-between px-4 py-3 shrink-0"
+             style="border-bottom: 1px solid var(--border);">
+          <p id="outputLabel" class="text-xs font-semibold font-mono" style="color: var(--fg);">docker-compose.yml</p>
+          <button id="copyBtn"
+            class="flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-lg transition-all"
+            style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span id="copyBtnText">Copy</span>
+          </button>
+        </div>
+
+        <!-- Error -->
+        <div id="errorEl" class="hidden mx-4 mt-3 px-4 py-3 rounded-xl text-xs leading-relaxed"
+             style="background: rgba(239,68,68,0.08); color: #f87171; border: 1px solid rgba(239,68,68,0.2);">
+        </div>
+
+        <!-- Empty state -->
+        <div id="outputEmpty" class="flex flex-col items-center justify-center py-16 px-8 text-center flex-1">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+               style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
+            <svg class="w-6 h-6" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+          </div>
+          <p class="text-sm font-medium mb-1" style="color: var(--fg);">Output will appear here</p>
+          <p class="text-xs" style="color: var(--fg3);">Paste a command in the left panel to convert it.</p>
+        </div>
+
+        <!-- Output -->
+        <pre id="outputEl"
+          class="hidden overflow-auto text-xs leading-5 p-4 m-0 flex-1"
+          style="font-family: 'Fira Code', monospace; min-height: 340px; max-height: 540px; white-space: pre;"></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <section class="pb-16 max-w-3xl mx-auto reveal">
+    <h2 class="text-xl font-bold mb-8 text-center" style="color: var(--fg);">Frequently Asked Questions</h2>
+    <div class="space-y-2">
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What is the difference between docker run and Docker Compose?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          docker run is a single command for starting one container at a time with all configuration passed as flags directly in the terminal. Docker Compose is a tool for defining and running containers using a YAML file. For a single container, both achieve the same result, but Docker Compose files are easier to version control, share with teammates, and reproduce consistently across environments. Anyone on your team can clone the repo and run docker compose up to get the exact same setup.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Can I convert any docker run command to a Compose file?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Most docker run flags have a direct equivalent in Docker Compose. Common ones like name, ports, environment variables, volumes, network, and restart policy all map cleanly. A small number of flags like --rm have no meaningful equivalent in Compose since Compose manages container lifecycle differently. This converter handles all the most common flags accurately including environment variables, bind mounts, named volumes, port mappings, custom networks, and resource limits.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What does the version field in docker-compose.yml mean?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          The version field at the top of a docker-compose.yml file specifies which version of the Compose file format to use. Different versions support different features. Many modern setups omit the version field entirely, which tells Docker Compose to use the latest format automatically. This converter generates files without a version field to be forward-compatible with current Docker and Docker Compose releases.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          How do I use a generated docker-compose.yml file?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          Save the output as docker-compose.yml in your project directory. Then run docker compose up -d to start the container in detached mode, docker compose down to stop and remove it, and docker compose logs to view output. You can also run docker compose ps to see running containers defined in your file. If you have Docker Compose V2 installed the command is docker compose as two words. Older versions use docker-compose with a hyphen.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          What is the restart policy in Docker Compose?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          The restart field controls what Docker does when a container exits unexpectedly. The value no means Docker never restarts the container, which is the default. always means Docker always restarts it even after a manual stop. unless-stopped means Docker restarts it automatically but respects manual stops. on-failure means Docker only restarts if the container exits with a non-zero error code. For production services that need to stay running, unless-stopped is usually the right choice.
+        </div>
+      </div>
+
+      <div class="faq-item rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
+        <button class="faq-q w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-sm font-medium"
+                style="background: var(--card); color: var(--fg);">
+          Can Docker Compose replace docker run entirely?
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a hidden px-5 pb-5 pt-2 text-sm leading-relaxed" style="background: var(--card); color: var(--fg2);">
+          For development and most production use cases, yes. Docker Compose files are strictly better than bare docker run commands because they are declarative, reproducible, and easy to read. You define what you want rather than how to achieve it, and anyone can reproduce the exact same container by running docker compose up. The only time bare docker run is more convenient is for quick one-off commands or testing where the overhead of creating a Compose file is not worth it.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-20">
+    <div class="grid sm:grid-cols-2 gap-6">
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is Docker Compose and When Should You Use It?</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Docker Compose is a tool for defining and managing containerized applications using a single YAML configuration file. While docker run works well for experimenting in a terminal, it becomes difficult to reproduce and maintain as the configuration grows. Compose files live in your repository alongside your code, making them part of your version history. When a new developer joins the project they get the exact same container environment by running one command. For anything beyond a quick one-off container, Compose is the more professional choice.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Understanding docker run Command Flags</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Docker run flags control every aspect of a container's runtime behavior. The -d flag runs the container in detached mode so it continues running after you close the terminal. The -p flag maps host ports to container ports. The -e flag sets environment variables inside the container. The -v flag mounts a host directory or named volume into the container. The --restart flag tells Docker what to do if the container crashes or the host reboots. Combining these flags into a reliable docker run command requires memorizing their exact syntax, which is where a docker run to Compose converter saves significant time.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Docker Compose File Structure Explained</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          A docker-compose.yml file is organized into top-level sections. The services section is where you define each container. Under each service you declare the image to use, any port mappings under ports, environment variables under environment, volume mounts under volumes, and policies like restart. If your containers use custom networks you define them under a top-level networks section. Named volumes that persist data across container recreations go under a top-level volumes section. The indentation structure is significant in YAML, so each nested level uses two spaces consistently.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Migrating from docker run to Docker Compose</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Migrating an existing docker run command to Docker Compose is straightforward once you understand the flag mappings. Most flags translate directly: --name becomes container_name, -p entries become items under ports, -e entries go under environment, and -v entries go under volumes. The --restart flag maps directly to restart. Resource limits like --memory and --cpus become mem_limit and cpus in the Compose file. After converting, stop the running container with docker stop, then start it with docker compose up -d from the directory containing the new Compose file.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</div>
+
+</Layout>
+
+<script is:inline>
+(function () {
+
+  // ── Sample data ───────────────────────────────────────────────────────────
+  var SAMPLE_RUN = 'docker run -d \\\n  --name nginx-proxy \\\n  -p 80:80 \\\n  -p 443:443 \\\n  -v /data/nginx/html:/usr/share/nginx/html:ro \\\n  -v /data/nginx/conf:/etc/nginx/conf.d \\\n  -e NGINX_HOST=example.com \\\n  -e NGINX_PORT=80 \\\n  --restart unless-stopped \\\n  nginx:alpine';
+
+  var SAMPLE_COMPOSE = 'services:\n  web:\n    image: node:18-alpine\n    container_name: my-app\n    ports:\n      - "3000:3000"\n    environment:\n      - NODE_ENV=production\n      - PORT=3000\n    volumes:\n      - ./app:/usr/src/app\n    working_dir: /usr/src/app\n    command: node server.js\n    restart: unless-stopped';
+
+  // ── Presets ───────────────────────────────────────────────────────────────
+  var PRESETS_RUN = {
+    nginx:    'docker run -d \\\n  --name nginx \\\n  -p 80:80 \\\n  -p 443:443 \\\n  -v /var/www/html:/usr/share/nginx/html:ro \\\n  --restart unless-stopped \\\n  nginx:alpine',
+    mysql:    'docker run -d \\\n  --name mysql \\\n  -p 3306:3306 \\\n  -e MYSQL_ROOT_PASSWORD=mysecret \\\n  -e MYSQL_DATABASE=appdb \\\n  -e MYSQL_USER=appuser \\\n  -e MYSQL_PASSWORD=apppass \\\n  -v mysql_data:/var/lib/mysql \\\n  --restart unless-stopped \\\n  mysql:8',
+    redis:    'docker run -d \\\n  --name redis \\\n  -p 6379:6379 \\\n  -v redis_data:/data \\\n  --restart unless-stopped \\\n  redis:7-alpine',
+    postgres: 'docker run -d \\\n  --name postgres \\\n  -p 5432:5432 \\\n  -e POSTGRES_PASSWORD=mysecret \\\n  -e POSTGRES_DB=appdb \\\n  -e POSTGRES_USER=appuser \\\n  -v pgdata:/var/lib/postgresql/data \\\n  --restart unless-stopped \\\n  postgres:15-alpine',
+    node:     'docker run -d \\\n  --name node-app \\\n  -p 3000:3000 \\\n  -e NODE_ENV=production \\\n  -e PORT=3000 \\\n  -v ./app:/usr/src/app \\\n  -w /usr/src/app \\\n  --restart unless-stopped \\\n  node:18-alpine'
+  };
+
+  var PRESETS_COMPOSE = {
+    nginx:    'services:\n  nginx:\n    image: nginx:alpine\n    container_name: nginx\n    ports:\n      - "80:80"\n      - "443:443"\n    volumes:\n      - /var/www/html:/usr/share/nginx/html:ro\n    restart: unless-stopped',
+    mysql:    'services:\n  mysql:\n    image: mysql:8\n    container_name: mysql\n    ports:\n      - "3306:3306"\n    environment:\n      - MYSQL_ROOT_PASSWORD=mysecret\n      - MYSQL_DATABASE=appdb\n      - MYSQL_USER=appuser\n      - MYSQL_PASSWORD=apppass\n    volumes:\n      - mysql_data:/var/lib/mysql\n    restart: unless-stopped\n\nvolumes:\n  mysql_data:',
+    redis:    'services:\n  redis:\n    image: redis:7-alpine\n    container_name: redis\n    ports:\n      - "6379:6379"\n    volumes:\n      - redis_data:/data\n    restart: unless-stopped\n\nvolumes:\n  redis_data:',
+    postgres: 'services:\n  postgres:\n    image: postgres:15-alpine\n    container_name: postgres\n    ports:\n      - "5432:5432"\n    environment:\n      - POSTGRES_PASSWORD=mysecret\n      - POSTGRES_DB=appdb\n      - POSTGRES_USER=appuser\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n    restart: unless-stopped\n\nvolumes:\n  pgdata:',
+    node:     'services:\n  node-app:\n    image: node:18-alpine\n    container_name: node-app\n    ports:\n      - "3000:3000"\n    environment:\n      - NODE_ENV=production\n      - PORT=3000\n    volumes:\n      - ./app:/usr/src/app\n    working_dir: /usr/src/app\n    restart: unless-stopped'
+  };
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  var mode = 'run2compose';
+
+  // ── DOM refs ─────────────────────────────────────────────────────────────
+  var btnRun2Compose = document.getElementById('btn-run2compose');
+  var btnCompose2Run = document.getElementById('btn-compose2run');
+  var inputArea      = document.getElementById('inputArea');
+  var inputLabel     = document.getElementById('inputLabel');
+  var outputLabel    = document.getElementById('outputLabel');
+  var outputEl       = document.getElementById('outputEl');
+  var outputEmpty    = document.getElementById('outputEmpty');
+  var errorEl        = document.getElementById('errorEl');
+  var clearBtn       = document.getElementById('clearBtn');
+  var sampleBtn      = document.getElementById('sampleBtn');
+  var copyBtn        = document.getElementById('copyBtn');
+  var copyBtnText    = document.getElementById('copyBtnText');
+
+  // ── Tokenizer ─────────────────────────────────────────────────────────────
+  function tokenize(str) {
+    var tokens = [];
+    var i = 0;
+    var len = str.length;
+    while (i < len) {
+      while (i < len && /[\s]/.test(str[i])) i++;
+      if (i >= len) break;
+      if (str[i] === '"' || str[i] === "'") {
+        var q = str[i++];
+        var start = i;
+        while (i < len && str[i] !== q) {
+          if (str[i] === '\\') i++;
+          i++;
+        }
+        tokens.push(str.slice(start, i));
+        if (i < len) i++;
+      } else {
+        var s = i;
+        while (i < len && !/[\s]/.test(str[i])) i++;
+        tokens.push(str.slice(s, i));
+      }
+    }
+    return tokens;
+  }
+
+  // ── docker run parser ─────────────────────────────────────────────────────
+  var VALUE_FLAGS = {
+    '--name': 'name', '--publish': 'ports', '-p': 'ports',
+    '--env': 'env', '-e': 'env', '--volume': 'volumes', '-v': 'volumes',
+    '--network': 'network', '--net': 'network', '--restart': 'restart',
+    '--memory': 'memory', '-m': 'memory', '--cpus': 'cpus',
+    '--label': 'labels', '-l': 'labels', '--user': 'user', '-u': 'user',
+    '--workdir': 'workdir', '-w': 'workdir', '--entrypoint': 'entrypoint',
+    '--hostname': 'hostname', '-h': 'hostname', '--env-file': 'envFile',
+    '--link': 'links', '--add-host': 'addHosts',
+    '--cap-add': 'capAdd', '--cap-drop': 'capDrop', '--device': 'devices',
+    '--platform': 'platform'
+  };
+  var ARRAY_FLAGS = { ports:1, env:1, volumes:1, labels:1, envFile:1, links:1, addHosts:1, capAdd:1, capDrop:1, devices:1 };
+  var BOOL_FLAGS = {
+    '-d': 'detach', '--detach': 'detach',
+    '-i': 'interactive', '--interactive': 'interactive',
+    '-t': 'tty', '--tty': 'tty',
+    '--rm': 'rm', '--privileged': 'privileged'
+  };
+
+  function parseDockerRun(cmd) {
+    // Join line continuations, strip leading 'docker run'
+    var clean = cmd.replace(/\\\s*\n\s*/g, ' ').trim();
+    clean = clean.replace(/^docker\s+(?:container\s+)?run\s+/i, '');
+
+    var tokens = tokenize(clean);
+    var result = {
+      image: null, command: [],
+      flags: {
+        detach:false, interactive:false, tty:false, rm:false, privileged:false,
+        name:null, ports:[], env:[], volumes:[], network:null, restart:null,
+        memory:null, cpus:null, labels:[], user:null, workdir:null,
+        entrypoint:null, hostname:null, envFile:[], links:[], addHosts:[],
+        capAdd:[], capDrop:[], devices:[], platform:null
+      }
+    };
+
+    var i = 0;
+    while (i < tokens.length) {
+      var tok = tokens[i];
+      if (result.image) {
+        result.command.push(tok);
+        i++;
+        continue;
+      }
+
+      if (!tok.startsWith('-')) {
+        result.image = tok;
+        i++;
+        continue;
+      }
+
+      // --flag=value
+      var eqIdx = tok.indexOf('=');
+      if (tok.startsWith('--') && eqIdx > 2) {
+        var fName = tok.slice(0, eqIdx);
+        var fVal  = tok.slice(eqIdx + 1);
+        if (VALUE_FLAGS[fName]) {
+          var prop = VALUE_FLAGS[fName];
+          if (ARRAY_FLAGS[prop]) result.flags[prop].push(fVal);
+          else result.flags[prop] = fVal;
+        }
+        i++;
+        continue;
+      }
+
+      // boolean flags
+      if (BOOL_FLAGS[tok] !== undefined) {
+        result.flags[BOOL_FLAGS[tok]] = true;
+        i++;
+        continue;
+      }
+
+      // value flags
+      if (VALUE_FLAGS[tok] !== undefined) {
+        var prop2 = VALUE_FLAGS[tok];
+        var nxt = tokens[i + 1];
+        if (nxt !== undefined && !nxt.startsWith('-')) {
+          if (ARRAY_FLAGS[prop2]) result.flags[prop2].push(nxt);
+          else result.flags[prop2] = nxt;
+          i += 2;
+        } else {
+          i++;
+        }
+        continue;
+      }
+
+      // combined short flags: -dit, -it, etc.
+      if (/^-[a-zA-Z]{2,}$/.test(tok)) {
+        var chars = tok.slice(1).split('');
+        chars.forEach(function (c) {
+          if (BOOL_FLAGS['-' + c] !== undefined) result.flags[BOOL_FLAGS['-' + c]] = true;
+        });
+        i++;
+        continue;
+      }
+
+      i++;
+    }
+
+    if (!result.image) throw new Error('No image found. Make sure your command starts with "docker run" and includes an image name.');
+    return result;
+  }
+
+  // ── docker run → Compose ──────────────────────────────────────────────────
+  function dockerRunToCompose(cmd) {
+    var p = parseDockerRun(cmd);
+    var f = p.flags;
+
+    var svcName = f.name || p.image.split('/').pop().split(':')[0];
+    svcName = svcName.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z]/, 's$&') || 'app';
+
+    var namedVols = f.volumes.filter(function (v) {
+      var src = v.split(':')[0];
+      return !src.startsWith('/') && !src.startsWith('.') && !src.startsWith('~');
+    });
+
+    var customNet = f.network && !['bridge','host','none'].includes(f.network);
+
+    var L = [];
+    L.push('services:');
+    L.push('  ' + svcName + ':');
+    L.push('    image: ' + p.image);
+    if (f.name)       L.push('    container_name: ' + f.name);
+    if (f.hostname)   L.push('    hostname: ' + f.hostname);
+    if (f.restart)    L.push('    restart: ' + f.restart);
+    if (f.network && !customNet) L.push('    network_mode: "' + f.network + '"');
+
+    if (f.ports.length) {
+      L.push('    ports:');
+      f.ports.forEach(function (v) { L.push('      - "' + v + '"'); });
+    }
+    if (f.env.length) {
+      L.push('    environment:');
+      f.env.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (f.envFile.length) {
+      L.push('    env_file:');
+      f.envFile.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (f.volumes.length) {
+      L.push('    volumes:');
+      f.volumes.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (customNet) {
+      L.push('    networks:');
+      L.push('      - ' + f.network);
+    }
+    if (f.memory)     L.push('    mem_limit: ' + f.memory);
+    if (f.cpus)       L.push('    cpus: "' + f.cpus + '"');
+    if (f.user)       L.push('    user: "' + f.user + '"');
+    if (f.workdir)    L.push('    working_dir: ' + f.workdir);
+    if (f.entrypoint) L.push('    entrypoint: ' + f.entrypoint);
+    if (f.interactive) L.push('    stdin_open: true');
+    if (f.tty)        L.push('    tty: true');
+    if (f.privileged) L.push('    privileged: true');
+    if (f.links.length) {
+      L.push('    links:');
+      f.links.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (f.addHosts.length) {
+      L.push('    extra_hosts:');
+      f.addHosts.forEach(function (v) { L.push('      - "' + v + '"'); });
+    }
+    if (f.capAdd.length) {
+      L.push('    cap_add:');
+      f.capAdd.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (f.capDrop.length) {
+      L.push('    cap_drop:');
+      f.capDrop.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (f.devices.length) {
+      L.push('    devices:');
+      f.devices.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (f.labels.length) {
+      L.push('    labels:');
+      f.labels.forEach(function (v) { L.push('      - ' + v); });
+    }
+    if (p.command.length) {
+      L.push('    command: ' + p.command.map(function(c) {
+        return c.indexOf(' ') > -1 ? '"' + c + '"' : c;
+      }).join(' '));
+    }
+
+    if (customNet) {
+      L.push('');
+      L.push('networks:');
+      L.push('  ' + f.network + ':');
+      L.push('    external: true');
+    }
+
+    if (namedVols.length) {
+      L.push('');
+      L.push('volumes:');
+      namedVols.forEach(function (v) {
+        L.push('  ' + v.split(':')[0] + ':');
+      });
+    }
+
+    return L.join('\n');
+  }
+
+  // ── Simple YAML parser for docker-compose ─────────────────────────────────
+  function unquoteYaml(s) {
+    s = (s || '').trim();
+    // Remove inline comment (not inside quotes)
+    var inQ = false, qC = '';
+    for (var j = 0; j < s.length; j++) {
+      if (!inQ && (s[j] === '"' || s[j] === "'")) { inQ = true; qC = s[j]; }
+      else if (inQ && s[j] === qC) { inQ = false; }
+      else if (!inQ && s[j] === '#') { s = s.slice(0, j).trim(); break; }
+    }
+    if (s.length >= 2 &&
+        ((s[0] === '"' && s[s.length-1] === '"') ||
+         (s[0] === "'" && s[s.length-1] === "'"))) {
+      return s.slice(1, -1);
+    }
+    return s;
+  }
+
+  function parseDockerCompose(yamlStr) {
+    var lines = yamlStr.split('\n').map(function (l) { return l.replace(/\r$/, ''); });
+    var services = {};
+    var i = 0;
+    var n = lines.length;
+
+    function skipBlank() {
+      while (i < n && (!lines[i].trim() || lines[i].trim()[0] === '#')) i++;
+    }
+    function indent(line) { var m = line.match(/^(\s*)/); return m ? m[1].length : 0; }
+
+    // Find services:
+    while (i < n && !/^\s*services\s*:\s*$/.test(lines[i])) i++;
+    if (i >= n) throw new Error('No "services:" section found in Compose file.');
+    i++;
+
+    while (i < n) {
+      skipBlank();
+      if (i >= n) break;
+
+      var svcIndent = indent(lines[i]);
+      if (svcIndent === 0) break; // back to top level (volumes, networks, etc.)
+
+      var svcMatch = lines[i].match(/^  ([a-zA-Z0-9_][a-zA-Z0-9_./-]*):\s*$/);
+      if (!svcMatch) { i++; continue; }
+
+      var svcName = svcMatch[1];
+      var svc = {};
+      services[svcName] = svc;
+      i++;
+
+      // Service fields at indent 4
+      while (i < n) {
+        skipBlank();
+        if (i >= n) break;
+
+        var fIndent = indent(lines[i]);
+        if (fIndent < 4) break;
+        if (fIndent > 4) { i++; continue; }
+
+        var kvMatch = lines[i].match(/^    ([a-zA-Z_][a-zA-Z0-9_]*):\s*(.*)/);
+        if (!kvMatch) { i++; continue; }
+
+        var key = kvMatch[1];
+        var val = kvMatch[2].trim();
+        i++;
+
+        if (val) {
+          svc[key] = unquoteYaml(val);
+        } else {
+          // List or map at indent 6+
+          var items = [];
+          while (i < n) {
+            skipBlank();
+            if (i >= n) break;
+
+            var vIndent = indent(lines[i]);
+            var vTrim   = lines[i].trim();
+            if (vIndent < 6) break;
+
+            if (vTrim.startsWith('- ')) {
+              var item = vTrim.slice(2).trim();
+              // key: value inside list
+              var ci = item.indexOf(':');
+              if (ci > 0 && !item.startsWith('"') && !item.startsWith("'")) {
+                var ik = item.slice(0, ci).trim();
+                var iv = item.slice(ci + 1).trim();
+                items.push(ik + (iv ? '=' + unquoteYaml(iv) : ''));
+              } else {
+                items.push(unquoteYaml(item));
+              }
+              i++;
+            } else if (vTrim.indexOf(':') !== -1) {
+              // dict: key: value
+              var dci = vTrim.indexOf(':');
+              var dk  = vTrim.slice(0, dci).trim();
+              var dv  = vTrim.slice(dci + 1).trim();
+              if (dk && dv) items.push(dk + '=' + unquoteYaml(dv));
+              else if (dk)  items.push(dk);
+              i++;
+            } else {
+              break;
+            }
+          }
+          svc[key] = items;
+        }
+      }
+    }
+
+    if (Object.keys(services).length === 0) {
+      throw new Error('No services found. Make sure your Compose file has a "services:" section with at least one service.');
+    }
+    return services;
+  }
+
+  // ── Compose → docker run ──────────────────────────────────────────────────
+  function composeToDockerRun(yaml) {
+    var services = parseDockerCompose(yaml);
+    var names = Object.keys(services);
+    var results = [];
+
+    names.forEach(function (name) {
+      var s = services[name];
+      if (!s.image) return; // skip services without an image (build-only)
+
+      var parts = ['docker run'];
+
+      if (s.container_name) parts.push('--name ' + s.container_name);
+      if (s.hostname)        parts.push('--hostname ' + s.hostname);
+      if (s.restart)         parts.push('--restart ' + s.restart);
+      if (s.network_mode)    parts.push('--network ' + s.network_mode.replace(/['"]/g,''));
+
+      function list(arr, flag) {
+        if (Array.isArray(arr) && arr.length) {
+          arr.forEach(function (v) { parts.push(flag + ' ' + v); });
+        }
+      }
+
+      list(s.ports,       '-p');
+      list(s.environment, '-e');
+      list(s.env_file,    '--env-file');
+      list(s.volumes,     '-v');
+
+      if (Array.isArray(s.networks) && s.networks.length) {
+        s.networks.forEach(function (n) { parts.push('--network ' + n); });
+      } else if (s.networks && typeof s.networks === 'object') {
+        Object.keys(s.networks).forEach(function (n) { parts.push('--network ' + n); });
+      }
+
+      if (s.mem_limit)    parts.push('--memory ' + s.mem_limit);
+      if (s.cpus)         parts.push('--cpus ' + s.cpus.replace(/['"]/g,''));
+      if (s.user)         parts.push('--user ' + s.user.replace(/['"]/g,''));
+      if (s.working_dir)  parts.push('--workdir ' + s.working_dir);
+      if (s.entrypoint)   parts.push('--entrypoint ' + s.entrypoint);
+
+      if (s.stdin_open === 'true' || s.stdin_open === true) parts.push('-i');
+      if (s.tty === 'true' || s.tty === true) parts.push('-t');
+      if (s.privileged === 'true' || s.privileged === true) parts.push('--privileged');
+
+      list(s.links,        '--link');
+      list(s.extra_hosts,  '--add-host');
+      list(s.cap_add,      '--cap-add');
+      list(s.cap_drop,     '--cap-drop');
+      list(s.devices,      '--device');
+      list(s.labels,       '--label');
+
+      parts.push(s.image);
+      if (s.command) parts.push(s.command);
+
+      // Format with line continuations
+      if (parts.length <= 2) {
+        results.push(parts.join(' '));
+      } else {
+        results.push(parts[0] + ' \\\n' + parts.slice(1).map(function (p) { return '  ' + p; }).join(' \\\n'));
+      }
+    });
+
+    if (results.length === 0) {
+      throw new Error('No services with an "image:" field found. Services that use "build:" cannot be directly converted to docker run commands.');
+    }
+
+    if (results.length === 1) return results[0];
+
+    // Multiple services
+    return results.map(function (r, idx) {
+      return '# Service: ' + names.filter(function(n) { return services[n].image; })[idx] + '\n' + r;
+    }).join('\n\n');
+  }
+
+  // ── Syntax highlight (output only) ───────────────────────────────────────
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function highlightYaml(text) {
+    return text.split('\n').map(function (line) {
+      var esc = escHtml(line);
+      if (!line.trim()) return esc;
+      // Comment
+      if (line.trim().startsWith('#')) return '<span style="color:var(--fg3)">' + esc + '</span>';
+      // List item
+      var lm = line.match(/^(\s*)(-)(\s+)(.*)$/);
+      if (lm) {
+        return escHtml(lm[1])
+          + '<span style="color:#34d399">' + escHtml(lm[2]) + '</span>'
+          + escHtml(lm[3])
+          + '<span style="color:#a7f3d0">' + escHtml(lm[4]) + '</span>';
+      }
+      // Key: value
+      var km = line.match(/^(\s*)([a-zA-Z0-9_-]+)(\s*:\s*)(.*)$/);
+      if (km) {
+        return escHtml(km[1])
+          + '<span style="color:#10b981">' + escHtml(km[2]) + '</span>'
+          + '<span style="color:var(--fg3)">' + escHtml(km[3]) + '</span>'
+          + '<span style="color:#6ee7b7">' + escHtml(km[4]) + '</span>';
+      }
+      return esc;
+    }).join('\n');
+  }
+
+  function highlightDockerRun(text) {
+    return text.split('\n').map(function (line) {
+      if (!line.trim()) return escHtml(line);
+      // Comment
+      if (line.trim().startsWith('#')) return '<span style="color:var(--fg3)">' + escHtml(line) + '</span>';
+      // Continuation backslash at end
+      var hasCont = line.endsWith('\\');
+      var core = hasCont ? line.slice(0, -1) : line;
+      // Flag line: starts with spaces + dash
+      var fm = core.match(/^(\s*)(--?[\w-]+)(=?)(\S*)(.*)/);
+      if (fm) {
+        return escHtml(fm[1])
+          + '<span style="color:#10b981">' + escHtml(fm[2]) + escHtml(fm[3]) + '</span>'
+          + '<span style="color:#6ee7b7">' + escHtml(fm[4]) + '</span>'
+          + escHtml(fm[5])
+          + (hasCont ? '<span style="color:var(--fg3)"> \\</span>' : '');
+      }
+      // "docker run" line
+      if (/^\s*docker/.test(line)) {
+        return line.replace(/docker\s+run/, '<span style="color:#10b981">docker run</span>');
+      }
+      // Image/command line (last arg, starts with 2 spaces, no flag)
+      if (/^\s{2}[^\s-]/.test(line) || /^\s{2}[a-zA-Z]/.test(line)) {
+        return escHtml(core.slice(0, 2))
+          + '<span style="color:#f9a8d4">' + escHtml(core.slice(2)) + '</span>'
+          + (hasCont ? '<span style="color:var(--fg3)"> \\</span>' : '');
+      }
+      return escHtml(line);
+    }).join('\n');
+  }
+
+  // ── UI update ─────────────────────────────────────────────────────────────
+  function setModeUI() {
+    if (mode === 'run2compose') {
+      btnRun2Compose.style.background = 'rgba(16,185,129,0.12)';
+      btnRun2Compose.style.color      = '#10b981';
+      btnCompose2Run.style.background = 'var(--card)';
+      btnCompose2Run.style.color      = 'var(--fg2)';
+      inputLabel.textContent  = 'docker run command';
+      outputLabel.textContent = 'docker-compose.yml';
+      inputArea.placeholder   = 'Paste your docker run command here...\n\nExample:\ndocker run -d --name nginx -p 80:80 nginx:latest';
+    } else {
+      btnCompose2Run.style.background = 'rgba(16,185,129,0.12)';
+      btnCompose2Run.style.color      = '#10b981';
+      btnRun2Compose.style.background = 'var(--card)';
+      btnRun2Compose.style.color      = 'var(--fg2)';
+      inputLabel.textContent  = 'docker-compose.yml';
+      outputLabel.textContent = 'docker run command';
+      inputArea.placeholder   = 'Paste your docker-compose.yml here...\n\nExample:\nservices:\n  web:\n    image: nginx:alpine\n    ports:\n      - "80:80"';
+    }
+  }
+
+  function setOutput(html, raw) {
+    if (!raw) {
+      outputEl.classList.add('hidden');
+      outputEl.innerHTML = '';
+      outputEmpty.style.display = '';
+    } else {
+      outputEl.innerHTML = html;
+      outputEl.classList.remove('hidden');
+      outputEmpty.style.display = 'none';
+    }
+    outputEl._rawText = raw || '';
+  }
+
+  function setError(msg) {
+    if (msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.remove('hidden');
+    } else {
+      errorEl.classList.add('hidden');
+      errorEl.textContent = '';
+    }
+  }
+
+  function convert() {
+    var input = inputArea.value.trim();
+    setError('');
+    if (!input) { setOutput('', ''); return; }
+    try {
+      var raw, highlighted;
+      if (mode === 'run2compose') {
+        raw = dockerRunToCompose(input);
+        highlighted = highlightYaml(raw);
+      } else {
+        raw = composeToDockerRun(input);
+        highlighted = highlightDockerRun(raw);
+      }
+      setOutput(highlighted, raw);
+    } catch (e) {
+      setOutput('', '');
+      setError(e.message);
+    }
+  }
+
+  // ── Event handlers ────────────────────────────────────────────────────────
+  btnRun2Compose.addEventListener('click', function () {
+    if (mode === 'run2compose') return;
+    mode = 'run2compose';
+    inputArea.value = '';
+    setModeUI();
+    setOutput('', '');
+    setError('');
+  });
+
+  btnCompose2Run.addEventListener('click', function () {
+    if (mode === 'compose2run') return;
+    mode = 'compose2run';
+    inputArea.value = '';
+    setModeUI();
+    setOutput('', '');
+    setError('');
+  });
+
+  inputArea.addEventListener('input', function () { convert(); });
+
+  clearBtn.addEventListener('click', function () {
+    inputArea.value = '';
+    convert();
+    inputArea.focus();
+  });
+
+  sampleBtn.addEventListener('click', function () {
+    inputArea.value = mode === 'run2compose' ? SAMPLE_RUN : SAMPLE_COMPOSE;
+    convert();
+  });
+
+  document.querySelectorAll('.preset-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-preset');
+      var data = mode === 'run2compose' ? PRESETS_RUN[key] : PRESETS_COMPOSE[key];
+      if (data) { inputArea.value = data; convert(); }
+    });
+    btn.addEventListener('mouseover', function () {
+      btn.style.borderColor = '#10b981';
+      btn.style.color       = 'var(--fg)';
+    });
+    btn.addEventListener('mouseout', function () {
+      btn.style.borderColor = 'var(--border)';
+      btn.style.color       = 'var(--fg2)';
+    });
+  });
+
+  copyBtn.addEventListener('click', function () {
+    var text = outputEl._rawText || '';
+    if (!text) return;
+    function flash() {
+      copyBtnText.textContent   = 'Copied!';
+      copyBtn.style.background  = 'rgba(16,185,129,0.25)';
+      setTimeout(function () {
+        copyBtnText.textContent = 'Copy';
+        copyBtn.style.background = 'rgba(16,185,129,0.1)';
+      }, 2000);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(flash).catch(function () { fbCopy(text); flash(); });
+    } else { fbCopy(text); flash(); }
+  });
+
+  function fbCopy(t) {
+    var ta = document.createElement('textarea');
+    ta.value = t;
+    ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  // ── FAQ accordion ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.faq-q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.faq-item');
+      var ans  = item.querySelector('.faq-a');
+      var chev = btn.querySelector('.faq-chevron');
+      var open = !ans.classList.contains('hidden');
+      ans.classList.toggle('hidden', open);
+      if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+    });
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  setModeUI();
+  inputArea.value = SAMPLE_RUN;
+  convert();
+
+})();
+</script>
