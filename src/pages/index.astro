@@ -205,6 +205,30 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </a>
 
+      <!-- chmod Calculator -->
+      <a href="/chmod-calculator"
+        class="reveal relative rounded-2xl p-6 transition-all"
+        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
+        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
+        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="12" y1="15" x2="16" y2="15"/>
+          </svg>
+        </div>
+        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">chmod Calculator</h2>
+        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">Calculate Linux file permissions instantly. Convert between octal notation, symbolic notation and chmod commands with a visual permission builder.</p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Linux</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Permissions</span>
+          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">DevOps</span>
+        </div>
+        <div class="absolute top-5 right-5" style="color: var(--border);">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </a>
+
     </div>
   </section>
 

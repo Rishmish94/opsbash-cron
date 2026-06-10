@@ -21,6 +21,16 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://opsbash.com/jwt-decoder</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://opsbash.com/chmod-calculator</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://opsbash.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

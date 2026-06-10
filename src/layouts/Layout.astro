@@ -123,6 +123,29 @@ const orgSchema = {
             onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
             <span>🔑</span> JWT Decoder
           </a>
+
+          <!-- More dropdown -->
+          <div class="relative" id="moreDropdown">
+            <button id="moreBtn"
+              class="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
+              style="color: var(--fg2);"
+              onmouseover="this.style.color='var(--fg)'; this.style.background='rgba(16,185,129,0.07)'"
+              onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
+              More
+              <svg id="moreChevron" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="moreMenu"
+              class="hidden absolute top-full left-0 mt-2 w-52 rounded-xl py-1.5 z-50"
+              style="background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.24);">
+              <a href="/chmod-calculator"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-all"
+                 style="color: var(--fg2); text-decoration: none;"
+                 onmouseover="this.style.color='var(--fg)'; this.style.background='rgba(16,185,129,0.07)'"
+                 onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
+                <span>🔐</span> chmod Calculator
+              </a>
+            </div>
+          </div>
         </nav>
 
         <!-- Right side: GitHub star + Ko-fi + hamburger -->
@@ -184,6 +207,11 @@ const orgSchema = {
              onmouseout="this.style.background='transparent'">
             <span>🔑</span> JWT Decoder
           </a>
+          <a href="/chmod-calculator" class="flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm font-medium transition-colors" style="color: var(--fg2); text-decoration: none;"
+             onmouseover="this.style.background='rgba(16,185,129,0.07)'"
+             onmouseout="this.style.background='transparent'">
+            <span>🔐</span> chmod Calculator
+          </a>
         </div>
       </div>
     </header>
@@ -210,6 +238,7 @@ const orgSchema = {
               <li><a href="/cidr-calculator"        class="text-xs footer-link">CIDR Calculator</a></li>
               <li><a href="/json-yaml-converter"    class="text-xs footer-link">JSON YAML Converter</a></li>
               <li><a href="/jwt-decoder"            class="text-xs footer-link">JWT Decoder</a></li>
+              <li><a href="/chmod-calculator"       class="text-xs footer-link">chmod Calculator</a></li>
             </ul>
           </div>
 
@@ -244,6 +273,23 @@ const orgSchema = {
     if (mobileMenuBtn && mobileNav) {
       mobileMenuBtn.addEventListener('click', function() {
         mobileNav.classList.toggle('hidden');
+      });
+    }
+
+    // ── More dropdown ─────────────────────────────────────────────────────────
+    var moreBtn  = document.getElementById('moreBtn');
+    var moreMenu = document.getElementById('moreMenu');
+    var moreChev = document.getElementById('moreChevron');
+    if (moreBtn && moreMenu) {
+      moreBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var open = !moreMenu.classList.contains('hidden');
+        moreMenu.classList.toggle('hidden', open);
+        if (moreChev) moreChev.style.transform = open ? '' : 'rotate(180deg)';
+      });
+      document.addEventListener('click', function() {
+        moreMenu.classList.add('hidden');
+        if (moreChev) moreChev.style.transform = '';
       });
     }
 
