@@ -28,7 +28,7 @@ const orgSchema = {
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="dark scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -65,18 +65,8 @@ const orgSchema = {
     gtag('js', new Date());
     gtag('config', gaId);
   </script>
-  <!-- Anti-FOUC: apply saved theme before first paint -->
-  <script is:inline>
-    (function () {
-      var saved = localStorage.getItem('theme');
-      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (saved === 'dark' || (!saved && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-  </script>
 </head>
-<body class="transition-colors duration-200 antialiased" style="background: var(--bg);">
+<body class="antialiased" style="background: var(--bg);">
 
   <!-- Background effects -->
   <div class="dot-grid" aria-hidden="true"></div>
@@ -103,7 +93,6 @@ const orgSchema = {
 
         <!-- Desktop center nav -->
         <nav class="hidden md:flex items-center gap-1">
-          <!-- Direct tool links (always visible) -->
           <a href="/cron-builder"
             class="nav-tool-link flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
             style="color: var(--fg2); text-decoration: none;"
@@ -125,62 +114,40 @@ const orgSchema = {
             onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
             <span>📋</span> JSON YAML
           </a>
-          <!-- More tools dropdown (coming soon) -->
-          <div class="relative" id="toolsDropdown">
-            <button id="toolsBtn"
-              class="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
-              style="color: var(--fg2);">
-              More
-              <svg id="toolsChevron" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div id="toolsMenu"
-              class="hidden absolute top-full left-0 mt-2 w-52 rounded-xl py-1.5"
-              style="background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100;">
-              <div class="flex items-center gap-2.5 px-4 py-2 text-sm" style="color: var(--fg3); cursor: default; opacity: 0.6;">
-                <span>🔑</span> JWT Decoder
-                <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded" style="background: rgba(139,148,158,0.15);">Soon</span>
-              </div>
-              <div class="flex items-center gap-2.5 px-4 py-2 text-sm" style="color: var(--fg3); cursor: default; opacity: 0.6;">
-                <span>🔒</span> Base64 Encoder
-                <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded" style="background: rgba(139,148,158,0.15);">Soon</span>
-              </div>
-            </div>
-          </div>
+          <a href="/jwt-decoder"
+            class="nav-tool-link flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-all"
+            style="color: var(--fg2); text-decoration: none;"
+            onmouseover="this.style.color='var(--fg)'; this.style.background='rgba(16,185,129,0.07)'"
+            onmouseout="this.style.color='var(--fg2)'; this.style.background='transparent'">
+            <span>🔑</span> JWT Decoder
+          </a>
         </nav>
 
-        <!-- Right side: GitHub star + dark toggle + hamburger -->
+        <!-- Right side: GitHub star + Ko-fi + hamburger -->
         <div class="flex items-center gap-2">
 
-          <!-- GitHub star -->
+          <!-- GitHub star (always visible; label hidden on xs, shown on sm+) -->
           <a href="https://github.com/Rishmish94/opsbash-cron" target="_blank" rel="noopener noreferrer"
-            class="hidden sm:flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap"
+            class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap"
             style="border-color: var(--border); color: var(--fg2); background: var(--card); text-decoration: none;"
             onmouseover="this.style.borderColor='#10b981'; this.style.color='var(--fg)'"
             onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--fg2)'">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            Star
+            <span class="hidden sm:inline">Star</span>
           </a>
 
-          <!-- Dark mode toggle -->
-          <button id="darkToggle" aria-label="Toggle dark mode"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all"
-            style="border-color: var(--border); background: var(--card); color: var(--fg2);">
-            <svg id="sunIcon" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="5"/>
-              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-            <svg id="moonIcon" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-            <span id="darkLabel" class="hidden sm:inline select-none">Dark</span>
-          </button>
+          <!-- Ko-fi Support (always visible; label hidden on xs, shown on sm+) -->
+          <a href="https://ko-fi.com/rishmish" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-1.5 text-sm font-bold px-5 py-2.5 rounded-full border transition-all whitespace-nowrap"
+            style="border-color: rgba(255,215,0,0.35); color: #FFD700; background: rgba(255,215,0,0.07); text-decoration: none;"
+            onmouseover="this.style.borderColor='#FFD700'; this.style.background='rgba(255,215,0,0.14)'"
+            onmouseout="this.style.borderColor='rgba(255,215,0,0.35)'; this.style.background='rgba(255,215,0,0.07)'">
+            ☕<span class="hidden sm:inline"> Buy me a Koffee</span>
+          </a>
 
-          <!-- Mobile hamburger -->
+          <!-- Mobile hamburger (collapsed nav for tool links) -->
           <button id="mobileMenuBtn" class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors" style="color: var(--fg2);" aria-label="Open menu">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="3" y1="6" x2="21" y2="6"/>
@@ -191,8 +158,8 @@ const orgSchema = {
         </div>
       </div>
 
-      <!-- Mobile menu -->
-      <div id="mobileNav" class="hidden" style="border-top: 1px solid var(--border); background: var(--card);">
+      <!-- Mobile menu (tool links only; Star + Ko-fi stay in the top bar) -->
+      <div id="mobileNav" class="hidden md:hidden" style="border-top: 1px solid var(--border); background: var(--card);">
         <div class="px-4 py-3">
           <p class="text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Tools</p>
           <a href="/cron-builder" class="flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm font-medium transition-colors" style="color: var(--fg2); text-decoration: none;"
@@ -210,9 +177,11 @@ const orgSchema = {
              onmouseout="this.style.background='transparent'">
             <span>📋</span> JSON YAML Converter
           </a>
-          <p class="text-[10px] font-semibold uppercase tracking-wider mt-3 mb-2" style="color: var(--fg3);">Coming Soon</p>
-          <div class="flex items-center gap-3 px-2 py-2.5 text-sm" style="color: var(--fg3); opacity: 0.6;"><span>🔑</span> JWT Decoder</div>
-          <div class="flex items-center gap-3 px-2 py-2.5 text-sm" style="color: var(--fg3); opacity: 0.6;"><span>🔒</span> Base64 Encoder</div>
+          <a href="/jwt-decoder" class="flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm font-medium transition-colors" style="color: var(--fg2); text-decoration: none;"
+             onmouseover="this.style.background='rgba(16,185,129,0.07)'"
+             onmouseout="this.style.background='transparent'">
+            <span>🔑</span> JWT Decoder
+          </a>
         </div>
       </div>
     </header>
@@ -235,9 +204,10 @@ const orgSchema = {
           <div>
             <h3 class="text-xs font-semibold uppercase tracking-wider mb-4" style="color: #34d399;">Tools</h3>
             <ul class="space-y-2.5">
-              <li><a href="/cron-builder"         class="text-xs footer-link">Cron Expression Builder</a></li>
-              <li><a href="/cidr-calculator"    class="text-xs footer-link">CIDR Calculator</a></li>
-              <li><a href="/json-yaml-converter" class="text-xs footer-link">JSON YAML Converter</a></li>
+              <li><a href="/cron-builder"          class="text-xs footer-link">Cron Expression Builder</a></li>
+              <li><a href="/cidr-calculator"        class="text-xs footer-link">CIDR Calculator</a></li>
+              <li><a href="/json-yaml-converter"    class="text-xs footer-link">JSON YAML Converter</a></li>
+              <li><a href="/jwt-decoder"            class="text-xs footer-link">JWT Decoder</a></li>
             </ul>
           </div>
 
@@ -265,46 +235,6 @@ const orgSchema = {
   </div><!-- /main layout -->
 
   <script is:inline>
-    // ── Dark mode toggle ──────────────────────────────────────────────────────
-    var darkToggle = document.getElementById('darkToggle');
-    var sunIcon    = document.getElementById('sunIcon');
-    var moonIcon   = document.getElementById('moonIcon');
-    var darkLabel  = document.getElementById('darkLabel');
-
-    function applyDark(dark) {
-      document.documentElement.classList.toggle('dark', dark);
-      if (sunIcon)   sunIcon.classList.toggle('hidden', !dark);
-      if (moonIcon)  moonIcon.classList.toggle('hidden', dark);
-      if (darkLabel) darkLabel.textContent = dark ? 'Light' : 'Dark';
-      localStorage.setItem('theme', dark ? 'dark' : 'light');
-    }
-
-    applyDark(document.documentElement.classList.contains('dark'));
-
-    if (darkToggle) {
-      darkToggle.addEventListener('click', function () {
-        applyDark(!document.documentElement.classList.contains('dark'));
-      });
-    }
-
-    // ── Tools dropdown ────────────────────────────────────────────────────────
-    var toolsBtn     = document.getElementById('toolsBtn');
-    var toolsMenu    = document.getElementById('toolsMenu');
-    var toolsChevron = document.getElementById('toolsChevron');
-
-    if (toolsBtn && toolsMenu) {
-      toolsBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var isOpen = !toolsMenu.classList.contains('hidden');
-        toolsMenu.classList.toggle('hidden', isOpen);
-        if (toolsChevron) toolsChevron.style.transform = isOpen ? '' : 'rotate(180deg)';
-      });
-      document.addEventListener('click', function() {
-        toolsMenu.classList.add('hidden');
-        if (toolsChevron) toolsChevron.style.transform = '';
-      });
-    }
-
     // ── Mobile hamburger ──────────────────────────────────────────────────────
     var mobileMenuBtn = document.getElementById('mobileMenuBtn');
     var mobileNav     = document.getElementById('mobileNav');

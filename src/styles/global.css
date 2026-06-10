@@ -53,17 +53,6 @@ body {
 .footer-link:hover {
   color: #34d399;
 }
-:root:not(.dark) .footer-link {
-  color: #047857;
-}
-:root:not(.dark) .footer-link:hover {
-  color: #064e3b;
-}
-
-/* ── Nav tool links ─────────────────────────────────────────────────────────── */
-:root:not(.dark) .nav-tool-link {
-  color: #065f46 !important;
-}
 
 /* ── Animations ─────────────────────────────────────────────────────────────── */
 @keyframes fade-in-up {
@@ -87,10 +76,6 @@ body {
   background-image: radial-gradient(circle, #1a3a22 1px, transparent 1px);
   background-size: 28px 28px;
   opacity: 0.5;
-}
-:root:not(.dark) .dot-grid {
-  background-image: radial-gradient(circle, #bbf7d0 1px, transparent 1px);
-  opacity: 0.6;
 }
 
 /* ── Glow orbs ──────────────────────────────────────────────────────────────── */
@@ -116,8 +101,6 @@ body {
   z-index: 0;
   animation: orb-pulse 4s ease-in-out infinite alternate-reverse;
 }
-:root:not(.dark) .glow-orb-1 { background: rgba(16, 185, 129, 0.06); }
-:root:not(.dark) .glow-orb-2 { background: rgba(52, 211, 153, 0.04); }
 
 /* ── Gradient border effect ─────────────────────────────────────────────────── */
 .gradient-border {
@@ -150,7 +133,3 @@ body {
   transform: none;
 }
 
-/* ── Scrollbar (light mode) ─────────────────────────────────────────────────── */
-:root:not(.dark) ::-webkit-scrollbar-track { background: #f0fdf4; }
-:root:not(.dark) ::-webkit-scrollbar-thumb { background: #bbf7d0; }
-:root:not(.dark) ::-webkit-scrollbar-thumb:hover { background: #10b981; }

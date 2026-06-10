@@ -245,58 +245,6 @@ import Layout from '../layouts/Layout.astro';
   </section>
 </main>
 
-<style>
-  /* ── Hero H1 — solid dark green in light mode ───────────────────────────── */
-  :root:not(.dark) h1.hero-main {
-    background: none !important;
-    -webkit-text-fill-color: #064e3b !important;
-    color: #064e3b !important;
-  }
-
-  /* ── Hero badge ─────────────────────────────────────────────────────────── */
-  :root:not(.dark) .hero-badge {
-    background: #dcfce7 !important;
-    color: #064e3b !important;
-    border-color: #86efac !important;
-  }
-
-  /* ── Social proof stat cards ─────────────────────────────────────────────── */
-  :root:not(.dark) .social-card {
-    background: #f0fdf4 !important;
-    border-color: #bbf7d0 !important;
-  }
-  :root:not(.dark) .social-val {
-    color: #064e3b !important;
-  }
-
-  /* ── Tool card tags ──────────────────────────────────────────────────────── */
-  :root:not(.dark) .tool-tag {
-    background: #dcfce7 !important;
-    color: #065f46 !important;
-    border-color: #86efac !important;
-  }
-
-  /* ── Hero terminal card — keep dark even in light mode ───────────────────── */
-  :root:not(.dark) .hero-terminal {
-    background: #0a1a0f !important;
-    border-color: #1a3a22 !important;
-  }
-  :root:not(.dark) #heroCronInput {
-    background: #030a06 !important;
-    color: #34d399 !important;
-    border-color: #1a4028 !important;
-    box-shadow: 0 0 0 3px rgba(16,185,129,0.12) !important;
-  }
-  :root:not(.dark) #heroCronExpl {
-    color: #4ade80 !important;
-  }
-  :root:not(.dark) #heroCronNext {
-    color: #4b7a5f !important;
-  }
-  :root:not(.dark) .hero-terminal .text-\[10px\] {
-    color: #4b7a5f !important;
-  }
-</style>
 
 <script is:inline>
 (function() {
