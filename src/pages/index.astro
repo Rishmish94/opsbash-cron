@@ -238,15 +238,15 @@ const toolCards = [
 <!-- TRUST STRIP                                                                -->
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 <div style="background:var(--surface-primary);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-  <div class="max-w-[1280px] mx-auto px-5" style="padding-top:14px;padding-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 0;">
+  <div class="trust-strip max-w-[1280px] mx-auto px-5" style="padding-top:14px;padding-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 0;">
     {trustItems.map((item, i) => (
       <>
-        <div style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;">
+        <div class="trust-item" style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;">
           <span style="color:var(--accent-secondary);font-size:13px;font-weight:600;">✓</span>
           <span style="font-size:13px;color:var(--text-secondary);">{item}</span>
         </div>
         {i < trustItems.length - 1 && (
-          <span style="color:var(--border);font-size:13px;" aria-hidden="true">·</span>
+          <span class="trust-sep" style="color:var(--border);font-size:13px;" aria-hidden="true">·</span>
         )}
       </>
     ))}
@@ -370,6 +370,24 @@ const toolCards = [
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-top: 4px;
+  }
+
+  /* ── Trust strip mobile ─────────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .trust-strip {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+      text-align: center !important;
+      padding: 16px !important;
+    }
+    .trust-item {
+      display: inline-flex !important;
+      justify-content: center !important;
+    }
+    .trust-sep {
+      display: none !important;
+    }
   }
 
   /* Hero headline responsive sizes */

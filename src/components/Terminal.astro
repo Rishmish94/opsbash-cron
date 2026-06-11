@@ -29,6 +29,7 @@
     font-size: 13px;
     line-height: 1.7;
     width: 100%;
+    max-width: 100%;
   }
 
   .term-chrome {
@@ -55,6 +56,12 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
   }
+
+  @media (max-width: 640px) {
+    #terminal-output {
+      overflow: hidden;
+    }
+  }
 </style>
 
 <script>
@@ -73,6 +80,8 @@
   async function runTerminal() {
     const output = document.getElementById('terminal-output');
     if (!output) return;
+
+    const isMobile = window.innerWidth < 640;
 
     while (true) {
       output.innerHTML = '';
@@ -111,24 +120,36 @@
         await sleep(120);
         const toolLine = document.createElement('div');
         toolLine.style.fontFamily = 'JetBrains Mono, monospace';
-        toolLine.style.fontSize = '13px';
+        toolLine.style.fontSize = isMobile ? '12px' : '13px';
         toolLine.style.lineHeight = '1.7';
-        toolLine.style.whiteSpace = 'pre';
         toolLine.style.display = 'block';
+        toolLine.style.overflow = 'hidden';
+        toolLine.style.whiteSpace = 'nowrap';
+        toolLine.style.textOverflow = 'ellipsis';
+        toolLine.style.maxWidth = '100%';
 
-        const nameSpan = document.createElement('span');
-        nameSpan.style.color = '#4ADE80';
-        nameSpan.style.display = 'inline-block';
-        nameSpan.style.width = '220px';
-        nameSpan.style.minWidth = '220px';
-        nameSpan.textContent = '  ' + tool.name;
+        if (isMobile) {
+          const nameSpan = document.createElement('span');
+          nameSpan.style.color = '#4ADE80';
+          nameSpan.style.marginLeft = '8px';
+          nameSpan.textContent = tool.name.trim();
+          toolLine.appendChild(nameSpan);
+        } else {
+          const nameSpan = document.createElement('span');
+          nameSpan.style.color = '#4ADE80';
+          nameSpan.style.display = 'inline-block';
+          nameSpan.style.width = '220px';
+          nameSpan.style.minWidth = '220px';
+          nameSpan.textContent = '  ' + tool.name;
 
-        const descSpan = document.createElement('span');
-        descSpan.style.color = '#94A3B8';
-        descSpan.textContent = tool.desc;
+          const descSpan = document.createElement('span');
+          descSpan.style.color = '#94A3B8';
+          descSpan.textContent = tool.desc;
 
-        toolLine.appendChild(nameSpan);
-        toolLine.appendChild(descSpan);
+          toolLine.appendChild(nameSpan);
+          toolLine.appendChild(descSpan);
+        }
+
         output.appendChild(toolLine);
       }
 
