@@ -1,60 +1,76 @@
-# OpsBash — Free DevOps Tools
+# OpsBash
 
-A collection of free, browser-based DevOps tools for engineers and sysadmins. No login required, no data sent to any server.
+Free DevOps tools that run entirely in your browser — no login, no tracking, no server.
 
 **Live site:** [https://opsbash.com](https://opsbash.com)
 
+---
+
 ## Tools
 
-| Tool | Description |
-| :--- | :---------- |
-| **Cron Expression Generator** | Build and validate cron expressions with a visual UI and human-readable preview |
-| **CIDR Calculator** | Calculate subnet ranges, broadcast addresses, and host counts for IPv4 and IPv6 |
+| Tool | URL | Description |
+|------|-----|-------------|
+| Cron Builder | [/cron-builder](https://opsbash.com/cron-builder) | Build and validate cron expressions with a visual editor |
+| CIDR Calculator | [/cidr-calculator](https://opsbash.com/cidr-calculator) | Subnet masks, CIDR ranges, broadcast addresses |
+| JWT Decoder | [/jwt-decoder](https://opsbash.com/jwt-decoder) | Decode JWT tokens and inspect claims |
+| JSON ↔ YAML Converter | [/json-yaml-converter](https://opsbash.com/json-yaml-converter) | Convert between JSON and YAML in real time |
+| Chmod Calculator | [/chmod-calculator](https://opsbash.com/chmod-calculator) | Octal, symbolic, and chmod command output |
+| .gitignore Generator | [/gitignore-generator](https://opsbash.com/gitignore-generator) | Generate .gitignore files for any stack |
+| Docker Compose Converter | [/docker-compose](https://opsbash.com/docker-compose) | Convert docker run commands to Compose YAML |
+
+---
 
 ## Tech Stack
 
-- [Astro JS](https://astro.build) — static site framework
-- [Tailwind CSS](https://tailwindcss.com) — utility-first styling
-- [Cloudflare Pages](https://pages.cloudflare.com) — hosting and CDN
+- **[Astro JS](https://astro.build)** — static site framework
+- **[Tailwind CSS](https://tailwindcss.com)** — utility-first CSS
+- **[Cloudflare Pages](https://pages.cloudflare.com)** — hosting and CDN
+- **[Playwright](https://playwright.dev)** — 170 end-to-end tests across all 7 tools
+- **[GitHub Actions](https://github.com/features/actions)** — CI/CD pipeline
 
-## Local Setup
+---
 
-```sh
-git clone https://github.com/your-username/opsbash-cron.git
+## Local Development
+
+```bash
+git clone https://github.com/rishmish/opsbash-cron.git
 cd opsbash-cron
 npm install
-cp .env.example .env   # then fill in your values
-npm run dev            # starts dev server at http://localhost:4321
+npm run dev
 ```
 
-## Environment Variables
+The dev server starts at `http://localhost:4321`.
 
-| Variable | Description |
-| :------- | :---------- |
-| `PUBLIC_GA_ID` | Google Analytics 4 measurement ID (e.g. `G-XXXXXXXXXX`) |
+---
 
-Copy `.env.example` to `.env` and set your own values before running locally.
+## Testing
 
-### Cloudflare Pages
+170 Playwright tests cover all 7 tools. Tests run in CI on every push and deployment is blocked on failure.
 
-In the Cloudflare Pages dashboard, set the environment variable under:
+```bash
+# Run all tests
+npm run test
 
-**Settings → Environment Variables → Add variable**
-
-| Variable | Value |
-| :------- | :---- |
-| `PUBLIC_GA_ID` | Your GA4 measurement ID |
-
-## Running Tests
-
-End-to-end tests are written with [Playwright](https://playwright.dev). Start the dev server first, then run:
-
-```sh
-npx playwright test
+# Run tests for a specific tool
+npm run test -- --grep "cron-builder"
 ```
 
-Test files are in the `tests/` directory.
+---
 
-## Contributing
+## Deployment
 
-Issues and pull requests are welcome. Please open an issue to discuss larger changes before submitting a PR.
+Pushes to `master` trigger a GitHub Actions workflow that builds the site and deploys to Cloudflare Pages. Deployment only proceeds if all 170 tests pass.
+
+---
+
+## Support
+
+If OpsBash saves you time, consider buying me a coffee:
+
+[https://ko-fi.com/rishmish](https://ko-fi.com/rishmish)
+
+---
+
+## License
+
+MIT
