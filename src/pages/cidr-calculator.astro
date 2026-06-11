@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -110,7 +110,7 @@ const webAppSchema = {
   <!-- HERO -->
   <section class="pt-8 pb-5">
     <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
-         style="background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2);">
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -132,10 +132,10 @@ const webAppSchema = {
       <div class="relative flex gap-3 items-center">
         <input id="cidrInput" type="text" spellcheck="false" autocomplete="off"
           class="flex-1 min-w-0 rounded-xl px-4 py-3 transition-all focus:outline-none"
-          style="font-family:'Fira Code','Cascadia Code',monospace; font-size:16px; letter-spacing:0.05em; color:#34d399; background:var(--bg); border:1px solid #10b981; box-shadow:0 0 0 3px rgba(16,185,129,0.12), 0 0 20px rgba(16,185,129,0.08);"
+          style="font-family:'Fira Code','Cascadia Code',monospace; font-size:16px; letter-spacing:0.05em; color:#F8FAFC; background:var(--bg); border:1px solid #64748B; box-shadow:0 0 0 3px rgba(100,116,139,0.15), 0 0 0 rgba(0,0,0,0);"
           placeholder="192.168.1.0/24 or 2001:db8::/32" />
         <span id="ipvBadge" class="hidden shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
-              style="background:rgba(16,185,129,0.15); color:#34d399;"></span>
+              style="background:rgba(248,250,252,0.08); color:#F8FAFC;"></span>
       </div>
       <p id="cidrError" class="mt-2 text-xs text-red-500 hidden"></p>
     </div>
@@ -146,15 +146,15 @@ const webAppSchema = {
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="stat-card">
         <div class="stat-label">Total Hosts</div>
-        <div id="statTotal" class="stat-value" style="color:#34d399; font-family:'Fira Code',monospace;">—</div>
+        <div id="statTotal" class="stat-value" style="color:#F8FAFC; font-family:'Fira Code',monospace;">—</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Usable Hosts</div>
-        <div id="statUsable" class="stat-value" style="color:#34d399; font-family:'Fira Code',monospace;">—</div>
+        <div id="statUsable" class="stat-value" style="color:#F8FAFC; font-family:'Fira Code',monospace;">—</div>
       </div>
       <div class="stat-card">
         <div class="stat-label" id="statClassLabel">Network Class</div>
-        <div id="statClass" class="stat-value" style="color:#34d399;">—</div>
+        <div id="statClass" class="stat-value" style="color:#F8FAFC;">—</div>
       </div>
     </div>
   </section>
@@ -309,7 +309,7 @@ const webAppSchema = {
         <div class="overflow-x-auto">
           <table class="w-full text-sm border-collapse">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">CIDR Prefix</th>
                 <th class="seo-th">Total Addresses</th>
                 <th class="seo-th">Usable Hosts</th>
@@ -318,49 +318,49 @@ const webAppSchema = {
             </thead>
             <tbody>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/8</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/8</td>
                 <td class="seo-td" style="color:var(--fg2);">16,777,216</td>
                 <td class="seo-td" style="color:var(--fg2);">16,777,214</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Large private network (Class A)</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/12</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/12</td>
                 <td class="seo-td" style="color:var(--fg2);">1,048,576</td>
                 <td class="seo-td" style="color:var(--fg2);">1,048,574</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Medium private network (Class B)</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/16</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/16</td>
                 <td class="seo-td" style="color:var(--fg2);">65,536</td>
                 <td class="seo-td" style="color:var(--fg2);">65,534</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">AWS VPC typical size</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/20</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/20</td>
                 <td class="seo-td" style="color:var(--fg2);">4,096</td>
                 <td class="seo-td" style="color:var(--fg2);">4,094</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">AWS subnet typical size</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/24</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/24</td>
                 <td class="seo-td" style="color:var(--fg2);">256</td>
                 <td class="seo-td" style="color:var(--fg2);">254</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Home and small office network</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/28</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/28</td>
                 <td class="seo-td" style="color:var(--fg2);">16</td>
                 <td class="seo-td" style="color:var(--fg2);">14</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Small AWS subnet</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/30</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/30</td>
                 <td class="seo-td" style="color:var(--fg2);">4</td>
                 <td class="seo-td" style="color:var(--fg2);">2</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Point-to-point links</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/32</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/32</td>
                 <td class="seo-td" style="color:var(--fg2);">1</td>
                 <td class="seo-td" style="color:var(--fg2);">0</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Single host route</td>
@@ -383,7 +383,7 @@ const webAppSchema = {
         <div class="overflow-x-auto">
           <table class="w-full text-sm border-collapse">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">Range</th>
                 <th class="seo-th">Subnet Mask</th>
                 <th class="seo-th">Total Hosts</th>
@@ -392,19 +392,19 @@ const webAppSchema = {
             </thead>
             <tbody>
               <tr class="rfc-row" data-cidr="10.0.0.0/8" style="cursor: pointer;">
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">10.0.0.0/8</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">10.0.0.0/8</td>
                 <td class="seo-td" style="font-family:'Fira Code',monospace; color:var(--fg2);">255.0.0.0</td>
                 <td class="seo-td" style="color:var(--fg2);">16,777,214</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Large enterprise networks</td>
               </tr>
               <tr class="rfc-row" data-cidr="172.16.0.0/12" style="cursor: pointer;">
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">172.16.0.0/12</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">172.16.0.0/12</td>
                 <td class="seo-td" style="font-family:'Fira Code',monospace; color:var(--fg2);">255.240.0.0</td>
                 <td class="seo-td" style="color:var(--fg2);">1,048,574</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Medium networks</td>
               </tr>
               <tr class="rfc-row" data-cidr="192.168.0.0/16" style="cursor: pointer;">
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">192.168.0.0/16</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">192.168.0.0/16</td>
                 <td class="seo-td" style="font-family:'Fira Code',monospace; color:var(--fg2);">255.255.0.0</td>
                 <td class="seo-td" style="color:var(--fg2);">65,534</td>
                 <td class="seo-td hidden sm:table-cell" style="color:var(--fg3);">Home and small office</td>
@@ -428,26 +428,26 @@ const webAppSchema = {
         <div class="overflow-x-auto">
           <table class="w-full text-sm border-collapse">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">VPC Size</th>
                 <th class="seo-th">Recommended Subnet Layout</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/16 VPC</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/16 VPC</td>
                 <td class="seo-td" style="color:var(--fg2);">4x /18 subnets (16,382 hosts each)</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/16 VPC</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/16 VPC</td>
                 <td class="seo-td" style="color:var(--fg2);">8x /19 subnets (8,190 hosts each)</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/20 VPC</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/20 VPC</td>
                 <td class="seo-td" style="color:var(--fg2);">4x /22 subnets (1,022 hosts each)</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#34d399;">/24 VPC</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; color:#F8FAFC;">/24 VPC</td>
                 <td class="seo-td" style="color:var(--fg2);">4x /26 subnets (59 hosts each)</td>
               </tr>
             </tbody>
@@ -534,41 +534,41 @@ const webAppSchema = {
 
 <style>
   .hero-gradient {
-    background: linear-gradient(135deg, #ecfdf5 30%, #34d399 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #F8FAFC;
+    background: none;
+    -webkit-text-fill-color: #F8FAFC;
+    -webkit-background-clip: unset;
   }
   .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
   .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg3); margin-bottom: 8px; }
   .stat-value { font-size: 18px; font-weight: 700; line-height: 1.2; }
   .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--fg2); cursor: pointer; transition: background 0.12s, color 0.12s; text-decoration: none; margin-bottom: 2px; }
   .sidebar-item:hover { background: var(--card); color: var(--fg); }
-  .sidebar-active { background: #0f2415 !important; color: #34d399 !important; border-left: 2px solid #10b981 !important; }
+  .sidebar-active { background: rgba(248,250,252,0.06) !important; color: #F8FAFC !important; border-left: 2px solid #F8FAFC !important; }
   .faq-item { border-bottom: 1px solid var(--border); }
   .faq-trigger { background: transparent; border: none; cursor: pointer; transition: background 0.12s; }
-  .faq-trigger:hover { background: rgba(16,185,129,0.04); }
-  .ic { font-family: 'Fira Code', monospace; font-size: 12px; background: var(--code-bg); color: #34d399; padding: 2px 6px; border-radius: 4px; }
+  .faq-trigger:hover { background: rgba(248,250,252,0.04); }
+  .ic { font-family: 'Fira Code', monospace; font-size: 12px; background: var(--code-bg); color: #F8FAFC; padding: 2px 6px; border-radius: 4px; }
   .split-count-btn, .vpc-count-btn {
     font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px;
     border: 1px solid var(--border); background: var(--bg); color: var(--fg2);
     cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .split-count-btn:hover, .vpc-count-btn:hover { border-color: #10b981; color: #34d399; background: #0f2415; }
-  .active-split-btn, .active-vpc-btn { background: #10b981 !important; color: #030a06 !important; border-color: #10b981 !important; }
+  .split-count-btn:hover, .vpc-count-btn:hover { border-color: #F8FAFC; color: #F8FAFC; background: rgba(248,250,252,0.06); }
+  .active-split-btn, .active-vpc-btn { background: #1A1A1A !important; color: #F8FAFC !important; border-color: #F8FAFC !important; }
   .example-card {
     text-align: left; padding: 14px 16px; border-radius: 12px; cursor: pointer;
     border: 1px solid var(--border); background: var(--bg);
     transition: border-color 0.15s, background 0.15s;
     display: flex; flex-direction: column; gap: 4px;
   }
-  .example-card:hover { border-color: #10b981; background: rgba(16,185,129,0.04); }
-  .example-cidr { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 600; color: #34d399; }
+  .example-card:hover { border-color: #F8FAFC; background: rgba(248,250,252,0.04); }
+  .example-cidr { font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 600; color: #F8FAFC; }
   .example-desc { font-size: 11px; color: var(--fg2); }
   .seo-p { font-size: 14px; color: var(--fg2); line-height: 1.7; margin-bottom: 12px; }
   .seo-th { padding: 10px 16px; font-size: 11px; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--border); }
   .seo-td { padding: 8px 16px; font-size: 12px; border: 1px solid var(--border); }
-  .rfc-row:hover { background: rgba(16,185,129,0.06); }
+  .rfc-row:hover { background: rgba(248,250,252,0.06); }
 </style>
 
 <script is:inline>
@@ -905,7 +905,7 @@ function updateInfoCard(data) {
       var onesPart = bits.slice(0, networkBitsInOctet);
       var zerosPart = bits.slice(networkBitsInOctet);
       var html = '';
-      if (onesPart) html += '<span style="color:#34d399;font-weight:700;">' + onesPart + '</span>';
+      if (onesPart) html += '<span style="color:#F8FAFC;font-weight:700;">' + onesPart + '</span>';
       if (zerosPart) html += '<span style="color:var(--fg3);">' + zerosPart + '</span>';
       return html;
     }).join('<span style="color:var(--fg2);">.</span>');
@@ -919,7 +919,7 @@ function updateInfoCard(data) {
       + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg3);margin-bottom:6px;">'
       + '<span>Network (' + data.prefix + ' bits)</span><span>Host (' + hostBits + ' bits)</span></div>'
       + '<div style="height:8px;border-radius:9999px;overflow:hidden;background:var(--border);">'
-      + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#10b981,#059669);border-radius:9999px;"></div>'
+      + '<div style="height:100%;width:' + pct + '%;background:#334155;border-radius:9999px;"></div>'
       + '</div></div>'
       + '<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       + infoChip('Prefix', '/' + data.prefix)
@@ -931,7 +931,7 @@ function updateInfoCard(data) {
     title.textContent = 'IPv6 Address Info';
     var hb = data._hostBits;
     card.innerHTML = '<div style="margin-bottom:14px;">'
-      + '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:9999px;background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);">IPv6 — ' + data.addrType + '</span>'
+      + '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:9999px;background:#1A1A1A;color:#F8FAFC;border:1px solid #334155;">IPv6 — ' + data.addrType + '</span>'
       + '</div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
       + infoChip('Prefix Length', '/' + data.prefix)
@@ -1013,8 +1013,8 @@ function renderHostsPage(data, page) {
   for (var p = 0; p < totalPages; p++) {
     var isActive = p === page;
     pHTML += '<button data-pg="' + p + '" style="font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid '
-      + (isActive ? '#10b981' : 'var(--border)') + ';background:'
-      + (isActive ? '#10b981' : 'var(--bg)') + ';color:'
+      + (isActive ? '#F8FAFC' : 'var(--border)') + ';background:'
+      + (isActive ? '#F8FAFC' : 'var(--bg)') + ';color:'
       + (isActive ? '#030a06' : 'var(--fg2)') + ';cursor:pointer;font-weight:' + (isActive ? '600' : '400') + ';">'
       + (p * PAGE_SIZE + 1) + '–' + Math.min((p + 1) * PAGE_SIZE, totalShown)
       + '</button>';
@@ -1036,7 +1036,7 @@ function renderSplitResults(subnets) {
     + '<th style="' + thStyle + '">Usable Hosts</th>';
   var trs = subnets.map(function(s) {
     return '<tr>'
-      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#34d399;">' + s.cidr + '</td>'
+      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#F8FAFC;">' + s.cidr + '</td>'
       + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:var(--fg2);">' + s.network + '</td>'
       + (isV4 ? '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:var(--fg2);">' + s.broadcast + '</td>' : '')
       + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:var(--fg2);">' + s.first + '</td>'
@@ -1064,7 +1064,7 @@ function renderVPCResults(subnets) {
       + '</div>'
       + '<p style="font-size:11px;color:var(--fg3);margin-top:3px;padding-left:15px;">' + s.tierDesc + '</p>'
       + '</td>'
-      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#34d399;">' + s.cidr + '</td>'
+      + '<td style="' + tdStyle + 'font-family:\'Fira Code\',monospace;color:#F8FAFC;">' + s.cidr + '</td>'
       + '<td style="' + tdStyle + 'color:var(--fg);">' + s.hosts + '</td>'
       + '</tr>';
   }).join('');
@@ -1102,7 +1102,7 @@ function doCalc(val) {
   try {
     var data = parseCIDR(val);
     cidrError.classList.add('hidden');
-    cidrInput.style.borderColor = '#10b981';
+    cidrInput.style.borderColor = '#F8FAFC';
     updateMainCalc(data);
   } catch(e) {
     cidrError.textContent = e.message;
@@ -1264,7 +1264,7 @@ document.querySelectorAll('.faq-trigger').forEach(function(btn) {
 
 // ─── INPUT FOCUS STYLE ───────────────────────────────────────────────────────
 [splitInput, vpcInput].forEach(function(inp) {
-  inp.addEventListener('focus', function() { this.style.borderColor = '#10b981'; this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.15)'; });
+  inp.addEventListener('focus', function() { this.style.borderColor = '#F8FAFC'; this.style.boxShadow = '0 0 0 3px rgba(100,116,139,0.2)'; });
   inp.addEventListener('blur',  function() { if (this.style.borderColor !== 'rgb(239, 68, 68)') { this.style.borderColor = 'var(--border)'; this.style.boxShadow = 'none'; } });
 });
 

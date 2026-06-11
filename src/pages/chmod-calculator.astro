@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -82,11 +82,11 @@ const webAppSchema = {
   <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
   <section class="pt-12 pb-10 text-center animate-fade-in-up">
     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+         style="background: #1A1A1A; color: #F8FAFC; border: 1px solid #334155;">
       ⚡ Free Online Tool
     </div>
     <h1 class="font-black tracking-tight mb-4 leading-tight"
-        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; color: #F8FAFC; background: none; -webkit-text-fill-color: #F8FAFC;">
       chmod Calculator – Unix File Permission Calculator
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
@@ -103,42 +103,42 @@ const webAppSchema = {
       <div class="flex flex-wrap gap-2">
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="755">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">755</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">755</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Standard executable</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="644">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">644</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">644</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Standard file</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="777">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">777</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">777</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Full permissions</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="700">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">700</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">700</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Private executable</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="600">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">600</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">600</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Private file</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="400">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">400</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">400</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Read only</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="664">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">664</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">664</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Group writable</div>
         </button>
         <button class="preset-btn rounded-xl px-3 py-2.5 text-left transition-all"
                 style="background: var(--card); border: 1px solid var(--border);" data-octal="775">
-          <div class="font-mono text-sm font-bold" style="color: #10b981;">775</div>
+          <div class="font-mono text-sm font-bold" style="color: #F8FAFC;">775</div>
           <div class="text-[10px] mt-0.5" style="color: var(--fg3);">Group executable</div>
         </button>
       </div>
@@ -162,7 +162,7 @@ const webAppSchema = {
           <input id="octalInput" type="text" value="755" maxlength="3" spellcheck="false"
             autocomplete="off" inputmode="numeric"
             class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all text-center"
-            style="font-family: 'Fira Code', monospace; font-size: 1.75rem; font-weight: 800; letter-spacing: 0.18em; color: #10b981; background: var(--bg); border: 1px solid var(--border);" />
+            style="font-family: 'Fira Code', monospace; font-size: 1.75rem; font-weight: 800; letter-spacing: 0.18em; color: #F8FAFC; background: var(--bg); border: 1px solid var(--border);" />
           <p class="mt-1.5 text-[10px]" style="color: var(--fg3);">Type a value to reverse lookup</p>
         </div>
 
@@ -172,7 +172,7 @@ const webAppSchema = {
           <input id="symbolicInput" type="text" value="rwxr-xr-x" maxlength="9" spellcheck="false"
             autocomplete="off"
             class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all text-center"
-            style="font-family: 'Fira Code', monospace; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.06em; color: #34d399; background: var(--bg); border: 1px solid var(--border);" />
+            style="font-family: 'Fira Code', monospace; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.06em; color: #F8FAFC; background: var(--bg); border: 1px solid var(--border);" />
           <p class="mt-1.5 text-[10px]" style="color: var(--fg3);">Type a value to reverse lookup</p>
         </div>
 
@@ -182,12 +182,12 @@ const webAppSchema = {
           <div class="flex items-stretch gap-2">
             <code id="chmodCmd"
               class="flex-1 rounded-xl px-4 py-3 text-sm font-semibold block truncate"
-              style="font-family: 'Fira Code', monospace; color: #6ee7b7; background: var(--bg); border: 1px solid var(--border); line-height: 1.75rem;">
+              style="font-family: 'Fira Code', monospace; color: #F8FAFC; background: var(--bg); border: 1px solid var(--border); line-height: 1.75rem;">
               chmod 755 filename
             </code>
             <button id="copyBtn"
               class="flex items-center gap-1.5 px-3 rounded-xl text-xs font-medium transition-all shrink-0"
-              style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+              style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -211,28 +211,28 @@ const webAppSchema = {
             <p class="text-xs" style="color: var(--fg3);">u (user)</p>
           </div>
           <div class="text-center leading-none">
-            <div id="digit-o" class="text-3xl font-black font-mono" style="color: #10b981;">7</div>
+            <div id="digit-o" class="text-3xl font-black font-mono" style="color: #F8FAFC;">7</div>
             <div class="text-[9px] uppercase tracking-wider mt-1" style="color: var(--fg3);">octal</div>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div id="card-or" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">r</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Read</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">4</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">r</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Read</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">4</div>
           </div>
           <div id="card-ow" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">w</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Write</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">2</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">w</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Write</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">2</div>
           </div>
           <div id="card-ox" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">x</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Execute</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">1</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">x</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Execute</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">1</div>
           </div>
         </div>
       </div>
@@ -245,16 +245,16 @@ const webAppSchema = {
             <p class="text-xs" style="color: var(--fg3);">g</p>
           </div>
           <div class="text-center leading-none">
-            <div id="digit-g" class="text-3xl font-black font-mono" style="color: #10b981;">5</div>
+            <div id="digit-g" class="text-3xl font-black font-mono" style="color: #F8FAFC;">5</div>
             <div class="text-[9px] uppercase tracking-wider mt-1" style="color: var(--fg3);">octal</div>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div id="card-gr" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">r</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Read</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">4</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">r</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Read</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">4</div>
           </div>
           <div id="card-gw" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
                style="background: var(--card); border: 1px solid var(--border);">
@@ -263,10 +263,10 @@ const webAppSchema = {
             <div class="text-[9px] mt-0.5 perm-value" style="color: var(--fg3);">2</div>
           </div>
           <div id="card-gx" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">x</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Execute</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">1</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">x</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Execute</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">1</div>
           </div>
         </div>
       </div>
@@ -279,16 +279,16 @@ const webAppSchema = {
             <p class="text-xs" style="color: var(--fg3);">o</p>
           </div>
           <div class="text-center leading-none">
-            <div id="digit-t" class="text-3xl font-black font-mono" style="color: #10b981;">5</div>
+            <div id="digit-t" class="text-3xl font-black font-mono" style="color: #F8FAFC;">5</div>
             <div class="text-[9px] uppercase tracking-wider mt-1" style="color: var(--fg3);">octal</div>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div id="card-tr" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">r</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Read</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">4</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">r</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Read</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">4</div>
           </div>
           <div id="card-tw" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
                style="background: var(--card); border: 1px solid var(--border);">
@@ -297,10 +297,10 @@ const webAppSchema = {
             <div class="text-[9px] mt-0.5 perm-value" style="color: var(--fg3);">2</div>
           </div>
           <div id="card-tx" class="perm-card rounded-xl p-3 text-center cursor-pointer select-none transition-all"
-               style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.4);">
-            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #10b981;">x</div>
-            <div class="text-[10px] font-semibold perm-name" style="color: #6ee7b7;">Execute</div>
-            <div class="text-[9px] mt-0.5 perm-value" style="color: #34d399;">1</div>
+               style="background: #1A1A1A; border: 1px solid #334155;">
+            <div class="text-xl font-black font-mono mb-0.5 perm-letter" style="color: #F8FAFC;">x</div>
+            <div class="text-[10px] font-semibold perm-name" style="color: #F8FAFC;">Execute</div>
+            <div class="text-[9px] mt-0.5 perm-value" style="color: #F8FAFC;">1</div>
           </div>
         </div>
       </div>
@@ -329,23 +329,23 @@ const webAppSchema = {
             <tr>
               <td class="py-3 pr-6 text-sm font-semibold" style="color: var(--fg); font-family: 'Fira Code', monospace;">r</td>
               <td class="py-3 pr-6 text-sm" style="color: var(--fg2);">View file or directory contents</td>
-              <td class="py-3 px-4 text-center"><span id="mat-or" class="text-sm font-bold font-mono" style="color: #10b981;">r</span></td>
-              <td class="py-3 px-4 text-center"><span id="mat-gr" class="text-sm font-bold font-mono" style="color: #10b981;">r</span></td>
-              <td class="py-3 px-4 text-center"><span id="mat-tr" class="text-sm font-bold font-mono" style="color: #10b981;">r</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-or" class="text-sm font-bold font-mono" style="color: #F8FAFC;">r</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-gr" class="text-sm font-bold font-mono" style="color: #F8FAFC;">r</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-tr" class="text-sm font-bold font-mono" style="color: #F8FAFC;">r</span></td>
             </tr>
             <tr>
               <td class="py-3 pr-6 text-sm font-semibold" style="color: var(--fg); font-family: 'Fira Code', monospace;">w</td>
               <td class="py-3 pr-6 text-sm" style="color: var(--fg2);">Create, edit or delete the file</td>
-              <td class="py-3 px-4 text-center"><span id="mat-ow" class="text-sm font-bold font-mono" style="color: #10b981;">w</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-ow" class="text-sm font-bold font-mono" style="color: #F8FAFC;">w</span></td>
               <td class="py-3 px-4 text-center"><span id="mat-gw" class="text-sm font-bold font-mono" style="color: var(--fg3);">-</span></td>
               <td class="py-3 px-4 text-center"><span id="mat-tw" class="text-sm font-bold font-mono" style="color: var(--fg3);">-</span></td>
             </tr>
             <tr>
               <td class="py-3 pr-6 text-sm font-semibold" style="color: var(--fg); font-family: 'Fira Code', monospace;">x</td>
               <td class="py-3 pr-6 text-sm" style="color: var(--fg2);">Run as program or enter directory</td>
-              <td class="py-3 px-4 text-center"><span id="mat-ox" class="text-sm font-bold font-mono" style="color: #10b981;">x</span></td>
-              <td class="py-3 px-4 text-center"><span id="mat-gx" class="text-sm font-bold font-mono" style="color: #10b981;">x</span></td>
-              <td class="py-3 px-4 text-center"><span id="mat-tx" class="text-sm font-bold font-mono" style="color: #10b981;">x</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-ox" class="text-sm font-bold font-mono" style="color: #F8FAFC;">x</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-gx" class="text-sm font-bold font-mono" style="color: #F8FAFC;">x</span></td>
+              <td class="py-3 px-4 text-center"><span id="mat-tx" class="text-sm font-bold font-mono" style="color: #F8FAFC;">x</span></td>
             </tr>
           </tbody>
         </table>
@@ -496,9 +496,9 @@ const webAppSchema = {
   }
 
   function digitColor(n) {
-    if (n >= 7) return '#10b981';
-    if (n >= 5) return '#34d399';
-    if (n >= 1) return '#6ee7b7';
+    if (n >= 7) return '#F8FAFC';
+    if (n >= 5) return '#F8FAFC';
+    if (n >= 1) return '#F8FAFC';
     return 'var(--fg3)';
   }
 
@@ -507,11 +507,11 @@ const webAppSchema = {
     var card = document.getElementById('card-' + key);
     if (!card) return;
     if (active) {
-      card.style.background   = 'rgba(16,185,129,0.12)';
-      card.style.borderColor  = 'rgba(16,185,129,0.4)';
-      card.querySelector('.perm-letter').style.color = '#10b981';
-      card.querySelector('.perm-name').style.color   = '#6ee7b7';
-      card.querySelector('.perm-value').style.color  = '#34d399';
+      card.style.background   = '#1A1A1A';
+      card.style.borderColor  = 'rgba(248,250,252,0.12)';
+      card.querySelector('.perm-letter').style.color = '#F8FAFC';
+      card.querySelector('.perm-name').style.color   = '#F8FAFC';
+      card.querySelector('.perm-value').style.color  = '#F8FAFC';
     } else {
       card.style.background   = 'var(--card)';
       card.style.borderColor  = 'var(--border)';
@@ -526,7 +526,7 @@ const webAppSchema = {
     var el = document.getElementById('mat-' + key);
     if (!el) return;
     el.textContent    = active ? LETTERS[key] : '-';
-    el.style.color    = active ? '#10b981' : 'var(--fg3)';
+    el.style.color    = active ? '#F8FAFC' : 'var(--fg3)';
     el.style.fontWeight = active ? '700' : '400';
   }
 
@@ -590,7 +590,7 @@ const webAppSchema = {
     card.addEventListener('mouseover', function () {
       if (!state[key]) {
         card.style.background  = 'rgba(16,185,129,0.05)';
-        card.style.borderColor = 'rgba(16,185,129,0.2)';
+        card.style.borderColor = '#334155';
       }
     });
     card.addEventListener('mouseout', function () {
@@ -610,8 +610,8 @@ const webAppSchema = {
       if (val.length === 3 && setFromOctal(val)) updateAll(true, false);
     });
     octalInput.addEventListener('focus', function () {
-      this.style.borderColor = '#10b981';
-      this.style.boxShadow   = '0 0 0 3px rgba(16,185,129,0.15)';
+      this.style.borderColor = '#F8FAFC';
+      this.style.boxShadow   = '0 0 0 3px rgba(100,116,139,0.2)';
     });
     octalInput.addEventListener('blur', function () {
       this.style.borderColor = 'var(--border)';
@@ -627,8 +627,8 @@ const webAppSchema = {
       if (this.value.length === 9 && setFromSymbolic(this.value)) updateAll(false, true);
     });
     symbolicInput.addEventListener('focus', function () {
-      this.style.borderColor = '#10b981';
-      this.style.boxShadow   = '0 0 0 3px rgba(16,185,129,0.15)';
+      this.style.borderColor = '#F8FAFC';
+      this.style.boxShadow   = '0 0 0 3px rgba(100,116,139,0.2)';
     });
     symbolicInput.addEventListener('blur', function () {
       this.style.borderColor = 'var(--border)';
@@ -642,8 +642,8 @@ const webAppSchema = {
   if (filenameInput) {
     filenameInput.addEventListener('input', function () { updateAll(false, false); });
     filenameInput.addEventListener('focus', function () {
-      this.style.borderColor = '#10b981';
-      this.style.boxShadow   = '0 0 0 3px rgba(16,185,129,0.15)';
+      this.style.borderColor = '#F8FAFC';
+      this.style.boxShadow   = '0 0 0 3px rgba(100,116,139,0.2)';
     });
     filenameInput.addEventListener('blur', function () {
       this.style.borderColor = 'var(--border)';
@@ -666,10 +666,10 @@ const webAppSchema = {
       var text = document.getElementById('chmodCmd').textContent.trim();
       function flash() {
         copyBtnText.textContent    = 'Copied!';
-        copyBtn.style.background   = 'rgba(16,185,129,0.25)';
+        copyBtn.style.background   = 'rgba(248,250,252,0.12)';
         setTimeout(function () {
           copyBtnText.textContent  = 'Copy';
-          copyBtn.style.background = 'rgba(16,185,129,0.1)';
+          copyBtn.style.background = 'rgba(248,250,252,0.06)';
         }, 2000);
       }
       if (navigator.clipboard) {

@@ -1,5 +1,66 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Terminal from '../components/Terminal.astro';
+
+const trustItems = [
+  '100% Client-Side',
+  'No Login Required',
+  'Open Source',
+  'Privacy First',
+  'Runs in Browser',
+];
+
+const toolCards = [
+  {
+    href: '/cron-builder',
+    cat: 'Automation',
+    name: 'Cron Builder',
+    desc: 'Build and validate cron expressions for Linux, AWS, Kubernetes and GitHub Actions.',
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  },
+  {
+    href: '/cidr-calculator',
+    cat: 'Networking',
+    name: 'CIDR Calculator',
+    desc: 'Subnet masks, usable hosts, and network ranges for IPv4 and IPv6.',
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  },
+  {
+    href: '/jwt-decoder',
+    cat: 'Security',
+    name: 'JWT Decoder',
+    desc: 'Decode JWT tokens and inspect the header, payload, and expiry status instantly.',
+    icon: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  },
+  {
+    href: '/json-yaml-converter',
+    cat: 'Development',
+    name: 'JSON to YAML Converter',
+    desc: 'Convert between JSON and YAML in real time. Bidirectional with error highlighting.',
+    icon: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  },
+  {
+    href: '/chmod-calculator',
+    cat: 'Linux',
+    name: 'chmod Calculator',
+    desc: 'Calculate Linux file permissions between octal, symbolic, and visual formats.',
+    icon: '<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>',
+  },
+  {
+    href: '/gitignore-generator',
+    cat: 'Development',
+    name: 'gitignore Generator',
+    desc: 'Generate .gitignore files for any technology stack. Download with one click.',
+    icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>',
+  },
+  {
+    href: '/docker-compose-converter',
+    cat: 'Containers',
+    name: 'Docker Run to Compose',
+    desc: 'Convert docker run commands into docker-compose.yml — and back.',
+    icon: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+  },
+];
 ---
 
 <Layout
@@ -10,404 +71,426 @@ import Layout from '../layouts/Layout.astro';
 
 <main>
 
-  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
-  <section class="flex flex-col items-center justify-center px-4 pt-16 pb-12 text-center animate-fade-in-up"
-           style="min-height: calc(100vh - 56px);">
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                                       -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<section class="hero-section" style="padding: 48px 0 52px; position: relative; overflow: hidden;">
 
-    <!-- Eyebrow badge -->
-    <div class="hero-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
-      ⚡ Free for engineers, forever
-    </div>
+  <!-- Grid pulse background -->
+  <canvas id="grid-canvas" aria-hidden="true"></canvas>
 
-    <!-- H1 -->
-    <h1 class="hero-main font-black tracking-tight mb-4 leading-tight"
-        style="font-size: clamp(2.4rem, 6vw, 4rem); letter-spacing: -0.04em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; max-width: 700px;">
-      DevOps Tools<br class="hidden sm:block" /> for Engineers
+  <!-- Headline + subheadline -->
+  <div class="max-w-[900px] mx-auto px-5 text-center" style="position:relative;z-index:1;">
+    <h1 class="hero-headline" style="font-weight:700;letter-spacing:-0.025em;margin-bottom:18px;background:linear-gradient(135deg,#F8FAFC 0%,#E2E8F0 30%,#CBD5E1 60%,#94A3B8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+      DevOps Tools Built for Engineers
     </h1>
-
-    <!-- Subtitle -->
-    <p class="text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-8" style="color: var(--fg2);">
-      No sign-up. No install. All tools run entirely in your browser.
+    <p style="font-size:18px;color:var(--text-secondary);max-width:600px;margin:0 auto 24px;line-height:1.7;">
+      Fast, privacy-first utilities that run entirely in your browser.
+      No login. No tracking. No server processing.
     </p>
+  </div>
 
-    <!-- Live mini cron tool -->
-    <div class="hero-terminal w-full max-w-lg mx-auto mb-8 rounded-2xl text-left overflow-hidden"
-         style="background: var(--card); border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(16,185,129,0.08);">
-      <!-- Window chrome -->
-      <div class="flex items-center gap-1.5 px-4 py-3" style="background: #0a1a0f; border-bottom: 1px solid var(--border);">
-        <div class="w-3 h-3 rounded-full" style="background: #ff5f57;"></div>
-        <div class="w-3 h-3 rounded-full" style="background: #febc2e;"></div>
-        <div class="w-3 h-3 rounded-full" style="background: #28c840;"></div>
-        <span class="ml-3 text-xs font-mono" style="color: var(--fg3);">cron-expression</span>
+  <!-- Terminal -->
+  <div style="max-width:700px;margin:0 auto;padding:0 20px;position:relative;z-index:1;">
+    <Terminal />
+  </div>
+
+  <!-- CTA + search bar -->
+  <div style="text-align:center;margin-top:20px;padding:0 20px;position:relative;z-index:1;">
+    <a href="#tools" class="browse-btn">
+      Browse Tools
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+      </svg>
+    </a>
+
+    <div style="margin-top:16px;display:flex;justify-content:center;">
+      <button
+        id="hero-search-trigger"
+        type="button"
+        style="display:flex;align-items:center;gap:10px;width:100%;max-width:500px;height:48px;background:var(--surface-primary);border:1px solid var(--border);border-radius:8px;padding:0 16px;cursor:text;text-align:left;transition:border-color 0.15s;font-family:'Inter',sans-serif;"
+        onmouseover="this.style.borderColor='#64748B'"
+        onmouseout="this.style.borderColor='var(--border)'"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             style="color:var(--text-secondary);flex-shrink:0;" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <span style="flex:1;font-size:14px;color:var(--text-secondary);">Search tools... Press / to open</span>
+        <kbd style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--surface-hover);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text-secondary);flex-shrink:0;">/</kbd>
+      </button>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- MARQUEE — image files from public/logos/, two identical sets              -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="marquee-outer">
+  <div class="marquee-inner">
+    <div class="marquee-set">
+      <div class="marquee-item">
+        <img src="/logos/docker.svg" alt="Docker" width="36" height="36" />
+        <span>Docker</span>
       </div>
-      <!-- Input area -->
-      <div class="p-5">
-        <p class="text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Try it live</p>
-        <input id="heroCronInput" type="text" value="* * * * *" spellcheck="false" autocomplete="off"
-          class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all"
-          style="font-family: 'Fira Code', monospace; font-size: 20px; letter-spacing: 0.1em; color: #34d399; background: var(--bg); border: 1px solid #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12);" />
-        <p id="heroCronExpl" class="mt-3 text-sm font-medium leading-snug" style="color: #10b981;">
-          Runs every minute
-        </p>
-        <p id="heroCronNext" class="mt-1 text-xs" style="color: var(--fg3);">Next run in — seconds</p>
+      <div class="marquee-item">
+        <img src="/logos/kubernetes.svg" alt="Kubernetes" width="36" height="36" />
+        <span>Kubernetes</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/pulumi.svg" alt="Pulumi" width="36" height="36" />
+        <span>Pulumi</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/terraform.svg" alt="Terraform" width="36" height="36" />
+        <span>Terraform</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/git.svg" alt="Git" width="36" height="36" />
+        <span>Git</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/github.svg" alt="GitHub" width="36" height="36" />
+        <span>GitHub</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/ansible.svg" alt="Ansible" width="36" height="36" />
+        <span>Ansible</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/linux.svg" alt="Linux" width="36" height="36" />
+        <span>Linux</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/prometheus.svg" alt="Prometheus" width="36" height="36" />
+        <span>Prometheus</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/grafana.svg" alt="Grafana" width="36" height="36" />
+        <span>Grafana</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/argo.svg" alt="Argo" width="36" height="36" />
+        <span>Argo</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/helm.svg" alt="Helm" width="36" height="36" />
+        <span>Helm</span>
       </div>
     </div>
-
-    <!-- CTA buttons -->
-    <div class="flex flex-wrap items-center justify-center gap-3">
-      <a href="/cron-builder"
-        class="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all text-sm"
-        style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 16px rgba(16,185,129,0.3); text-decoration: none;">
-        Open Cron Builder
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
-      <a href="/cidr-calculator"
-        class="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl transition-all text-sm"
-        style="border: 1px solid var(--border); color: var(--fg); background: var(--card); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'"
-        onmouseout="this.style.borderColor='var(--border)'">
-        CIDR Calculator
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
-    </div>
-  </section>
-
-  <!-- ── SOCIAL PROOF ───────────────────────────────────────────────────────── -->
-  <section class="max-w-3xl mx-auto px-4 pb-16 reveal">
-    <div class="grid grid-cols-3 gap-4">
-      <div class="social-card rounded-2xl p-5 text-center" style="background: var(--card); border: 1px solid var(--border);">
-        <div class="social-val text-2xl font-black mb-1" style="color: #10b981;">0</div>
-        <p class="text-xs font-medium" style="color: var(--fg2);">Sign-ups required</p>
+    <div class="marquee-set" aria-hidden="true">
+      <div class="marquee-item">
+        <img src="/logos/docker.svg" alt="Docker" width="36" height="36" />
+        <span>Docker</span>
       </div>
-      <div class="social-card rounded-2xl p-5 text-center" style="background: var(--card); border: 1px solid var(--border);">
-        <div class="social-val text-2xl font-black mb-1" style="color: #10b981;">100%</div>
-        <p class="text-xs font-medium" style="color: var(--fg2);">Free forever</p>
+      <div class="marquee-item">
+        <img src="/logos/kubernetes.svg" alt="Kubernetes" width="36" height="36" />
+        <span>Kubernetes</span>
       </div>
-      <div class="social-card rounded-2xl p-5 text-center" style="background: var(--card); border: 1px solid var(--border);">
-        <div class="social-val text-xl font-black mb-1" style="color: #10b981;">✓</div>
-        <p class="text-xs font-medium" style="color: var(--fg2);">Works offline</p>
+      <div class="marquee-item">
+        <img src="/logos/pulumi.svg" alt="Pulumi" width="36" height="36" />
+        <span>Pulumi</span>
       </div>
-    </div>
-  </section>
-
-  <!-- ── TOOLS BENTO GRID ───────────────────────────────────────────────────── -->
-  <section class="max-w-6xl mx-auto px-4 pb-20">
-    <p class="text-xs font-semibold uppercase tracking-wider text-center mb-8 reveal" style="color: var(--fg3);">Available Tools</p>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-      <!-- Cron Builder card (wide, spans 2 cols on lg) -->
-      <a href="/cron-builder"
-        class="reveal relative rounded-2xl p-6 transition-all lg:col-span-2"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-            <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">Cron Expression Builder</h2>
-            <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">
-              Build and validate cron expressions visually. Get plain-English explanations, next run times in your timezone, and platform-specific output for Linux, AWS, GitHub Actions, and Kubernetes.
-            </p>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Linux</span>
-              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">AWS</span>
-              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">GitHub Actions</span>
-              <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Kubernetes</span>
-            </div>
-          </div>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- CIDR Calculator card -->
-      <a href="/cidr-calculator"
-        class="reveal relative rounded-2xl p-6 transition-all"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">CIDR Calculator</h2>
-        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">
-          Calculate subnet details, usable hosts, and network ranges. Split CIDRs, plan AWS VPC layouts, and copy any value with one click.
-        </p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">IPv4</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">IPv6</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">AWS VPC</span>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- JSON YAML Converter card -->
-      <a href="/json-yaml-converter"
-        class="reveal relative rounded-2xl p-6 transition-all"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">JSON YAML Converter</h2>
-        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">
-          Convert JSON to YAML and YAML to JSON instantly. Client side, no data leaves your browser.
-        </p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">JSON</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">YAML</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Config</span>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- JWT Decoder card -->
-      <a href="/jwt-decoder"
-        class="reveal relative rounded-2xl p-6 transition-all"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">JWT Decoder</h2>
-        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">Decode and inspect JWT tokens without sending them anywhere. View header, payload, expiry, and algorithm instantly.</p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Auth</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Token</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Security</span>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- chmod Calculator -->
-      <a href="/chmod-calculator"
-        class="reveal relative rounded-2xl p-6 transition-all"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="8" y1="15" x2="10" y2="15"/><line x1="12" y1="15" x2="16" y2="15"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">chmod Calculator</h2>
-        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">Calculate Linux file permissions instantly. Convert between octal notation, symbolic notation and chmod commands with a visual permission builder.</p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Linux</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Permissions</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">DevOps</span>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- gitignore Generator -->
-      <a href="/gitignore-generator"
-        class="reveal relative rounded-2xl p-6 transition-all"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">gitignore Generator</h2>
-        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">Generate .gitignore files for any tech stack instantly. Search and select your languages and frameworks to get accurate ignore patterns in one click.</p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Git</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">DevOps</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Productivity</span>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-      <!-- Docker Compose Converter -->
-      <a href="/docker-compose-converter"
-        class="reveal relative rounded-2xl p-6 transition-all"
-        style="background: var(--card); border: 1px solid var(--border); text-decoration: none;"
-        onmouseover="this.style.borderColor='#10b981'; this.style.boxShadow='0 4px 24px rgba(16,185,129,0.1)'"
-        onmouseout="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-             style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-          <svg class="w-5 h-5" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-            <line x1="12" y1="22.08" x2="12" y2="12"/>
-          </svg>
-        </div>
-        <h2 class="font-semibold text-base mb-2" style="color: var(--fg);">Docker Compose Converter</h2>
-        <p class="text-sm leading-relaxed mb-4" style="color: var(--fg2);">Convert docker run commands to docker-compose.yml instantly. Paste any docker run command and get a production-ready Compose file, or convert Compose files back to docker run.</p>
-        <div class="flex flex-wrap gap-1.5">
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Docker</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">DevOps</span>
-          <span class="tool-tag text-[10px] font-medium px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">Containers</span>
-        </div>
-        <div class="absolute top-5 right-5" style="color: var(--border);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </div>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- ── WHY SECTION ────────────────────────────────────────────────────────── -->
-  <section style="border-top: 1px solid var(--border); background: var(--ftr-bg);">
-    <div class="max-w-4xl mx-auto px-4 py-16 text-center">
-      <h2 class="text-2xl font-bold mb-4 tracking-tight reveal" style="color: var(--fg);">Built for the terminal crowd</h2>
-      <p class="text-sm leading-relaxed max-w-lg mx-auto mb-10 reveal" style="color: var(--fg2);">
-        No ads, no paywalls, no account required. Every tool runs entirely in your browser.
-      </p>
-      <div class="grid sm:grid-cols-3 gap-6 text-left">
-        <div class="reveal rounded-xl p-5" style="background: var(--card); border: 1px solid var(--border);">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-            <svg class="w-4 h-4" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <p class="text-xs font-semibold mb-1" style="color: var(--fg);">Always free</p>
-          <p class="text-xs leading-relaxed" style="color: var(--fg2);">No pricing tiers, no credits, no limits.</p>
-        </div>
-        <div class="reveal rounded-xl p-5" style="background: var(--card); border: 1px solid var(--border);">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-            <svg class="w-4 h-4" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <p class="text-xs font-semibold mb-1" style="color: var(--fg);">Private by default</p>
-          <p class="text-xs leading-relaxed" style="color: var(--fg2);">Everything runs in your browser. Nothing sent to servers.</p>
-        </div>
-        <div class="reveal rounded-xl p-5" style="background: var(--card); border: 1px solid var(--border);">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-               style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
-            <svg class="w-4 h-4" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          </div>
-          <p class="text-xs font-semibold mb-1" style="color: var(--fg);">Instant results</p>
-          <p class="text-xs leading-relaxed" style="color: var(--fg2);">No round trips. Results update as you type.</p>
-        </div>
+      <div class="marquee-item">
+        <img src="/logos/terraform.svg" alt="Terraform" width="36" height="36" />
+        <span>Terraform</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/git.svg" alt="Git" width="36" height="36" />
+        <span>Git</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/github.svg" alt="GitHub" width="36" height="36" />
+        <span>GitHub</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/ansible.svg" alt="Ansible" width="36" height="36" />
+        <span>Ansible</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/linux.svg" alt="Linux" width="36" height="36" />
+        <span>Linux</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/prometheus.svg" alt="Prometheus" width="36" height="36" />
+        <span>Prometheus</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/grafana.svg" alt="Grafana" width="36" height="36" />
+        <span>Grafana</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/argo.svg" alt="Argo" width="36" height="36" />
+        <span>Argo</span>
+      </div>
+      <div class="marquee-item">
+        <img src="/logos/helm.svg" alt="Helm" width="36" height="36" />
+        <span>Helm</span>
       </div>
     </div>
-  </section>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- TRUST STRIP                                                                -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div style="background:var(--surface-primary);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="max-w-[1280px] mx-auto px-5" style="padding-top:14px;padding-bottom:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 0;">
+    {trustItems.map((item, i) => (
+      <>
+        <div style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;">
+          <span style="color:var(--accent-secondary);font-size:13px;font-weight:600;">✓</span>
+          <span style="font-size:13px;color:var(--text-secondary);">{item}</span>
+        </div>
+        {i < trustItems.length - 1 && (
+          <span style="color:var(--border);font-size:13px;" aria-hidden="true">·</span>
+        )}
+      </>
+    ))}
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- TOOL GRID — tools-grid class enforces 3-col via global.css                -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<section id="tools" class="max-w-[1280px] mx-auto px-5" style="padding-top:48px;padding-bottom:80px;">
+
+  <div class="text-center reveal" style="margin-bottom:48px;">
+    <h2 style="font-size:32px;font-weight:700;color:var(--text-primary);font-family:'Inter',sans-serif;margin-bottom:10px;">
+      Tools
+    </h2>
+    <p style="font-size:15px;color:var(--text-secondary);">Everything runs in your browser</p>
+  </div>
+
+  <div class="tools-grid">
+    {toolCards.map((card, i) => (
+      <a
+        href={card.href}
+        class={'reveal tool-card' + (i % 3 === 1 ? ' reveal-delay-1' : i % 3 === 2 ? ' reveal-delay-2' : '')}
+      >
+        <div class="tool-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2">
+            <g set:html={card.icon}></g>
+          </svg>
+        </div>
+        <div class="tool-card-content">
+          <div class="tool-card-name">{card.name}</div>
+          <div class="tool-card-desc">{card.desc}</div>
+          <div class="tool-card-tag">{card.cat}</div>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
 </main>
 
+<style>
+  /* ── Browse Tools button ─────────────────────────────────────────────────── */
+  .browse-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #F8FAFC;
+    padding: 14px 32px;
+    border-radius: 9999px;
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 200ms ease;
+    white-space: nowrap;
+  }
+  .browse-btn:hover {
+    background: rgba(248, 250, 252, 0.08);
+    border-color: #F8FAFC;
+    color: #F8FAFC;
+    box-shadow: 0 0 20px rgba(248, 250, 252, 0.1);
+  }
+
+  /* ── Tool cards ──────────────────────────────────────────────────────────── */
+  .tool-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 200ms ease;
+  }
+  .tool-card:hover {
+    background: #1A1A1A;
+    border-color: #F8FAFC;
+  }
+  .tool-card-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: #1A1A1A;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tool-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+  .tool-card-name {
+    font-family: Inter, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #F8FAFC;
+    line-height: 1.3;
+  }
+  .tool-card-desc {
+    font-family: Inter, sans-serif;
+    font-size: 13px;
+    color: #94A3B8;
+    line-height: 1.5;
+  }
+  .tool-card-tag {
+    font-family: Inter, sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    color: #94A3B8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Hero headline responsive sizes */
+  .hero-headline {
+    font-size: 48px;
+    white-space: nowrap;
+  }
+  @media (max-width: 860px) {
+    .hero-headline { font-size: 40px; white-space: normal; }
+  }
+  @media (max-width: 640px) {
+    .hero-headline { font-size: 32px; }
+  }
+
+  /* ── Grid pulse canvas ───────────────────────────────────────────────────── */
+  #grid-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.45;
+  }
+  @media (max-width: 768px) {
+    #grid-canvas { display: none; }
+  }
+</style>
 
 <script is:inline>
-(function() {
-  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-  function explainCron(expr) {
-    var e = expr.trim();
-    var p = e.split(/\s+/);
-    if (p.length < 5 || p.length > 6) return 'Type a cron expression (e.g. "*/5 * * * *")';
-
-    if (e === '* * * * *') return 'Runs every minute';
-    if (e === '@yearly' || e === '0 0 1 1 *') return 'Runs once a year at midnight, Jan 1st';
-    if (e === '@monthly' || e === '0 0 1 * *') return 'Runs once a month at midnight';
-    if (e === '@weekly' || e === '0 0 * * 0') return 'Runs once a week on Sunday at midnight';
-    if (e === '@daily' || e === '0 0 * * *')  return 'Runs once a day at midnight';
-    if (e === '@hourly' || e === '0 * * * *')  return 'Runs once an hour at :00';
-
-    var min = p[0], hour = p[1], day = p[2], month = p[3], wday = p[4];
-
-    // Every N minutes
-    var mStep = min.match(/^\*\/(\d+)$/);
-    if (mStep && hour === '*' && day === '*' && month === '*' && wday === '*') {
-      return 'Runs every ' + mStep[1] + ' minutes';
-    }
-
-    // At minute :00, every N hours
-    var hStep = hour.match(/^\*\/(\d+)$/);
-    if (min === '0' && hStep && day === '*' && month === '*' && wday === '*') {
-      return 'Runs every ' + hStep[1] + ' hours';
-    }
-
-    // Daily at specific hour
-    var hNum = hour.match(/^(\d+)$/);
-    if (min === '0' && hNum && day === '*' && month === '*' && wday === '*') {
-      var h = parseInt(hNum[1]);
-      var ampm = h === 0 ? '12:00 AM (midnight)' : h < 12 ? h + ':00 AM' : h === 12 ? '12:00 PM' : (h - 12) + ':00 PM';
-      return 'Runs daily at ' + ampm;
-    }
-
-    // Weekdays (Mon-Fri)
-    if (min === '0' && hNum && day === '*' && month === '*' && (wday === '1-5' || wday === 'MON-FRI')) {
-      var h = parseInt(hNum[1]);
-      var ampm = h === 0 ? 'midnight' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h - 12) + ' PM';
-      return 'Runs on weekdays (Mon–Fri) at ' + ampm;
-    }
-
-    // Every Sunday
-    if (min === '0' && hour === '0' && day === '*' && month === '*' && wday === '0') {
-      return 'Runs every Sunday at midnight';
-    }
-
-    // 1st of month
-    if (min === '0' && hour === '0' && day === '1' && month === '*' && wday === '*') {
-      return 'Runs on the 1st of every month at midnight';
-    }
-
-    return 'Custom schedule: ' + e;
-  }
-
-  var heroCronInput = document.getElementById('heroCronInput');
-  var heroCronExpl  = document.getElementById('heroCronExpl');
-  var heroCronNext  = document.getElementById('heroCronNext');
-
-  if (heroCronInput) {
-    heroCronInput.addEventListener('input', function() {
-      if (heroCronExpl) heroCronExpl.textContent = explainCron(this.value);
-    });
-    // Focus ring style
-    heroCronInput.addEventListener('focus', function() {
-      this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2), 0 0 20px rgba(16,185,129,0.1)';
-    });
-    heroCronInput.addEventListener('blur', function() {
-      this.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.12)';
+(function () {
+  var heroSearch = document.getElementById('hero-search-trigger');
+  if (heroSearch) {
+    heroSearch.addEventListener('click', function () {
+      if (typeof window.__openCmdPalette === 'function') window.__openCmdPalette();
     });
   }
-
-  function updateCountdown() {
-    if (!heroCronNext) return;
-    var now  = new Date();
-    var secs = 60 - now.getSeconds();
-    heroCronNext.textContent = 'Next run in ' + secs + ' second' + (secs === 1 ? '' : 's');
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
 })();
+</script>
+
+<script>
+const canvas = document.getElementById('grid-canvas') as HTMLCanvasElement | null;
+if (canvas) {
+  const ctx = canvas.getContext('2d')!;
+
+  function resize() {
+    canvas!.width = canvas!.offsetWidth;
+    canvas!.height = canvas!.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const GRID_SIZE = 40;
+  const DOT_RADIUS = 1;
+  const pulses: { x: number; y: number; radius: number; maxRadius: number; opacity: number; color: string; speed: number }[] = [];
+
+  function spawnPulse() {
+    const cols = Math.floor(canvas!.width / GRID_SIZE);
+    const rows = Math.floor(canvas!.height / GRID_SIZE);
+    pulses.push({
+      x: Math.floor(Math.random() * cols) * GRID_SIZE + GRID_SIZE / 2,
+      y: Math.floor(Math.random() * rows) * GRID_SIZE + GRID_SIZE / 2,
+      radius: 0,
+      maxRadius: Math.random() * 120 + 80,
+      opacity: 0.8,
+      color: '148,163,184',
+      speed: Math.random() * 0.8 + 0.4,
+    });
+  }
+
+  setInterval(spawnPulse, 800);
+  spawnPulse();
+  spawnPulse();
+  spawnPulse();
+
+  function drawGrid() {
+    ctx.clearRect(0, 0, canvas!.width, canvas!.height);
+
+    const cols = Math.floor(canvas!.width / GRID_SIZE);
+    const rows = Math.floor(canvas!.height / GRID_SIZE);
+
+    for (let i = 0; i <= cols; i++) {
+      for (let j = 0; j <= rows; j++) {
+        const x = i * GRID_SIZE + GRID_SIZE / 2;
+        const y = j * GRID_SIZE + GRID_SIZE / 2;
+
+        let dotOpacity = 0.12;
+        let dotColor = '148,163,184';
+
+        for (const pulse of pulses) {
+          const dist = Math.sqrt(
+            Math.pow(x - pulse.x, 2) + Math.pow(y - pulse.y, 2)
+          );
+          if (dist < pulse.radius && dist > pulse.radius - 30) {
+            const intensity = 1 - (dist - (pulse.radius - 30)) / 30;
+            dotOpacity = Math.max(dotOpacity, pulse.opacity * intensity * 1.2);
+            dotColor = pulse.color;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${dotColor}, ${dotOpacity})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      pulses[i].radius += pulses[i].speed;
+      pulses[i].opacity -= 0.003;
+      if (pulses[i].opacity <= 0) {
+        pulses.splice(i, 1);
+      }
+    }
+
+    requestAnimationFrame(drawGrid);
+  }
+
+  drawGrid();
+}
 </script>
 
 </Layout>

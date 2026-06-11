@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -86,11 +86,11 @@ const webAppSchema = {
   <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
   <section class="pt-12 pb-10 text-center animate-fade-in-up">
     <div class="jd-eyebrow inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-         style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.25);">
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
       ⚡ Free Online Tool
     </div>
     <h1 class="jd-hero-h1 font-black tracking-tight mb-4 leading-tight"
-        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; color: #F8FAFC; background: none; -webkit-text-fill-color: #F8FAFC;">
       JWT Decoder – Free Online JSON Web Token Decoder
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
@@ -108,7 +108,7 @@ const webAppSchema = {
         <p class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">JWT Token</p>
         <button id="sampleBtn"
           class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
-          style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+          style="background: transparent; color: #F8FAFC; border: 1px solid #334155;"
           onmouseover="this.style.background='rgba(99,102,241,0.18)'"
           onmouseout="this.style.background='var(--accent-muted)'">
           Load Sample
@@ -131,7 +131,7 @@ const webAppSchema = {
         <div id="statusBanner" class="flex items-center flex-wrap gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
              style="border: 1px solid rgba(99,102,241,0.25); background: var(--accent-muted); color: var(--fg);"></div>
         <div id="algBadge" class="px-3 py-2 rounded-lg text-xs font-mono font-semibold"
-             style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"></div>
+             style="background: transparent; color: #F8FAFC; border: 1px solid #334155;"></div>
       </div>
     </div>
 
@@ -149,7 +149,7 @@ const webAppSchema = {
             </div>
             <button data-copy="header"
               class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
-              style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+              style="background: transparent; color: #F8FAFC; border: 1px solid #334155;"
               onmouseover="this.style.background='rgba(99,102,241,0.18)'"
               onmouseout="this.style.background='var(--accent-muted)'">Copy</button>
           </div>
@@ -167,7 +167,7 @@ const webAppSchema = {
             </div>
             <button data-copy="payload"
               class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
-              style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+              style="background: transparent; color: #F8FAFC; border: 1px solid #334155;"
               onmouseover="this.style.background='rgba(99,102,241,0.18)'"
               onmouseout="this.style.background='var(--accent-muted)'">Copy</button>
           </div>
@@ -183,12 +183,12 @@ const webAppSchema = {
           <div class="flex items-center justify-between px-5 py-3.5"
                style="border-bottom: 1px solid var(--border);">
             <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full" style="background: #6ee7b7;"></div>
+              <div class="w-2 h-2 rounded-full" style="background: #F8FAFC;"></div>
               <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg);">Signature</span>
             </div>
             <button data-copy="signature"
               class="text-xs font-medium px-2.5 py-1 rounded-lg transition-all"
-              style="background: var(--accent-muted); color: var(--accent); border: 1px solid rgba(99,102,241,0.2);"
+              style="background: transparent; color: #F8FAFC; border: 1px solid #334155;"
               onmouseover="this.style.background='rgba(99,102,241,0.18)'"
               onmouseout="this.style.background='var(--accent-muted)'">Copy</button>
           </div>
@@ -540,7 +540,7 @@ const webAppSchema = {
 
       function flash() {
         var orig   = btn.textContent;
-        var origBg = btn.style.background || 'rgba(16,185,129,0.1)';
+        var origBg = btn.style.background || 'rgba(248,250,252,0.06)';
         btn.textContent    = 'Copied!';
         btn.style.background = 'rgba(16,185,129,0.22)';
         setTimeout(function () {

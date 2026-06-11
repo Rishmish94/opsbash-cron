@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -82,11 +82,11 @@ const webAppSchema = {
   <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
   <section class="pt-12 pb-10 text-center animate-fade-in-up">
     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+         style="background: #1A1A1A; color: #F8FAFC; border: 1px solid #334155;">
       ⚡ Free Online Tool
     </div>
     <h1 class="font-black tracking-tight mb-4 leading-tight"
-        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; color: #F8FAFC; background: none; -webkit-text-fill-color: #F8FAFC;">
       .gitignore Generator – Create Custom gitignore Files
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
@@ -131,7 +131,7 @@ const webAppSchema = {
           <p class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">Select Technologies</p>
           <button id="clearAllBtn"
             class="hidden text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all"
-            style="color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
+            style="color: #F8FAFC; background: rgba(248,250,252,0.06); border: 1px solid #334155;">
             Clear all
           </button>
         </div>
@@ -174,14 +174,14 @@ const webAppSchema = {
             <p class="text-xs font-semibold font-mono" style="color: var(--fg);">.gitignore</p>
             <span id="lineCount"
                   class="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                  style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+                  style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
               0 lines
             </span>
           </div>
           <div class="flex items-center gap-2">
             <button id="copyBtn"
               class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
-              style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+              style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -190,7 +190,7 @@ const webAppSchema = {
             </button>
             <button id="downloadBtn"
               class="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all"
-              style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+              style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
@@ -204,8 +204,8 @@ const webAppSchema = {
         <!-- Empty state -->
         <div id="previewEmpty" class="flex flex-col items-center justify-center py-20 px-8 text-center">
           <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-               style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
-            <svg class="w-7 h-7" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+               style="background: rgba(248,250,252,0.06); border: 1px solid #334155;">
+            <svg class="w-7 h-7" style="color: #F8FAFC;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
               <line x1="16" y1="13" x2="8" y2="13"/>
@@ -529,7 +529,7 @@ const webAppSchema = {
       selected.forEach(function (tech) {
         var chip = document.createElement('div');
         chip.className = 'tech-chip flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium';
-        chip.style.cssText = 'background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);';
+        chip.style.cssText = 'background: #1A1A1A; color: #F8FAFC; border: 1px solid #334155;';
         chip.innerHTML = '<span>' + escapeHtml(tech) + '</span>'
           + '<button class="chip-remove flex items-center justify-center w-3.5 h-3.5 rounded-full transition-all" '
           + 'style="color: rgba(16,185,129,0.7);" data-tech="' + escapeAttr(tech) + '" '
@@ -561,11 +561,11 @@ const webAppSchema = {
         var item = document.createElement('button');
         item.type = 'button';
         item.className = 'w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-left transition-all';
-        item.style.cssText = 'color: ' + (isSelected ? '#10b981' : 'var(--fg2)') + '; background: transparent;';
+        item.style.cssText = 'color: ' + (isSelected ? '#F8FAFC' : 'var(--fg2)') + '; background: transparent;';
         item.setAttribute('data-tech', tech);
         item.innerHTML = '<span>' + escapeHtml(tech) + '</span>'
           + (isSelected
-            ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:#10b981"><polyline points="20 6 9 17 4 12"/></svg>'
+            ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:#F8FAFC"><polyline points="20 6 9 17 4 12"/></svg>'
             : '');
         item.addEventListener('mouseover', function () {
           item.style.background = 'rgba(16,185,129,0.07)';
@@ -573,7 +573,7 @@ const webAppSchema = {
         });
         item.addEventListener('mouseout', function () {
           item.style.background = 'transparent';
-          item.style.color = isSelected ? '#10b981' : 'var(--fg2)';
+          item.style.color = isSelected ? '#F8FAFC' : 'var(--fg2)';
         });
         item.addEventListener('mousedown', function (e) {
           e.preventDefault();
@@ -603,8 +603,8 @@ const webAppSchema = {
     renderDropdown();
     techDropdown.classList.remove('hidden');
     dropdownOpen = true;
-    techSearch.style.borderColor = '#10b981';
-    techSearch.style.boxShadow   = '0 0 0 3px rgba(16,185,129,0.15)';
+    techSearch.style.borderColor = '#F8FAFC';
+    techSearch.style.boxShadow   = '0 0 0 3px rgba(100,116,139,0.2)';
   }
 
   function closeDropdown() {
@@ -653,7 +653,7 @@ const webAppSchema = {
       }
     });
     btn.addEventListener('mouseover', function () {
-      btn.style.borderColor = '#10b981';
+      btn.style.borderColor = '#F8FAFC';
       btn.style.color       = 'var(--fg)';
     });
     btn.addEventListener('mouseout', function () {
@@ -675,10 +675,10 @@ const webAppSchema = {
     if (!content) return;
     function flash() {
       copyBtnText.textContent   = 'Copied!';
-      copyBtn.style.background  = 'rgba(16,185,129,0.25)';
+      copyBtn.style.background  = 'rgba(248,250,252,0.12)';
       setTimeout(function () {
         copyBtnText.textContent = 'Copy';
-        copyBtn.style.background = 'rgba(16,185,129,0.1)';
+        copyBtn.style.background = 'rgba(248,250,252,0.06)';
       }, 2000);
     }
     if (navigator.clipboard) {

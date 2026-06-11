@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -82,11 +82,11 @@ const webAppSchema = {
   <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
   <section class="pt-12 pb-10 text-center animate-fade-in-up">
     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+         style="background: #1A1A1A; color: #F8FAFC; border: 1px solid #334155;">
       ⚡ Free Online Tool
     </div>
     <h1 class="font-black tracking-tight mb-4 leading-tight"
-        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; color: #F8FAFC; background: none; -webkit-text-fill-color: #F8FAFC;">
       Docker Run to Compose Converter – Free Online Tool
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
@@ -102,7 +102,7 @@ const webAppSchema = {
       <div class="flex rounded-xl overflow-hidden" style="border: 1px solid var(--border);">
         <button id="btn-run2compose"
           class="px-4 py-2.5 text-sm font-semibold transition-all"
-          style="background: rgba(16,185,129,0.12); color: #10b981;">
+          style="background: #1A1A1A; color: #F8FAFC;">
           docker run → Compose
         </button>
         <button id="btn-compose2run"
@@ -162,7 +162,7 @@ const webAppSchema = {
           autocorrect="off"
           autocapitalize="off"
           class="flex-1 resize-none focus:outline-none text-xs leading-5 p-4"
-          style="font-family: 'Fira Code', monospace; background: var(--bg); color: #6ee7b7; min-height: 340px; border: none;"></textarea>
+          style="font-family: 'Fira Code', monospace; background: var(--bg); color: #F8FAFC; min-height: 340px; border: none;"></textarea>
       </div>
 
       <!-- OUTPUT PANEL -->
@@ -172,7 +172,7 @@ const webAppSchema = {
           <p id="outputLabel" class="text-xs font-semibold font-mono" style="color: var(--fg);">docker-compose.yml</p>
           <button id="copyBtn"
             class="flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-lg transition-all"
-            style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+            style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
@@ -189,8 +189,8 @@ const webAppSchema = {
         <!-- Empty state -->
         <div id="outputEmpty" class="flex flex-col items-center justify-center py-16 px-8 text-center flex-1">
           <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-               style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
-            <svg class="w-6 h-6" style="color: #10b981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+               style="background: rgba(248,250,252,0.06); border: 1px solid #334155;">
+            <svg class="w-6 h-6" style="color: #F8FAFC;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
             </svg>
           </div>
@@ -796,7 +796,7 @@ const webAppSchema = {
       var lm = line.match(/^(\s*)(-)(\s+)(.*)$/);
       if (lm) {
         return escHtml(lm[1])
-          + '<span style="color:#34d399">' + escHtml(lm[2]) + '</span>'
+          + '<span style="color:#F8FAFC">' + escHtml(lm[2]) + '</span>'
           + escHtml(lm[3])
           + '<span style="color:#a7f3d0">' + escHtml(lm[4]) + '</span>';
       }
@@ -804,9 +804,9 @@ const webAppSchema = {
       var km = line.match(/^(\s*)([a-zA-Z0-9_-]+)(\s*:\s*)(.*)$/);
       if (km) {
         return escHtml(km[1])
-          + '<span style="color:#10b981">' + escHtml(km[2]) + '</span>'
+          + '<span style="color:#F8FAFC">' + escHtml(km[2]) + '</span>'
           + '<span style="color:var(--fg3)">' + escHtml(km[3]) + '</span>'
-          + '<span style="color:#6ee7b7">' + escHtml(km[4]) + '</span>';
+          + '<span style="color:#F8FAFC">' + escHtml(km[4]) + '</span>';
       }
       return esc;
     }).join('\n');
@@ -824,14 +824,14 @@ const webAppSchema = {
       var fm = core.match(/^(\s*)(--?[\w-]+)(=?)(\S*)(.*)/);
       if (fm) {
         return escHtml(fm[1])
-          + '<span style="color:#10b981">' + escHtml(fm[2]) + escHtml(fm[3]) + '</span>'
-          + '<span style="color:#6ee7b7">' + escHtml(fm[4]) + '</span>'
+          + '<span style="color:#F8FAFC">' + escHtml(fm[2]) + escHtml(fm[3]) + '</span>'
+          + '<span style="color:#F8FAFC">' + escHtml(fm[4]) + '</span>'
           + escHtml(fm[5])
           + (hasCont ? '<span style="color:var(--fg3)"> \\</span>' : '');
       }
       // "docker run" line
       if (/^\s*docker/.test(line)) {
-        return line.replace(/docker\s+run/, '<span style="color:#10b981">docker run</span>');
+        return line.replace(/docker\s+run/, '<span style="color:#F8FAFC">docker run</span>');
       }
       // Image/command line (last arg, starts with 2 spaces, no flag)
       if (/^\s{2}[^\s-]/.test(line) || /^\s{2}[a-zA-Z]/.test(line)) {
@@ -846,16 +846,16 @@ const webAppSchema = {
   // ── UI update ─────────────────────────────────────────────────────────────
   function setModeUI() {
     if (mode === 'run2compose') {
-      btnRun2Compose.style.background = 'rgba(16,185,129,0.12)';
-      btnRun2Compose.style.color      = '#10b981';
+      btnRun2Compose.style.background = '#1A1A1A';
+      btnRun2Compose.style.color      = '#F8FAFC';
       btnCompose2Run.style.background = 'var(--card)';
       btnCompose2Run.style.color      = 'var(--fg2)';
       inputLabel.textContent  = 'docker run command';
       outputLabel.textContent = 'docker-compose.yml';
       inputArea.placeholder   = 'Paste your docker run command here...\n\nExample:\ndocker run -d --name nginx -p 80:80 nginx:latest';
     } else {
-      btnCompose2Run.style.background = 'rgba(16,185,129,0.12)';
-      btnCompose2Run.style.color      = '#10b981';
+      btnCompose2Run.style.background = '#1A1A1A';
+      btnCompose2Run.style.color      = '#F8FAFC';
       btnRun2Compose.style.background = 'var(--card)';
       btnRun2Compose.style.color      = 'var(--fg2)';
       inputLabel.textContent  = 'docker-compose.yml';
@@ -946,7 +946,7 @@ const webAppSchema = {
       if (data) { inputArea.value = data; convert(); }
     });
     btn.addEventListener('mouseover', function () {
-      btn.style.borderColor = '#10b981';
+      btn.style.borderColor = '#F8FAFC';
       btn.style.color       = 'var(--fg)';
     });
     btn.addEventListener('mouseout', function () {
@@ -960,10 +960,10 @@ const webAppSchema = {
     if (!text) return;
     function flash() {
       copyBtnText.textContent   = 'Copied!';
-      copyBtn.style.background  = 'rgba(16,185,129,0.25)';
+      copyBtn.style.background  = 'rgba(248,250,252,0.12)';
       setTimeout(function () {
         copyBtnText.textContent = 'Copy';
-        copyBtn.style.background = 'rgba(16,185,129,0.1)';
+        copyBtn.style.background = 'rgba(248,250,252,0.06)';
       }, 2000);
     }
     if (navigator.clipboard) {

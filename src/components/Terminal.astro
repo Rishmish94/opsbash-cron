@@ -1,0 +1,150 @@
+---
+// Animated terminal — JetBrains Mono, vanilla JS, no external deps
+---
+
+<div class="terminal-window" aria-hidden="true" role="presentation">
+  <!-- Window chrome -->
+  <div class="term-chrome">
+    <div class="term-dots">
+      <span class="term-dot" style="background:#FF5F56;"></span>
+      <span class="term-dot" style="background:#FFBD2E;"></span>
+      <span class="term-dot" style="background:#27C93F;"></span>
+    </div>
+  </div>
+
+  <!-- Terminal body -->
+  <div class="term-body">
+    <div id="terminal-output" style="min-height:260px;"></div>
+  </div>
+</div>
+
+<style>
+  .terminal-window {
+    background: var(--terminal-bg, #0A0A0A);
+    border: 1px solid #222222;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.06);
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    width: 100%;
+  }
+
+  .term-chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #111111;
+    border-bottom: 1px solid #222222;
+  }
+  .term-dots { display: flex; align-items: center; gap: 6px; }
+  .term-dot  { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .term-title {
+    font-size: 11px;
+    color: #4A5578;
+    letter-spacing: 0.02em;
+  }
+
+  .term-body {
+    padding: 18px 20px 22px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+</style>
+
+<script>
+  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+  const tools = [
+    { name: 'cron-builder', desc: 'Build and validate cron expressions' },
+    { name: 'cidr-calculator', desc: 'Subnet, CIDR range, broadcast addr' },
+    { name: 'jwt-decoder', desc: 'Decode JWT tokens, inspect claims' },
+    { name: 'json-yaml-converter', desc: 'Convert JSON to YAML in real time' },
+    { name: 'chmod-calculator', desc: 'Octal, symbolic, chmod commands' },
+    { name: 'gitignore-generator', desc: 'Generate .gitignore for any stack' },
+    { name: 'docker-compose', desc: 'Convert docker run to Compose YAML' },
+  ];
+
+  async function runTerminal() {
+    const output = document.getElementById('terminal-output');
+    if (!output) return;
+
+    while (true) {
+      output.innerHTML = '';
+
+      const cmdLine = document.createElement('div');
+      cmdLine.style.color = '#4ADE80';
+      cmdLine.style.fontFamily = 'JetBrains Mono, monospace';
+      cmdLine.style.fontSize = '13px';
+      cmdLine.style.lineHeight = '1.7';
+      output.appendChild(cmdLine);
+
+      const cmdText = '$ opsbash --list-tools';
+      for (const char of cmdText) {
+        cmdLine.textContent += char;
+        await sleep(50);
+      }
+
+      await sleep(300);
+
+      const headerLine = document.createElement('div');
+      headerLine.textContent = 'Available tools (7):';
+      headerLine.style.color = '#F8FAFC';
+      headerLine.style.fontFamily = 'JetBrains Mono, monospace';
+      headerLine.style.fontSize = '13px';
+      headerLine.style.lineHeight = '1.7';
+      headerLine.style.marginTop = '8px';
+      output.appendChild(headerLine);
+
+      const blankLine = document.createElement('div');
+      blankLine.innerHTML = '&nbsp;';
+      output.appendChild(blankLine);
+
+      await sleep(150);
+
+      for (const tool of tools) {
+        await sleep(120);
+        const toolLine = document.createElement('div');
+        toolLine.style.fontFamily = 'JetBrains Mono, monospace';
+        toolLine.style.fontSize = '13px';
+        toolLine.style.lineHeight = '1.7';
+        toolLine.style.whiteSpace = 'pre';
+        toolLine.style.display = 'block';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.style.color = '#4ADE80';
+        nameSpan.style.display = 'inline-block';
+        nameSpan.style.width = '220px';
+        nameSpan.style.minWidth = '220px';
+        nameSpan.textContent = '  ' + tool.name;
+
+        const descSpan = document.createElement('span');
+        descSpan.style.color = '#94A3B8';
+        descSpan.textContent = tool.desc;
+
+        toolLine.appendChild(nameSpan);
+        toolLine.appendChild(descSpan);
+        output.appendChild(toolLine);
+      }
+
+      await sleep(300);
+
+      const promptLine = document.createElement('div');
+      promptLine.style.color = '#4ADE80';
+      promptLine.style.fontFamily = 'JetBrains Mono, monospace';
+      promptLine.style.fontSize = '13px';
+      promptLine.style.marginTop = '8px';
+      promptLine.innerHTML = '$ <span style="animation: blink 1s step-end infinite;">_</span>';
+      output.appendChild(promptLine);
+
+      await sleep(4000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', runTerminal);
+</script>

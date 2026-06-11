@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -86,11 +86,11 @@ const webAppSchema = {
   <!-- ── HERO ─────────────────────────────────────────────────────────────────── -->
   <section class="pt-12 pb-10 text-center animate-fade-in-up">
     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-         style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.25);">
+         style="background: #1A1A1A; color: #F8FAFC; border: 1px solid #334155;">
       ⚡ Free Online Tool
     </div>
     <h1 class="jy-hero-h1 font-black tracking-tight mb-4 leading-tight"
-        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        style="font-size: clamp(1.8rem, 4vw, 2.75rem); letter-spacing: -0.03em; color: #F8FAFC; background: none; -webkit-text-fill-color: #F8FAFC;">
       JSON to YAML Converter – Online JSON and YAML Tool
     </h1>
     <p class="text-base max-w-2xl mx-auto leading-relaxed" style="color: var(--fg2);">
@@ -110,7 +110,7 @@ const webAppSchema = {
         <div class="flex rounded-lg overflow-hidden" style="border: 1px solid var(--border); background: var(--card);">
           <button id="indent2Btn"
             class="px-3 py-1.5 text-xs font-medium transition-all"
-            style="color: var(--fg); background: rgba(16,185,129,0.12);">
+            style="color: var(--fg); background: #1A1A1A;">
             2 spaces
           </button>
           <button id="indent4Btn"
@@ -125,7 +125,7 @@ const webAppSchema = {
       <div class="flex items-center gap-2">
         <button id="loadSampleBtn"
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-          style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+          style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           Load Sample
         </button>
@@ -167,7 +167,7 @@ const webAppSchema = {
       <div class="flex md:flex-col items-center justify-center gap-3 py-2 md:pt-10 order-last md:order-none">
         <button id="directionToggle"
           class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-          style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.3); min-width: 148px; justify-content: center;">
+          style="background: #1A1A1A; color: #F8FAFC; border: 1px solid #334155; min-width: 148px; justify-content: center;">
           JSON to YAML
         </button>
       </div>
@@ -178,7 +178,7 @@ const webAppSchema = {
           <span id="outputLabel" class="text-sm font-semibold" style="color: var(--fg);">YAML Output</span>
           <button id="copyBtn"
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-            style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2);">
+            style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <span id="copyBtnText">Copy</span>
           </button>
@@ -309,11 +309,11 @@ const webAppSchema = {
       </p>
       <div class="rounded-xl p-4 mb-3" style="background: var(--code-bg); border: 1px solid var(--border);">
         <p class="text-xs mb-2" style="font-family: 'Fira Code', monospace; color: var(--fg3);"># Convert JSON to YAML</p>
-        <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #34d399;">yq -Poy input.json &gt; output.yml</code>
+        <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #F8FAFC;">yq -Poy input.json &gt; output.yml</code>
       </div>
       <div class="rounded-xl p-4" style="background: var(--code-bg); border: 1px solid var(--border);">
         <p class="text-xs mb-2" style="font-family: 'Fira Code', monospace; color: var(--fg3);"># Convert YAML to JSON</p>
-        <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #34d399;">yq -o json file.yaml &gt; output.json</code>
+        <code style="font-family: 'Fira Code', monospace; font-size: 0.8125rem; color: #F8FAFC;">yq -o json file.yaml &gt; output.json</code>
       </div>
     </div>
 
@@ -450,7 +450,7 @@ tags:
 
   function setIndent(n: number) {
     indentSize = n;
-    const activeStyle  = 'rgba(16,185,129,0.12)';
+    const activeStyle  = '#1A1A1A';
     const inactiveStyle = 'transparent';
     (indent2Btn as HTMLElement).style.background = n === 2 ? activeStyle : inactiveStyle;
     (indent2Btn as HTMLElement).style.color = n === 2 ? 'var(--fg)' : 'var(--fg3)';
@@ -538,7 +538,7 @@ tags:
     (copyBtn as HTMLElement).style.background = 'rgba(16,185,129,0.22)';
     setTimeout(() => {
       copyBtnText.textContent = 'Copy';
-      (copyBtn as HTMLElement).style.background = 'rgba(16,185,129,0.1)';
+      (copyBtn as HTMLElement).style.background = 'rgba(248,250,252,0.06)';
     }, 2000);
   });
 

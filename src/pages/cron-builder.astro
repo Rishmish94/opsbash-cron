@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from '../layouts/Layout.astro';
 
 const faqSchema = {
@@ -122,7 +122,7 @@ const webAppSchema = {
   <!-- HERO -->
   <section class="pt-8 pb-5">
     <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
-         style="background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2);">
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
       </svg>
@@ -162,7 +162,7 @@ const webAppSchema = {
     <div>
       <!-- Window chrome -->
       <div class="flex items-center gap-1.5 px-4 py-3 rounded-t-[14px]"
-           style="background: #0a1a0f; border: 1px solid var(--border); border-bottom: 1px solid rgba(255,255,255,0.06);">
+           style="background: #0A0A0A; border: 1px solid var(--border); border-bottom: 1px solid rgba(255,255,255,0.06);">
         <div class="w-3 h-3 rounded-full" style="background: #ff5f57;"></div>
         <div class="w-3 h-3 rounded-full" style="background: #febc2e;"></div>
         <div class="w-3 h-3 rounded-full" style="background: #28c840;"></div>
@@ -183,7 +183,7 @@ const webAppSchema = {
 
           <!-- Platform hint -->
           <div id="platformHint" class="mb-5 p-3 rounded-lg text-xs leading-relaxed"
-               style="background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.12); color: var(--fg2);"></div>
+               style="background: rgba(248,250,252,0.04); border: 1px solid #334155; color: var(--fg2);"></div>
 
           <!-- VISUAL DROPDOWNS -->
           <div class="mb-5">
@@ -222,7 +222,7 @@ const webAppSchema = {
             <div class="flex gap-2">
               <input id="cronInput" type="text" spellcheck="false"
                 class="flex-1 min-w-0 rounded-xl px-4 py-2.5 transition-all focus:outline-none"
-                style="font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 18px; letter-spacing: 0.1em; color: #34d399; background: var(--bg); border: 1px solid #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12), 0 0 20px rgba(16,185,129,0.08);"
+                style="font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 18px; letter-spacing: 0.1em; color: #F8FAFC; background: var(--bg); border: 1px solid #64748B; box-shadow: 0 0 0 3px rgba(100,116,139,0.15), 0 0 0 rgba(0,0,0,0);"
                 placeholder="* * * * *" />
               <button id="copyBtn"
                 class="shrink-0 h-10 px-4 text-white text-sm font-bold rounded-xl flex items-center gap-2 transition-all whitespace-nowrap copy-btn-gradient">
@@ -241,10 +241,10 @@ const webAppSchema = {
             <p class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Platform Format</p>
             <div class="relative">
               <pre id="platformCode" class="font-mono text-xs rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre-wrap break-all"
-                   style="background: #0a1a0f; color: #4ade80;"></pre>
+                   style="background: #0A0A0A; color: #F8FAFC;"></pre>
               <button id="copyPlatformBtn"
                 class="absolute top-2 right-2 text-xs px-2.5 py-1 rounded-lg transition-colors"
-                style="background: #0f2415; color: var(--fg2);">Copy</button>
+                style="background: rgba(248,250,252,0.06); color: var(--fg2);">Copy</button>
             </div>
           </div>
 
@@ -259,15 +259,15 @@ const webAppSchema = {
       <div class="grid grid-cols-3 gap-2">
         <div class="stat-card">
           <div class="stat-label">Expression</div>
-          <div id="statExpr" class="stat-value" style="color: #34d399; font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 11px; letter-spacing: 0.05em; word-break: break-all;">* * * * *</div>
+          <div id="statExpr" class="stat-value" style="color: #F8FAFC; font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 11px; letter-spacing: 0.05em; word-break: break-all;">* * * * *</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Next Run</div>
-          <div id="statNextRun" class="stat-value" style="color: #34d399; font-size: 12px;">—</div>
+          <div id="statNextRun" class="stat-value" style="color: #F8FAFC; font-size: 12px;">—</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Per Day</div>
-          <div id="statRunsPerDay" class="stat-value" style="color: #34d399;">1,440</div>
+          <div id="statRunsPerDay" class="stat-value" style="color: #F8FAFC;">1,440</div>
         </div>
       </div>
 
@@ -331,11 +331,11 @@ const webAppSchema = {
                 </tr>
               </thead>
               <tbody>
-                <tr><td class="py-0.5 font-mono" style="color: #34d399;">Minute</td><td>0–59</td></tr>
-                <tr><td class="py-0.5 font-mono" style="color: #34d399;">Hour</td><td>0–23</td></tr>
-                <tr><td class="py-0.5 font-mono" style="color: #34d399;">Day</td><td>1–31</td></tr>
-                <tr><td class="py-0.5 font-mono" style="color: #34d399;">Month</td><td>1–12</td></tr>
-                <tr><td class="py-0.5 font-mono" style="color: #34d399;">Weekday</td><td>0–7 (0,7=Sun)</td></tr>
+                <tr><td class="py-0.5 font-mono" style="color: #F8FAFC;">Minute</td><td>0–59</td></tr>
+                <tr><td class="py-0.5 font-mono" style="color: #F8FAFC;">Hour</td><td>0–23</td></tr>
+                <tr><td class="py-0.5 font-mono" style="color: #F8FAFC;">Day</td><td>1–31</td></tr>
+                <tr><td class="py-0.5 font-mono" style="color: #F8FAFC;">Month</td><td>1–12</td></tr>
+                <tr><td class="py-0.5 font-mono" style="color: #F8FAFC;">Weekday</td><td>0–7 (0,7=Sun)</td></tr>
               </tbody>
             </table>
           </div>
@@ -357,7 +357,7 @@ const webAppSchema = {
         <div class="overflow-x-auto my-4">
           <table class="w-full text-sm border-collapse seo-table">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">Field</th>
                 <th class="seo-th">Position</th>
                 <th class="seo-th">Allowed Values</th>
@@ -413,7 +413,7 @@ const webAppSchema = {
         <div class="overflow-x-auto my-4">
           <table class="w-full text-sm border-collapse seo-table">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">Character</th>
                 <th class="seo-th">Name</th>
                 <th class="seo-th">Meaning</th>
@@ -422,31 +422,31 @@ const webAppSchema = {
             </thead>
             <tbody>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">*</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#F8FAFC;">*</td>
                 <td class="seo-td" style="color: var(--fg); font-weight: 500;">Asterisk</td>
                 <td class="seo-td" style="color: var(--fg2);">Every value in field</td>
                 <td class="seo-td" style="color: var(--fg3);">* in hour means every hour</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">,</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#F8FAFC;">,</td>
                 <td class="seo-td" style="color: var(--fg); font-weight: 500;">Comma</td>
                 <td class="seo-td" style="color: var(--fg2);">Multiple values</td>
                 <td class="seo-td" style="color: var(--fg3);">8,12,16 means 8AM, 12PM, 4PM</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">-</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#F8FAFC;">-</td>
                 <td class="seo-td" style="color: var(--fg); font-weight: 500;">Hyphen</td>
                 <td class="seo-td" style="color: var(--fg2);">Range of values</td>
                 <td class="seo-td" style="color: var(--fg3);">1-5 means Monday to Friday</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">/</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#F8FAFC;">/</td>
                 <td class="seo-td" style="color: var(--fg); font-weight: 500;">Slash</td>
                 <td class="seo-td" style="color: var(--fg2);">Step interval</td>
                 <td class="seo-td" style="color: var(--fg3);">*/15 means every 15 minutes</td>
               </tr>
               <tr>
-                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#34d399;">?</td>
+                <td class="seo-td" style="font-family:'Fira Code',monospace; font-size:13px; font-weight:700; color:#F8FAFC;">?</td>
                 <td class="seo-td" style="color: var(--fg); font-weight: 500;">Question mark</td>
                 <td class="seo-td" style="color: var(--fg2);">No specific value (AWS/Kubernetes only)</td>
                 <td class="seo-td" style="color: var(--fg3);">Used when day-of-month or day-of-week is unspecified</td>
@@ -469,7 +469,7 @@ const webAppSchema = {
         <div class="overflow-x-auto my-4">
           <table class="w-full text-sm border-collapse seo-table">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">Shortcut</th>
                 <th class="seo-th">Equivalent</th>
                 <th class="seo-th">Description</th>
@@ -524,7 +524,7 @@ const webAppSchema = {
         <div class="overflow-x-auto my-4">
           <table class="w-full text-sm border-collapse seo-table">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">Use Case</th>
                 <th class="seo-th">Expression</th>
               </tr>
@@ -561,7 +561,7 @@ const webAppSchema = {
       </div>
       <div class="p-5">
         <p class="seo-p">GitHub Actions uses standard 5-field Unix cron syntax in the schedule trigger. All schedules run in UTC timezone. The minimum interval GitHub Actions supports is every 5 minutes.</p>
-        <pre class="font-mono text-xs rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre" style="background: #0a1a0f; color: #4ade80;">on:
+        <pre class="font-mono text-xs rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre" style="background: #0A0A0A; color: #F8FAFC;">on:
   schedule:
     - cron: '0 9 * * 1-5'  # Every weekday at 9 AM UTC</pre>
       </div>
@@ -578,7 +578,7 @@ const webAppSchema = {
         <div class="overflow-x-auto">
           <table class="w-full text-sm border-collapse seo-table">
             <thead>
-              <tr style="background: rgba(16,185,129,0.1); text-align: left;">
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
                 <th class="seo-th">Use Case</th>
                 <th class="seo-th">Expression</th>
                 <th class="seo-th hidden sm:table-cell">Platform</th>
@@ -820,31 +820,31 @@ const webAppSchema = {
               </thead>
               <tbody>
                 <tr>
-                  <td class="seo-td font-mono" style="color: #34d399;">1</td>
+                  <td class="seo-td font-mono" style="color: #F8FAFC;">1</td>
                   <td class="seo-td font-medium" style="color: var(--fg);">Minute</td>
                   <td class="seo-td" style="color: var(--fg2);">0–59</td>
                   <td class="seo-td seo-aws hidden sm:table-cell">* , - /</td>
                 </tr>
                 <tr>
-                  <td class="seo-td font-mono" style="color: #34d399;">2</td>
+                  <td class="seo-td font-mono" style="color: #F8FAFC;">2</td>
                   <td class="seo-td font-medium" style="color: var(--fg);">Hour</td>
                   <td class="seo-td" style="color: var(--fg2);">0–23</td>
                   <td class="seo-td seo-aws hidden sm:table-cell">* , - /</td>
                 </tr>
                 <tr>
-                  <td class="seo-td font-mono" style="color: #34d399;">3</td>
+                  <td class="seo-td font-mono" style="color: #F8FAFC;">3</td>
                   <td class="seo-td font-medium" style="color: var(--fg);">Day of month</td>
                   <td class="seo-td" style="color: var(--fg2);">1–31</td>
                   <td class="seo-td seo-aws hidden sm:table-cell">* , - / ?</td>
                 </tr>
                 <tr>
-                  <td class="seo-td font-mono" style="color: #34d399;">4</td>
+                  <td class="seo-td font-mono" style="color: #F8FAFC;">4</td>
                   <td class="seo-td font-medium" style="color: var(--fg);">Month</td>
                   <td class="seo-td" style="color: var(--fg2);">1–12 or JAN–DEC</td>
                   <td class="seo-td seo-aws hidden sm:table-cell">* , -</td>
                 </tr>
                 <tr>
-                  <td class="seo-td font-mono" style="color: #34d399;">5</td>
+                  <td class="seo-td font-mono" style="color: #F8FAFC;">5</td>
                   <td class="seo-td font-medium" style="color: var(--fg);">Day of week</td>
                   <td class="seo-td" style="color: var(--fg2);">0–7 (0,7=Sun) or SUN–SAT</td>
                   <td class="seo-td seo-aws hidden sm:table-cell">* , - /</td>
@@ -919,10 +919,10 @@ const webAppSchema = {
 
   /* ── H1 gradient ────────────────────────────────────────────────────────────── */
   .hero-gradient {
-    background: linear-gradient(135deg, #ecfdf5 30%, #34d399 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #F8FAFC;
+    background: none;
+    -webkit-text-fill-color: #F8FAFC;
+    -webkit-background-clip: unset;
   }
 
   /* ── Stat cards ─────────────────────────────────────────────────────────────── */
@@ -966,9 +966,9 @@ const webAppSchema = {
     color: var(--fg);
   }
   .sidebar-active {
-    background: #0f2415 !important;
-    color: #34d399 !important;
-    border-left: 2px solid #10b981 !important;
+    background: rgba(248,250,252,0.06) !important;
+    color: #F8FAFC !important;
+    border-left: 2px solid #F8FAFC !important;
   }
 
   /* ── Preset pills ───────────────────────────────────────────────────────────── */
@@ -985,9 +985,9 @@ const webAppSchema = {
     user-select: none;
   }
   .preset-btn:hover {
-    border-color: #10b981;
-    color: #34d399;
-    background: #0f2415;
+    border-color: #F8FAFC;
+    color: #F8FAFC;
+    background: rgba(248,250,252,0.06);
   }
 
   /* ── Platform tabs ──────────────────────────────────────────────────────────── */
@@ -1008,9 +1008,9 @@ const webAppSchema = {
     color: var(--fg);
   }
   .active-tab {
-    background: #10b981 !important;
-    color: #030a06 !important;
-    border-bottom-color: transparent !important;
+    background: #1A1A1A !important;
+    color: #F8FAFC !important;
+    border-bottom: 2px solid #F8FAFC !important;
   }
 
   /* ── Dropdowns ──────────────────────────────────────────────────────────────── */
@@ -1027,19 +1027,19 @@ const webAppSchema = {
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   .cron-select:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.2);
   }
 
   /* ── Copy button gradient ───────────────────────────────────────────────────── */
   .copy-btn-gradient {
-    background: linear-gradient(135deg, #10b981, #059669);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    background: #334155;
+    box-shadow: none;
     transition: box-shadow 0.15s, background 0.15s;
   }
   .copy-btn-gradient:hover {
-    background: linear-gradient(135deg, #34d399, #10b981);
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+    background: #475569;
+    box-shadow: none;
   }
 
   /* ── Inline code ────────────────────────────────────────────────────────────── */
@@ -1047,7 +1047,7 @@ const webAppSchema = {
     font-family: 'Fira Code', monospace;
     font-size: 12px;
     background: var(--code-bg);
-    color: #34d399;
+    color: #F8FAFC;
     padding: 2px 6px;
     border-radius: 4px;
   }
@@ -1057,9 +1057,9 @@ const webAppSchema = {
     font-family: 'Fira Code', monospace;
     font-size: 12px;
     font-weight: 700;
-    color: #34d399;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #F8FAFC;
+    background: rgba(248,250,252,0.06);
+    border: 1px solid rgba(248,250,252,0.1);
     border-radius: 8px;
     padding: 4px 8px;
   }
@@ -1076,8 +1076,8 @@ const webAppSchema = {
     font-family: 'Fira Code', monospace;
     font-size: 12px;
     font-weight: 600;
-    color: #34d399;
-    background: rgba(16, 185, 129, 0.1);
+    color: #F8FAFC;
+    background: rgba(248,250,252,0.06);
     padding: 2px 8px;
     border-radius: 4px;
     text-align: center;
@@ -1095,7 +1095,7 @@ const webAppSchema = {
     transition: background 0.12s;
   }
   .faq-trigger:hover {
-    background: rgba(16, 185, 129, 0.04);
+    background: rgba(248,250,252,0.04);
   }
 
   /* ── Direct answers ─────────────────────────────────────────────────────────── */
@@ -1105,8 +1105,8 @@ const webAppSchema = {
     font-size: 13px;
     line-height: 1.6;
     color: var(--fg2);
-    background: rgba(16, 185, 129, 0.05);
-    border-left: 3px solid rgba(16, 185, 129, 0.3);
+    background: rgba(248,250,252,0.05);
+    border-left: 3px solid #334155;
   }
 
   /* ── SEO tables ─────────────────────────────────────────────────────────────── */
@@ -1140,12 +1140,12 @@ const webAppSchema = {
   }
   .seo-expr {
     font-family: 'Fira Code', monospace;
-    color: #34d399;
+    color: #F8FAFC;
     cursor: pointer;
     transition: background 0.12s;
   }
   .seo-expr:hover {
-    background: rgba(16, 185, 129, 0.08);
+    background: rgba(248,250,252,0.06);
   }
   .seo-aws {
     font-family: 'Fira Code', monospace;
@@ -1556,7 +1556,7 @@ function updateUI(expr) {
     });
     nextRunsList.innerHTML = runs.map((d, i) => `
       <li style="display:flex;align-items:center;gap:12px;padding:7px 0;font-size:12px;">
-        <span style="width:22px;height:22px;border-radius:50%;background:#0f2415;color:#10b981;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:'Fira Code',monospace;">${i + 1}</span>
+        <span style="width:22px;height:22px;border-radius:50%;background:rgba(248,250,252,0.06);color:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:'Fira Code',monospace;">${i + 1}</span>
         <span style="font-family:'Fira Code',monospace;color:var(--fg2);">${fmt.format(d)}</span>
       </li>`).join('');
 
@@ -1634,7 +1634,7 @@ copyBtn.addEventListener('click', () => {
     copyBtn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
     setTimeout(() => {
       copyLabel.textContent = 'Copy';
-      copyBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      copyBtn.style.background = '#334155';
     }, 2000);
   });
 });
