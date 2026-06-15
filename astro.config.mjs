@@ -5,6 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://opsbash.com',
   trailingSlash: 'never',
+  build: {
+    format: 'file',
+  },
   markdown: {
     shikiConfig: {
       theme: 'github-dark',
