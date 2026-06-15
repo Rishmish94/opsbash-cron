@@ -246,6 +246,7 @@ test.describe('Navigation', () => {
 
   test('26. JSON YAML nav link goes to /json-yaml-converter', async ({ page }) => {
     await page.goto(BASE);
+    await page.click('#all-tools-trigger');
     await page.click('header a[href="/json-yaml-converter"]');
     await expect(page).toHaveURL(/\/json-yaml-converter(\/)?$/);
   });
