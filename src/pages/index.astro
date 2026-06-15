@@ -288,9 +288,12 @@ const toolCards = [
           />
         </div>
         <div style="padding:16px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
             <span class="home-cat-pill">{post.data.category}</span>
+            <span style="color:#94A3B8;font-size:11px;user-select:none;">·</span>
             <time style="font-size:11px;color:var(--text-secondary);font-family:'Inter',sans-serif;">{post.data.date}</time>
+            <span style="color:#94A3B8;font-size:11px;user-select:none;">·</span>
+            <span style="font-size:11px;color:#94A3B8;font-family:'Inter',sans-serif;">By Rishabh Mishra</span>
           </div>
           <p class="home-card-title">{post.data.title}</p>
         </div>

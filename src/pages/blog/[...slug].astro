@@ -137,6 +137,9 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     line-height: 1.7;
     color: var(--text-secondary);
     font-family: 'Inter', sans-serif;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   /* Suppress the duplicate H1 (identical to the title above) */
@@ -238,6 +241,28 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     border: none;
     border-top: 1px solid var(--border);
     margin: 40px 0;
+  }
+
+  /* ── Mobile overflow prevention ─────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    article {
+      overflow-x: hidden;
+      box-sizing: border-box;
+    }
+    .post-content {
+      overflow-x: hidden;
+    }
+    .post-content :global(p),
+    .post-content :global(li),
+    .post-content :global(h2),
+    .post-content :global(h3) {
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .post-content :global(img) {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
   /* ── Copy button ─────────────────────────────────────────────────────────── */
