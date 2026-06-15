@@ -110,17 +110,79 @@ import Layout from '../layouts/Layout.astro';
 
     <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">Tools available now</h2>
-      <a href="/cron-builder" class="flex items-start gap-4 group" style="text-decoration: none;">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
-             style="background: #0f2415; border: 1px solid #1a3a22;">
-          <svg class="w-5 h-5" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium mb-1" style="color: var(--fg);">Cron Expression Generator</p>
-          <p class="text-xs leading-relaxed" style="color: var(--fg2);">Generate and validate cron expressions with visual dropdowns. Get plain-English explanations, next 10 run times in your local timezone, and ready-to-use output for Linux, AWS CloudWatch, GitHub Actions, and Kubernetes.</p>
-          <p class="mt-2 text-xs font-medium" style="color: #34d399;">Try the tool →</p>
-        </div>
-      </a>
+      <div class="space-y-4">
+
+        <a href="/cron-builder" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">Cron Builder <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/cron-builder</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Generate and validate cron expressions for Linux, AWS, Kubernetes, and GitHub Actions</p>
+          </div>
+        </a>
+
+        <a href="/cidr-calculator" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">CIDR Calculator <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/cidr-calculator</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Calculate subnet details, usable hosts, and network ranges for IPv4 and IPv6</p>
+          </div>
+        </a>
+
+        <a href="/jwt-decoder" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">JWT Decoder <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/jwt-decoder</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Decode JWT tokens and inspect header, payload, and expiry status instantly</p>
+          </div>
+        </a>
+
+        <a href="/json-yaml-converter" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">JSON to YAML Converter <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/json-yaml-converter</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Convert between JSON and YAML in real time, bidirectional with error highlighting</p>
+          </div>
+        </a>
+
+        <a href="/chmod-calculator" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">chmod Calculator <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/chmod-calculator</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Calculate Linux file permissions between octal, symbolic, and visual formats</p>
+          </div>
+        </a>
+
+        <a href="/gitignore-generator" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">gitignore Generator <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/gitignore-generator</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Generate .gitignore files for any technology stack, download with one click</p>
+          </div>
+        </a>
+
+        <a href="/docker-compose-converter" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">Docker Run to Compose <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/docker-compose-converter</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Convert docker run commands into docker-compose.yml and back</p>
+          </div>
+        </a>
+
+      </div>
     </div>
 
     <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">

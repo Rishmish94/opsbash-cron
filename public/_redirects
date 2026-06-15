@@ -1,0 +1,14 @@
+# Trailing-slash → no-slash 301 redirects for all routes
+/cron-builder/             /cron-builder             301
+/cidr-calculator/          /cidr-calculator          301
+/jwt-decoder/              /jwt-decoder              301
+/json-yaml-converter/      /json-yaml-converter      301
+/chmod-calculator/         /chmod-calculator         301
+/gitignore-generator/      /gitignore-generator      301
+/docker-compose-converter/ /docker-compose-converter 301
+/about/                    /about                    301
+/contact/                  /contact                  301
+/privacy-policy/           /privacy-policy           301
+/terms/                    /terms                    301
+/blog/                     /blog                     301
+/blog/*/                   /blog/:splat              301
