@@ -28,10 +28,13 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
 
   <article style="max-width:720px;margin:0 auto;padding:48px 20px 96px;">
 
-    <!-- Category + date -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+    <!-- Category + date + author -->
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
       <span class="cat-pill">{post.data.category}</span>
+      <span class="meta-sep">·</span>
       <time style="font-size:13px;color:var(--text-secondary);font-family:'Inter',sans-serif;">{post.data.date}</time>
+      <span class="meta-sep">·</span>
+      <span style="font-size:13px;color:#94A3B8;font-family:'Inter',sans-serif;">By <a href="https://linkedin.com/in/rishmish94/" target="_blank" rel="noopener noreferrer" class="author-link">Rishabh Mishra</a></span>
     </div>
 
     <!-- Title -->
@@ -115,6 +118,18 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     font-family: 'JetBrains Mono', monospace;
     white-space: nowrap;
   }
+
+  .meta-sep {
+    color: #94A3B8;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+  }
+  .author-link {
+    color: #F8FAFC;
+    text-decoration: none;
+  }
+  .author-link:hover { text-decoration: underline; }
 
   /* ── Prose ──────────────────────────────────────────────────────────────── */
   .post-content {
