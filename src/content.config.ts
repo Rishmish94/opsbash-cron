@@ -1,19 +1,20 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: ['*.md', '!_*.md'], base: './src/content/blog' }),
   schema: z.object({
-    title: z.string().max(80),
-    description: z.string().max(160),
-    pubDate: z.coerce.date(),
-    updatedDate: z.coerce.date().optional(),
-    heroImage: z.string(),
-    heroImageAlt: z.string(),
-    category: z.enum(['How-To', 'Best-Tools', 'Explainer', 'Tutorial', 'News']),
-    tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-    author: z.string().default('Rishabh'),
-    canonicalUrl: z.string().url().optional(),
+    title: z.string(),
+    slug: z.string(),
+    description: z.string(),
+    tags: z.array(z.string()),
+    date: z.string().default('2026-06-15'),
+    image: z.string(),
+    category: z.string(),
+    tool: z.object({
+      name: z.string(),
+      url: z.string(),
+    }),
   }),
 });
 

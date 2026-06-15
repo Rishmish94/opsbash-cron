@@ -1,6 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Terminal from '../components/Terminal.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts   = await getCollection('blog');
+const recentPosts = allPosts
+  .sort((a, b) => a.id.localeCompare(b.id))
+  .slice(0, 3);
 
 const trustItems = [
   '100% Client-Side',
@@ -255,6 +261,53 @@ const toolCards = [
 
 
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- FROM THE BLOG                                                              -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-[1280px] mx-auto px-5" style="padding-top:56px;padding-bottom:20px;">
+
+  <div class="text-center reveal" style="margin-bottom:40px;">
+    <h2 style="font-size:32px;font-weight:700;color:var(--text-primary);font-family:'Inter',sans-serif;margin-bottom:10px;">
+      From the Blog
+    </h2>
+    <p style="font-size:15px;color:var(--text-secondary);">Articles and guides for DevOps engineers</p>
+  </div>
+
+  <div class="home-blog-grid">
+    {recentPosts.map((post, i) => (
+      <a
+        href={`/blog/${post.data.slug}`}
+        class={'reveal home-blog-card' + (i === 1 ? ' reveal-delay-1' : i === 2 ? ' reveal-delay-2' : '')}
+        style="text-decoration:none;"
+      >
+        <div class="home-card-img-wrap">
+          <img
+            src={post.data.image}
+            alt={post.data.title}
+            class="home-card-img"
+            loading="lazy"
+          />
+        </div>
+        <div style="padding:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span class="home-cat-pill">{post.data.category}</span>
+            <time style="font-size:11px;color:var(--text-secondary);font-family:'Inter',sans-serif;">{post.data.date}</time>
+          </div>
+          <p class="home-card-title">{post.data.title}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+
+  <div style="text-align:center;margin-top:36px;">
+    <a href="/blog" class="browse-btn">
+      View all posts →
+    </a>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <!-- TOOL GRID — tools-grid class enforces 3-col via global.css                -->
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 <section id="tools" class="max-w-[1280px] mx-auto px-5" style="padding-top:48px;padding-bottom:80px;">
@@ -313,6 +366,56 @@ const toolCards = [
     border-color: #F8FAFC;
     color: #F8FAFC;
     box-shadow: 0 0 20px rgba(248, 250, 252, 0.1);
+  }
+
+  /* ── Home blog cards ────────────────────────────────────────────────────── */
+  .home-blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .home-blog-card {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .home-blog-card:hover { border-color: #F8FAFC; background: #1A1A1A; }
+  .home-card-img-wrap { overflow: hidden; }
+  .home-card-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  .home-blog-card:hover .home-card-img { transform: scale(1.04); }
+  .home-cat-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border: 1px solid #F8FAFC;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .home-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+    line-height: 1.4;
+    font-family: 'Inter', sans-serif;
+  }
+  @media (max-width: 1024px) {
+    .home-blog-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .home-blog-grid { grid-template-columns: 1fr; }
   }
 
   /* ── Tool cards ──────────────────────────────────────────────────────────── */

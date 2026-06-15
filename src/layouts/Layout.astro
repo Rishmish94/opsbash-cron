@@ -12,6 +12,7 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 
 const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter'].includes(currentPath);
+const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 
 const orgSchema = {
   "@context": "https://schema.org",
@@ -133,6 +134,15 @@ const orgSchema = {
       </div>
     ))}
 
+    <!-- Blog link -->
+    <div style="margin-bottom:16px;">
+      <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:4px;padding:0 2px;">Content</p>
+      <a href="/blog"
+        style={'display:block;padding:9px 10px;text-decoration:none;font-size:13px;font-weight:500;border-radius:6px;margin-bottom:1px;transition:background 0.1s;color:' + (isBlogPage ? '#F8FAFC' : 'var(--text-primary)') + ';background:' + (isBlogPage ? 'rgba(248,250,252,0.08)' : 'transparent')}>
+        Blog
+      </a>
+    </div>
+
     <!-- Bottom actions -->
     <div style="margin-top:auto;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
       <a href="https://github.com/Rishmish94/opsbash-cron"
@@ -206,6 +216,8 @@ const orgSchema = {
               <a href="/chmod-calculator" class="dropdown-item">chmod Calculator</a>
             </div>
           </div>
+
+          <a href="/blog" class={'nav-link' + (isBlogPage ? ' nav-active' : '')}>Blog</a>
         </nav>
 
         <!-- Right side -->
