@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* ── Design tokens ──────────────────────────────────────────────────────────── */
 :root {
   --bg-primary:       #0A0A0A;
@@ -39,12 +43,16 @@
 }
 
 /* ── Base ──────────────────────────────────────────────────────────────────── */
+html {
+  overflow-x: hidden;
+}
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 code, pre, kbd, samp, .mono {

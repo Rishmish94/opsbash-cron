@@ -26,7 +26,7 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
   <!-- OG image injected via named head slot -->
   <meta slot="head" property="og:image" content={ogImage} />
 
-  <article style="max-width:720px;margin:0 auto;padding:48px 20px 96px;">
+  <article style="max-width:720px;width:100%;min-width:0;margin:0 auto;padding:48px 20px 96px;box-sizing:border-box;">
 
     <!-- Category + date + author -->
     <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
@@ -51,7 +51,7 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     />
 
     <!-- Markdown body -->
-    <div class="post-content">
+    <div class="post-content" style="max-width:100%;width:100%;min-width:0;overflow:hidden;contain:paint;word-break:break-word;overflow-wrap:break-word;box-sizing:border-box;">
       <Content />
     </div>
 
@@ -101,6 +101,23 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
 
     wrap.appendChild(btn);
   });
+
+  document.querySelectorAll('.post-content iframe, .post-content embed, .post-content object').forEach(el => {
+    const wrap = document.createElement('div');
+    wrap.className = 'embed-wrap';
+    wrap.style.overflowX = 'auto';
+    wrap.style.maxWidth = '100%';
+    wrap.style.width = '100%';
+    el.parentNode!.insertBefore(wrap, el);
+    wrap.appendChild(el);
+  });
+
+  document.querySelectorAll('.post-content table').forEach(table => {
+    const wrap = document.createElement('div');
+    wrap.className = 'table-scroll';
+    table.parentNode!.insertBefore(wrap, table);
+    wrap.appendChild(table);
+  });
 </script>
 
 <style>
@@ -138,8 +155,16 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     color: var(--text-secondary);
     font-family: 'Inter', sans-serif;
     max-width: 100%;
+    overflow: hidden;
+    contain: paint;
     overflow-wrap: break-word;
     word-wrap: break-word;
+  }
+
+  /* Force every descendant to respect the container width, regardless of element type */
+  .post-content :global(*) {
+    max-width: 100% !important;
+    box-sizing: border-box;
   }
 
   /* Suppress the duplicate H1 (identical to the title above) */
@@ -193,6 +218,26 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     overflow-x: auto;
     margin: 28px 0;
     line-height: 1.6;
+    max-width: 100%;
+    white-space: pre-wrap;
+  }
+
+  /* Embedded visuals must not overflow the column */
+  .post-content :global(img),
+  .post-content :global(pre),
+  .post-content :global(iframe),
+  .post-content :global(figure) {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .post-content :global(h1),
+  .post-content :global(h2),
+  .post-content :global(h3),
+  .post-content :global(p),
+  .post-content :global(li) {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   .post-content :global(pre code) {
     background: none !important;
@@ -202,15 +247,21 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     color: inherit;
   }
 
-  /* Tables */
-  .post-content :global(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 28px 0;
-    font-size: 14px;
-    display: block;
+  /* Tables: the table itself keeps normal table layout so rows/cells render
+     correctly; the surrounding .table-scroll wrapper (added client-side)
+     is what actually scrolls instead of widening the page. */
+  .post-content :global(.table-scroll) {
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    margin: 28px 0;
+  }
+  .post-content :global(table) {
+    width: 100%;
+    max-width: none !important;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 0;
   }
   .post-content :global(th) {
     background: var(--surface-primary);
