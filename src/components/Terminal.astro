@@ -75,6 +75,7 @@
     { name: 'chmod-calculator', desc: 'Octal, symbolic, chmod commands' },
     { name: 'gitignore-generator', desc: 'Generate .gitignore for any stack' },
     { name: 'docker-compose', desc: 'Convert docker run to Compose YAML' },
+    { name: 'timestamp-converter', desc: 'Convert Unix timestamps to human dates' },
   ];
 
   async function runTerminal() {
@@ -102,7 +103,7 @@
       await sleep(300);
 
       const headerLine = document.createElement('div');
-      headerLine.textContent = 'Available tools (7):';
+      headerLine.textContent = 'Available tools (8):';
       headerLine.style.color = '#F8FAFC';
       headerLine.style.fontFamily = 'JetBrains Mono, monospace';
       headerLine.style.fontSize = '13px';
@@ -128,27 +129,24 @@
         toolLine.style.textOverflow = 'ellipsis';
         toolLine.style.maxWidth = '100%';
 
+        const nameSpan = document.createElement('span');
+        nameSpan.style.color = '#4ADE80';
         if (isMobile) {
-          const nameSpan = document.createElement('span');
-          nameSpan.style.color = '#4ADE80';
           nameSpan.style.marginLeft = '8px';
           nameSpan.textContent = tool.name.trim();
-          toolLine.appendChild(nameSpan);
         } else {
-          const nameSpan = document.createElement('span');
-          nameSpan.style.color = '#4ADE80';
           nameSpan.style.display = 'inline-block';
           nameSpan.style.width = '220px';
           nameSpan.style.minWidth = '220px';
           nameSpan.textContent = '  ' + tool.name;
-
-          const descSpan = document.createElement('span');
-          descSpan.style.color = '#94A3B8';
-          descSpan.textContent = tool.desc;
-
-          toolLine.appendChild(nameSpan);
-          toolLine.appendChild(descSpan);
         }
+        toolLine.appendChild(nameSpan);
+
+        const descSpan = document.createElement('span');
+        descSpan.className = 'hidden md:inline';
+        descSpan.style.color = '#94A3B8';
+        descSpan.textContent = tool.desc;
+        toolLine.appendChild(descSpan);
 
         output.appendChild(toolLine);
       }

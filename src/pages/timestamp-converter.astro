@@ -1,0 +1,810 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a Unix timestamp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A Unix timestamp, also called epoch time, is the number of seconds that have elapsed since January 1 1970 00:00:00 UTC, not counting leap seconds. It is a single number that represents a moment in time independent of timezone, which is why it is the standard way computers store and exchange dates internally."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Year 2038 problem?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Year 2038 problem occurs because many older systems store Unix time as a signed 32-bit integer, which can only count up to 2,147,483,647 seconds past the epoch. At 03:14:07 UTC on January 19 2038, that counter overflows and wraps around to a negative number, which can cause dates to roll back to 1901 on systems that have not moved to 64-bit time values."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many digits is a Unix timestamp in seconds vs milliseconds?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A current Unix timestamp in seconds is 10 digits long. In milliseconds it is 13 digits, in microseconds it is 16 digits, and in nanoseconds it is 19 digits. Counting the digits is a quick way to guess which unit a timestamp is in before converting it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What timezone is Unix time in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A Unix timestamp itself has no timezone. It is always a count of seconds from UTC midnight on January 1 1970. Timezone only enters the picture when you convert that number into a human-readable date, at which point you choose whether to render it in UTC, your local timezone, or any other IANA timezone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do my application logs show a giant number instead of a date?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Many logging libraries and runtimes, including Node.js Date.now(), Python's time.time(), and Java's System.currentTimeMillis(), record timestamps as raw epoch milliseconds rather than formatted dates. This is timezone safe, sorts correctly as plain numbers, and avoids parsing ambiguity, but it means humans reading raw logs need a converter to make sense of the value."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Unix Timestamp Converter",
+  "url": "https://opsbash.com/timestamp-converter",
+  "description": "Convert Unix epoch timestamps to human-readable dates and back. Supports seconds, milliseconds, microseconds and nanoseconds with live conversion and batch processing.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+};
+---
+
+<Layout
+  title="Unix Timestamp Converter | OpsBash"
+  description="Convert Unix epoch timestamps to human-readable dates and back. Auto-detects seconds, milliseconds, microseconds and nanoseconds. Live conversion, batch mode, free and runs in your browser."
+  canonicalURL="https://opsbash.com/timestamp-converter"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-8 pb-5">
+    <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Free Unix Timestamp Converter
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style="color: #F8FAFC;">
+      Unix Timestamp Converter
+    </h1>
+    <p class="text-base max-w-xl" style="color: var(--fg2);">
+      Convert epoch timestamps to human dates and back. Auto-detects seconds, milliseconds, microseconds and nanoseconds. Everything runs locally in your browser.
+    </p>
+  </section>
+
+  <!-- ── SECTION 1: EPOCH → HUMAN DATE ───────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Epoch to Human Date</h2>
+        <span id="formatBadge" class="hidden text-[11px] font-semibold px-2.5 py-1 rounded-full font-mono"
+              style="background: rgba(248,250,252,0.06); border: 1px solid #334155; color: #F8FAFC;"></span>
+      </div>
+
+      <label for="epochInput" class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Unix Timestamp</label>
+      <input id="epochInput" type="text" inputmode="numeric" spellcheck="false" autocomplete="off"
+        placeholder="e.g. 1750000000000"
+        class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all"
+        style="font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 1.1rem; color: #F8FAFC; background: var(--bg); border: 1px solid var(--border);" />
+
+      <p id="epochError" class="mt-2 text-xs hidden" style="color: #EF4444;"></p>
+      <p id="epoch2038Badge" class="mt-2 text-xs px-2.5 py-1.5 rounded-lg"
+         style="display: none; background: rgba(245,158,11,0.12); border: 1px solid #F59E0B; color: #F59E0B;">
+        ⚠ This timestamp is beyond the Year 2038 problem boundary (January 19 2038 03:14:07 UTC)
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">UTC Datetime</p>
+            <p id="outUtc" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outUtc">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Local Datetime <span id="localTzHint" class="font-mono"></span></p>
+            <p id="outLocal" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outLocal">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">ISO 8601</p>
+            <p id="outIso" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outIso">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Relative</p>
+            <p id="outRelative" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outRelative">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: HUMAN DATE → EPOCH ───────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">Human Date to Epoch</h2>
+
+      <div class="flex flex-col sm:flex-row gap-3 mb-5">
+        <div class="flex flex-col gap-1.5 w-full sm:flex-1">
+          <label class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">Date</label>
+          <input id="dateInput" type="date" class="ts-select" />
+        </div>
+        <div class="flex flex-col gap-1.5 w-full sm:flex-1">
+          <label class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">Time</label>
+          <input id="timeInput" type="time" step="1" class="ts-select" />
+        </div>
+        <div class="flex flex-col gap-1.5 w-full sm:flex-[2]">
+          <label class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--fg3);">Timezone</label>
+          <select id="tzSelect" class="ts-select"></select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Seconds</p>
+            <p id="outSec" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outSec">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Milliseconds</p>
+            <p id="outMs" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outMs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Microseconds</p>
+            <p id="outUs" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outUs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Nanoseconds</p>
+            <p id="outNs" class="font-mono text-sm truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="outNs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+      <p class="mt-3 text-[11px]" style="color: var(--fg3);">Microsecond and nanosecond values are derived from millisecond precision and shown for convenience.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: CURRENT TIMESTAMP ────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Current Timestamp</h2>
+        <button id="freezeBtn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+          style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+          Freeze
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Seconds</p>
+            <p id="curSec" class="font-mono text-xl font-bold truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="curSec">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="output-row flex items-center gap-2 rounded-xl px-4 py-3" style="background: var(--bg); border: 1px solid var(--border);">
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--fg3);">Milliseconds</p>
+            <p id="curMs" class="font-mono text-xl font-bold truncate" style="color: #F8FAFC; font-family: 'JetBrains Mono', monospace;">—</p>
+          </div>
+          <button class="copy-row-btn" data-copy-target="curMs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: BATCH CONVERTER ───────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">Batch Converter</h2>
+      <label for="batchInput" class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Paste timestamps, one per line (mixed formats allowed)</label>
+      <textarea id="batchInput" rows="6" spellcheck="false"
+        placeholder={"1750000000\n1750000000000\n1750000000000000"}
+        class="w-full rounded-xl px-4 py-3 focus:outline-none transition-all resize-y"
+        style="font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; color: #F8FAFC; background: var(--bg); border: 1px solid var(--border);"></textarea>
+
+      <div class="flex items-center gap-2 mt-3">
+        <button id="batchConvertBtn"
+          class="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+          style="background: #334155; color: #F8FAFC;">
+          Convert
+        </button>
+      </div>
+
+      <div id="batchResultsWrap" class="hidden mt-5">
+        <div class="overflow-x-auto rounded-xl" style="border: 1px solid var(--border);">
+          <table class="w-full text-sm" style="border-collapse: collapse;">
+            <thead>
+              <tr style="background: rgba(248,250,252,0.06); text-align: left;">
+                <th class="seo-th">Original Input</th>
+                <th class="seo-th">Detected Format</th>
+                <th class="seo-th">UTC Datetime</th>
+                <th class="seo-th">Local Datetime</th>
+              </tr>
+            </thead>
+            <tbody id="batchResultsBody"></tbody>
+          </table>
+        </div>
+        <button id="copyCsvBtn"
+          class="mt-3 px-4 py-2 rounded-xl text-xs font-medium transition-all"
+          style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+          Copy all as CSV
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <div class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is a Unix timestamp?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          A Unix timestamp, also called epoch time, is the number of seconds that have elapsed since January 1 1970 00:00:00 UTC, not counting leap seconds. It is a single number representing a moment in time independent of timezone, which is why it is the standard way computers store and exchange dates internally.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is the Year 2038 problem?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          The Year 2038 problem occurs because many older systems store Unix time as a signed 32-bit integer, which can only count up to 2,147,483,647 seconds past the epoch. At 03:14:07 UTC on January 19 2038, that counter overflows and wraps to a negative number, which can roll dates back to 1901 on systems still using 32-bit time values.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">How many digits is a Unix timestamp in seconds vs milliseconds?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          A current Unix timestamp in seconds is 10 digits long. In milliseconds it is 13 digits, in microseconds it is 16 digits, and in nanoseconds it is 19 digits. Counting the digits is a quick way to guess which unit a timestamp is in before converting it.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What timezone is Unix time in?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          A Unix timestamp itself has no timezone. It is always a count of seconds from UTC midnight on January 1 1970. Timezone only enters the picture when you convert that number into a human-readable date, at which point you choose whether to render it in UTC, your local timezone, or any other IANA timezone.
+        </div>
+      </div>
+
+      <div class="faq-item" style="border-bottom: none;">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">Why do my application logs show a giant number instead of a date?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Many logging libraries and runtimes, including Node.js <code class="ic">Date.now()</code>, Python's <code class="ic">time.time()</code>, and Java's <code class="ic">System.currentTimeMillis()</code>, record timestamps as raw epoch milliseconds rather than formatted dates. This is timezone safe, sorts correctly as plain numbers, and avoids parsing ambiguity, but it means humans reading raw logs need a converter to make sense of the value. Paste any of those raw values into the converter above to see the human date instantly.
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /faq -->
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-20">
+    <div class="grid sm:grid-cols-2 gap-6">
+
+      <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is Epoch Time?</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Epoch time, or Unix time, counts the number of seconds since January 1 1970 00:00:00 UTC, known as the Unix epoch. It is the universal internal representation of time used by nearly every operating system, database, and programming language because a single number sorts correctly, compares correctly, and carries no timezone ambiguity. Higher resolution variants in milliseconds, microseconds, and nanoseconds are common in logging and tracing systems where sub-second precision matters.
+        </p>
+      </div>
+
+      <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Why Timestamps Show Up in Logs</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Structured logs, distributed traces, and database rows almost always record time as epoch milliseconds or seconds rather than a formatted date string. This keeps log lines timezone independent and trivially sortable, but it pushes the burden of conversion onto whoever is reading the logs. Pasting the raw number into a converter like this one is the fastest way to find out exactly when an event occurred.
+        </p>
+      </div>
+
+      <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Seconds, Milliseconds, Microseconds, Nanoseconds</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          The same instant in time can be expressed at different resolutions: 10-digit seconds, 13-digit milliseconds, 16-digit microseconds, or 19-digit nanoseconds. JavaScript's <code class="ic">Date.now()</code> returns milliseconds, Python's <code class="ic">time.time()</code> returns seconds as a float, and Go's <code class="ic">time.UnixNano()</code> returns nanoseconds. Knowing the digit count of a raw value is usually enough to identify which unit you are looking at.
+        </p>
+      </div>
+
+      <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">The Year 2038 Problem in Practice</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Systems that still represent time as a signed 32-bit integer will overflow at 03:14:07 UTC on January 19 2038. Most modern 64-bit systems have already moved past this limit, but embedded devices, old database schemas, and legacy file formats can still be affected. If you are scheduling events far into the future, it is worth checking how the underlying system stores time. Need to schedule that far-future job? Try the <a href="/cron-builder" style="color: var(--accent); text-decoration: underline;">Cron Expression Generator</a> to build the schedule once you know the date is safe.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</div>
+
+</Layout>
+
+<style>
+  .ts-select {
+    width: 100%;
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--fg);
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .ts-select:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.2);
+  }
+
+  .copy-row-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #334155;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .copy-row-btn:hover {
+    background: rgba(248,250,252,0.08);
+    border-color: #F8FAFC;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+  .faq-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .faq-trigger:hover {
+    background: rgba(248,250,252,0.04);
+  }
+
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: #F8FAFC;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .seo-th {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--fg2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .seo-td {
+    padding: 8px 16px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    color: var(--fg2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  #batchInput::placeholder,
+  #epochInput::placeholder {
+    color: var(--fg3);
+  }
+</style>
+
+<script>
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const TWO038_LIMIT_SECONDS = 2147483647; // Jan 19 2038 03:14:07 UTC
+
+  function detectFormat(raw) {
+    const s = raw.trim();
+    if (!/^-?\d+$/.test(s)) return null;
+    const digits = s.replace('-', '').length;
+    if (digits === 0) return null;
+    if (digits <= 10) return 's';
+    if (digits <= 13) return 'ms';
+    if (digits <= 16) return 'us';
+    if (digits <= 19) return 'ns';
+    return null;
+  }
+
+  function formatLabel(fmt) {
+    return {
+      s:  'Seconds (10 digits)',
+      ms: 'Milliseconds (13 digits)',
+      us: 'Microseconds (16 digits)',
+      ns: 'Nanoseconds (19 digits)',
+    }[fmt] || fmt;
+  }
+
+  function toMillis(value, fmt) {
+    switch (fmt) {
+      case 's':  return value * 1000;
+      case 'ms': return value;
+      case 'us': return value / 1000;
+      case 'ns': return value / 1e6;
+      default:   return NaN;
+    }
+  }
+
+  function fmtZoned(date, tz) {
+    return new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'medium', timeZone: tz }).format(date);
+  }
+
+  function relativeTime(date) {
+    const diffSec = Math.round((date.getTime() - Date.now()) / 1000);
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    const divisions = [
+      { amount: 60,               unit: 'seconds' },
+      { amount: 60,               unit: 'minutes' },
+      { amount: 24,               unit: 'hours'   },
+      { amount: 7,                unit: 'days'    },
+      { amount: 4.34524,          unit: 'weeks'   },
+      { amount: 12,                unit: 'months'  },
+      { amount: Number.POSITIVE_INFINITY, unit: 'years' },
+    ];
+    let duration = diffSec;
+    for (const division of divisions) {
+      if (Math.abs(duration) < division.amount) {
+        return rtf.format(Math.round(duration), division.unit);
+      }
+      duration /= division.amount;
+    }
+    return rtf.format(Math.round(duration), 'years');
+  }
+
+  function copyText(text, btn) {
+    function flash() {
+      const original = btn.innerHTML;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.innerHTML = original; }, 1500);
+    }
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(flash).catch(() => { fallback(); flash(); });
+    } else {
+      fallback(); flash();
+    }
+  }
+
+  document.querySelectorAll('.copy-row-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-copy-target');
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      const text = el.textContent.trim();
+      if (!text || text === '—') return;
+      copyText(text, btn);
+    });
+  });
+
+  // ── SECTION 1: Epoch → Human ─────────────────────────────────────────────
+  const epochInput     = document.getElementById('epochInput');
+  const epochError      = document.getElementById('epochError');
+  const epoch2038Badge  = document.getElementById('epoch2038Badge');
+  const formatBadge     = document.getElementById('formatBadge');
+  const outUtc          = document.getElementById('outUtc');
+  const outLocal        = document.getElementById('outLocal');
+  const outIso           = document.getElementById('outIso');
+  const outRelative     = document.getElementById('outRelative');
+  const localTzHint     = document.getElementById('localTzHint');
+
+  const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (localTzHint) localTzHint.textContent = '(' + localTz + ')';
+
+  function clearEpochOutputs() {
+    [outUtc, outLocal, outIso, outRelative].forEach((el) => { if (el) el.textContent = '—'; });
+    formatBadge.classList.add('hidden');
+    epoch2038Badge.style.display = 'none';
+  }
+
+  function updateEpochToHuman() {
+    const raw = epochInput.value;
+    epochError.classList.add('hidden');
+    epochError.textContent = '';
+
+    if (!raw.trim()) { clearEpochOutputs(); return; }
+
+    const fmt = detectFormat(raw);
+    if (!fmt) {
+      clearEpochOutputs();
+      epochError.textContent = 'Enter a valid integer timestamp (10, 13, 16 or 19 digits).';
+      epochError.classList.remove('hidden');
+      return;
+    }
+
+    const ms = toMillis(Number(raw), fmt);
+    const date = new Date(ms);
+    if (isNaN(date.getTime())) {
+      clearEpochOutputs();
+      epochError.textContent = 'Timestamp is out of range.';
+      epochError.classList.remove('hidden');
+      return;
+    }
+
+    formatBadge.textContent = formatLabel(fmt);
+    formatBadge.classList.remove('hidden');
+
+    if (ms / 1000 > TWO038_LIMIT_SECONDS) {
+      epoch2038Badge.style.display = 'inline-block';
+    } else {
+      epoch2038Badge.style.display = 'none';
+    }
+
+    outUtc.textContent      = fmtZoned(date, 'UTC');
+    outLocal.textContent    = fmtZoned(date, localTz);
+    outIso.textContent      = date.toISOString();
+    outRelative.textContent = relativeTime(date);
+  }
+
+  epochInput.addEventListener('input', updateEpochToHuman);
+
+  // ── SECTION 2: Human → Epoch ─────────────────────────────────────────────
+  const dateInput = document.getElementById('dateInput');
+  const timeInput = document.getElementById('timeInput');
+  const tzSelect   = document.getElementById('tzSelect');
+  const outSec     = document.getElementById('outSec');
+  const outMs      = document.getElementById('outMs');
+  const outUs      = document.getElementById('outUs');
+  const outNs      = document.getElementById('outNs');
+
+  function populateTimezones() {
+    let zones;
+    try {
+      zones = Intl.supportedValuesOf('timeZone');
+    } catch (e) {
+      zones = [];
+    }
+    if (!zones.includes(localTz)) zones = [localTz, ...zones];
+    zones.sort();
+    tzSelect.innerHTML = '';
+    zones.forEach((tz) => {
+      const opt = document.createElement('option');
+      opt.value = tz;
+      opt.textContent = tz;
+      if (tz === localTz) opt.selected = true;
+      tzSelect.appendChild(opt);
+    });
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function setDefaultDateTime() {
+    const now = new Date();
+    dateInput.value = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    timeInput.value = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  }
+
+  function dateFromZoned(dateStr, timeStr, tz) {
+    if (!dateStr) return null;
+    const t = timeStr || '00:00:00';
+    const asUTC = new Date(dateStr + 'T' + t + 'Z');
+    if (isNaN(asUTC.getTime())) return null;
+    try {
+      const tzDate = new Date(asUTC.toLocaleString('en-US', { timeZone: tz }));
+      const diff = asUTC.getTime() - tzDate.getTime();
+      return new Date(asUTC.getTime() + diff);
+    } catch (e) {
+      return asUTC;
+    }
+  }
+
+  function clearEpochOutputsSection2() {
+    [outSec, outMs, outUs, outNs].forEach((el) => { if (el) el.textContent = '—'; });
+  }
+
+  function updateHumanToEpoch() {
+    const d = dateFromZoned(dateInput.value, timeInput.value, tzSelect.value);
+    if (!d || isNaN(d.getTime())) { clearEpochOutputsSection2(); return; }
+    const ms = d.getTime();
+    outSec.textContent = String(Math.floor(ms / 1000));
+    outMs.textContent  = String(ms);
+    outUs.textContent  = String(ms * 1000);
+    outNs.textContent  = String(ms * 1e6);
+  }
+
+  populateTimezones();
+  setDefaultDateTime();
+  updateHumanToEpoch();
+
+  dateInput.addEventListener('input', updateHumanToEpoch);
+  timeInput.addEventListener('input', updateHumanToEpoch);
+  tzSelect.addEventListener('change', updateHumanToEpoch);
+
+  // ── SECTION 3: Current Timestamp ─────────────────────────────────────────
+  const curSec    = document.getElementById('curSec');
+  const curMs     = document.getElementById('curMs');
+  const freezeBtn = document.getElementById('freezeBtn');
+  let frozen = false;
+
+  function tick() {
+    if (frozen) return;
+    const now = Date.now();
+    curSec.textContent = String(Math.floor(now / 1000));
+    curMs.textContent  = String(now);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  freezeBtn.addEventListener('click', () => {
+    frozen = !frozen;
+    freezeBtn.textContent = frozen ? 'Resume' : 'Freeze';
+    if (!frozen) tick();
+  });
+
+  // ── SECTION 4: Batch Converter ───────────────────────────────────────────
+  const batchInput       = document.getElementById('batchInput');
+  const batchConvertBtn  = document.getElementById('batchConvertBtn');
+  const batchResultsWrap = document.getElementById('batchResultsWrap');
+  const batchResultsBody = document.getElementById('batchResultsBody');
+  const copyCsvBtn       = document.getElementById('copyCsvBtn');
+  let lastBatchRows = [];
+
+  function csvEscape(v) {
+    v = String(v);
+    if (/[",\n]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }
+
+  batchConvertBtn.addEventListener('click', () => {
+    const lines = batchInput.value.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) {
+      batchResultsWrap.classList.add('hidden');
+      lastBatchRows = [];
+      return;
+    }
+
+    lastBatchRows = lines.map((line) => {
+      const fmt = detectFormat(line);
+      if (!fmt) return { input: line, format: 'Invalid', utc: '—', local: '—' };
+      const ms = toMillis(Number(line), fmt);
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return { input: line, format: 'Invalid', utc: '—', local: '—' };
+      return {
+        input: line,
+        format: formatLabel(fmt),
+        utc: fmtZoned(d, 'UTC'),
+        local: fmtZoned(d, localTz),
+      };
+    });
+
+    batchResultsBody.innerHTML = '';
+    lastBatchRows.forEach((row) => {
+      const tr = document.createElement('tr');
+      [row.input, row.format, row.utc, row.local].forEach((val) => {
+        const td = document.createElement('td');
+        td.className = 'seo-td';
+        td.textContent = val;
+        tr.appendChild(td);
+      });
+      batchResultsBody.appendChild(tr);
+    });
+
+    batchResultsWrap.classList.remove('hidden');
+  });
+
+  copyCsvBtn.addEventListener('click', () => {
+    if (!lastBatchRows.length) return;
+    const header = 'Original Input,Detected Format,UTC Datetime,Local Datetime';
+    const lines = [header, ...lastBatchRows.map((r) =>
+      [r.input, r.format, r.utc, r.local].map(csvEscape).join(',')
+    )];
+    copyText(lines.join('\n'), copyCsvBtn);
+  });
+
+  // ── FAQ accordion ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.faq-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const content = item.querySelector('.faq-content');
+      const chevron = btn.querySelector('.faq-chevron');
+      const open = !content.classList.contains('hidden');
+      content.classList.toggle('hidden', open);
+      chevron.style.transform = open ? '' : 'rotate(180deg)';
+    });
+  });
+</script>
