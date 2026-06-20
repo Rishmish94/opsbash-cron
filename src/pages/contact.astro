@@ -67,7 +67,10 @@ import Layout from '../layouts/Layout.astro';
       <h2 class="text-base font-semibold" style="color: var(--fg);">Send a message</h2>
       <p class="text-xs mt-1" style="color: var(--fg2);">Alternatively, email us directly at <a href="mailto:contact@opsbash.com" class="hover:underline font-mono" style="color: #34d399;">contact@opsbash.com</a>.</p>
     </div>
-    <form id="contactForm" class="p-6 space-y-4" novalidate>
+    <form id="contactForm" action="https://api.web3forms.com/submit" method="POST" class="p-6 space-y-4" novalidate>
+      <input type="hidden" name="access_key" value="d09a0701-17b4-43e8-999f-eee22e7cca3c">
+      <input type="checkbox" name="botcheck" style="display:none">
+      <input type="hidden" name="subject" value="New message from OpsBash contact form">
       <div class="grid sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-medium mb-1.5" style="color: var(--fg2);">Name</label>
@@ -121,12 +124,29 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const msg = document.getElementById('formMsg');
-      msg.textContent = 'Thanks for reaching out! This form is not yet wired up — please email contact@opsbash.com directly and we\'ll get back to you within 48 hours.';
-      msg.className = 'rounded-xl px-4 py-3 text-sm';
-      msg.style.cssText = 'background: rgba(16,185,129,0.08); color: #34d399; border: 1px solid rgba(16,185,129,0.2);';
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: new FormData(this),
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.textContent = "Message sent! We'll get back to you within 48 hours.";
+          msg.className = 'rounded-xl px-4 py-3 text-sm';
+          msg.style.cssText = 'background: rgba(16,185,129,0.08); color: #34d399; border: 1px solid rgba(16,185,129,0.2);';
+          this.reset();
+        } else {
+          throw new Error(data.message || 'Submission failed');
+        }
+      } catch {
+        msg.textContent = 'Something went wrong. Please email contact@opsbash.com directly.';
+        msg.className = 'rounded-xl px-4 py-3 text-sm';
+        msg.style.cssText = 'background: rgba(239,68,68,0.08); color: #f87171; border: 1px solid rgba(239,68,68,0.2);';
+      }
+      msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
   </script>
 
