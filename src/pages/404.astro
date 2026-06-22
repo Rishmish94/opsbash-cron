@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="404 — Page not found | OpsBash"
+  description="The page you're looking for doesn't exist."
+  canonicalURL="https://opsbash.com/404"
+>
+<main class="w-full max-w-3xl mx-auto px-4 py-24 text-center">
+
+  <p class="text-xs font-semibold uppercase tracking-wider mb-4 font-mono" style="color: var(--fg2);">404</p>
+  <h1 class="text-3xl font-bold tracking-tight mb-4" style="color: var(--fg);">Page not found</h1>
+  <p class="text-sm leading-relaxed max-w-sm mx-auto mb-8" style="color: var(--fg2);">
+    That URL doesn't exist. It may have been moved, deleted, or never existed.
+  </p>
+  <a href="/"
+     class="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-full transition-all"
+     style="background: transparent; color: #F8FAFC; border: 1px solid #F8FAFC;"
+     onmouseover="this.style.background='rgba(248,250,252,0.08)';"
+     onmouseout="this.style.background='transparent';">
+    ← Back to homepage
+  </a>
+
+</main>
+</Layout>
