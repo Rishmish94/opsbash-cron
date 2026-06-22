@@ -119,3 +119,7 @@ While we're here, docker run -v accepts three structurally similar but behaviora
 The fastest way to avoid this category of bug is to not hand translate flag by flag in the first place. The [Docker Run to Compose](/docker-compose-converter) tool on opsbash takes your actual docker run commands, including the --network, --name, and -v flags, and generates a docker-compose.yml that preserves the topology, not just a line for line flag mapping. It handles the service name versus container name distinction and the volume type detection for bind mounts, named volumes, and anonymous volumes, so the translated file behaves the same way the original commands did, including the parts that worked only because of an implicit step like docker network create that doesn't have an obvious YAML equivalent at all.
 
 It also converts in the other direction. If you've got a docker-compose.yml and need the equivalent docker run commands for a script or a one off debugging session, the same tool handles that with the same topology aware translation.
+
+<div class="tool-cta">
+  <p>Try it yourself → <a href="/json-yaml-converter">JSON↔YAML Converter</a> — convert between JSON and YAML instantly in your browser, no uploads, no account needed.</p>
+</div>

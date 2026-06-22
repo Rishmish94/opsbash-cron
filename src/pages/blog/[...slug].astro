@@ -372,4 +372,26 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
     background: rgba(248, 250, 252, 0.08);
     box-shadow: 0 0 20px rgba(248, 250, 252, 0.1);
   }
+
+  /* ── Inline tool CTA ──────────────────────────────────────────────────────── */
+  .post-content :global(.tool-cta) {
+    margin: 40px 0;
+    padding: 20px 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .post-content :global(.tool-cta p) {
+    margin: 0 !important;
+    font-size: 15px;
+    color: var(--text-secondary);
+  }
+  .post-content :global(.tool-cta a) {
+    color: #F8FAFC !important;
+    font-weight: 600;
+    text-decoration: none !important;
+  }
+  .post-content :global(.tool-cta a:hover) {
+    text-decoration: underline !important;
+  }
 </style>

@@ -131,3 +131,7 @@ The practical failure mode is that someone writes src/*.log expecting it to catc
 Every one of these rules is individually documented, and every one of them is easy to get subtly wrong under the assumption that .gitignore syntax is basically glob patterns and can't be that hard. The negation inside an excluded directory rule especially has no error message and no warning. It just quietly does nothing, and you find out three weeks later when a file you thought was excluded shows up in a pull request diff.
 
 The [gitignore Generator](/gitignore-generator) on opsbash builds tech stack specific .gitignore files using patterns that are already known to work, including the file level exclusion plus negation pattern for the "ignore a directory except one file" case. If you're hitting one of the gotchas above on an existing .gitignore, it's also a good sanity check to regenerate the relevant section and compare it against what you wrote by hand.
+
+<div class="tool-cta">
+  <p>Try it yourself → <a href="/gitignore-generator">Gitignore Generator</a> — generate a stack-specific .gitignore with correct wildcard and negation patterns for any technology stack.</p>
+</div>

@@ -12,3 +12,7 @@ tool:
 ---
 
 CONTENT PLACEHOLDER
+
+<div class="tool-cta">
+  <p>Try it yourself → <a href="/timestamp-converter">Timestamp Converter</a> — paste any Unix epoch value and get a human-readable date instantly, no code required.</p>
+</div>

@@ -113,3 +113,7 @@ If you're maintaining schedules across Kubernetes CronJobs, EventBridge, and Git
 This is exactly the kind of task that's tedious to get right manually and quietly damaging to get wrong. The [Cron Builder](/cron-builder) on opsbash has a dedicated EventBridge output mode. Pick your schedule visually, and it generates the correct six field expression with the question mark placement and day names handled for you, so you're not relying on remembering that `1` means Sunday at 11pm on a Friday.
 
 It also outputs the equivalent Kubernetes CronJob, GitHub Actions, and standard Unix cron syntax side by side, so if you're maintaining the same schedule across multiple platforms, you can see all four dialects at once instead of translating between them in your head.
+
+<div class="tool-cta">
+  <p>Try it yourself → <a href="/cron-builder">Cron Expression Builder</a> — generate EventBridge-compatible cron syntax with automatic field validation across Linux, AWS, Kubernetes, and GitHub Actions.</p>
+</div>

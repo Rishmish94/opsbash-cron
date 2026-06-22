@@ -97,6 +97,10 @@ docker run -v $(pwd)/data:/app/data:Z myimage
 
 If you've already ruled out UID mismatches and you're still seeing permission denied on Fedora or RHEL, this is the next thing to check, and it's a one character flag rather than a chmod.
 
+<div class="tool-cta">
+  <p>Try it yourself → <a href="/chmod-calculator">chmod Calculator</a> — calculate the minimal permission set your use case actually needs, with octal, symbolic, and visual output.</p>
+</div>
+
 ## When 777 is almost defensible, and how to do less damage
 
 Sometimes you're in a throwaway dev container, it's late in the day, and you genuinely don't care about the security implications for the next ten minutes. Fine. But even then, avoid chmod 777 unless you're in a hurry on a dev only container, since it's bad practice in production, and use precise permissions like 755 or 700 instead.
