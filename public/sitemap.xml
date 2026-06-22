@@ -81,7 +81,22 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://opsbash.com/timestamp-converter</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://opsbash.com/blog/why-your-logs-show-epoch-timestamps</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://opsbash.com/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://opsbash.com/author/rishabh</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
