@@ -68,7 +68,7 @@
   const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
   const tools = [
-    { name: 'cron-builder', desc: 'Build and validate cron expressions' },
+    { name: 'cron-builder', desc: 'Build cron expressions + convert to systemd timers' },
     { name: 'cidr-calculator', desc: 'Subnet, CIDR range, broadcast addr' },
     { name: 'jwt-decoder', desc: 'Decode JWT tokens, inspect claims' },
     { name: 'json-yaml-converter', desc: 'Convert JSON to YAML in real time' },
@@ -76,6 +76,7 @@
     { name: 'gitignore-generator', desc: 'Generate .gitignore for any stack' },
     { name: 'docker-compose', desc: 'Convert docker run to Compose YAML' },
     { name: 'timestamp-converter', desc: 'Convert Unix timestamps to human dates' },
+    { name: 'json-diff', desc: 'Semantic diff and schema validation' },
   ];
 
   async function runTerminal() {
@@ -103,7 +104,7 @@
       await sleep(300);
 
       const headerLine = document.createElement('div');
-      headerLine.textContent = 'Available tools (8):';
+      headerLine.textContent = 'Available tools (9):';
       headerLine.style.color = '#F8FAFC';
       headerLine.style.fontFamily = 'JetBrains Mono, monospace';
       headerLine.style.fontSize = '13px';

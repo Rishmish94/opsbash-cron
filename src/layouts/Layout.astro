@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
 const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 
-const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter'].includes(currentPath);
+const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 
 const orgSchema = {
@@ -119,6 +119,7 @@ const orgSchema = {
       { cat: 'Development', tools: [
           { href: '/json-yaml-converter',      label: 'JSON to YAML Converter' },
           { href: '/gitignore-generator',      label: 'gitignore Generator'    },
+          { href: '/json-diff',                label: 'JSON Diff & Schema'      },
         ]},
       { cat: 'Containers',  tools: [{ href: '/docker-compose-converter', label: 'Docker Run to Compose'    }] },
       { cat: 'Linux',       tools: [{ href: '/chmod-calculator',         label: 'chmod Calculator'          }] },
@@ -209,6 +210,7 @@ const orgSchema = {
               <span class="dropdown-category">Development</span>
               <a href="/json-yaml-converter" class="dropdown-item">JSON to YAML Converter</a>
               <a href="/gitignore-generator" class="dropdown-item">gitignore Generator</a>
+              <a href="/json-diff" class="dropdown-item">JSON Diff &amp; Schema Validator</a>
 
               <span class="dropdown-category">Containers</span>
               <a href="/docker-compose-converter" class="dropdown-item">Docker Run to Compose</a>
@@ -283,6 +285,7 @@ const orgSchema = {
               <li><a href="/gitignore-generator"       class="footer-link" style="font-size:13px;">gitignore Generator</a></li>
               <li><a href="/timestamp-converter"       class="footer-link" style="font-size:13px;">Timestamp Converter</a></li>
               <li><a href="/docker-compose-converter"  class="footer-link" style="font-size:13px;">Docker Compose</a></li>
+              <li><a href="/json-diff"                 class="footer-link" style="font-size:13px;">JSON Diff &amp; Schema</a></li>
             </ul>
           </div>
 
@@ -408,7 +411,9 @@ const orgSchema = {
       { name:'Docker Compose Converter', desc:'Convert docker run commands to docker-compose.yml and back', url:'/docker-compose-converter', cat:'Containers',
         icon:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>' },
       { name:'Unix Timestamp Converter', desc:'Convert epoch timestamps to human dates and back, with batch conversion', url:'/timestamp-converter', cat:'Time',
-        icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' }
+        icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+      { name:'JSON Diff & Schema Validator', desc:'Compare JSON files semantically and validate against JSON Schema draft-07', url:'/json-diff', cat:'Dev',
+        icon:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>' }
     ];
 
     var cmdOverlay = document.getElementById('cmd-overlay');

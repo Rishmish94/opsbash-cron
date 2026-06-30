@@ -107,8 +107,8 @@ const webAppSchema = {
 ---
 
 <Layout
-  title="Cron Expression Generator | OpsBash"
-  description="Generate and validate cron expressions visually. Supports Linux, AWS CloudWatch, GitHub Actions and Kubernetes. Instantly see next run times in your timezone."
+  title="Cron Expression Generator & systemd Timer Converter | OpsBash"
+  description="Generate and validate cron expressions visually. Supports Linux, AWS CloudWatch, GitHub Actions and Kubernetes. Also converts cron to systemd OnCalendar syntax with ready-to-use .timer unit files."
   canonicalURL="https://opsbash.com/cron-builder"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
@@ -117,6 +117,20 @@ const webAppSchema = {
 
 <!-- ── PAGE CONTENT ───────────────────────────────────────────────────────────── -->
 <div style="background: var(--bg);">
+
+<!-- PAGE-LEVEL TAB NAV -->
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex gap-0 pt-6 pb-0" style="border-bottom: 1px solid var(--border);">
+    <button id="page-tab-cron" class="page-tab page-tab-active" data-page-tab="cron-builder">
+      Cron Builder
+    </button>
+    <button id="page-tab-systemd" class="page-tab" data-page-tab="systemd">
+      Convert to systemd Timer
+    </button>
+  </div>
+</div>
+
+<div id="tab-cron-builder">
 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
 
   <!-- HERO -->
@@ -918,9 +932,268 @@ const webAppSchema = {
   </div>
 </section>
 
+</div><!-- /tab-cron-builder -->
+
+<!-- ── SYSTEMD TIMER TAB ──────────────────────────────────────────────────────── -->
+<div id="tab-systemd" class="hidden">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+
+  <!-- HERO -->
+  <section class="pt-2 pb-5">
+    <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Cron → systemd Timer Converter
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style="color: #F8FAFC;">
+      Convert Cron to systemd Timer
+    </h1>
+    <p class="text-base max-w-xl" style="color: var(--fg2);">
+      Enter a standard 5-field cron expression and get a ready-to-use systemd <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:rgba(248,250,252,0.06);padding:2px 6px;border-radius:4px;">.timer</code> unit file with the correct <code style="font-family:'JetBrains Mono',monospace;font-size:13px;background:rgba(248,250,252,0.06);padding:2px 6px;border-radius:4px;">OnCalendar</code> syntax.
+    </p>
+  </section>
+
+  <!-- INPUT CARD -->
+  <div class="rounded-[14px] mb-6 overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+    <div class="px-5 py-4" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+      <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Cron Expression</h2>
+    </div>
+    <div class="p-5">
+      <div class="flex gap-2">
+        <input id="systemdCronInput" type="text" spellcheck="false"
+          class="flex-1 min-w-0 rounded-xl px-4 py-2.5 transition-all focus:outline-none"
+          style="font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:0.08em;color:#F8FAFC;background:var(--bg);border:1px solid #64748B;box-shadow:0 0 0 3px rgba(100,116,139,0.15);"
+          placeholder="*/5 * * * *"
+          value="*/5 * * * *" />
+        <button id="systemdConvertBtn"
+          class="shrink-0 h-10 px-5 text-white text-sm font-bold rounded-xl transition-all whitespace-nowrap"
+          style="background:#334155;">
+          Convert
+        </button>
+      </div>
+      <p id="systemdError" class="mt-2 text-xs text-red-500 hidden"></p>
+    </div>
+  </div>
+
+  <!-- OUTPUT AREA -->
+  <div id="systemdOutput" class="space-y-4">
+
+    <!-- Card 1: Raw OnCalendar -->
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 py-3 flex items-center justify-between" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">OnCalendar Value</h2>
+        <button id="copyOnCalendar" class="text-xs px-2.5 py-1 rounded-lg transition-colors" style="background:rgba(248,250,252,0.06);color:var(--fg2);">Copy</button>
+      </div>
+      <div class="p-5">
+        <code id="onCalendarValue" style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#F8FAFC;display:block;"></code>
+      </div>
+    </div>
+
+    <!-- Card 2: .timer unit file -->
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 py-3 flex items-center justify-between" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">.timer Unit File</h2>
+        <button id="copyTimerFile" class="text-xs px-2.5 py-1 rounded-lg transition-colors" style="background:rgba(248,250,252,0.06);color:var(--fg2);">Copy</button>
+      </div>
+      <div class="px-5 pt-4 pb-3">
+        <label class="text-xs font-medium block mb-1.5" style="color:var(--fg2);">Service name</label>
+        <input id="serviceNameInput" type="text" value="my-task"
+          class="rounded-lg px-3 py-2 text-sm focus:outline-none transition-all"
+          style="font-family:'JetBrains Mono',monospace;background:var(--bg);border:1px solid var(--border);color:#F8FAFC;width:220px;" />
+      </div>
+      <div class="px-5 pb-5">
+        <pre id="timerFileContent" class="rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre text-xs" style="background:#0A0A0A;color:#F8FAFC;font-family:'JetBrains Mono',monospace;"></pre>
+      </div>
+    </div>
+
+    <!-- Card 3: .service unit stub -->
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 py-3 flex items-center justify-between" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">.service Unit Stub</h2>
+        <button id="copyServiceFile" class="text-xs px-2.5 py-1 rounded-lg transition-colors" style="background:rgba(248,250,252,0.06);color:var(--fg2);">Copy</button>
+      </div>
+      <div class="p-5">
+        <pre id="serviceFileContent" class="rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre text-xs" style="background:#0A0A0A;color:#F8FAFC;font-family:'JetBrains Mono',monospace;"></pre>
+      </div>
+    </div>
+
+    <!-- Card 4: Next 5 fire times -->
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 py-3" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Next 5 Fire Times</h2>
+      </div>
+      <div class="px-5 py-3">
+        <ol id="systemdNextRuns" class="divide-y" style="border-color:var(--border);"></ol>
+      </div>
+    </div>
+
+  </div><!-- /systemdOutput -->
+
+  <!-- SEO CONTENT: Cron vs systemd Timers -->
+  <div class="mt-10 mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Cron vs systemd Timers</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">For decades, cron was the only game in town for scheduling recurring tasks on Linux. Every sysadmin knew <code class="ic">crontab -e</code> and the five-field expression format. But since systemd became the default init system on Debian, Ubuntu, Fedora, Arch, and nearly every major Linux distribution, a more capable alternative has been sitting right there in your init system: <strong style="color:var(--fg);">systemd timers</strong>.</p>
+        <p class="seo-p">A systemd timer is a pair of unit files: a <code class="ic">.timer</code> file that defines the schedule and a <code class="ic">.service</code> file that defines what to run. Unlike cron, timers integrate fully with journald for logging (<code class="ic">journalctl -u my-task.service</code>), support dependency ordering through standard systemd directives, and can be inspected with <code class="ic">systemctl status</code>. They also support the <code class="ic">Persistent=true</code> directive, which catches up missed runs after a system was powered off — something cron cannot do at all.</p>
+        <p class="seo-p">The key syntax difference is in how schedules are expressed. Cron uses five space-separated fields (minute, hour, day-of-month, month, day-of-week). systemd uses <strong style="color:var(--fg);">OnCalendar</strong> strings in the format <code class="ic">DayOfWeek Year-Month-Day Hour:Minute:Second</code>, with <code class="ic">*</code> for any value and <code class="ic">/N</code> for step intervals. The shorthand <code class="ic">--</code> represents any year, month, and day. You can verify any OnCalendar expression with <code class="ic">systemd-analyze calendar 'Mon *-*-* 09:00:00'</code> which shows the next matching time without needing to deploy anything.</p>
+        <p class="seo-p">Once you have your two unit files, enabling a timer is three commands:</p>
+        <pre class="rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre text-xs mb-4" style="background:#0A0A0A;color:#F8FAFC;font-family:'JetBrains Mono',monospace;"># Copy unit files to the systemd user or system directory
+sudo cp my-task.timer my-task.service /etc/systemd/system/
+
+# Reload systemd to pick up the new units
+sudo systemctl daemon-reload
+
+# Enable and start the timer (it will start at the next scheduled time)
+sudo systemctl enable --now my-task.timer
+
+# Verify it is active and check the next trigger time
+systemctl status my-task.timer</pre>
+        <p class="seo-p">To verify a schedule before deploying, use <code class="ic">systemd-analyze calendar</code> — it parses any OnCalendar string and prints the next matching timestamp:</p>
+        <pre class="rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre text-xs mb-4" style="background:#0A0A0A;color:#F8FAFC;font-family:'JetBrains Mono',monospace;">$ systemd-analyze calendar 'Mon *-*-* 09:00:00'
+  Original form: Mon *-*-* 09:00:00
+Normalized form: Mon *-*-* 09:00:00
+    Next elapse: Mon 2025-07-07 09:00:00 UTC
+       (in UTC): Mon 2025-07-07 09:00:00 UTC
+       From now: 6 days left</pre>
+
+        <h3 class="text-sm font-semibold mb-3 mt-5" style="color:var(--fg);">Cron vs systemd OnCalendar — Side-by-Side</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse seo-table">
+            <thead>
+              <tr style="background:rgba(248,250,252,0.06);text-align:left;">
+                <th class="seo-th">Description</th>
+                <th class="seo-th">Cron expression</th>
+                <th class="seo-th">systemd OnCalendar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="seo-td" style="color:var(--fg2);">Every 5 minutes</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">*/5 * * * *</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">*:0/5:00</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color:var(--fg2);">Daily at 2 AM</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">0 2 * * *</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">-- 02:00:00</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color:var(--fg2);">Every Monday at 9 AM</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">0 9 * * 1</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">Mon -- 09:00:00</td>
+              </tr>
+              <tr>
+                <td class="seo-td" style="color:var(--fg2);">1st of every month</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">0 0 1 * *</td>
+                <td class="seo-td" style="font-family:'JetBrains Mono',monospace;color:#F8FAFC;">*-*-01 00:00:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ: systemd -->
+  <div class="mb-0">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer">Cron is a standalone daemon managing scheduled jobs via the crontab format. systemd timers are native scheduling units in the systemd init system, with better logging (journald), dependency management, and the ability to catch missed runs via <code class="ic">Persistent=true</code>.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color:var(--fg);">What is the difference between cron and systemd timers?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          <p>Cron is an older, standalone daemon that reads <code class="ic">crontab</code> files and runs commands at scheduled times. It is simple, portable, and universally available. Its main weaknesses are poor logging (typically just emails to the local user), no dependency management, and no recovery when a job was missed during downtime.</p>
+          <p class="mt-2">systemd timers are unit files managed by systemd, the init system on most modern Linux distros. They use <code class="ic">OnCalendar</code> for wall-clock schedules, integrate with <code class="ic">journald</code> so you can <code class="ic">journalctl -u my-task.service</code> to see all output, support <code class="ic">Persistent=true</code> to catch up missed executions, and can have dependencies on network, mounts, or other services.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer">Create a <code class="ic">.timer</code> and <code class="ic">.service</code> file pair using this converter, place them in <code class="ic">/etc/systemd/system/</code>, run <code class="ic">sudo systemctl daemon-reload</code>, then <code class="ic">sudo systemctl enable --now my-task.timer</code>. Remove the old crontab entry once verified.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color:var(--fg);">How do I migrate from crontab to systemd timers?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed space-y-2" style="color:var(--fg2);">
+          <p>Migration is straightforward:</p>
+          <ol class="list-decimal list-inside space-y-1 ml-2">
+            <li>Use this converter to turn your cron expression into a <code class="ic">.timer</code> file with the correct <code class="ic">OnCalendar</code> value.</li>
+            <li>Create the companion <code class="ic">.service</code> file pointing to your script.</li>
+            <li>Copy both to <code class="ic">/etc/systemd/system/</code> (system-wide) or <code class="ic">~/.config/systemd/user/</code> (user-level).</li>
+            <li>Run <code class="ic">sudo systemctl daemon-reload</code> to register the units.</li>
+            <li>Enable and start with <code class="ic">sudo systemctl enable --now my-task.timer</code>.</li>
+            <li>Verify with <code class="ic">systemctl status my-task.timer</code> and check logs with <code class="ic">journalctl -u my-task.service</code>.</li>
+            <li>Once satisfied, remove the old crontab entry with <code class="ic">crontab -e</code>.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer"><code class="ic">Persistent=true</code> tells systemd to run the timer immediately after boot if the last scheduled trigger was missed while the system was off or sleeping — useful for tasks like backups that must not be silently skipped.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color:var(--fg);">What does Persistent=true do in a timer file?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          <p>When <code class="ic">Persistent=true</code> is set in a <code class="ic">[Timer]</code> section, systemd records the last time the service was triggered. If the system was offline during the scheduled time, systemd will fire the timer as soon as possible after the next boot — effectively making it a "catch-up" mechanism.</p>
+          <p class="mt-2">For example, a nightly backup timer set to <code class="ic">OnCalendar=*-*-* 02:00:00</code> with <code class="ic">Persistent=true</code> will run the backup immediately on reboot if the machine was off at 2 AM. Without this flag, the missed run is simply skipped. cron has no equivalent feature.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" style="border-bottom:none;">
+        <p class="direct-answer">Run <code class="ic">systemd-analyze calendar 'YOUR_ONCALENDAR_VALUE'</code>. It parses the expression and prints the next elapse time without needing to deploy or enable anything — the safest way to verify a schedule before going live.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color:var(--fg);">How do I test a systemd timer is using the correct schedule?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
+          <p>There are two approaches: before and after deployment.</p>
+          <p class="mt-2"><strong style="color:var(--fg);">Before deploying</strong> — use <code class="ic">systemd-analyze calendar</code> to verify the OnCalendar string parses correctly and shows the right next trigger:</p>
+          <pre class="rounded-lg p-3 mt-2 text-xs overflow-x-auto" style="background:#0A0A0A;font-family:'JetBrains Mono',monospace;">systemd-analyze calendar 'Mon *-*-* 09:00:00'</pre>
+          <p class="mt-2"><strong style="color:var(--fg);">After deploying</strong> — once the timer is enabled, <code class="ic">systemctl status my-task.timer</code> shows the last trigger time and the next scheduled run. You can also list all active timers with <code class="ic">systemctl list-timers</code> to see the countdown to each timer's next execution.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /container -->
+</div><!-- /tab-systemd -->
+
 </div><!-- /page content -->
 
 <style>
+  /* ── Page-level tabs ───────────────────────────────────────────────────────── */
+  .page-tab {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg2);
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s;
+    margin-bottom: -1px;
+  }
+  .page-tab:hover { color: var(--fg); }
+  .page-tab-active {
+    color: #F8FAFC !important;
+    border-bottom: 2px solid #F8FAFC !important;
+  }
+
   /* ── Scrollbar hide for platform tabs ──────────────────────────────────────── */
   .tabs-scroll { -ms-overflow-style: none; scrollbar-width: none; }
   .tabs-scroll::-webkit-scrollbar { display: none; }
@@ -1669,6 +1942,203 @@ document.querySelectorAll('.faq-trigger').forEach(btn => {
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 updateUI('* * * * *');
+
+// ─── PAGE-LEVEL TAB SWITCHING ────────────────────────────────────────────────
+
+const pageTabCron    = document.getElementById('page-tab-cron');
+const pageTabSystemd = document.getElementById('page-tab-systemd');
+const tabCronBuilder = document.getElementById('tab-cron-builder');
+const tabSystemd     = document.getElementById('tab-systemd');
+
+function switchPageTab(tab) {
+  if (tab === 'cron-builder') {
+    pageTabCron.classList.add('page-tab-active');
+    pageTabSystemd.classList.remove('page-tab-active');
+    tabCronBuilder.classList.remove('hidden');
+    tabSystemd.classList.add('hidden');
+  } else {
+    pageTabSystemd.classList.add('page-tab-active');
+    pageTabCron.classList.remove('page-tab-active');
+    tabSystemd.classList.remove('hidden');
+    tabCronBuilder.classList.add('hidden');
+    // Pre-fill systemd input with current cron expression
+    const sysInput = document.getElementById('systemdCronInput');
+    if (sysInput && currentExpr) sysInput.value = currentExpr;
+    runSystemdConversion();
+  }
+}
+
+pageTabCron.addEventListener('click',    () => switchPageTab('cron-builder'));
+pageTabSystemd.addEventListener('click', () => switchPageTab('systemd'));
+
+// ─── SYSTEMD CONVERSION ENGINE ───────────────────────────────────────────────
+
+const SYSTEMD_SPECIALS = {
+  '@yearly':    '*-01-01 00:00:00',
+  '@annually':  '*-01-01 00:00:00',
+  '@monthly':   '*-*-01 00:00:00',
+  '@weekly':    'Mon -- 00:00:00',
+  '@daily':     '-- 00:00:00',
+  '@midnight':  '-- 00:00:00',
+  '@hourly':    '*:00:00',
+};
+
+const SYSTEMD_DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function cronDowToSystemd(f) {
+  if (!f || f === '*' || f === '?') return null;
+  function mapNum(n) { return SYSTEMD_DOW[parseInt(n) % 7]; }
+  if (f.match(/^\d+-\d+$/)) {
+    const [a, b] = f.split('-').map(Number);
+    const days = [];
+    for (let i = a; i <= b; i++) days.push(SYSTEMD_DOW[i % 7]);
+    return days.join(',');
+  }
+  if (f.includes(',')) return f.split(',').map(mapNum).join(',');
+  return mapNum(f);
+}
+
+function cronToOnCalendar(expr) {
+  const key = expr.trim().toLowerCase();
+  if (SYSTEMD_SPECIALS[key]) return SYSTEMD_SPECIALS[key];
+
+  if (!isValidCron(expr)) return null;
+
+  const parts = expr.trim().split(/\s+/);
+  const [minF, hrF, domF, monF, dowF] = parts;
+
+  // Pure minute-step shorthand: */N * * * * -> :0/N
+  if (minF.startsWith('*/') && hrF === '*' && domF === '*' && monF === '*' && (!dowF || dowF === '*')) {
+    return `:0/${minF.slice(2)}`;
+  }
+
+  const dowStr = cronDowToSystemd(dowF);
+
+  // Date part
+  const allDateWild = domF === '*' && monF === '*';
+  let datePart;
+  if (allDateWild) {
+    datePart = '--';
+  } else {
+    const mP = monF === '*' ? '*' : monF;
+    const dP = domF === '*' ? '*' : domF;
+    datePart = `*-${mP}-${dP}`;
+  }
+
+  // Time part
+  function toHr(f) {
+    if (f === '*') return '*';
+    if (f.startsWith('*/')) return `0/${f.slice(2)}`;
+    return String(parseInt(f)).padStart(2, '0');
+  }
+  function toMin(f) {
+    if (f === '*') return '*';
+    if (f.startsWith('*/')) return `0/${f.slice(2)}`;
+    return String(parseInt(f)).padStart(2, '0');
+  }
+
+  const timePart = `${toHr(hrF)}:${toMin(minF)}:00`;
+
+  let result = '';
+  if (dowStr) result += dowStr + ' ';
+  result += datePart + ' ' + timePart;
+  return result;
+}
+
+function buildTimerFile(onCalendar, serviceName) {
+  return `[Unit]
+Description=Timer for ${serviceName}
+
+[Timer]
+OnCalendar=${onCalendar}
+Persistent=true
+
+[Install]
+WantedBy=timers.target`;
+}
+
+function buildServiceFile(serviceName) {
+  return `[Unit]
+Description=${serviceName}
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/your/script.sh`;
+}
+
+function runSystemdConversion() {
+  const input   = document.getElementById('systemdCronInput');
+  const errEl   = document.getElementById('systemdError');
+  const svcNameInput = document.getElementById('serviceNameInput');
+  const expr    = (input?.value || '').trim();
+  const svcName = (svcNameInput?.value || 'my-task').trim() || 'my-task';
+
+  const onCalendar = cronToOnCalendar(expr);
+
+  if (!onCalendar) {
+    errEl.textContent = 'Invalid cron expression — check field values and ranges.';
+    errEl.classList.remove('hidden');
+    document.getElementById('systemdOutput').style.opacity = '0.3';
+    document.getElementById('systemdOutput').style.pointerEvents = 'none';
+    return;
+  }
+
+  errEl.classList.add('hidden');
+  document.getElementById('systemdOutput').style.opacity = '1';
+  document.getElementById('systemdOutput').style.pointerEvents = '';
+
+  document.getElementById('onCalendarValue').textContent  = onCalendar;
+  document.getElementById('timerFileContent').textContent  = buildTimerFile(onCalendar, svcName);
+  document.getElementById('serviceFileContent').textContent = buildServiceFile(svcName);
+
+  // Next 5 fire times — reuse getNextRuns if it's a valid 5-field cron
+  const key = expr.toLowerCase();
+  const specialEquivs = {
+    '@yearly': '0 0 1 1 *', '@annually': '0 0 1 1 *',
+    '@monthly': '0 0 1 * *', '@weekly': '0 0 * * 0',
+    '@daily': '0 0 * * *', '@midnight': '0 0 * * *',
+    '@hourly': '0 * * * *',
+  };
+  const cronForRuns = specialEquivs[key] || expr;
+  const runs = isValidCron(cronForRuns) ? getNextRuns(cronForRuns, 5) : [];
+  const runsList = document.getElementById('systemdNextRuns');
+  if (runs.length > 0) {
+    const fmt = new Intl.DateTimeFormat(undefined, {
+      weekday: 'short', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true,
+    });
+    runsList.innerHTML = runs.map((d, i) => `
+      <li style="display:flex;align-items:center;gap:12px;padding:7px 0;font-size:12px;">
+        <span style="width:22px;height:22px;border-radius:50%;background:rgba(248,250,252,0.06);color:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;">${i + 1}</span>
+        <span style="font-family:'JetBrains Mono',monospace;color:var(--fg2);">${fmt.format(d)}</span>
+      </li>`).join('');
+  } else {
+    runsList.innerHTML = '<li class="text-xs italic py-2" style="color:var(--fg3);">Could not calculate fire times for this expression.</li>';
+  }
+}
+
+// Copy buttons
+function makeCopyBtn(btnId, getContent) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    navigator.clipboard.writeText(getContent()).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    });
+  });
+}
+
+makeCopyBtn('copyOnCalendar',  () => document.getElementById('onCalendarValue').textContent);
+makeCopyBtn('copyTimerFile',   () => document.getElementById('timerFileContent').textContent);
+makeCopyBtn('copyServiceFile', () => document.getElementById('serviceFileContent').textContent);
+
+document.getElementById('systemdCronInput')?.addEventListener('input', runSystemdConversion);
+document.getElementById('systemdConvertBtn')?.addEventListener('click', runSystemdConversion);
+document.getElementById('serviceNameInput')?.addEventListener('input', runSystemdConversion);
+
+// Boot: run initial conversion
+runSystemdConversion();
 </script>
 
 </Layout>

@@ -107,6 +107,19 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+      - name: Run JSON Diff tests
+        run: npm run test:json-diff
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
+
+      - name: Upload JSON Diff test report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-json-diff
+          path: playwright-report/
+          retention-days: 7
+
   # ─── Job 2: Build and deploy — only on push to master, only if tests pass ──
   deploy:
     runs-on: ubuntu-latest

@@ -1,0 +1,814 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is JSON diff and why do developers use it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON diff is a tool that shows exactly what changed between two JSON documents — which fields were added, removed, or modified. Developers use it to audit API response changes between releases, compare Terraform state files before and after an apply, review Kubernetes manifest drift, and inspect configuration changes in code review. A semantic diff is more useful than a plain text diff because it first normalises both inputs by sorting keys, so reordering properties in an object does not produce false change markers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is JSON Schema and how does it work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "JSON Schema is a vocabulary for describing the structure and constraints of JSON data. You write a schema document that defines what fields an object must contain, what types they must be, and what values are allowed. A validator then checks a JSON document against the schema and reports every rule violation. JSON Schema is commonly used to validate API request bodies, configuration files, and infrastructure definitions before they are applied."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my JSON data safe when using this tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. All processing happens entirely in your browser using JavaScript. Your JSON data, schemas, and diffs never leave your machine and are never sent to any server. The tool has no backend, no database, and no logging. You can verify this by opening your browser network inspector — no requests are made when you click Compare or Validate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What JSON Schema version does this tool support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This tool implements a subset of JSON Schema draft-07, which is the most widely used version. The supported keywords are: type, required, properties, minLength, maxLength, minimum, maximum, enum, pattern, additionalProperties, and items. Keywords from later drafts such as if/then/else and dependentRequired are not supported."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I compare two Terraform state files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Terraform state files are valid JSON, so you can paste them directly into the JSON Diff tool. Paste the old terraform.tfstate into the Original JSON panel and the new one into the Modified JSON panel, then click Compare. The semantic diff normalises both files by sorting all keys before comparing, which eliminates false differences caused by Terraform reordering resource attributes."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON Diff & Schema Validator",
+  "url": "https://opsbash.com/json-diff",
+  "description": "Compare two JSON documents semantically and validate JSON against JSON Schema draft-07. Runs entirely in your browser.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+};
+---
+
+<Layout
+  title="JSON Diff & Schema Validator | OpsBash"
+  description="Compare two JSON documents semantically — reordered keys don't count as changes. Validate JSON against a JSON Schema draft-07. Format and minify JSON. All client-side, free."
+  canonicalURL="https://opsbash.com/json-diff"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-8 pb-5">
+    <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+      Free JSON Diff &amp; Schema Validator
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style="color: #F8FAFC;">
+      JSON Diff &amp; Schema Validator
+    </h1>
+    <p class="text-base max-w-xl" style="color: var(--fg2);">
+      Semantic JSON diff, JSON Schema validation, and JSON formatter — all client-side. Your data never leaves the browser.
+    </p>
+  </section>
+
+  <!-- ── SECTION 1: JSON DIFF ──────────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">JSON Diff</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Original JSON</label>
+          <textarea id="diffOriginal" rows="12" spellcheck="false" autocomplete="off"
+            class="jd-textarea"
+            style="border-color: var(--border);"></textarea>
+          <p id="diffOrigError" class="hidden mt-1.5 text-xs jd-error-text"></p>
+        </div>
+        <div>
+          <label class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Modified JSON</label>
+          <textarea id="diffModified" rows="12" spellcheck="false" autocomplete="off"
+            class="jd-textarea"
+            style="border-color: var(--border);"></textarea>
+          <p id="diffModError" class="hidden mt-1.5 text-xs jd-error-text"></p>
+        </div>
+      </div>
+
+      <div class="flex justify-center mb-5">
+        <button id="diffCompareBtn" class="jd-primary-btn">
+          Compare
+        </button>
+      </div>
+
+      <div id="diffResult" class="hidden">
+        <p id="diffSummary" class="text-xs mb-3 font-mono" style="color: var(--fg2);"></p>
+        <div id="diffOutput" class="rounded-xl overflow-hidden overflow-x-auto"
+             style="background: var(--bg); border: 1px solid var(--border); line-height: 1.65; max-height: 480px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: JSON SCHEMA VALIDATOR ──────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">JSON Schema Validator</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">JSON Data</label>
+          <textarea id="schemaData" rows="12" spellcheck="false" autocomplete="off"
+            class="jd-textarea"
+            style="border-color: var(--border);"></textarea>
+        </div>
+        <div>
+          <label class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">JSON Schema</label>
+          <textarea id="schemaSchema" rows="12" spellcheck="false" autocomplete="off"
+            class="jd-textarea"
+            style="border-color: var(--border);"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-center mb-5">
+        <button id="schemaValidateBtn" class="jd-primary-btn">
+          Validate
+        </button>
+      </div>
+
+      <div id="schemaResult" class="hidden"></div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: JSON FORMATTER ─────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">JSON Formatter</h2>
+
+      <div style="position: relative;">
+        <textarea id="fmtInput" rows="10" spellcheck="false" autocomplete="off"
+          class="jd-textarea"
+          style="border-color: var(--border); padding-right: 120px;"
+          placeholder="Paste JSON here…"></textarea>
+        <div id="fmtBadge" class="hidden"
+             style="position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid; font-family: 'JetBrains Mono', monospace; pointer-events: none; white-space: nowrap;"></div>
+        <div id="fmtBigWarning" class="hidden"
+             style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(245,158,11,0.12); border: 1px solid #F59E0B; color: #F59E0B; pointer-events: none; white-space: nowrap;">
+          ⚠ Large file — processing may be slow
+        </div>
+      </div>
+      <p id="fmtError" class="hidden mt-1.5 text-xs jd-error-text"></p>
+
+      <div class="flex gap-2 mt-3">
+        <button id="fmtFormatBtn" class="jd-secondary-btn">Format</button>
+        <button id="fmtMinifyBtn" class="jd-secondary-btn">Minify</button>
+      </div>
+
+      <div id="fmtOutputWrap" class="hidden mt-4" style="position: relative;">
+        <label class="block text-[10px] font-semibold uppercase tracking-wider mb-2" style="color: var(--fg3);">Output</label>
+        <textarea id="fmtOutput" readonly rows="10" spellcheck="false"
+          class="jd-textarea"
+          style="border-color: var(--border); padding-right: 90px; color: var(--fg2); cursor: default;"></textarea>
+        <button id="fmtCopyBtn" class="jd-copy-btn"
+                style="position: absolute; bottom: 12px; right: 12px;">
+          Copy
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <div class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is JSON diff and why do developers use it?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          JSON diff is a tool that shows exactly what changed between two JSON documents — which fields were added, removed, or modified. Developers use it to audit API response changes between releases, compare Terraform state files before and after an apply, review Kubernetes manifest drift, and inspect configuration changes in code review. A semantic diff is more useful than a plain text diff because it first normalises both inputs by sorting keys, so reordering properties in an object — which carries no semantic meaning in JSON — does not produce false change markers.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is JSON Schema and how does it work?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          JSON Schema is a vocabulary for describing the structure and constraints of JSON data. You write a schema document that defines what fields an object must contain, what types they must be, and what values are allowed. A validator then checks a JSON document against the schema and reports every rule violation. JSON Schema is commonly used to validate API request bodies, configuration files, and infrastructure definitions before they are applied. It is published as an IETF draft standard and is supported natively by most modern languages and frameworks.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">Is my JSON data safe when using this tool?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Yes. All processing happens entirely in your browser using JavaScript. Your JSON data, schemas, and diffs never leave your machine and are never sent to any server. The tool has no backend, no database, and no logging of any kind. You can verify this by opening your browser's network inspector — no outbound requests are made when you click Compare, Validate, Format, or Minify.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What JSON Schema version does this tool support?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          This tool implements the core keywords from JSON Schema draft-07, which is the most widely adopted version and the foundation for later drafts. The supported keywords are: <code class="ic">type</code>, <code class="ic">required</code>, <code class="ic">properties</code>, <code class="ic">minLength</code>, <code class="ic">maxLength</code>, <code class="ic">minimum</code>, <code class="ic">maximum</code>, <code class="ic">enum</code>, <code class="ic">pattern</code>, <code class="ic">additionalProperties</code>, and <code class="ic">items</code> for arrays. Keywords added in later drafts such as <code class="ic">if/then/else</code>, <code class="ic">dependentRequired</code>, and <code class="ic">unevaluatedProperties</code> are not supported. For full draft-2020-12 compliance, use a library like ajv.
+        </div>
+      </div>
+
+      <div class="faq-item" style="border-bottom: none;">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">How do I compare two Terraform state files?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Terraform state files are valid JSON, so you can paste them directly into the JSON Diff tool. Paste the old <code class="ic">terraform.tfstate</code> into the Original JSON panel and the new one into the Modified JSON panel, then click Compare. The semantic diff normalises both files by sorting all keys recursively before comparing, which eliminates false differences caused by Terraform reordering resource attributes between runs. The summary row shows you at a glance how many fields were added, removed, or stayed the same.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-20">
+    <div class="grid sm:grid-cols-2 gap-6">
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is JSON Diff?</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          A JSON diff compares two documents and highlights exactly which fields were added, removed, or changed. Unlike a raw text diff that treats JSON as plain lines, a semantic diff first parses both inputs, sorts all object keys recursively, then re-serialises them before comparing line by line. This means that <code class="ic">&#123;"b":2,"a":1&#125;</code> and <code class="ic">&#123;"a":1,"b":2&#125;</code> produce no diff at all, since they represent identical data. Semantic diffing is the right approach for reviewing API changes, comparing Terraform state, and auditing configuration drift where key ordering is irrelevant but value changes matter.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">JSON Schema Validation</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          JSON Schema validation checks whether a JSON document conforms to a set of explicit rules. Where unit tests check runtime behaviour, schema validation checks data shape — whether a field exists, whether it has the right type, and whether its value falls within defined constraints. This catches problems like a missing required field in an API request body, a string value where a number is expected, or a configuration value outside the allowed set. Teams use schemas at CI boundaries, in API gateways, and in infrastructure pipelines to prevent malformed data from reaching production systems.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</div>
+
+</Layout>
+
+<style>
+  .jd-textarea {
+    width: 100%;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    color: #F8FAFC;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    resize: vertical;
+    outline: none;
+    display: block;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .jd-textarea:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.2);
+  }
+  .jd-textarea::placeholder {
+    color: var(--fg3);
+  }
+
+  .jd-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #F8FAFC;
+    padding: 10px 28px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  .jd-primary-btn:hover {
+    background: rgba(248,250,252,0.08);
+    box-shadow: 0 0 16px rgba(248,250,252,0.08);
+  }
+
+  .jd-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #334155;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .jd-secondary-btn:hover {
+    background: rgba(248,250,252,0.06);
+    border-color: #64748B;
+  }
+
+  .jd-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #334155;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .jd-copy-btn:hover {
+    background: rgba(248,250,252,0.06);
+    border-color: #64748B;
+  }
+
+  .jd-error-text {
+    font-family: 'JetBrains Mono', monospace;
+    color: #EF4444;
+  }
+
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-trigger { background: transparent; border: none; cursor: pointer; transition: background 0.12s; width: 100%; }
+  .faq-trigger:hover { background: rgba(248,250,252,0.04); }
+
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(248,250,252,0.06);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>
+
+<script>
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function sortKeysDeep(val) {
+    if (Array.isArray(val)) return val.map(sortKeysDeep);
+    if (val !== null && typeof val === 'object') {
+      return Object.fromEntries(
+        Object.keys(val).sort().map(function(k) { return [k, sortKeysDeep(val[k])]; })
+      );
+    }
+    return val;
+  }
+
+  function copyText(text, btn) {
+    var origText = btn.textContent;
+    function flash() {
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = origText; }, 1500);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(flash).catch(function() { fallback(); flash(); });
+    } else {
+      fallback(); flash();
+    }
+  }
+
+  // ── LCS-based line diff ────────────────────────────────────────────────────
+  function diffLines(aLines, bLines) {
+    var m = aLines.length, n = bLines.length;
+    var dp = [];
+    var i, j;
+    for (i = 0; i <= m; i++) {
+      dp[i] = [];
+      for (j = 0; j <= n; j++) dp[i][j] = 0;
+    }
+    for (i = 1; i <= m; i++) {
+      for (j = 1; j <= n; j++) {
+        if (aLines[i-1] === bLines[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+        else dp[i][j] = dp[i-1][j] > dp[i][j-1] ? dp[i-1][j] : dp[i][j-1];
+      }
+    }
+    var result = [];
+    i = m; j = n;
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0 && aLines[i-1] === bLines[j-1]) {
+        result.unshift({ type: 'same', line: aLines[i-1] });
+        i--; j--;
+      } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+        result.unshift({ type: 'add', line: bLines[j-1] });
+        j--;
+      } else {
+        result.unshift({ type: 'remove', line: aLines[i-1] });
+        i--;
+      }
+    }
+    return result;
+  }
+
+  // ── Section 1: JSON Diff ─────────────────────────────────────────────────
+  var diffOrigEl     = document.getElementById('diffOriginal');
+  var diffModEl      = document.getElementById('diffModified');
+  var diffOrigErrEl  = document.getElementById('diffOrigError');
+  var diffModErrEl   = document.getElementById('diffModError');
+  var diffCompareBtnEl = document.getElementById('diffCompareBtn');
+  var diffResultEl   = document.getElementById('diffResult');
+  var diffSummaryEl  = document.getElementById('diffSummary');
+  var diffOutputEl   = document.getElementById('diffOutput');
+
+  // Populate placeholder values
+  var DIFF_ORIG_PLACEHOLDER = JSON.stringify({
+    "name": "api-service",
+    "version": "1.2.0",
+    "replicas": 3,
+    "resources": { "cpu": "500m", "memory": "256Mi" }
+  }, null, 2);
+
+  var DIFF_MOD_PLACEHOLDER = JSON.stringify({
+    "env": "production",
+    "name": "api-service",
+    "replicas": 5,
+    "resources": { "cpu": "500m", "memory": "512Mi" },
+    "version": "1.3.0"
+  }, null, 2);
+
+  if (diffOrigEl) diffOrigEl.value = DIFF_ORIG_PLACEHOLDER;
+  if (diffModEl)  diffModEl.value  = DIFF_MOD_PLACEHOLDER;
+
+  diffCompareBtnEl.addEventListener('click', function() {
+    var origRaw = diffOrigEl.value.trim();
+    var modRaw  = diffModEl.value.trim();
+
+    diffOrigErrEl.classList.add('hidden');
+    diffModErrEl.classList.add('hidden');
+    diffResultEl.classList.add('hidden');
+
+    if (!origRaw && !modRaw) return;
+
+    var origParsed, modParsed, origErr = false, modErr = false;
+
+    if (!origRaw) {
+      origErr = true;
+      diffOrigErrEl.textContent = 'Input is empty.';
+      diffOrigErrEl.classList.remove('hidden');
+    } else {
+      try { origParsed = JSON.parse(origRaw); }
+      catch(e) {
+        origErr = true;
+        diffOrigErrEl.textContent = 'Parse error: ' + e.message;
+        diffOrigErrEl.classList.remove('hidden');
+      }
+    }
+
+    if (!modRaw) {
+      modErr = true;
+      diffModErrEl.textContent = 'Input is empty.';
+      diffModErrEl.classList.remove('hidden');
+    } else {
+      try { modParsed = JSON.parse(modRaw); }
+      catch(e) {
+        modErr = true;
+        diffModErrEl.textContent = 'Parse error: ' + e.message;
+        diffModErrEl.classList.remove('hidden');
+      }
+    }
+
+    if (origErr || modErr) return;
+
+    var origNorm = JSON.stringify(sortKeysDeep(origParsed), null, 2).split('\n');
+    var modNorm  = JSON.stringify(sortKeysDeep(modParsed),  null, 2).split('\n');
+
+    var diff = diffLines(origNorm, modNorm);
+
+    var additions = 0, deletions = 0, unchanged = 0;
+    diff.forEach(function(d) {
+      if (d.type === 'add') additions++;
+      else if (d.type === 'remove') deletions++;
+      else unchanged++;
+    });
+
+    diffSummaryEl.textContent =
+      additions + ' addition' + (additions !== 1 ? 's' : '') +
+      ' · ' + deletions + ' deletion' + (deletions !== 1 ? 's' : '') +
+      ' · ' + unchanged + ' unchanged';
+
+    var html = diff.map(function(d) {
+      var line = escHtml(d.line);
+      if (d.type === 'add') {
+        return '<div style="background:rgba(34,197,94,0.15);padding:2px 10px;white-space:pre;overflow-x:auto;">' +
+          '<span style="color:#4ADE80;font-family:\'JetBrains Mono\',monospace;font-size:12px;user-select:none;margin-right:8px;">+</span>' +
+          '<span style="color:#4ADE80;font-family:\'JetBrains Mono\',monospace;font-size:12px;">' + line + '</span></div>';
+      } else if (d.type === 'remove') {
+        return '<div style="background:rgba(239,68,68,0.15);padding:2px 10px;white-space:pre;overflow-x:auto;">' +
+          '<span style="color:#F87171;font-family:\'JetBrains Mono\',monospace;font-size:12px;user-select:none;margin-right:8px;">-</span>' +
+          '<span style="color:#F87171;font-family:\'JetBrains Mono\',monospace;font-size:12px;">' + line + '</span></div>';
+      } else {
+        return '<div style="padding:2px 10px;white-space:pre;overflow-x:auto;">' +
+          '<span style="color:var(--fg2);font-family:\'JetBrains Mono\',monospace;font-size:12px;user-select:none;margin-right:8px;"> </span>' +
+          '<span style="color:var(--fg2);font-family:\'JetBrains Mono\',monospace;font-size:12px;">' + line + '</span></div>';
+      }
+    }).join('');
+
+    diffOutputEl.innerHTML = html;
+    diffResultEl.classList.remove('hidden');
+  });
+
+  // ── Section 2: Schema Validator ──────────────────────────────────────────
+  function validateSchema(data, schema, path) {
+    path = path || '';
+    var errors = [];
+
+    if (schema.type !== undefined) {
+      var types = Array.isArray(schema.type) ? schema.type : [schema.type];
+      var dataType;
+      if (Array.isArray(data)) dataType = 'array';
+      else if (data === null) dataType = 'null';
+      else dataType = typeof data;
+
+      if (types.indexOf(dataType) === -1) {
+        errors.push((path || 'root') + ': expected type "' + types.join('" or "') + '" but got "' + dataType + '"');
+        return errors;
+      }
+    }
+
+    if (schema.enum !== undefined) {
+      var dataStr = JSON.stringify(data);
+      var matched = schema.enum.some(function(v) { return JSON.stringify(v) === dataStr; });
+      if (!matched) {
+        errors.push((path || 'root') + ': value must be one of [' + schema.enum.map(function(v) { return JSON.stringify(v); }).join(', ') + ']');
+      }
+    }
+
+    if (typeof data === 'string') {
+      if (schema.minLength !== undefined && data.length < schema.minLength) {
+        errors.push((path || 'root') + ': string length ' + data.length + ' is less than minLength ' + schema.minLength);
+      }
+      if (schema.maxLength !== undefined && data.length > schema.maxLength) {
+        errors.push((path || 'root') + ': string length ' + data.length + ' exceeds maxLength ' + schema.maxLength);
+      }
+      if (schema.pattern !== undefined) {
+        try {
+          if (!new RegExp(schema.pattern).test(data)) {
+            errors.push((path || 'root') + ': value does not match pattern /' + schema.pattern + '/');
+          }
+        } catch(e) {
+          errors.push((path || 'root') + ': invalid pattern /' + schema.pattern + '/');
+        }
+      }
+    }
+
+    if (typeof data === 'number') {
+      if (schema.minimum !== undefined && data < schema.minimum) {
+        errors.push((path || 'root') + ': value ' + data + ' is less than minimum ' + schema.minimum);
+      }
+      if (schema.maximum !== undefined && data > schema.maximum) {
+        errors.push((path || 'root') + ': value ' + data + ' exceeds maximum ' + schema.maximum);
+      }
+    }
+
+    if (data !== null && typeof data === 'object' && !Array.isArray(data)) {
+      if (Array.isArray(schema.required)) {
+        schema.required.forEach(function(key) {
+          if (!(key in data)) {
+            errors.push((path || 'root') + ': missing required property "' + key + '"');
+          }
+        });
+      }
+
+      if (schema.properties && typeof schema.properties === 'object') {
+        Object.keys(schema.properties).forEach(function(key) {
+          if (key in data) {
+            var subPath = path ? path + '.' + key : key;
+            var sub = validateSchema(data[key], schema.properties[key], subPath);
+            sub.forEach(function(e) { errors.push(e); });
+          }
+        });
+      }
+
+      if (schema.additionalProperties === false && schema.properties) {
+        var knownKeys = Object.keys(schema.properties);
+        Object.keys(data).forEach(function(key) {
+          if (knownKeys.indexOf(key) === -1) {
+            errors.push((path || 'root') + ': additional property "' + key + '" is not allowed');
+          }
+        });
+      } else if (schema.additionalProperties !== null && schema.additionalProperties !== undefined &&
+                 typeof schema.additionalProperties === 'object') {
+        var knownKeys2 = schema.properties ? Object.keys(schema.properties) : [];
+        Object.keys(data).forEach(function(key) {
+          if (knownKeys2.indexOf(key) === -1) {
+            var subPath2 = path ? path + '.' + key : key;
+            var sub2 = validateSchema(data[key], schema.additionalProperties, subPath2);
+            sub2.forEach(function(e) { errors.push(e); });
+          }
+        });
+      }
+    }
+
+    if (Array.isArray(data) && schema.items !== undefined) {
+      data.forEach(function(item, idx) {
+        var subPath3 = path ? path + '[' + idx + ']' : '[' + idx + ']';
+        var sub3 = validateSchema(item, schema.items, subPath3);
+        sub3.forEach(function(e) { errors.push(e); });
+      });
+    }
+
+    return errors;
+  }
+
+  var schemaDataEl     = document.getElementById('schemaData');
+  var schemaSchemaEl   = document.getElementById('schemaSchema');
+  var schemaValidateBtn = document.getElementById('schemaValidateBtn');
+  var schemaResultEl   = document.getElementById('schemaResult');
+
+  var SCHEMA_DATA_PLACEHOLDER = JSON.stringify({
+    "username": "jdoe",
+    "age": 30,
+    "email": "jdoe@example.com",
+    "role": "admin"
+  }, null, 2);
+
+  var SCHEMA_SCHEMA_PLACEHOLDER = JSON.stringify({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["username", "age", "email"],
+    "properties": {
+      "username": { "type": "string", "minLength": 3, "maxLength": 20 },
+      "age": { "type": "number", "minimum": 0, "maximum": 120 },
+      "email": { "type": "string", "pattern": "^[^@]+@[^@]+\\.[^@]+$" },
+      "role": { "type": "string", "enum": ["admin", "user", "guest"] }
+    },
+    "additionalProperties": false
+  }, null, 2);
+
+  if (schemaDataEl)   schemaDataEl.value   = SCHEMA_DATA_PLACEHOLDER;
+  if (schemaSchemaEl) schemaSchemaEl.value = SCHEMA_SCHEMA_PLACEHOLDER;
+
+  schemaValidateBtn.addEventListener('click', function() {
+    var dataRaw   = schemaDataEl.value.trim();
+    var schemaRaw = schemaSchemaEl.value.trim();
+
+    schemaResultEl.classList.add('hidden');
+    schemaResultEl.innerHTML = '';
+
+    if (!dataRaw && !schemaRaw) return;
+
+    var dataVal, schemaVal;
+
+    try { dataVal = JSON.parse(dataRaw || '{}'); }
+    catch(e) {
+      schemaResultEl.innerHTML = '<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 16px;"><p style="color:#EF4444;font-size:13px;font-family:\'JetBrains Mono\',monospace;margin:0;">JSON Data parse error: ' + escHtml(e.message) + '</p></div>';
+      schemaResultEl.classList.remove('hidden');
+      return;
+    }
+
+    try { schemaVal = JSON.parse(schemaRaw || '{}'); }
+    catch(e) {
+      schemaResultEl.innerHTML = '<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 16px;"><p style="color:#EF4444;font-size:13px;font-family:\'JetBrains Mono\',monospace;margin:0;">JSON Schema parse error: ' + escHtml(e.message) + '</p></div>';
+      schemaResultEl.classList.remove('hidden');
+      return;
+    }
+
+    var errors = validateSchema(dataVal, schemaVal, '');
+
+    if (errors.length === 0) {
+      schemaResultEl.innerHTML =
+        '<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:14px 16px;">' +
+        '<p style="color:#4ADE80;font-size:13px;font-weight:600;margin:0;">&#10003; Valid — your JSON matches the schema</p></div>';
+    } else {
+      var items = errors.map(function(e) {
+        return '<li style="padding:3px 0;font-size:12px;font-family:\'JetBrains Mono\',monospace;">' + escHtml(e) + '</li>';
+      }).join('');
+      schemaResultEl.innerHTML =
+        '<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 16px;">' +
+        '<p style="color:#F87171;font-size:13px;font-weight:600;margin:0 0 10px;">✗ Invalid — ' + errors.length + ' error' + (errors.length !== 1 ? 's' : '') + ' found</p>' +
+        '<ul style="list-style:disc;padding-left:18px;color:#F87171;margin:0;">' + items + '</ul></div>';
+    }
+
+    schemaResultEl.classList.remove('hidden');
+  });
+
+  // ── Section 3: JSON Formatter ─────────────────────────────────────────────
+  var fmtInputEl    = document.getElementById('fmtInput');
+  var fmtBadgeEl    = document.getElementById('fmtBadge');
+  var fmtErrorEl    = document.getElementById('fmtError');
+  var fmtBigWarn    = document.getElementById('fmtBigWarning');
+  var fmtFormatBtn  = document.getElementById('fmtFormatBtn');
+  var fmtMinifyBtn  = document.getElementById('fmtMinifyBtn');
+  var fmtOutputWrap = document.getElementById('fmtOutputWrap');
+  var fmtOutputEl   = document.getElementById('fmtOutput');
+  var fmtCopyBtnEl  = document.getElementById('fmtCopyBtn');
+
+  fmtInputEl.addEventListener('input', function() {
+    var raw = fmtInputEl.value;
+
+    if (raw.length > 100 * 1024) {
+      fmtBigWarn.classList.remove('hidden');
+    } else {
+      fmtBigWarn.classList.add('hidden');
+    }
+
+    if (!raw.trim()) {
+      fmtBadgeEl.classList.add('hidden');
+      fmtErrorEl.classList.add('hidden');
+      return;
+    }
+
+    try {
+      JSON.parse(raw);
+      fmtBadgeEl.textContent = 'Valid JSON';
+      fmtBadgeEl.style.background = 'rgba(34,197,94,0.15)';
+      fmtBadgeEl.style.color = '#4ADE80';
+      fmtBadgeEl.style.borderColor = 'rgba(34,197,94,0.4)';
+      fmtBadgeEl.classList.remove('hidden');
+      fmtErrorEl.classList.add('hidden');
+    } catch(e) {
+      fmtBadgeEl.textContent = 'Invalid JSON';
+      fmtBadgeEl.style.background = 'rgba(239,68,68,0.15)';
+      fmtBadgeEl.style.color = '#F87171';
+      fmtBadgeEl.style.borderColor = 'rgba(239,68,68,0.4)';
+      fmtBadgeEl.classList.remove('hidden');
+      fmtErrorEl.textContent = e.message;
+      fmtErrorEl.classList.remove('hidden');
+    }
+  });
+
+  function runFmt(pretty) {
+    var raw = fmtInputEl.value.trim();
+    if (!raw) return;
+    try {
+      var parsed = JSON.parse(raw);
+      fmtOutputEl.value = pretty ? JSON.stringify(parsed, null, 2) : JSON.stringify(parsed);
+      fmtOutputWrap.classList.remove('hidden');
+    } catch(e) {
+      // live badge already shows error
+    }
+  }
+
+  fmtFormatBtn.addEventListener('click', function() { runFmt(true); });
+  fmtMinifyBtn.addEventListener('click', function() { runFmt(false); });
+
+  fmtCopyBtnEl.addEventListener('click', function() {
+    var text = fmtOutputEl.value;
+    if (!text) return;
+    copyText(text, fmtCopyBtnEl);
+  });
+
+  // ── FAQ accordion ──────────────────────────────────────────────────────────
+  document.querySelectorAll('.faq-trigger').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = btn.closest('.faq-item');
+      var content = item.querySelector('.faq-content');
+      var chevron = btn.querySelector('.faq-chevron');
+      var open = !content.classList.contains('hidden');
+      content.classList.toggle('hidden', open);
+      chevron.style.transform = open ? '' : 'rotate(180deg)';
+    });
+  });
+</script>
