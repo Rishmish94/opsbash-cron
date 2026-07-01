@@ -78,6 +78,7 @@
     { name: 'timestamp-converter', desc: 'Convert Unix timestamps to human dates' },
     { name: 'json-diff', desc: 'Semantic diff and schema validation' },
     { name: 'k8s-secret-decoder', desc: 'Decode K8s secrets and encode .env files' },
+    { name: 'log-sanitiser', desc: 'Redact PII and secrets before sharing logs with AI' },
   ];
 
   async function runTerminal() {
@@ -105,7 +106,7 @@
       await sleep(300);
 
       const headerLine = document.createElement('div');
-      headerLine.textContent = 'Available tools (10):';
+      headerLine.textContent = 'Available tools (11):';
       headerLine.style.color = '#F8FAFC';
       headerLine.style.fontFamily = 'JetBrains Mono, monospace';
       headerLine.style.fontSize = '13px';

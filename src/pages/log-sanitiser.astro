@@ -1,0 +1,873 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is it safe to paste logs into ChatGPT or Claude?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only after removing sensitive values. Raw application logs frequently contain passwords, API keys, session tokens, database connection strings, internal hostnames, and customer PII. Once pasted into a third-party AI chat, that data may be retained, used for model training or abuse monitoring, or exposed through account compromise, depending on the provider's data retention settings and your plan. Sanitise every log with a tool like this one — which replaces sensitive values with descriptive placeholders while keeping the surrounding structure intact — before sharing it with any AI assistant."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is PII and why does it appear in logs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PII (Personally Identifiable Information) is any data that can identify a specific person — email addresses, phone numbers, IP addresses, names, and payment card numbers are all common examples. It ends up in logs because application code frequently logs full request and response payloads for debugging, error handlers dump entire exception contexts including request headers, and authentication middleware logs tokens or session data without realizing production traffic contains real user information. Most PII in logs is unintentional — a side effect of verbose logging rather than a deliberate design decision."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool store or transmit my log data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Every regex pattern runs entirely in your browser's JavaScript engine. Nothing you paste is sent to any server, logged, stored in a database, or transmitted over the network — there is no backend call involved in sanitisation at all. You can verify this yourself by opening your browser's network tab while using the tool: no requests fire when you type, paste, or click Sanitise. Closing or refreshing the tab clears everything from memory."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What should I do after sanitising logs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Skim the sanitised output before sharing it anywhere — automated regex detection catches the overwhelming majority of common secret formats but is not a 100% guarantee, especially for custom or unusually formatted credentials. Use the Custom Pattern rule to add any organisation-specific secret format (like an internal token prefix) so it gets redacted too. Once you're confident the output is clean, use the Copy or Download buttons to share it, or use the built-in AI Prompt Helper to paste it directly into a debugging prompt for ChatGPT or Claude."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I prevent sensitive data from appearing in logs in the first place?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add redaction at the logging layer itself rather than relying on cleanup after the fact — most structured logging libraries (Pino, Winston, Serilog, structlog) support field-level redaction so keys like password, authorization, and secret are automatically masked before a log line is ever written. Avoid logging full request/response bodies in production; log only the fields you actually need for debugging. Use a secrets manager instead of environment variables printed in startup logs, and add a pre-commit hook or CI scanner (like gitleaks or truffleHog) that blocks commits containing credential-shaped strings before they ever reach a log aggregator or a shared repository."
+      }
+    }
+  ]
+};
+
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to sanitise logs before sharing them with an AI tool",
+  "description": "Step by step guide to redacting PII and secrets from application logs before pasting them into ChatGPT, Claude, or a shared ticket",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Paste your raw log output",
+      "text": "Paste the full log block into the input panel on the left"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Review the live sanitised output",
+      "text": "The right panel updates in real time, replacing detected secrets and PII with [REDACTED-*] placeholders"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Adjust detection rules if needed",
+      "text": "Toggle individual categories on or off, or add a custom regex pattern for organisation-specific secret formats"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check the stats bar",
+      "text": "Confirm how many items were redacted per category before sharing the output anywhere"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Copy, download, or insert into an AI prompt",
+      "text": "Use the action buttons to copy the sanitised text, download it as a .txt file, or insert it directly into the built-in debugging prompt template"
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Log Sanitiser & PII Redactor",
+  "url": "https://opsbash.com/log-sanitiser",
+  "description": "Redact PII and sensitive data — passwords, API keys, AWS credentials, JWTs, credit cards, private keys — from logs before sharing with AI tools. Runs entirely client-side.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+};
+
+const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
+  host: prod-db.internal.company.com
+  user: admin
+  password: SuperSecret123!
+  connection_string: postgres://admin:SuperSecret123!@prod-db:5432/myapp
+2026-06-22 14:32:02 INFO Request received from 192.168.1.105
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIn0.abc123
+  user_email: john.doe@company.com
+  api_key: sk-live-abcdefghijklmnop1234567890
+  credit_card: 4532015112830366
+  aws_access_key: AKIAIOSFODNN7EXAMPLE
+  aws_secret: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+2026-06-22 14:32:03 DEBUG SSH private key loaded
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEowIBAAKCAQEA2a2rwplBQLF29amygykEMmYz0+Vy
+  -----END RSA PRIVATE KEY-----`;
+---
+
+<Layout
+  title="Log Sanitiser & PII Redactor — Redact Secrets Before Sharing with AI | OpsBash"
+  description="Redact passwords, API keys, AWS credentials, JWTs, credit card numbers, and private keys from logs before sharing them with ChatGPT, Claude, or a support ticket. Free, client-side, live redaction."
+  canonicalURL="https://opsbash.com/log-sanitiser"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+
+<!-- ── PAGE CONTENT ───────────────────────────────────────────────────────────── -->
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- HERO -->
+  <section class="pt-8 pb-5">
+    <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+        <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+        <line x1="1" y1="1" x2="23" y2="23"/>
+      </svg>
+      Free Log Sanitiser
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style="color: #F8FAFC;">
+      Log Sanitiser &amp; PII Redactor
+    </h1>
+    <p class="text-base max-w-xl" style="color: var(--fg2);">
+      Paste raw logs and instantly redact passwords, API keys, AWS credentials, JWTs, credit cards, and private keys — live, in your browser, before sharing with ChatGPT, Claude, or a support ticket.
+    </p>
+  </section>
+
+  <!-- SECURITY NOTICE (prominent, top of tool section) -->
+  <div class="rounded-[14px] p-4 flex items-center gap-3 mb-6" style="background: var(--card); border: 1px solid var(--border);">
+    <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    <p class="text-sm" style="color: var(--fg2);"><strong style="color: var(--fg);">Your logs never leave your browser.</strong> All processing happens locally in JavaScript. Nothing is sent to any server.</p>
+  </div>
+
+  <!-- SECTION 1: MAIN SANITISER PANEL -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+    <!-- INPUT -->
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 py-4" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Paste your logs here</h2>
+      </div>
+      <div class="p-5">
+        <textarea id="logInput" class="k8s-textarea" style="min-height:360px;" spellcheck="false" autocomplete="off"
+          placeholder={SAMPLE_LOG}></textarea>
+      </div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="rounded-[14px] overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="px-5 py-4" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Sanitised output</h2>
+      </div>
+      <div class="p-5">
+        <textarea id="logOutput" class="k8s-textarea" style="min-height:360px;" readonly spellcheck="false"
+          placeholder="Sanitised output will appear here as you type..."></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 3: STATISTICS BAR (between the textareas and the actions) -->
+  <div id="statsBar" class="rounded-[14px] p-4 mb-4 flex flex-wrap items-center gap-x-6 gap-y-2" style="background: var(--card); border: 1px solid var(--border);">
+    <span id="statsTotal" class="text-sm font-semibold" style="color: #F8FAFC;">0 items redacted</span>
+    <span id="statsBreakdown" class="text-xs font-mono" style="color: var(--fg2);">—</span>
+    <span id="statsSize" class="text-xs font-mono ml-auto" style="color: var(--fg3);">0.00 KB → 0.00 KB</span>
+  </div>
+
+  <!-- SECTION 4: ACTION BUTTONS -->
+  <div class="flex flex-wrap gap-3 mb-8">
+    <button id="copyOutputBtn" class="btn-primary">Copy sanitised output</button>
+    <button id="downloadBtn" class="btn-secondary">Download as .txt</button>
+    <button id="clearAllBtn" class="btn-secondary">Clear all</button>
+  </div>
+
+  <!-- SECTION 2: DETECTION RULES PANEL (collapsible, checkboxes default ON) -->
+  <div class="rounded-[14px] overflow-hidden mb-8" style="background: var(--card); border: 1px solid var(--border);">
+    <button id="rulesToggle" class="w-full flex items-center justify-between px-5 py-4 text-left" style="border-bottom: 1px solid var(--border); background: var(--bg); cursor: pointer;">
+      <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Detection Rules</h2>
+      <svg id="rulesChevron" class="w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="rulesBody" class="p-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="ip" checked />
+          <span>IP Addresses <em>IPv4 &amp; IPv6</em></span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="email" checked />
+          <span>Email Addresses</span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="jwt" checked />
+          <span>JWT Tokens</span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="apiKey" checked />
+          <span>API Keys <em>sk-/pk-/Bearer</em></span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="aws" checked />
+          <span>AWS Credentials</span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="password" checked />
+          <span>Passwords <em>password=/passwd=/pwd=/secret=</em></span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="db" checked />
+          <span>Database Connection Strings</span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="creditCard" checked />
+          <span>Credit Card Numbers <em>Luhn validated</em></span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="privateKey" checked />
+          <span>Private Keys <em>RSA/EC/PEM</em></span>
+        </label>
+        <label class="rule-checkbox">
+          <input type="checkbox" data-rule="phone" checked />
+          <span>Phone Numbers</span>
+        </label>
+      </div>
+
+      <div class="mt-5 pt-5" style="border-top: 1px solid var(--border);">
+        <label class="rule-checkbox mb-3">
+          <input type="checkbox" id="rule-custom" checked />
+          <span>Custom Pattern</span>
+        </label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="customPatternInput" type="text" class="k8s-input" spellcheck="false" autocomplete="off"
+            placeholder={String.raw`Regex pattern, e.g. \b\d{3}-\d{2}-\d{4}\b`} style="flex: 1;" />
+          <input id="customLabelInput" type="text" class="k8s-input" spellcheck="false" autocomplete="off"
+            placeholder="Label, e.g. SSN" style="max-width: 100%;width:100%;" />
+        </div>
+        <p id="customPatternError" class="mt-2 text-xs hidden" style="color: #ef4444;">Invalid regular expression — pattern is not being applied.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: AI PROMPT HELPER -->
+  <div class="rounded-[14px] overflow-hidden mb-8" style="background: var(--card); border: 1px solid var(--border);">
+    <div class="px-5 py-4" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+      <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Ready to paste into AI</h2>
+    </div>
+    <div class="p-5">
+      <textarea id="aiPromptArea" class="k8s-textarea" style="min-height:180px;" spellcheck="false"></textarea>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button id="insertPromptBtn" class="btn-primary">Insert sanitised log into prompt</button>
+        <button id="copyPromptBtn" class="btn-secondary">Copy prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Why sanitise before AI -->
+  <div class="mb-6" id="why-sanitise-before-ai">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Why Sanitising Logs Before Sharing With AI Is Critical</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Pasting a raw stack trace or log dump into ChatGPT or Claude has become one of the fastest ways to get unstuck while debugging — but application logs are also one of the richest sources of accidental secret exposure in a typical engineering org. A single error log can contain a database password, an internal hostname, a customer's email address, and a live API key all in the same twenty lines. Once that text leaves your terminal and lands inside a third-party chat interface, you no longer control where it goes: it may be retained for abuse monitoring, reviewed by a support agent, or in the worst case exposed through a account or infrastructure compromise on the vendor's side. None of this requires malicious intent from the AI provider — it is simply the nature of handing raw, unfiltered production data to any system outside your security perimeter.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: What sensitive data appears in logs -->
+  <div class="mb-6" id="sensitive-data-in-logs">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">What Sensitive Data Commonly Appears in Logs</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Verbose logging — the same practice that makes debugging easier — is exactly what leaks credentials. The most common categories are: authentication material (passwords, API keys, JWTs, session cookies, OAuth tokens); cloud provider credentials (AWS access keys and secret keys, service account JSON, connection strings for managed databases); customer PII (emails, phone numbers, IP addresses, physical addresses, and sometimes payment card numbers logged during checkout failures); and infrastructure details (internal hostnames, private key material from misconfigured SSH or TLS setups, and full database connection URLs with embedded credentials). Most of this ends up in logs unintentionally — a debug-level logger set too verbose, an exception handler that dumps the entire request object, or a middleware library that logs headers by default including <code class="ic">Authorization</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Real breach patterns -->
+  <div class="mb-6" id="breach-patterns">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">How Credential Leakage Actually Leads to Breaches</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Leaked credentials are not a theoretical risk — they are one of the most consistently reported root causes of real intrusions year after year in industry breach reports. AWS access keys committed to a public GitHub repository are typically discovered and exploited by automated scanning bots within minutes, not days; security researchers have repeatedly demonstrated this by publishing intentionally "leaked" honeytoken keys and watching unauthorized usage appear in CloudTrail almost immediately. Support tickets, Slack threads, and — increasingly — AI chat histories pasted with raw logs are a quieter but equally real version of the same problem: once a credential is visible in plaintext outside your access-controlled systems, you have to treat it as compromised and rotate it, whether or not you can prove it was actually misused. The safest assumption is that any secret pasted somewhere you don't fully control should be rotated the moment you realize it was exposed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: CI/CD best practices -->
+  <div class="mb-6" id="cicd-best-practices">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Best Practices for Log Sanitisation in CI/CD Pipelines</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Sanitisation should happen as close to the source as possible, not as a manual cleanup step before pasting into a chat window. Configure structured logging libraries (Pino, Winston, Serilog, structlog) with field-level redaction so keys like <code class="ic">password</code>, <code class="ic">authorization</code>, and <code class="ic">secret</code> are masked automatically before a log line is ever written or shipped to your aggregator. Run a secret-scanning tool such as <strong style="color: var(--fg);">gitleaks</strong> or <strong style="color: var(--fg);">truffleHog</strong> as a CI gate on every commit and on CI job output itself, since build logs frequently print environment variables during debugging. Configure your CI provider to automatically mask any value stored as a secret variable so it never appears in plaintext in job logs, and treat any CI log artifact retained for troubleshooting the same way you'd treat a database backup — access-controlled and time-limited.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Secure debugging workflow -->
+  <div class="mb-6" id="secure-debugging-workflow">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Using This Tool as Part of a Secure Debugging Workflow</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Make sanitising the default step, not an afterthought, whenever a log needs to leave your terminal: paste it into this tool first, glance at the stats bar to confirm the categories you expect were actually redacted, and only then copy, download, or hand it to an AI assistant. Add a custom pattern for anything specific to your stack — an internal token prefix, a customer ID format, an employee badge number — so the default categories don't miss what matters most to your organisation. Because everything runs client-side with no network calls, this fits naturally into a workflow where you can't or shouldn't send raw data anywhere: air-gapped environments, regulated industries, or simply a habit of never trusting a paste box with production data until it's been through a filter first.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ (full width) -->
+  <div class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer">Only after removing sensitive values. Raw logs often contain passwords, API keys, tokens and PII that a third-party AI provider may retain. Sanitise first, then share.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">Is it safe to paste logs into ChatGPT or Claude?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Only after removing sensitive values. Raw application logs frequently contain passwords, API keys, session tokens, database connection strings, internal hostnames, and customer PII. Once pasted into a third-party AI chat, that data may be retained, used for model training or abuse monitoring, or exposed through account compromise, depending on the provider's data retention settings and your plan. Sanitise every log with a tool like this one — which replaces sensitive values with descriptive placeholders while keeping the surrounding structure intact — before sharing it with any AI assistant.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer">PII is any data that identifies a person — emails, phone numbers, IPs, names. It ends up in logs mostly by accident, from verbose debug logging and exception handlers dumping full request contexts.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is PII and why does it appear in logs?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          <strong style="color: var(--fg);">PII</strong> (Personally Identifiable Information) is any data that can identify a specific person — email addresses, phone numbers, IP addresses, names, and payment card numbers are all common examples. It ends up in logs because application code frequently logs full request and response payloads for debugging, error handlers dump entire exception contexts including request headers, and authentication middleware logs tokens or session data without realizing production traffic contains real user information. Most PII in logs is unintentional — a side effect of verbose logging rather than a deliberate design decision.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer">No. All regex detection runs in your browser's JavaScript engine. Nothing you paste is sent to a server — you can verify this yourself in your browser's network tab.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">Does this tool store or transmit my log data?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          No. Every regex pattern runs entirely in your browser's JavaScript engine. Nothing you paste is sent to any server, logged, stored in a database, or transmitted over the network — there is no backend call involved in sanitisation at all. You can verify this yourself by opening your browser's network tab while using the tool: no requests fire when you type, paste, or click any button. Closing or refreshing the tab clears everything from memory.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <p class="direct-answer">Check the stats bar to confirm expected categories were caught, add a custom pattern for anything organisation-specific, then copy, download, or insert it into the AI Prompt Helper.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What should I do after sanitising logs?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Skim the sanitised output before sharing it anywhere — automated regex detection catches the overwhelming majority of common secret formats but is not a 100% guarantee, especially for custom or unusually formatted credentials. Use the <strong style="color: var(--fg);">Custom Pattern</strong> rule to add any organisation-specific secret format (like an internal token prefix) so it gets redacted too. Once you're confident the output is clean, use the Copy or Download buttons to share it, or use the built-in <strong style="color: var(--fg);">AI Prompt Helper</strong> to paste it directly into a debugging prompt for ChatGPT or Claude.
+        </div>
+      </div>
+
+      <div class="faq-item" style="border-bottom: none;">
+        <p class="direct-answer">Add redaction at the logging layer itself — field-level redaction in your logging library, avoid logging full request bodies, use a secrets manager, and run a CI secret scanner like gitleaks.</p>
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">How do I prevent sensitive data from appearing in logs in the first place?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Add redaction at the logging layer itself rather than relying on cleanup after the fact — most structured logging libraries (Pino, Winston, Serilog, structlog) support field-level redaction so keys like <code class="ic">password</code>, <code class="ic">authorization</code>, and <code class="ic">secret</code> are automatically masked before a log line is ever written. Avoid logging full request/response bodies in production; log only the fields you actually need for debugging. Use a secrets manager instead of environment variables printed in startup logs, and add a pre-commit hook or CI scanner (like <code class="ic">gitleaks</code> or <code class="ic">truffleHog</code>) that blocks commits containing credential-shaped strings before they ever reach a log aggregator or a shared repository.
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /faq -->
+
+  <!-- FURTHER READING -->
+  <section class="pb-12">
+    <div class="further-reading reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h3 class="text-base font-semibold mb-2" style="color: var(--fg);">Further reading</h3>
+      <p class="text-sm" style="margin: 0; color: var(--fg2);"><a href="/blog/sanitise-logs-before-chatgpt" style="color: var(--accent); text-decoration: underline;">Why You Should Never Paste Raw Logs Into ChatGPT or Claude</a></p>
+    </div>
+  </section>
+
+</div><!-- /container -->
+</div><!-- /page content -->
+
+<style>
+  /* ── Textareas / inputs ─────────────────────────────────────────────────────── */
+  .k8s-textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    tab-size: 2;
+  }
+  .k8s-textarea:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.15);
+  }
+  .k8s-textarea::placeholder { color: var(--fg3); opacity: 0.8; }
+
+  .k8s-input {
+    width: 100%;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .k8s-input:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.2);
+  }
+  .k8s-input.input-invalid {
+    border-color: #ef4444 !important;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────────────────── */
+  .btn-primary {
+    background: #334155;
+    color: #F8FAFC;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { background: #475569; }
+
+  .btn-secondary {
+    background: rgba(248,250,252,0.06);
+    color: var(--fg2);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover { background: rgba(248,250,252,0.12); color: #F8FAFC; }
+
+  /* ── Rule checkboxes ────────────────────────────────────────────────────────── */
+  .rule-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--fg2);
+    cursor: pointer;
+    accent-color: #F8FAFC;
+    user-select: none;
+  }
+  .rule-checkbox input { margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+  .rule-checkbox em {
+    display: block;
+    font-style: normal;
+    font-size: 11px;
+    color: var(--fg3);
+    margin-top: 1px;
+  }
+
+  /* ── Inline code ────────────────────────────────────────────────────────────── */
+  .ic {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: #F8FAFC;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── FAQ ────────────────────────────────────────────────────────────────────── */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+  .faq-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .faq-trigger:hover {
+    background: rgba(248,250,252,0.04);
+  }
+  .direct-answer {
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg2);
+    background: rgba(248,250,252,0.05);
+    border-left: 3px solid #334155;
+  }
+
+  /* ── SEO paragraphs ─────────────────────────────────────────────────────────── */
+  .seo-p {
+    font-size: 14px;
+    color: var(--fg2);
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+</style>
+
+<script>
+// ─── PLACEHOLDERS ────────────────────────────────────────────────────────────
+
+const PLACEHOLDER = {
+  ip: '[REDACTED-IP]',
+  email: '[REDACTED-EMAIL]',
+  jwt: '[REDACTED-JWT]',
+  apiKey: '[REDACTED-API-KEY]',
+  awsAccessKey: '[REDACTED-AWS-ACCESS-KEY]',
+  awsSecret: '[REDACTED-AWS-SECRET]',
+  password: '[REDACTED-PASSWORD]',
+  db: '[REDACTED-DB-CREDENTIALS]',
+  creditCard: '[REDACTED-CREDIT-CARD]',
+  privateKey: '[REDACTED-PRIVATE-KEY]',
+  phone: '[REDACTED-PHONE]',
+};
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+function luhnValid(digits: string): boolean {
+  let sum = 0;
+  let alt = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let n = digits.charCodeAt(i) - 48;
+    if (alt) { n *= 2; if (n > 9) n -= 9; }
+    sum += n;
+    alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+
+const IPV6_RE = new RegExp(
+  '(?<![0-9A-Fa-f:.])(' +
+  '(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|' +
+  '(?:[0-9A-Fa-f]{1,4}:){1,7}:|' +
+  '(?:[0-9A-Fa-f]{1,4}:){1,6}:[0-9A-Fa-f]{1,4}|' +
+  '(?:[0-9A-Fa-f]{1,4}:){1,5}(?::[0-9A-Fa-f]{1,4}){1,2}|' +
+  '(?:[0-9A-Fa-f]{1,4}:){1,4}(?::[0-9A-Fa-f]{1,4}){1,3}|' +
+  '(?:[0-9A-Fa-f]{1,4}:){1,3}(?::[0-9A-Fa-f]{1,4}){1,4}|' +
+  '(?:[0-9A-Fa-f]{1,4}:){1,2}(?::[0-9A-Fa-f]{1,4}){1,5}|' +
+  '[0-9A-Fa-f]{1,4}:(?:(?::[0-9A-Fa-f]{1,4}){1,6})|' +
+  ':(?:(?::[0-9A-Fa-f]{1,4}){1,7}|:)' +
+  ')(?![0-9A-Fa-f:.])',
+  'g'
+);
+
+const IPV4_RE = /\b(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\b/g;
+const EMAIL_RE = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
+const JWT_RE = /\beyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{4,}\b/g;
+const BEARER_RE = /\bBearer\s+[A-Za-z0-9\-_.]{20,}\b/gi;
+const SK_PK_RE = /\b(?:sk|pk)-(?:live|test)-[A-Za-z0-9]{20,}\b/g;
+const AWS_ACCESS_KEY_RE = /\bAKIA[A-Z0-9]{16}\b/g;
+const AWS_SECRET_RE = /\b((?:aws[_-]?secret(?:[_-]?access[_-]?key)?)\s*[:=]\s*)([A-Za-z0-9+/]{40})\b/gi;
+const PASSWORD_RE = /\b((?:password|passwd|pwd|secret)[a-zA-Z0-9_]*\s*[:=]\s*)(\S+)/gi;
+const DB_RE = /\b(postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/([^:@/\s]+):([^@/\s]+)@/gi;
+const CREDIT_CARD_RE = /\b\d[\d -]{11,22}\d\b/g;
+const PRIVATE_KEY_RE = /-----BEGIN (RSA PRIVATE KEY|PRIVATE KEY|EC PRIVATE KEY)-----[\s\S]*?-----END \1-----/g;
+const PHONE_RE = /(?<![\d.])(\+\d{1,3}[-.\s])?\(?\d{2,4}\)?[-.\s]\d{3,4}[-.\s]\d{4}(?!\d)/g;
+
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function copyText(text: string, btn: HTMLElement) {
+  function flash() {
+    const original = btn.innerHTML;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.innerHTML = original; }, 1500);
+  }
+  function fallback() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(flash).catch(() => { fallback(); flash(); });
+  } else {
+    fallback(); flash();
+  }
+}
+
+// ─── SANITISE ENGINE ─────────────────────────────────────────────────────────
+
+interface Stats {
+  ip: number; email: number; jwt: number; apiKey: number; aws: number;
+  password: number; db: number; creditCard: number; privateKey: number;
+  phone: number; custom: number;
+}
+
+function emptyStats(): Stats {
+  return { ip: 0, email: 0, jwt: 0, apiKey: 0, aws: 0, password: 0, db: 0, creditCard: 0, privateKey: 0, phone: 0, custom: 0 };
+}
+
+function sanitise(text: string, rules: Record<string, boolean>, customPattern: string, customLabel: string): { out: string; stats: Stats } {
+  const stats = emptyStats();
+  let out = text;
+
+  if (rules.privateKey) {
+    out = out.replace(PRIVATE_KEY_RE, () => { stats.privateKey++; return PLACEHOLDER.privateKey; });
+  }
+
+  if (rules.db) {
+    out = out.replace(DB_RE, (_m, proto) => { stats.db++; return `${proto}://${PLACEHOLDER.db}@`; });
+  }
+
+  if (rules.password) {
+    out = out.replace(PASSWORD_RE, (_m, prefix) => { stats.password++; return prefix + PLACEHOLDER.password; });
+  }
+
+  if (rules.aws) {
+    out = out.replace(AWS_ACCESS_KEY_RE, () => { stats.aws++; return PLACEHOLDER.awsAccessKey; });
+    out = out.replace(AWS_SECRET_RE, (_m, prefix) => { stats.aws++; return prefix + PLACEHOLDER.awsSecret; });
+  }
+
+  if (rules.jwt) {
+    out = out.replace(JWT_RE, () => { stats.jwt++; return PLACEHOLDER.jwt; });
+  }
+
+  if (rules.apiKey) {
+    out = out.replace(BEARER_RE, () => { stats.apiKey++; return `Bearer ${PLACEHOLDER.apiKey}`; });
+    out = out.replace(SK_PK_RE, () => { stats.apiKey++; return PLACEHOLDER.apiKey; });
+  }
+
+  if (rules.creditCard) {
+    out = out.replace(CREDIT_CARD_RE, (m) => {
+      const digits = m.replace(/[ -]/g, '');
+      if (digits.length >= 13 && digits.length <= 19 && luhnValid(digits)) {
+        stats.creditCard++;
+        return PLACEHOLDER.creditCard;
+      }
+      return m;
+    });
+  }
+
+  if (rules.email) {
+    out = out.replace(EMAIL_RE, () => { stats.email++; return PLACEHOLDER.email; });
+  }
+
+  if (rules.ip) {
+    out = out.replace(IPV6_RE, () => { stats.ip++; return PLACEHOLDER.ip; });
+    out = out.replace(IPV4_RE, () => { stats.ip++; return PLACEHOLDER.ip; });
+  }
+
+  if (rules.phone) {
+    out = out.replace(PHONE_RE, () => { stats.phone++; return PLACEHOLDER.phone; });
+  }
+
+  if (rules.custom && customPattern && customLabel) {
+    try {
+      const re = new RegExp(customPattern, 'g');
+      out = out.replace(re, () => { stats.custom++; return `[REDACTED-${customLabel.toUpperCase()}]`; });
+      customPatternError.classList.add('hidden');
+      customPatternInput.classList.remove('input-invalid');
+    } catch {
+      customPatternError.classList.remove('hidden');
+      customPatternInput.classList.add('input-invalid');
+    }
+  } else {
+    customPatternError.classList.add('hidden');
+    customPatternInput.classList.remove('input-invalid');
+  }
+
+  return { out, stats };
+}
+
+// ─── DOM WIRING ──────────────────────────────────────────────────────────────
+
+const logInput = document.getElementById('logInput') as HTMLTextAreaElement;
+const logOutput = document.getElementById('logOutput') as HTMLTextAreaElement;
+const statsTotal = document.getElementById('statsTotal') as HTMLSpanElement;
+const statsBreakdown = document.getElementById('statsBreakdown') as HTMLSpanElement;
+const statsSize = document.getElementById('statsSize') as HTMLSpanElement;
+const customPatternInput = document.getElementById('customPatternInput') as HTMLInputElement;
+const customLabelInput = document.getElementById('customLabelInput') as HTMLInputElement;
+const customPatternError = document.getElementById('customPatternError') as HTMLParagraphElement;
+const ruleCheckboxes = Array.from(document.querySelectorAll('[data-rule]')) as HTMLInputElement[];
+const customCheckbox = document.getElementById('rule-custom') as HTMLInputElement;
+
+function pluralize(n: number, singular: string, plural: string): string {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
+function formatKB(bytes: number): string {
+  return (bytes / 1024).toFixed(2) + ' KB';
+}
+
+function getRules(): Record<string, boolean> {
+  const rules: Record<string, boolean> = { custom: customCheckbox.checked };
+  ruleCheckboxes.forEach((cb) => { rules[cb.dataset.rule as string] = cb.checked; });
+  return rules;
+}
+
+function updateStats(stats: Stats, inputText: string, outputText: string) {
+  const total = Object.values(stats).reduce((a, b) => a + b, 0);
+  const parts: string[] = [];
+  if (stats.ip) parts.push(pluralize(stats.ip, 'IP', 'IPs'));
+  if (stats.email) parts.push(pluralize(stats.email, 'email', 'emails'));
+  if (stats.jwt) parts.push(pluralize(stats.jwt, 'JWT', 'JWTs'));
+  if (stats.apiKey) parts.push(pluralize(stats.apiKey, 'API key', 'API keys'));
+  if (stats.aws) parts.push(pluralize(stats.aws, 'AWS credential', 'AWS credentials'));
+  if (stats.password) parts.push(pluralize(stats.password, 'password', 'passwords'));
+  if (stats.db) parts.push(pluralize(stats.db, 'DB credential', 'DB credentials'));
+  if (stats.creditCard) parts.push(pluralize(stats.creditCard, 'credit card', 'credit cards'));
+  if (stats.privateKey) parts.push(pluralize(stats.privateKey, 'private key', 'private keys'));
+  if (stats.phone) parts.push(pluralize(stats.phone, 'phone number', 'phone numbers'));
+  if (stats.custom) {
+    const label = (customLabelInput.value.trim() || 'custom match').toLowerCase();
+    parts.push(pluralize(stats.custom, label, label + 's'));
+  }
+
+  statsTotal.textContent = `${total} item${total === 1 ? '' : 's'} redacted`;
+  statsBreakdown.textContent = parts.length ? parts.join(' · ') : '—';
+  statsSize.textContent = `${formatKB(new Blob([inputText]).size)} → ${formatKB(new Blob([outputText]).size)}`;
+}
+
+function runSanitise() {
+  const rules = getRules();
+  const { out, stats } = sanitise(logInput.value, rules, customPatternInput.value.trim(), customLabelInput.value.trim());
+  logOutput.value = out;
+  updateStats(stats, logInput.value, out);
+}
+
+let debounceTimer: ReturnType<typeof setTimeout>;
+logInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(runSanitise, 300);
+});
+
+let customDebounceTimer: ReturnType<typeof setTimeout>;
+[customPatternInput, customLabelInput].forEach((el) => {
+  el.addEventListener('input', () => {
+    clearTimeout(customDebounceTimer);
+    customDebounceTimer = setTimeout(runSanitise, 300);
+  });
+});
+
+[...ruleCheckboxes, customCheckbox].forEach((cb) => {
+  cb.addEventListener('change', runSanitise);
+});
+
+// ─── ACTION BUTTONS ──────────────────────────────────────────────────────────
+
+const copyOutputBtn = document.getElementById('copyOutputBtn') as HTMLButtonElement;
+const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
+const clearAllBtn = document.getElementById('clearAllBtn') as HTMLButtonElement;
+
+copyOutputBtn.addEventListener('click', () => copyText(logOutput.value, copyOutputBtn));
+
+downloadBtn.addEventListener('click', () => {
+  const blob = new Blob([logOutput.value], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sanitised-log.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+clearAllBtn.addEventListener('click', () => {
+  logInput.value = '';
+  logOutput.value = '';
+  runSanitise();
+});
+
+// ─── DETECTION RULES PANEL TOGGLE ────────────────────────────────────────────
+
+const rulesToggle = document.getElementById('rulesToggle') as HTMLButtonElement;
+const rulesBody = document.getElementById('rulesBody') as HTMLDivElement;
+const rulesChevron = document.getElementById('rulesChevron') as HTMLElement;
+
+rulesToggle.addEventListener('click', () => {
+  const isOpen = !rulesBody.classList.contains('hidden');
+  rulesBody.classList.toggle('hidden', isOpen);
+  rulesChevron.style.transform = isOpen ? 'rotate(-90deg)' : '';
+});
+
+// ─── AI PROMPT HELPER ────────────────────────────────────────────────────────
+
+const aiPromptArea = document.getElementById('aiPromptArea') as HTMLTextAreaElement;
+const insertPromptBtn = document.getElementById('insertPromptBtn') as HTMLButtonElement;
+const copyPromptBtn = document.getElementById('copyPromptBtn') as HTMLButtonElement;
+
+const PROMPT_PLACEHOLDER = '[PASTE YOUR SANITISED LOG HERE]';
+const DEFAULT_PROMPT = `I need help debugging the following log output. I have already sanitised all sensitive values and replaced them with [REDACTED-*] placeholders.
+
+${PROMPT_PLACEHOLDER}
+
+Please help me identify the root cause of the issue.`;
+
+aiPromptArea.value = DEFAULT_PROMPT;
+
+insertPromptBtn.addEventListener('click', () => {
+  aiPromptArea.value = DEFAULT_PROMPT.replace(PROMPT_PLACEHOLDER, logOutput.value || '');
+});
+
+copyPromptBtn.addEventListener('click', () => copyText(aiPromptArea.value, copyPromptBtn));
+
+// ─── FAQ ACCORDION ───────────────────────────────────────────────────────────
+
+document.querySelectorAll('.faq-trigger').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item') as HTMLElement;
+    const content = item.querySelector('.faq-content') as HTMLElement;
+    const chevron = btn.querySelector('.faq-chevron') as HTMLElement;
+    const isOpen = !content.classList.contains('hidden');
+    content.classList.toggle('hidden', isOpen);
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+  });
+});
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+runSanitise();
+</script>
+
+</Layout>

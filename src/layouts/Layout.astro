@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
 const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 
-const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder'].includes(currentPath);
+const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 
 const orgSchema = {
@@ -115,7 +115,10 @@ const orgSchema = {
     {[
       { cat: 'Automation',  tools: [{ href: '/cron-builder',            label: 'Cron Builder'              }] },
       { cat: 'Networking',  tools: [{ href: '/cidr-calculator',         label: 'CIDR Calculator'           }] },
-      { cat: 'Security',    tools: [{ href: '/jwt-decoder',             label: 'JWT Decoder'               }] },
+      { cat: 'Security',    tools: [
+          { href: '/jwt-decoder',   label: 'JWT Decoder' },
+          { href: '/log-sanitiser', label: 'Log Sanitiser & PII Redactor' },
+        ]},
       { cat: 'Development', tools: [
           { href: '/json-yaml-converter',      label: 'JSON to YAML Converter' },
           { href: '/gitignore-generator',      label: 'gitignore Generator'    },
@@ -207,6 +210,7 @@ const orgSchema = {
 
               <span class="dropdown-category">Security</span>
               <a href="/jwt-decoder" class="dropdown-item">JWT Decoder</a>
+              <a href="/log-sanitiser" class="dropdown-item">Log Sanitiser & PII Redactor</a>
 
               <span class="dropdown-category">Development</span>
               <a href="/json-yaml-converter" class="dropdown-item">JSON to YAML Converter</a>
@@ -416,6 +420,8 @@ const orgSchema = {
         icon:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>' },
       { name:'Kubernetes Secret Decoder', desc:'Decode Kubernetes Secret YAML and convert .env files to K8s Secrets', url:'/k8s-secret-decoder', cat:'Kubernetes',
         icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+      { name:'Log Sanitiser & PII Redactor', desc:'Redact PII and secrets from logs before sharing with AI tools', url:'/log-sanitiser', cat:'Security',
+        icon:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>' },
       { name:'Unix Timestamp Converter', desc:'Convert epoch timestamps to human dates and back, with batch conversion', url:'/timestamp-converter', cat:'Time',
         icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
       { name:'JSON Diff & Schema Validator', desc:'Compare JSON files semantically and validate against JSON Schema draft-07', url:'/json-diff', cat:'Dev',
