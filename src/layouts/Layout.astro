@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
 const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 
-const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff'].includes(currentPath);
+const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 
 const orgSchema = {
@@ -122,6 +122,7 @@ const orgSchema = {
           { href: '/json-diff',                label: 'JSON Diff & Schema'      },
         ]},
       { cat: 'Containers',  tools: [{ href: '/docker-compose-converter', label: 'Docker Run to Compose'    }] },
+      { cat: 'Kubernetes',  tools: [{ href: '/k8s-secret-decoder',       label: 'Kubernetes Secret Decoder' }] },
       { cat: 'Linux',       tools: [{ href: '/chmod-calculator',         label: 'chmod Calculator'          }] },
       { cat: 'Time',        tools: [{ href: '/timestamp-converter',      label: 'Timestamp Converter'       }] },
     ].map(({ cat, tools }) => (
@@ -214,6 +215,9 @@ const orgSchema = {
 
               <span class="dropdown-category">Containers</span>
               <a href="/docker-compose-converter" class="dropdown-item">Docker Run to Compose</a>
+
+              <span class="dropdown-category">Kubernetes</span>
+              <a href="/k8s-secret-decoder" class="dropdown-item">Kubernetes Secret Decoder</a>
 
               <span class="dropdown-category">Linux</span>
               <a href="/chmod-calculator" class="dropdown-item">chmod Calculator</a>
@@ -410,6 +414,8 @@ const orgSchema = {
         icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>' },
       { name:'Docker Compose Converter', desc:'Convert docker run commands to docker-compose.yml and back', url:'/docker-compose-converter', cat:'Containers',
         icon:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>' },
+      { name:'Kubernetes Secret Decoder', desc:'Decode Kubernetes Secret YAML and convert .env files to K8s Secrets', url:'/k8s-secret-decoder', cat:'Kubernetes',
+        icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
       { name:'Unix Timestamp Converter', desc:'Convert epoch timestamps to human dates and back, with batch conversion', url:'/timestamp-converter', cat:'Time',
         icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
       { name:'JSON Diff & Schema Validator', desc:'Compare JSON files semantically and validate against JSON Schema draft-07', url:'/json-diff', cat:'Dev',
