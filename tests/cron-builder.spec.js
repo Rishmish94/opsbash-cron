@@ -134,19 +134,34 @@ test.describe('UI', () => {
   });
 
   test('15. All FAQ items expand and show non-empty content', async ({ page }) => {
+    test.setTimeout(120_000);
     await page.goto(PAGE_URL);
-    const items    = page.locator('.faq-item');
-    const triggers = page.locator('.faq-trigger');
-    const count    = await items.count();
-    expect(count).toBeGreaterThan(0);
 
-    for (let i = 0; i < count; i++) {
-      const content = items.nth(i).locator('.faq-content');
-      await expect(content).toBeHidden();
-      await triggers.nth(i).click();
-      await expect(content).toBeVisible();
-      const text = (await content.textContent() ?? '').trim();
-      expect(text.length).toBeGreaterThan(20);
+    // The page has two page-level tabs (Cron Builder / Cron to systemd Timer),
+    // each with its own FAQ accordion. Only the active tab's FAQ items are
+    // visible in the DOM, so each section must be scoped and activated in turn.
+    const sections = [
+      { tabButton: null, container: '#tab-cron-builder' },
+      { tabButton: '#page-tab-systemd', container: '#tab-systemd' },
+    ];
+
+    for (const section of sections) {
+      if (section.tabButton) {
+        await page.click(section.tabButton);
+      }
+      const items = page.locator(`${section.container} .faq-item`);
+      const triggers = page.locator(`${section.container} .faq-trigger`);
+      const count = await items.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const content = items.nth(i).locator('.faq-content');
+        await expect(content).toBeHidden({ timeout: 5000 });
+        await triggers.nth(i).click();
+        await content.waitFor({ state: 'visible', timeout: 8000 });
+        const text = (await content.textContent() ?? '').trim();
+        expect(text.length).toBeGreaterThan(20);
+      }
     }
   });
 });

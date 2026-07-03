@@ -198,9 +198,9 @@ test.describe('Schema Validator', () => {
 
     // Inner container should have green background
     const bg = await page.locator('#schemaResult div').first().evaluate(
-      el => (el as HTMLElement).style.background
+      el => window.getComputedStyle(el as HTMLElement).backgroundColor
     );
-    expect(bg).toContain('34,197,94');
+    expect(bg).toMatch(/rgba?\(34,\s*197,\s*94/);
   });
 
   test('12. Missing required field — red error banner mentions "required"', async ({ page }) => {
@@ -281,9 +281,9 @@ test.describe('JSON Formatter', () => {
     expect(text).toContain('Valid JSON');
 
     const color = await page.locator('#fmtBadge').evaluate(
-      el => (el as HTMLElement).style.color
+      el => window.getComputedStyle(el as HTMLElement).color
     );
-    expect(color).toBe('#4ADE80');
+    expect(color).toMatch(/rgb\(74,\s*222,\s*128\)|#4ADE80/i);
   });
 
   test('18. Live invalid badge appears with red styling and error message when invalid JSON is typed', async ({ page }) => {
@@ -295,9 +295,9 @@ test.describe('JSON Formatter', () => {
     expect(text).toContain('Invalid JSON');
 
     const color = await page.locator('#fmtBadge').evaluate(
-      el => (el as HTMLElement).style.color
+      el => window.getComputedStyle(el as HTMLElement).color
     );
-    expect(color).toBe('#F87171');
+    expect(color).toMatch(/rgb\(248,\s*113,\s*113\)|#F87171/i);
 
     await expect(page.locator('#fmtError')).toBeVisible();
   });
