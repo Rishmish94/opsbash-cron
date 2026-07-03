@@ -192,6 +192,36 @@ import Layout from '../layouts/Layout.astro';
           </div>
         </a>
 
+        <a href="/json-diff" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">JSON Diff and Schema Validator <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/json-diff</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Compare JSON files semantically and validate against schemas</p>
+          </div>
+        </a>
+
+        <a href="/k8s-secret-decoder" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">Kubernetes Secret Decoder <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/k8s-secret-decoder</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Decode Kubernetes Secret YAML and convert .env files to K8s Secrets</p>
+          </div>
+        </a>
+
+        <a href="/log-sanitiser" class="flex items-start gap-4 group" style="text-decoration: none;">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5" style="background: #0f2415; border: 1px solid #1a3a22;">
+            <svg class="w-4 h-4" style="color: #34d399;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium" style="color: var(--fg);">Log Sanitiser and PII Redactor <code class="text-xs font-mono ml-1" style="color: var(--fg2);">/log-sanitiser</code></p>
+            <p class="text-xs leading-relaxed mt-0.5" style="color: var(--fg2);">Redact PII and sensitive data from logs before sharing with AI tools</p>
+          </div>
+        </a>
+
       </div>
     </div>
 
