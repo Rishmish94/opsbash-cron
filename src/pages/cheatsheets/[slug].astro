@@ -3,12 +3,14 @@ import Layout from '../../layouts/Layout.astro';
 import kubectlData from '../../data/cheatsheets/kubectl.json';
 import dockerData from '../../data/cheatsheets/docker.json';
 import gitData from '../../data/cheatsheets/git.json';
+import awsData from '../../data/cheatsheets/aws.json';
 
 export function getStaticPaths() {
   return [
     { params: { slug: 'kubectl' }, props: { data: kubectlData } },
     { params: { slug: 'docker' }, props: { data: dockerData } },
     { params: { slug: 'git' }, props: { data: gitData } },
+    { params: { slug: 'aws' }, props: { data: awsData } },
   ];
 }
 
@@ -27,6 +29,10 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
   git: [
     { href: '/gitignore-generator', name: 'gitignore Generator', desc: 'Generate .gitignore files for any technology stack with one click.' },
     { href: '/json-diff', name: 'JSON Diff & Schema Validator', desc: 'Compare JSON files semantically and validate against JSON Schema draft-07.' },
+  ],
+  aws: [
+    { href: '/cidr-calculator', name: 'CIDR Calculator', desc: 'Calculate subnet masks, usable hosts, and network ranges for your VPCs and subnets.' },
+    { href: '/json-diff', name: 'JSON Diff & Schema Validator', desc: 'Compare AWS CLI JSON output or CloudFormation templates semantically, side by side.' },
   ],
 };
 
@@ -48,6 +54,12 @@ const seoContentMap: Record<string, string[]> = {
     "Commands that rewrite history — git commit --amend, git rebase, and force pushes — feel dangerous because they genuinely are, in a very specific and narrow way: they change commit hashes that other people or systems may already be relying on. A commit hash is effectively a fingerprint of a commit's content plus its parent, so changing a commit's message, reordering commits, or squashing them all produce a brand new hash, even when the code ends up looking identical. If a teammate already pulled the original hash, their local history and the rewritten remote history now disagree, and reconciling that divergence usually means their branch needs to be manually reset or re-fetched. This is exactly why rewriting history is safe on a private, unpushed branch — nobody else has a copy to diverge from — but risky the moment it touches anything shared.",
     "What makes Git forgiving despite all this is a safety net most developers never learn about until they desperately need it: the reflog. Every time HEAD moves, whether through a commit, a checkout, a reset, or even a rebase, Git silently records that movement in a local log that persists for about 90 days by default. This means that even after a git reset --hard that appears to have permanently destroyed a commit, or after deleting a branch that still had valuable work on it, the actual commit objects are usually still sitting in Git's object database, simply unreferenced by any branch. Running git reflog surfaces every one of those past HEAD positions with their commit hashes, and a plain git checkout -b against the right hash brings the 'lost' work straight back. Very few things in Git are ever truly gone within that 90-day window — they're just temporarily unreachable, and the reflog is the map back to them.",
   ],
+  aws: [
+    "The AWS CLI is a single command-line tool that wraps every AWS service API behind one consistent interface, and for engineers who manage AWS infrastructure day to day it is often faster and more precise than clicking through the console. Almost every action available in the AWS Management Console has a direct CLI equivalent, but the CLI adds what the console cannot: it is scriptable, reproducible, and pipeable into other Unix tools like jq and grep, which makes it the backbone of CI/CD pipelines, cron jobs, and one-off investigations alike. Whether the task is checking why a Lambda function is failing, rotating a secret, or auditing which IAM policies are attached to a role, the CLI turns what would be several minutes of console navigation into a single reusable command.",
+    "The reason the AWS CLI shows up constantly in daily engineering work is that AWS environments are rarely static. Auto-scaling groups launch and terminate instances continuously, Lambda functions deploy multiple times a day, and IAM permissions get adjusted as teams and services change. Engineers are constantly checking the current state of the world: is this instance still running, did that deployment actually update the function code, does this role really have the permission it needs. Commands like aws sts get-caller-identity, aws ec2 describe-instances, and aws logs tail form the same kind of always-reached-for read loop that kubectl get and docker ps represent in their respective ecosystems, and most real AWS CLI usage is those few commands repeated with different arguments.",
+    "The single most important mental model for working with the AWS CLI is the credential chain: the ordered list of places the CLI looks for credentials before it gives up. Command-line flags beat environment variables, which beat the SSO cache, which beats named profiles in your config files, which beats an assumed role, which beats the EC2 or ECS metadata service. Almost every confusing AWS CLI authentication error traces back to a credential source further up this chain winning unexpectedly — a leftover AWS_PROFILE environment variable from a previous session, or an SSO token that quietly expired. Once that ordered list clicks, debugging authentication stops being guesswork: run aws configure list and aws sts get-caller-identity, and the winning source is right there in the output.",
+    "Three mistakes account for the overwhelming majority of AWS CLI frustration. The first is forgetting that --query returns null silently on a bad JMESPath expression instead of raising an error, which makes a typo in a query look like missing data. The second is confusing s3 cp with s3 sync: cp only touches the exact file or prefix you name, while sync recursively mirrors an entire folder and, combined with --delete, can permanently remove files that exist only in the destination. The third is running a destructive command like terminate-instances or delete-db-instance against the wrong account entirely, because a stale AWS_PROFILE or an expired SSO session silently fell back to a different set of credentials. Running aws sts get-caller-identity before any destructive command is the single habit that prevents the most expensive version of this mistake.",
+  ],
 };
 
 const faqMap: Record<string, { q: string; a: string }[]> = {
@@ -68,6 +80,12 @@ const faqMap: Record<string, { q: string; a: string }[]> = {
     { q: 'How do I undo a commit I already pushed?', a: 'Use git revert <commit-hash>, which creates a new commit that reverses the changes, then push normally. This is safe on shared branches because it never rewrites existing history. Avoid git reset on a pushed commit unless you are prepared to force-push, which rewrites history and can break things for teammates who already pulled the original commit.' },
     { q: 'What is a detached HEAD state and how do I fix it?', a: 'A detached HEAD happens when you check out a specific commit hash or tag directly instead of a branch, so HEAD points at a commit rather than at a branch reference. Any new commits you make there are not attached to any branch and can become hard to find later. Fix it by running git checkout -b <new-branch-name> to attach your current position to a proper branch before committing further.' },
     { q: 'How do I safely force push without destroying teammates work?', a: 'Use git push --force-with-lease instead of git push --force. It checks whether the remote branch has changed since you last fetched it, and refuses to push if someone else has added commits you have not seen yet, preventing you from silently overwriting their work. Plain --force skips that check entirely.' },
+  ],
+  aws: [
+    { q: 'What is the AWS CLI credential chain and why does it matter?', a: 'The credential chain is the ordered list of places the AWS CLI checks for credentials: command-line flags, then environment variables, then the SSO cache, then named profiles, then an assumed role, then EC2/ECS instance metadata. The first source with valid credentials wins. Most confusing authentication errors happen because a source earlier in the chain — often a leftover environment variable — is silently overriding the profile you actually meant to use.' },
+    { q: 'How do I switch between multiple AWS profiles?', a: 'Pass --profile myprofile on any individual command, or run export AWS_PROFILE=myprofile to switch the default for your entire shell session. Run aws configure list-profiles to see every profile that is configured, and aws sts get-caller-identity --profile myprofile to confirm which account and identity that profile actually resolves to before running anything destructive.' },
+    { q: 'Why does my --query expression return null?', a: 'AWS CLI does not raise an error for an invalid JMESPath expression passed to --query — it silently returns null. This almost always means a typo or wrong field name somewhere in the path. Build the expression incrementally, starting from the raw JSON output and adding one level of the path at a time, to find exactly where it breaks.' },
+    { q: 'What is the difference between aws s3 cp and aws s3 sync?', a: 'aws s3 cp copies exactly what you name — one file or, with --recursive, one prefix — every time you run it, regardless of what already exists at the destination. aws s3 sync compares source and destination and only transfers files that are new or changed, and with --delete it also removes destination files that no longer exist in the source. Use cp for one-off copies and sync for keeping a folder or bucket mirrored over time.' },
   ],
 };
 
@@ -137,6 +155,66 @@ data.commands.forEach((c: any) => {
       <p>Everything runs in your browser. No command you type or copy is sent to any server.</p>
     </div>
   </section>
+
+  <!-- ── CREDENTIAL CHAIN DEBUGGER ─────────────────────────────────────────── -->
+  {data.hasCredentialDebugger && (
+    <section class="mb-10">
+      <h2 class="section-title">{data.credentialDebugger.title}</h2>
+      <p class="section-subtitle">{data.credentialDebugger.subtitle}</p>
+      <div class="cred-steps-grid">
+        {data.credentialDebugger.steps.map((step: any) => (
+          <div class="cred-step-card">
+            <span class="incident-step-badge">{step.step}</span>
+            <p class="cred-step-source">{step.source}</p>
+            <code class="cred-step-example">{step.example}</code>
+            <p class="cred-step-note">{step.note}</p>
+          </div>
+        ))}
+      </div>
+
+      <h3 class="cred-subtitle">Debug Commands</h3>
+      <div class="cred-debug-grid">
+        {data.credentialDebugger.debugCommands.map((dc: any) => (
+          <div class="cred-debug-card">
+            <p class="cred-debug-title">{dc.title}</p>
+            <div class="cmd-block">
+              <code class="cmd-text">{dc.command}</code>
+              <button class="copy-btn" data-copy={dc.command}>Copy</button>
+            </div>
+            <p class="cred-debug-note">{dc.note}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- ── S3 OPERATION PICKER ───────────────────────────────────────────────── -->
+  {data.hasS3Picker && (
+    <section class="mb-10">
+      <h2 class="section-title">{data.s3Picker.title}</h2>
+      <p class="section-subtitle">{data.s3Picker.subtitle}</p>
+      <div class="s3-picker-table">
+        <div class="s3-picker-header-row">
+          <span>Scenario</span>
+          <span>Command</span>
+          <span>Note</span>
+        </div>
+        {data.s3Picker.options.map((opt: any) => (
+          <div class="s3-picker-row">
+            <div class="s3-picker-scenario">{opt.scenario}</div>
+            <div class="s3-picker-cmd">
+              <code class="s3-picker-command-name">{opt.command}</code>
+              <div class="cmd-block" style="margin-bottom: 0;">
+                <code class="cmd-text">{opt.example}</code>
+                <button class="copy-btn" data-copy={opt.example}>Copy</button>
+              </div>
+            </div>
+            <div class="s3-picker-note">{opt.note}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
 
   <!-- ── INCIDENT FLOW ─────────────────────────────────────────────────────── -->
   {data.hasIncidentFlow && (
@@ -463,6 +541,149 @@ data.commands.forEach((c: any) => {
     font-size: 12.5px;
     color: var(--fg2);
     line-height: 1.55;
+  }
+
+  /* ── Credential chain debugger ───────────────────────────────────────────── */
+  .cred-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 900px) {
+    .cred-steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .cred-steps-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .cred-step-card {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .cred-step-source {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+  }
+  .cred-step-example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--fg2);
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 6px;
+    padding: 6px 8px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+  }
+  .cred-step-note {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+  .cred-subtitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 12px;
+  }
+  .cred-debug-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 640px) {
+    .cred-debug-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .cred-debug-card {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+  .cred-debug-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #F8FAFC;
+    margin-bottom: 10px;
+  }
+  .cred-debug-note {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+    margin-top: 10px;
+  }
+
+  /* ── S3 operation picker ─────────────────────────────────────────────────── */
+  .s3-picker-table {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .s3-picker-header-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    gap: 16px;
+    padding: 10px 18px;
+    background: rgba(248,250,252,0.04);
+    border-bottom: 1px solid #222222;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg2);
+  }
+  .s3-picker-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    gap: 16px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #222222;
+    min-width: 0;
+  }
+  .s3-picker-row:last-child { border-bottom: none; }
+  .s3-picker-scenario {
+    font-size: 13px;
+    color: #F8FAFC;
+    line-height: 1.5;
+    align-self: center;
+  }
+  .s3-picker-cmd {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .s3-picker-command-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #60A5FA;
+  }
+  .s3-picker-note {
+    font-size: 12px;
+    color: var(--fg2);
+    line-height: 1.5;
+    align-self: center;
+  }
+  @media (max-width: 768px) {
+    .s3-picker-header-row { display: none; }
+    .s3-picker-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
   }
 
   /* ── Pod status decoder ─────────────────────────────────────────────────── */

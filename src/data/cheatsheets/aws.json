@@ -1,0 +1,1598 @@
+{
+  "slug": "aws",
+  "title": "AWS CLI Cheat Sheet",
+  "description": "110+ AWS CLI commands for S3, EC2, IAM, Lambda, CloudWatch, SSM and more. Searchable, filterable, copy with one click. Includes the Credential Chain Debugger.",
+  "category": "AWS",
+  "lastUpdated": "2026-07-05",
+  "hasIncidentFlow": false,
+  "hasPodStatusDecoder": false,
+  "hasCredentialDebugger": true,
+  "hasS3Picker": true,
+  "categories": [
+    {"id": "setup-identity", "label": "Setup and Identity"},
+    {"id": "s3-storage", "label": "S3 and Storage"},
+    {"id": "ec2-compute", "label": "EC2 and Compute"},
+    {"id": "iam-access", "label": "IAM and Access"},
+    {"id": "sts-assume-role", "label": "STS and Assume Role"},
+    {"id": "lambda-serverless", "label": "Lambda and Serverless"},
+    {"id": "containers", "label": "Containers ECS ECR EKS"},
+    {"id": "networking", "label": "Networking VPC and Route53"},
+    {"id": "monitoring-ops", "label": "Monitoring and Ops"},
+    {"id": "data-iac", "label": "Data and Infrastructure as Code"}
+  ],
+  "incidentFlow": null,
+  "podStatusDecoder": null,
+  "credentialDebugger": {
+    "title": "AWS Credential Chain Debugger",
+    "subtitle": "AWS resolves credentials in this exact order. The first source that has valid credentials wins. This is the root cause of most AWS CLI authentication errors.",
+    "steps": [
+      {
+        "step": 1,
+        "source": "Command line options",
+        "example": "--profile myprofile or --region us-east-1",
+        "note": "These override everything else. If you pass --profile on the command line it wins regardless of environment variables or config files."
+      },
+      {
+        "step": 2,
+        "source": "Environment variables",
+        "example": "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, AWS_PROFILE",
+        "note": "If any of these are set in your shell they will be used. This is the most common cause of using the wrong credentials — a leftover export from a previous assume-role session."
+      },
+      {
+        "step": 3,
+        "source": "AWS SSO session cache",
+        "example": "~/.aws/sso/cache/",
+        "note": "If you use aws configure sso and the session has not expired the cached token is used here. If it has expired you get a confusing error rather than a prompt to log in again. Fix with aws sso login --profile yourprofile."
+      },
+      {
+        "step": 4,
+        "source": "Named profile in config and credentials files",
+        "example": "~/.aws/config and ~/.aws/credentials",
+        "note": "The profile named default is used automatically. The most common error here is a profile that exists in credentials but not in config or vice versa. Run aws configure list-profiles to see what is actually there."
+      },
+      {
+        "step": 5,
+        "source": "Assumed role via source_profile",
+        "example": "role_arn + source_profile in ~/.aws/config",
+        "note": "AWS CLI automatically calls sts assume-role and refreshes the temporary credentials. This is the right way to work with assumed roles and avoids manual export of credentials entirely."
+      },
+      {
+        "step": 6,
+        "source": "EC2 instance profile or ECS task role",
+        "example": "Metadata service at 169.254.169.254",
+        "note": "Only available when running on EC2, ECS, Lambda, or similar AWS compute. If you are running locally and reach this step it means none of the above sources found credentials and the call will fail."
+      }
+    ],
+    "debugCommands": [
+      {
+        "title": "Check which identity is currently active",
+        "command": "aws sts get-caller-identity",
+        "note": "Run this before any destructive command. Shows your Account ID, UserId, and ARN. If this fails your credentials are not configured correctly."
+      },
+      {
+        "title": "Check which profile is active and where credentials are coming from",
+        "command": "aws configure list",
+        "note": "Shows where each configuration value is coming from — env variable, config file, or default. The source column tells you exactly which file or variable is winning."
+      },
+      {
+        "title": "List all configured profiles",
+        "command": "aws configure list-profiles",
+        "note": "If your profile is not in this list the error will be The config profile X could not be found."
+      },
+      {
+        "title": "Check active credentials for a specific profile",
+        "command": "aws sts get-caller-identity --profile myprofile",
+        "note": "Replace myprofile with your profile name. If this returns an error the profile credentials are expired or misconfigured."
+      }
+    ]
+  },
+  "s3Picker": {
+    "title": "S3 Operation Picker",
+    "subtitle": "Not sure which S3 command to use? Answer two questions.",
+    "options": [
+      {
+        "scenario": "Copy one file to or from S3",
+        "command": "aws s3 cp",
+        "example": "aws s3 cp ./file.txt s3://my-bucket/folder/file.txt",
+        "note": "For single files only. Does not recurse into directories unless you add --recursive."
+      },
+      {
+        "scenario": "Mirror a local folder to S3 or S3 to local keeping both in sync",
+        "command": "aws s3 sync",
+        "example": "aws s3 sync ./local-folder s3://my-bucket/prefix/ --delete",
+        "note": "Only copies files that are new or changed. --delete removes files from the destination that no longer exist in the source. Always run with --dryrun first on production buckets."
+      },
+      {
+        "scenario": "Move a file and delete the source after upload",
+        "command": "aws s3 mv",
+        "example": "aws s3 mv s3://source-bucket/file.txt s3://dest-bucket/file.txt",
+        "note": "Destructive on the source. There is no undo. Use cp if you want to keep the original."
+      },
+      {
+        "scenario": "Delete files from S3",
+        "command": "aws s3 rm",
+        "example": "aws s3 rm s3://my-bucket/folder/ --recursive",
+        "note": "Always use --dryrun first. Without --recursive only deletes a single object. With --recursive deletes everything under the prefix. There is no trash or undo in S3."
+      },
+      {
+        "scenario": "Advanced operations like presigned URLs versioning ACLs multipart uploads",
+        "command": "aws s3api",
+        "example": "aws s3api put-object --bucket my-bucket --key file.txt --body file.txt",
+        "note": "The s3api subcommand maps directly to S3 REST API operations. Use it when the high-level aws s3 commands do not expose the option you need."
+      }
+    ]
+  },
+  "commands": [
+    {
+      "id": "configure",
+      "title": "Configure AWS CLI credentials",
+      "command": "aws configure",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "First command to run on a new machine to set up your access key, secret key, default region, and output format.",
+      "beginnerNote": "This stores credentials in plaintext at ~/.aws/credentials, never commit that file to git.",
+      "tags": ["configure", "setup", "credentials", "first-time"]
+    },
+    {
+      "id": "configure-profile",
+      "title": "Configure a named profile",
+      "command": "aws configure --profile myprofile",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Set up a named profile for a second AWS account without overwriting your default.",
+      "beginnerNote": "The profile name you use here must be used exactly with --profile on every command or with export AWS_PROFILE.",
+      "tags": ["configure", "profile", "multi-account"]
+    },
+    {
+      "id": "configure-list",
+      "title": "Show active configuration and credential sources",
+      "command": "aws configure list",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Debug which credentials and region are actually active right now — the source column shows whether each value comes from an env variable, config file, or default.",
+      "beginnerNote": null,
+      "tags": ["configure", "debug", "credentials"]
+    },
+    {
+      "id": "configure-list-profiles",
+      "title": "List all configured profiles",
+      "command": "aws configure list-profiles",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "See all named profiles before switching or to debug a profile-not-found error.",
+      "beginnerNote": null,
+      "tags": ["configure", "profile", "list"]
+    },
+    {
+      "id": "sts-get-caller-identity-setup",
+      "title": "Check active AWS identity",
+      "command": "aws sts get-caller-identity",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Verify which AWS account and IAM identity is active before running any destructive command.",
+      "beginnerNote": "This is the first command to run when anything fails with an authentication error — it shows exactly who AWS thinks you are.",
+      "tags": ["sts", "identity", "debug", "auth"]
+    },
+    {
+      "id": "configure-sso",
+      "title": "Set up AWS SSO login",
+      "command": "aws configure sso",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Intermediate",
+      "useCase": "Set up AWS SSO so you can log in with your browser instead of long-lived access keys.",
+      "beginnerNote": "After setup you still need to run aws sso login --profile yourprofile before each session or commands fail with confusing token expired errors.",
+      "tags": ["sso", "configure", "auth"]
+    },
+    {
+      "id": "sso-login",
+      "title": "Refresh an expired SSO session",
+      "command": "aws sso login --profile myprofile",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Intermediate",
+      "useCase": "Refresh your SSO session when it has expired so subsequent commands work again.",
+      "beginnerNote": null,
+      "tags": ["sso", "login", "session"]
+    },
+    {
+      "id": "export-aws-profile",
+      "title": "Switch active profile for the shell session",
+      "command": "export AWS_PROFILE=myprofile",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Switch the active profile for your entire shell session without adding --profile to every command.",
+      "beginnerNote": "This environment variable persists for the entire terminal session including any scripts you run from it, unset it with unset AWS_PROFILE when done.",
+      "tags": ["profile", "environment-variable", "shell"]
+    },
+    {
+      "id": "configure-set-cli-pager",
+      "title": "Disable the CLI output pager",
+      "command": "aws configure set cli_pager \"\"",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Intermediate",
+      "useCase": "Disable the default pager that pipes all CLI v2 output through less, which causes CI scripts to hang waiting for a keypress.",
+      "beginnerNote": "This is the single most common reason AWS CLI v2 scripts hang silently in CI pipelines, set it globally or pass --no-cli-pager on every command.",
+      "tags": ["cli_pager", "ci-cd", "hang", "v2"]
+    },
+    {
+      "id": "output-query-basics",
+      "title": "Extract a single value with --query and --output text",
+      "command": "aws sts get-caller-identity --query Account --output text",
+      "flags": [
+        {"flag": "--query", "description": "JMESPath expression selecting which part of the JSON response to return"},
+        {"flag": "--output text", "description": "Print the result as a bare string instead of JSON, ideal for shell variables"}
+      ],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Extract a single value from any AWS CLI response as a bare string for use in shell scripts and variables.",
+      "beginnerNote": "If your --query expression returns null it means the path is wrong, AWS CLI does not error on a bad JMESPath expression, it silently returns null.",
+      "tags": ["query", "jmespath", "output", "scripting"]
+    },
+    {
+      "id": "configure-get",
+      "title": "Read a single configuration value",
+      "command": "aws configure get region",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Check a single configuration value like region or output format for the active profile from within a script.",
+      "beginnerNote": null,
+      "tags": ["configure", "get", "region"]
+    },
+    {
+      "id": "cli-version",
+      "title": "Check the installed AWS CLI version",
+      "command": "aws --version",
+      "flags": [],
+      "destructive": false,
+      "category": "setup-identity",
+      "difficulty": "Beginner",
+      "useCase": "Confirm whether you are running AWS CLI v1 or v2 before following a tutorial, since many flags and behaviors differ between major versions.",
+      "beginnerNote": null,
+      "tags": ["version", "cli-v1", "cli-v2"]
+    },
+
+    {
+      "id": "s3-ls",
+      "title": "List S3 buckets or objects",
+      "command": "aws s3 ls",
+      "flags": [],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "List all buckets or list objects inside a bucket.",
+      "beginnerNote": "aws s3 ls with no arguments lists all buckets, aws s3 ls s3://bucketname/ lists objects, the trailing slash matters for listing a prefix correctly.",
+      "tags": ["s3", "list", "buckets"]
+    },
+    {
+      "id": "s3-ls-prefix",
+      "title": "List objects under a prefix recursively",
+      "command": "aws s3 ls s3://my-bucket/prefix/ --recursive",
+      "flags": [
+        {"flag": "--recursive", "description": "List all objects under the prefix, not just the top level"},
+        {"flag": "--human-readable", "description": "Show sizes in KB, MB, GB instead of raw bytes"}
+      ],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "List every object under a folder-like prefix in a bucket, not just the immediate children.",
+      "beginnerNote": null,
+      "tags": ["s3", "list", "recursive", "prefix"]
+    },
+    {
+      "id": "s3-cp-to-bucket",
+      "title": "Copy a local file to S3",
+      "command": "aws s3 cp ./file.txt s3://my-bucket/folder/file.txt",
+      "flags": [],
+      "destructive": true,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "Upload a single local file to a specific key in an S3 bucket.",
+      "beginnerNote": "s3://bucket/path and s3://bucket/path/ are different, adding a trailing slash means copy into that prefix as a folder not replace that exact key.",
+      "tags": ["s3", "cp", "upload"]
+    },
+    {
+      "id": "s3-cp-from-bucket",
+      "title": "Copy a file from S3 to local",
+      "command": "aws s3 cp s3://my-bucket/folder/file.txt ./file.txt",
+      "flags": [
+        {"flag": "--recursive", "description": "Download an entire prefix instead of a single object"}
+      ],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "Download a single object from S3 to the local filesystem.",
+      "beginnerNote": null,
+      "tags": ["s3", "cp", "download"]
+    },
+    {
+      "id": "s3-sync-to-bucket",
+      "title": "Sync a local folder up to S3",
+      "command": "aws s3 sync ./local-folder s3://my-bucket/prefix/",
+      "flags": [
+        {"flag": "--delete", "description": "Remove destination files that no longer exist in the source"},
+        {"flag": "--dryrun", "description": "Preview exactly what would change without executing anything"},
+        {"flag": "--exclude / --include", "description": "Filter which files are synced by glob pattern"}
+      ],
+      "destructive": true,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "Upload only new or changed files from a local folder to a bucket, useful for deploying static sites.",
+      "beginnerNote": "Always run with --dryrun before the first time you use --delete on a production bucket, sync with --delete permanently removes files with no undo.",
+      "tags": ["s3", "sync", "delete", "dryrun", "static-site"]
+    },
+    {
+      "id": "s3-sync-from-bucket",
+      "title": "Sync an S3 prefix down to local",
+      "command": "aws s3 sync s3://my-bucket/prefix/ ./local-folder",
+      "flags": [],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "Pull down only new or changed objects from a bucket to a local folder, such as restoring a backup.",
+      "beginnerNote": null,
+      "tags": ["s3", "sync", "download"]
+    },
+    {
+      "id": "s3-rm",
+      "title": "Delete objects from S3",
+      "command": "aws s3 rm s3://my-bucket/folder/ --recursive",
+      "flags": [
+        {"flag": "--recursive", "description": "Delete every object under the prefix instead of a single object"},
+        {"flag": "--dryrun", "description": "Preview which objects would be deleted without deleting them"}
+      ],
+      "destructive": true,
+      "category": "s3-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Remove an object or an entire folder-like prefix of objects from a bucket.",
+      "beginnerNote": "There is no trash or undo in S3, deleted objects are gone, always use --dryrun first and double check the prefix before running without it.",
+      "tags": ["s3", "delete", "rm", "recursive", "dryrun"]
+    },
+    {
+      "id": "s3-mb",
+      "title": "Create a new S3 bucket",
+      "command": "aws s3 mb s3://my-new-bucket --region us-east-1",
+      "flags": [],
+      "destructive": true,
+      "category": "s3-storage",
+      "difficulty": "Beginner",
+      "useCase": "Create a brand-new S3 bucket in a specific region.",
+      "beginnerNote": "Bucket names are globally unique across all AWS accounts, if the name is taken you get an error with no suggestion.",
+      "tags": ["s3", "bucket", "create", "mb"]
+    },
+    {
+      "id": "s3-rb",
+      "title": "Delete an S3 bucket",
+      "command": "aws s3 rb s3://my-bucket --force",
+      "flags": [
+        {"flag": "--force", "description": "Delete all objects in the bucket first, then delete the bucket itself"}
+      ],
+      "destructive": true,
+      "category": "s3-storage",
+      "difficulty": "Advanced",
+      "useCase": "Permanently remove an empty or non-empty bucket, such as tearing down a temporary environment.",
+      "beginnerNote": "This fails on a versioned bucket even with --force since old versions remain, you must delete all object versions first with list-object-versions and delete-objects.",
+      "tags": ["s3", "bucket", "delete", "rb", "force"]
+    },
+    {
+      "id": "s3-presign",
+      "title": "Generate a presigned URL",
+      "command": "aws s3 presign s3://my-bucket/file.txt --expires-in 3600",
+      "flags": [],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Generate a temporary public URL to share a private S3 object without changing bucket permissions.",
+      "beginnerNote": "The URL is valid for anyone who has it until it expires, it uses your current credentials so if those expire before the URL does the URL stops working.",
+      "tags": ["s3", "presign", "url", "sharing"]
+    },
+    {
+      "id": "s3api-head-object",
+      "title": "Check if an object exists and view its metadata",
+      "command": "aws s3api head-object --bucket my-bucket --key folder/file.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Check if an object exists and see its metadata without downloading it.",
+      "beginnerNote": "Returns a 404 error if the object does not exist which is a useful existence check in scripts.",
+      "tags": ["s3api", "head-object", "metadata", "exists"]
+    },
+    {
+      "id": "s3api-list-object-versions",
+      "title": "List all versions of all objects",
+      "command": "aws s3api list-object-versions --bucket my-bucket",
+      "flags": [],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Advanced",
+      "useCase": "See all versions of all objects in a versioned bucket, required before you can fully delete a versioned bucket.",
+      "beginnerNote": "aws s3 rb --force does not work on versioned buckets, you must delete all versions first using list-object-versions and delete-objects in a loop.",
+      "tags": ["s3api", "versioning", "list-object-versions"]
+    },
+    {
+      "id": "s3api-get-bucket-policy",
+      "title": "View a bucket's resource policy",
+      "command": "aws s3api get-bucket-policy --bucket my-bucket",
+      "flags": [],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Inspect the JSON resource policy attached to a bucket to audit who can access it.",
+      "beginnerNote": null,
+      "tags": ["s3api", "bucket-policy", "audit"]
+    },
+    {
+      "id": "s3api-put-object-acl",
+      "title": "Set an object's access control list",
+      "command": "aws s3api put-object-acl --bucket my-bucket --key file.txt --acl public-read",
+      "flags": [],
+      "destructive": true,
+      "category": "s3-storage",
+      "difficulty": "Advanced",
+      "useCase": "Make a specific object publicly readable via a canned ACL rather than a bucket-wide policy.",
+      "beginnerNote": "Bucket-level Block Public Access settings override object ACLs, if Block Public Access is enabled making an object public-read via ACL silently fails to make it public.",
+      "tags": ["s3api", "acl", "public-read", "block-public-access"]
+    },
+    {
+      "id": "s3-no-paginate",
+      "title": "Get one raw page of results without auto-pagination",
+      "command": "aws s3api list-objects-v2 --bucket my-bucket --no-paginate",
+      "flags": [
+        {"flag": "--no-paginate", "description": "Disable the CLI's automatic looping through every page of results"}
+      ],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Get one raw page of API results without the CLI looping through all pages automatically.",
+      "beginnerNote": "Combining --page-size and --max-items with different values can cause missing or duplicated items, if you use both keep them equal.",
+      "tags": ["s3api", "pagination", "no-paginate"]
+    },
+    {
+      "id": "s3-max-items",
+      "title": "Limit results and resume pagination manually",
+      "command": "aws s3api list-objects-v2 --bucket my-bucket --max-items 100",
+      "flags": [
+        {"flag": "--max-items", "description": "Return at most this many results, along with a NextToken if more exist"},
+        {"flag": "--starting-token", "description": "Resume a previous paginated call using the NextToken it returned"}
+      ],
+      "destructive": false,
+      "category": "s3-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Get only the first 100 results and use the returned NextToken with --starting-token to resume pagination in the next call.",
+      "beginnerNote": null,
+      "tags": ["s3api", "pagination", "max-items", "starting-token"]
+    },
+
+    {
+      "id": "ec2-describe-instances",
+      "title": "List all EC2 instances",
+      "command": "aws ec2 describe-instances --query \"Reservations[].Instances[].{ID:InstanceId,State:State.Name,Type:InstanceType}\" --output table",
+      "flags": [
+        {"flag": "--query Reservations[].Instances[].{...}", "description": "Project a readable summary instead of the raw nested JSON"},
+        {"flag": "--filters Name=instance-state-name,Values=running", "description": "Show only instances in a specific state"}
+      ],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "List all EC2 instances and their current state in your account and region.",
+      "beginnerNote": "The raw output is deeply nested JSON that is almost unreadable without a --query expression, always add --query and --output table when reading interactively.",
+      "tags": ["ec2", "describe-instances", "query", "table"]
+    },
+    {
+      "id": "ec2-describe-instances-running",
+      "title": "List only running instances",
+      "command": "aws ec2 describe-instances --filters Name=instance-state-name,Values=running --query \"Reservations[].Instances[].[InstanceId,InstanceType,PublicIpAddress]\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Intermediate",
+      "useCase": "Get a quick table of instance ID, type, and public IP for every currently running instance.",
+      "beginnerNote": null,
+      "tags": ["ec2", "filters", "running", "query"]
+    },
+    {
+      "id": "ec2-start-instances",
+      "title": "Start a stopped instance",
+      "command": "aws ec2 start-instances --instance-ids i-1234567890abcdef0",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "Power on an instance that was previously stopped.",
+      "beginnerNote": null,
+      "tags": ["ec2", "start", "instance"]
+    },
+    {
+      "id": "ec2-stop-instances",
+      "title": "Stop a running instance",
+      "command": "aws ec2 stop-instances --instance-ids i-1234567890abcdef0",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "Shut down an instance to stop paying for compute while keeping its EBS volumes and configuration.",
+      "beginnerNote": "Stopping an instance does not delete it or its EBS volumes, you continue to pay for EBS storage while stopped.",
+      "tags": ["ec2", "stop", "instance", "billing"]
+    },
+    {
+      "id": "ec2-terminate-instances",
+      "title": "Terminate an instance permanently",
+      "command": "aws ec2 terminate-instances --instance-ids i-1234567890abcdef0",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Advanced",
+      "useCase": "Permanently destroy an instance that is no longer needed.",
+      "beginnerNote": "This permanently deletes the instance and by default also deletes any EBS root volumes with the DeleteOnTermination flag set, there is no undo and no confirmation prompt.",
+      "tags": ["ec2", "terminate", "destructive", "ebs"]
+    },
+    {
+      "id": "ec2-run-instances",
+      "title": "Launch a new EC2 instance",
+      "command": "aws ec2 run-instances --image-id ami-12345678 --instance-type t3.micro --key-name my-keypair --security-group-ids sg-12345678 --subnet-id subnet-12345678 --count 1",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Advanced",
+      "useCase": "Launch one or more new EC2 instances from an AMI with a specific instance type, key pair, and network configuration.",
+      "beginnerNote": "You will be billed immediately once the instance enters the running state.",
+      "tags": ["ec2", "run-instances", "launch", "billing"]
+    },
+    {
+      "id": "ec2-describe-images",
+      "title": "List your own AMIs",
+      "command": "aws ec2 describe-images --owners self --query \"Images[*].{ID:ImageId,Name:Name}\" --output table",
+      "flags": [
+        {"flag": "--owners self", "description": "Only show AMIs owned by your account instead of all public AMIs"}
+      ],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Intermediate",
+      "useCase": "List AMIs you own in the current region.",
+      "beginnerNote": "Without --owners self this queries public AMIs which returns thousands of results and is very slow.",
+      "tags": ["ec2", "ami", "describe-images", "owners"]
+    },
+    {
+      "id": "ec2-create-tags",
+      "title": "Tag an EC2 resource",
+      "command": "aws ec2 create-tags --resources i-1234567890abcdef0 --tags Key=Name,Value=my-server",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "Add a Name tag or any custom tag to an instance, volume, or other taggable EC2 resource.",
+      "beginnerNote": null,
+      "tags": ["ec2", "tags", "create-tags"]
+    },
+    {
+      "id": "ec2-describe-security-groups",
+      "title": "View a security group's rules",
+      "command": "aws ec2 describe-security-groups --group-ids sg-12345678",
+      "flags": [],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "Inspect the inbound and outbound rules of a specific security group.",
+      "beginnerNote": null,
+      "tags": ["ec2", "security-group", "describe"]
+    },
+    {
+      "id": "ec2-authorize-security-group-ingress",
+      "title": "Open a port on a security group",
+      "command": "aws ec2 authorize-security-group-ingress --group-id sg-12345678 --protocol tcp --port 22 --cidr 0.0.0.0/0",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Intermediate",
+      "useCase": "Allow inbound traffic on a specific port and protocol, such as opening SSH access to an instance.",
+      "beginnerNote": "0.0.0.0/0 opens the port to the entire internet, always restrict to your IP or a specific CIDR in production.",
+      "tags": ["ec2", "security-group", "ingress", "cidr", "security"]
+    },
+    {
+      "id": "ec2-describe-key-pairs",
+      "title": "List EC2 key pairs",
+      "command": "aws ec2 describe-key-pairs",
+      "flags": [],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "See which SSH key pairs are registered in the current region.",
+      "beginnerNote": null,
+      "tags": ["ec2", "key-pairs", "describe"]
+    },
+    {
+      "id": "ec2-create-key-pair",
+      "title": "Create a new SSH key pair",
+      "command": "aws ec2 create-key-pair --key-name my-keypair --query KeyMaterial --output text > my-keypair.pem && chmod 400 my-keypair.pem",
+      "flags": [],
+      "destructive": true,
+      "category": "ec2-compute",
+      "difficulty": "Intermediate",
+      "useCase": "Generate a brand-new key pair for SSH access to future EC2 instances.",
+      "beginnerNote": "AWS only shows you the private key material once at creation time, if you lose this file you cannot recover the key and must create a new one.",
+      "tags": ["ec2", "key-pair", "create", "ssh", "pem"]
+    },
+    {
+      "id": "ec2-describe-volumes",
+      "title": "Find unattached EBS volumes",
+      "command": "aws ec2 describe-volumes --filters Name=status,Values=available",
+      "flags": [],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "Find detached EBS volumes you are paying for but not using.",
+      "beginnerNote": null,
+      "tags": ["ec2", "ebs", "volumes", "cost"]
+    },
+    {
+      "id": "ec2-describe-snapshots",
+      "title": "List your EBS snapshots",
+      "command": "aws ec2 describe-snapshots --owner-ids self",
+      "flags": [],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Beginner",
+      "useCase": "Review existing EBS snapshots for backup auditing or cost review.",
+      "beginnerNote": null,
+      "tags": ["ec2", "snapshots", "ebs", "backup"]
+    },
+    {
+      "id": "ec2-jmespath-filter-projection",
+      "title": "Filter and project fields with JMESPath in one query",
+      "command": "aws ec2 describe-instances --query \"Reservations[].Instances[?State.Name=='running'].[InstanceId,Tags[?Key=='Name'].Value|[0]]\" --output text",
+      "flags": [],
+      "destructive": false,
+      "category": "ec2-compute",
+      "difficulty": "Advanced",
+      "useCase": "Filter EC2 instances by state and extract specific fields in one query.",
+      "beginnerNote": "If any part of your JMESPath expression has a typo AWS returns null with no error message, test your query incrementally adding one part at a time.",
+      "tags": ["ec2", "jmespath", "query", "filter", "advanced"]
+    },
+
+    {
+      "id": "iam-list-users",
+      "title": "List IAM users",
+      "command": "aws iam list-users --query \"Users[*].{User:UserName,Created:CreateDate}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "iam-access",
+      "difficulty": "Beginner",
+      "useCase": "See every IAM user in the account along with when each one was created.",
+      "beginnerNote": null,
+      "tags": ["iam", "users", "list"]
+    },
+    {
+      "id": "iam-create-user",
+      "title": "Create an IAM user",
+      "command": "aws iam create-user --user-name newuser",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Intermediate",
+      "useCase": "Create a new IAM identity for a person or service that needs AWS access.",
+      "beginnerNote": "Creating a user does not give them any permissions or a way to log in, you must also create access keys or a login profile and attach policies separately.",
+      "tags": ["iam", "create-user", "identity"]
+    },
+    {
+      "id": "iam-create-access-key",
+      "title": "Create an access key for a user",
+      "command": "aws iam create-access-key --user-name myuser",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Intermediate",
+      "useCase": "Generate programmatic access credentials for an IAM user.",
+      "beginnerNote": "The secret access key is only shown once at creation time, save it immediately, you cannot retrieve it again and must create a new key pair if lost.",
+      "tags": ["iam", "access-key", "create", "credentials"]
+    },
+    {
+      "id": "iam-attach-user-policy",
+      "title": "Attach a managed policy to a user",
+      "command": "aws iam attach-user-policy --user-name myuser --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Intermediate",
+      "useCase": "Grant an IAM user permissions by attaching an AWS managed or customer managed policy.",
+      "beginnerNote": "Attaching AdministratorAccess to a user instead of scoping to minimum required permissions is the most common IAM security mistake.",
+      "tags": ["iam", "attach-policy", "permissions", "security"]
+    },
+    {
+      "id": "iam-list-attached-user-policies",
+      "title": "List policies attached to a user",
+      "command": "aws iam list-attached-user-policies --user-name myuser",
+      "flags": [],
+      "destructive": false,
+      "category": "iam-access",
+      "difficulty": "Beginner",
+      "useCase": "Audit exactly which managed policies are attached to a specific user.",
+      "beginnerNote": null,
+      "tags": ["iam", "list-policies", "audit"]
+    },
+    {
+      "id": "iam-create-role",
+      "title": "Create an IAM role",
+      "command": "aws iam create-role --role-name my-role --assume-role-policy-document file://trust-policy.json",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Advanced",
+      "useCase": "Create a role that a service or another account can assume, defined by a trust policy document.",
+      "beginnerNote": "The trust policy controls who can assume the role, confusing trust policy with permissions policy is the most common IAM conceptual error.",
+      "tags": ["iam", "create-role", "trust-policy"]
+    },
+    {
+      "id": "iam-attach-role-policy",
+      "title": "Attach a managed policy to a role",
+      "command": "aws iam attach-role-policy --role-name my-role --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Intermediate",
+      "useCase": "Grant a role the permissions it needs by attaching a managed policy.",
+      "beginnerNote": null,
+      "tags": ["iam", "attach-policy", "role"]
+    },
+    {
+      "id": "iam-create-policy",
+      "title": "Create a customer managed policy",
+      "command": "aws iam create-policy --policy-name my-policy --policy-document file://policy.json",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Advanced",
+      "useCase": "Define a reusable custom permissions policy from a local JSON document.",
+      "beginnerNote": null,
+      "tags": ["iam", "create-policy", "custom-policy"]
+    },
+    {
+      "id": "iam-simulate-principal-policy",
+      "title": "Test whether an identity can perform an action",
+      "command": "aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::123456789012:user/myuser --action-names s3:GetObject --resource-arns arn:aws:s3:::my-bucket/*",
+      "flags": [],
+      "destructive": false,
+      "category": "iam-access",
+      "difficulty": "Advanced",
+      "useCase": "Test whether an IAM identity has permission to perform an action before deploying code that needs it.",
+      "beginnerNote": "Most developers do not know this command exists and instead find out about missing permissions by running the actual operation and getting a 403.",
+      "tags": ["iam", "simulate-policy", "testing", "403"]
+    },
+    {
+      "id": "iam-list-roles",
+      "title": "List IAM roles",
+      "command": "aws iam list-roles --query \"Roles[*].{Name:RoleName,ARN:Arn}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "iam-access",
+      "difficulty": "Beginner",
+      "useCase": "See every IAM role in the account and its ARN.",
+      "beginnerNote": null,
+      "tags": ["iam", "roles", "list"]
+    },
+    {
+      "id": "iam-get-role",
+      "title": "View a role's details",
+      "command": "aws iam get-role --role-name my-role",
+      "flags": [],
+      "destructive": false,
+      "category": "iam-access",
+      "difficulty": "Beginner",
+      "useCase": "Inspect a role's trust policy and metadata.",
+      "beginnerNote": null,
+      "tags": ["iam", "get-role", "trust-policy"]
+    },
+    {
+      "id": "iam-delete-access-key",
+      "title": "Delete an IAM access key",
+      "command": "aws iam delete-access-key --user-name myuser --access-key-id AKIAIOSFODNN7EXAMPLE",
+      "flags": [],
+      "destructive": true,
+      "category": "iam-access",
+      "difficulty": "Intermediate",
+      "useCase": "Revoke a specific access key, such as one that leaked or is being rotated out.",
+      "beginnerNote": null,
+      "tags": ["iam", "access-key", "delete", "rotation"]
+    },
+
+    {
+      "id": "sts-get-caller-identity",
+      "title": "Check the currently assumed identity",
+      "command": "aws sts get-caller-identity",
+      "flags": [],
+      "destructive": false,
+      "category": "sts-assume-role",
+      "difficulty": "Beginner",
+      "useCase": "The single most important debugging command in the entire AWS CLI, run this whenever something is failing with auth or permission errors.",
+      "beginnerNote": null,
+      "tags": ["sts", "identity", "debug"]
+    },
+    {
+      "id": "sts-assume-role",
+      "title": "Assume an IAM role",
+      "command": "aws sts assume-role --role-arn arn:aws:iam::123456789012:role/my-role --role-session-name my-session",
+      "flags": [
+        {"flag": "--role-session-name", "description": "Required in practice — a name identifying this temporary session in logs and CloudTrail"},
+        {"flag": "--duration-seconds", "description": "Extend the session length beyond the default 1 hour, up to the role's configured maximum"}
+      ],
+      "destructive": true,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "Obtain temporary credentials for a role, such as a cross-account role, for the current session.",
+      "beginnerNote": "The --role-session-name parameter is required in practice even though it looks optional, default session duration is 1 hour which may be too short for long-running scripts, use --duration-seconds to extend up to the role's maximum.",
+      "tags": ["sts", "assume-role", "cross-account", "temporary-credentials"]
+    },
+    {
+      "id": "sts-assume-role-export",
+      "title": "Assume a role and export credentials into the shell",
+      "command": "creds=$(aws sts assume-role --role-arn arn:aws:iam::123456789012:role/my-role --role-session-name my-session --query Credentials --output json) && export AWS_ACCESS_KEY_ID=$(echo $creds | jq -r .AccessKeyId) && export AWS_SECRET_ACCESS_KEY=$(echo $creds | jq -r .SecretAccessKey) && export AWS_SESSION_TOKEN=$(echo $creds | jq -r .SessionToken)",
+      "flags": [],
+      "destructive": true,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "Assume a role and automatically export the temporary credentials into your shell environment for immediate use.",
+      "beginnerNote": "These environment variables override everything else in the credential chain, unset all three when done or your next command will use these temporary credentials even after they expire.",
+      "tags": ["sts", "assume-role", "export", "jq", "temporary-credentials"]
+    },
+    {
+      "id": "sts-profile-based-assume-role",
+      "title": "Configure automatic role assumption via a profile",
+      "command": "# ~/.aws/config\n[profile cross-account]\nrole_arn = arn:aws:iam::123456789012:role/my-role\nsource_profile = default",
+      "flags": [],
+      "destructive": false,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "The correct long-term way to work with assumed roles, AWS CLI automatically calls sts assume-role and refreshes credentials without any manual export.",
+      "beginnerNote": "This is the approach AWS recommends but most tutorials show the manual export method because it is faster to explain.",
+      "tags": ["sts", "profile", "source_profile", "role_arn", "best-practice"]
+    },
+    {
+      "id": "sts-get-session-token",
+      "title": "Get a session token with MFA",
+      "command": "aws sts get-session-token --duration-seconds 3600 --serial-number arn:aws:iam::123456789012:mfa/myuser --token-code 123456",
+      "flags": [],
+      "destructive": true,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "Get temporary credentials when MFA is required on your account.",
+      "beginnerNote": null,
+      "tags": ["sts", "session-token", "mfa"]
+    },
+    {
+      "id": "sts-assume-role-with-web-identity",
+      "title": "Assume a role using a web identity token",
+      "command": "aws sts assume-role-with-web-identity --role-arn arn:aws:iam::123456789012:role/my-role --role-session-name my-session --web-identity-token $ID_TOKEN",
+      "flags": [],
+      "destructive": true,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "Federate into an AWS role using an OIDC token, such as the token GitHub Actions provides for keyless CI/CD deployments.",
+      "beginnerNote": "This is what powers GitHub Actions OIDC and similar keyless CI integrations — no long-lived AWS access keys are stored anywhere.",
+      "tags": ["sts", "web-identity", "oidc", "github-actions", "federation"]
+    },
+    {
+      "id": "sts-decode-authorization-message",
+      "title": "Decode an encoded authorization failure message",
+      "command": "aws sts decode-authorization-message --encoded-message <encoded-message>",
+      "flags": [],
+      "destructive": false,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "Decode the long encoded message AWS returns for certain authorization denials to see exactly which permission was missing.",
+      "beginnerNote": "Some IAM denial errors return an opaque base64-like blob instead of a plain reason, this command is the only way to read what it actually says.",
+      "tags": ["sts", "decode", "authorization", "403", "debug"]
+    },
+    {
+      "id": "sts-get-federation-token",
+      "title": "Get temporary credentials for a federated user",
+      "command": "aws sts get-federation-token --name my-federated-user --policy file://policy.json --duration-seconds 3600",
+      "flags": [],
+      "destructive": true,
+      "category": "sts-assume-role",
+      "difficulty": "Advanced",
+      "useCase": "Issue short-lived, scoped-down credentials for a federated user or application, such as a third-party tool that needs temporary limited access.",
+      "beginnerNote": null,
+      "tags": ["sts", "federation-token", "temporary-credentials"]
+    },
+
+    {
+      "id": "lambda-list-functions",
+      "title": "List Lambda functions",
+      "command": "aws lambda list-functions --query \"Functions[*].{Name:FunctionName,Runtime:Runtime,Modified:LastModified}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "lambda-serverless",
+      "difficulty": "Beginner",
+      "useCase": "See every Lambda function in the current region along with its runtime and last modified date.",
+      "beginnerNote": null,
+      "tags": ["lambda", "list-functions", "serverless"]
+    },
+    {
+      "id": "lambda-invoke",
+      "title": "Invoke a Lambda function synchronously",
+      "command": "aws lambda invoke --function-name my-function --payload file://event.json --cli-binary-format raw-in-base64-out response.json",
+      "flags": [
+        {"flag": "--cli-binary-format raw-in-base64-out", "description": "Required in AWS CLI v2 when passing a JSON payload file, tells the CLI not to double-encode it"}
+      ],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Intermediate",
+      "useCase": "Manually invoke a Lambda function with a test event and inspect its response.",
+      "beginnerNote": "--cli-binary-format raw-in-base64-out is required in AWS CLI v2 when passing a JSON payload, without it you get a validation error about base64 encoding, this is the most common Lambda invoke failure when following v1 tutorials on a v2 CLI.",
+      "tags": ["lambda", "invoke", "cli-binary-format", "v2"]
+    },
+    {
+      "id": "lambda-invoke-async",
+      "title": "Invoke a Lambda function asynchronously",
+      "command": "aws lambda invoke --function-name my-function --invocation-type Event --payload file://event.json --cli-binary-format raw-in-base64-out response.json",
+      "flags": [
+        {"flag": "--invocation-type Event", "description": "Fire-and-forget async invocation instead of waiting for the result"}
+      ],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Intermediate",
+      "useCase": "Trigger a Lambda function without waiting for it to finish, useful for background processing.",
+      "beginnerNote": "invocation-type Event means fire-and-forget async, the response.json will contain only a 202 status code not the function result, check CloudWatch Logs for the actual output.",
+      "tags": ["lambda", "invoke", "async", "event"]
+    },
+    {
+      "id": "lambda-update-function-code",
+      "title": "Deploy new code to a Lambda function",
+      "command": "aws lambda update-function-code --function-name my-function --zip-file fileb://function.zip",
+      "flags": [],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Intermediate",
+      "useCase": "Push a new deployment package to an existing Lambda function.",
+      "beginnerNote": "fileb:// with a b prefix reads the file as binary, using file:// for a zip file causes a corrupted upload that may silently fail or produce a broken deployment.",
+      "tags": ["lambda", "update-function-code", "fileb", "deployment"]
+    },
+    {
+      "id": "lambda-create-function",
+      "title": "Create a new Lambda function",
+      "command": "aws lambda create-function --function-name my-function --runtime python3.12 --role arn:aws:iam::123456789012:role/lambda-role --handler lambda_function.lambda_handler --zip-file fileb://function.zip",
+      "flags": [],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Advanced",
+      "useCase": "Create a brand-new Lambda function from a local deployment package.",
+      "beginnerNote": null,
+      "tags": ["lambda", "create-function", "deployment"]
+    },
+    {
+      "id": "lambda-get-function",
+      "title": "View a Lambda function's configuration",
+      "command": "aws lambda get-function --function-name my-function",
+      "flags": [],
+      "destructive": false,
+      "category": "lambda-serverless",
+      "difficulty": "Beginner",
+      "useCase": "Inspect a function's configuration, code location, and current state.",
+      "beginnerNote": null,
+      "tags": ["lambda", "get-function", "inspect"]
+    },
+    {
+      "id": "lambda-create-function-url-config",
+      "title": "Create a public HTTPS endpoint for a function",
+      "command": "aws lambda create-function-url-config --function-name my-function --auth-type NONE",
+      "flags": [],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Advanced",
+      "useCase": "Expose a Lambda function directly over HTTPS without setting up API Gateway.",
+      "beginnerNote": "auth-type NONE makes the function publicly invokable by anyone with the URL, use AWS_IAM for private endpoints.",
+      "tags": ["lambda", "function-url", "auth-type", "public"]
+    },
+    {
+      "id": "lambda-list-event-source-mappings",
+      "title": "List a function's event source mappings",
+      "command": "aws lambda list-event-source-mappings --function-name my-function",
+      "flags": [],
+      "destructive": false,
+      "category": "lambda-serverless",
+      "difficulty": "Intermediate",
+      "useCase": "See which SQS queues, DynamoDB streams, or Kinesis streams are wired to trigger a function.",
+      "beginnerNote": null,
+      "tags": ["lambda", "event-source-mapping", "triggers"]
+    },
+    {
+      "id": "lambda-delete-function",
+      "title": "Delete a Lambda function",
+      "command": "aws lambda delete-function --function-name my-function",
+      "flags": [],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Advanced",
+      "useCase": "Permanently remove a function that is no longer needed.",
+      "beginnerNote": "This immediately and permanently deletes the function and its configuration, there is no recycle bin or undo.",
+      "tags": ["lambda", "delete-function", "destructive"]
+    },
+    {
+      "id": "lambda-add-permission",
+      "title": "Grant another service permission to invoke a function",
+      "command": "aws lambda add-permission --function-name my-function --statement-id allow-s3 --action lambda:InvokeFunction --principal s3.amazonaws.com --source-arn arn:aws:s3:::my-bucket",
+      "flags": [],
+      "destructive": true,
+      "category": "lambda-serverless",
+      "difficulty": "Advanced",
+      "useCase": "Allow an AWS service like S3 or EventBridge to invoke a Lambda function as part of an event trigger.",
+      "beginnerNote": null,
+      "tags": ["lambda", "add-permission", "resource-policy", "triggers"]
+    },
+
+    {
+      "id": "ecr-get-login-password",
+      "title": "Authenticate Docker against ECR",
+      "command": "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Intermediate",
+      "useCase": "Log Docker in to a private ECR registry so you can push or pull images.",
+      "beginnerNote": "The auth token is region-scoped, if you authenticate against us-east-1 and try to push to a repository in eu-west-1 it will fail with an unauthorized error, always specify the correct region.",
+      "tags": ["ecr", "docker", "login", "region"]
+    },
+    {
+      "id": "ecr-create-repository",
+      "title": "Create an ECR repository",
+      "command": "aws ecr create-repository --repository-name my-app",
+      "flags": [],
+      "destructive": true,
+      "category": "containers",
+      "difficulty": "Intermediate",
+      "useCase": "Create a new private container image repository.",
+      "beginnerNote": null,
+      "tags": ["ecr", "create-repository", "docker"]
+    },
+    {
+      "id": "ecr-describe-repositories",
+      "title": "List ECR repositories",
+      "command": "aws ecr describe-repositories --query \"repositories[*].{Name:repositoryName,URI:repositoryUri}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Beginner",
+      "useCase": "See every ECR repository in the account and its full pull URI.",
+      "beginnerNote": null,
+      "tags": ["ecr", "describe-repositories", "list"]
+    },
+    {
+      "id": "ecr-list-images",
+      "title": "List images in a repository",
+      "command": "aws ecr list-images --repository-name my-app",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Beginner",
+      "useCase": "See every image digest and tag pushed to a repository.",
+      "beginnerNote": null,
+      "tags": ["ecr", "list-images", "tags"]
+    },
+    {
+      "id": "ecr-batch-delete-image",
+      "title": "Delete an image from ECR",
+      "command": "aws ecr batch-delete-image --repository-name my-app --image-ids imageTag=old-tag",
+      "flags": [],
+      "destructive": true,
+      "category": "containers",
+      "difficulty": "Advanced",
+      "useCase": "Remove old or unused image tags to reduce storage costs.",
+      "beginnerNote": "ECR does not automatically delete old images, untagged images accumulate and generate storage costs, set a lifecycle policy to automate cleanup.",
+      "tags": ["ecr", "batch-delete-image", "cleanup", "lifecycle-policy"]
+    },
+    {
+      "id": "ecs-list-clusters",
+      "title": "List ECS clusters",
+      "command": "aws ecs list-clusters",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Beginner",
+      "useCase": "See every ECS cluster in the current region.",
+      "beginnerNote": null,
+      "tags": ["ecs", "list-clusters"]
+    },
+    {
+      "id": "ecs-describe-services",
+      "title": "View an ECS service's status",
+      "command": "aws ecs describe-services --cluster my-cluster --services my-service",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Intermediate",
+      "useCase": "Check the running count, desired count, and deployment status of an ECS service.",
+      "beginnerNote": null,
+      "tags": ["ecs", "describe-services", "status"]
+    },
+    {
+      "id": "ecs-update-service",
+      "title": "Scale an ECS service",
+      "command": "aws ecs update-service --cluster my-cluster --service my-service --desired-count 3",
+      "flags": [],
+      "destructive": true,
+      "category": "containers",
+      "difficulty": "Intermediate",
+      "useCase": "Scale an ECS service up or down without redeploying.",
+      "beginnerNote": null,
+      "tags": ["ecs", "update-service", "scale"]
+    },
+    {
+      "id": "ecs-execute-command",
+      "title": "Open a shell inside a running ECS task",
+      "command": "aws ecs execute-command --cluster my-cluster --task task-id --container my-container --interactive --command /bin/sh",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Advanced",
+      "useCase": "Debug a running ECS Fargate or EC2-backed task by getting an interactive shell inside its container.",
+      "beginnerNote": "This requires --enable-execute-command to have been set on the service or task definition AND the SSM Session Manager plugin installed locally, missing either one gives a confusing error that does not clearly identify which prerequisite is missing.",
+      "tags": ["ecs", "execute-command", "debug", "session-manager"]
+    },
+    {
+      "id": "eks-update-kubeconfig",
+      "title": "Configure kubectl for an EKS cluster",
+      "command": "aws eks update-kubeconfig --region us-east-1 --name my-cluster",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Intermediate",
+      "useCase": "Configure kubectl to connect to an EKS cluster so you can run kubectl commands against it.",
+      "beginnerNote": "If you run this with one IAM profile and then run kubectl commands under a different profile or role, kubectl will fail with You must be logged in to the server, the IAM identity used for update-kubeconfig must match or be mapped in the cluster's access configuration.",
+      "tags": ["eks", "update-kubeconfig", "kubectl", "iam"]
+    },
+    {
+      "id": "eks-list-clusters",
+      "title": "List EKS clusters",
+      "command": "aws eks list-clusters",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Beginner",
+      "useCase": "See every EKS cluster in the current region.",
+      "beginnerNote": null,
+      "tags": ["eks", "list-clusters"]
+    },
+    {
+      "id": "eks-describe-cluster",
+      "title": "View an EKS cluster's details",
+      "command": "aws eks describe-cluster --name my-cluster",
+      "flags": [],
+      "destructive": false,
+      "category": "containers",
+      "difficulty": "Intermediate",
+      "useCase": "Inspect a cluster's endpoint, version, and networking configuration.",
+      "beginnerNote": null,
+      "tags": ["eks", "describe-cluster"]
+    },
+
+    {
+      "id": "ec2-describe-vpcs",
+      "title": "List VPCs",
+      "command": "aws ec2 describe-vpcs --query \"Vpcs[*].{ID:VpcId,CIDR:CidrBlock}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "See every VPC in the current region along with its CIDR block.",
+      "beginnerNote": null,
+      "tags": ["vpc", "describe-vpcs", "networking"]
+    },
+    {
+      "id": "ec2-describe-subnets",
+      "title": "List subnets",
+      "command": "aws ec2 describe-subnets --filters Name=vpc-id,Values=vpc-12345678",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "List every subnet inside a specific VPC along with its availability zone and CIDR.",
+      "beginnerNote": null,
+      "tags": ["vpc", "subnets", "describe-subnets"]
+    },
+    {
+      "id": "ec2-create-vpc",
+      "title": "Create a new VPC",
+      "command": "aws ec2 create-vpc --cidr-block 10.0.0.0/16",
+      "flags": [],
+      "destructive": true,
+      "category": "networking",
+      "difficulty": "Advanced",
+      "useCase": "Create a new isolated network for a new environment or account.",
+      "beginnerNote": "A newly created VPC has no subnets, route tables, or internet gateway attached, it is an empty network shell until you build out the rest.",
+      "tags": ["vpc", "create-vpc", "networking"]
+    },
+    {
+      "id": "ec2-describe-route-tables",
+      "title": "View route tables",
+      "command": "aws ec2 describe-route-tables --filters Name=vpc-id,Values=vpc-12345678",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Inspect how traffic is routed within a VPC, such as whether a subnet has a route to an internet gateway.",
+      "beginnerNote": null,
+      "tags": ["vpc", "route-tables", "networking"]
+    },
+    {
+      "id": "ec2-describe-internet-gateways",
+      "title": "List internet gateways",
+      "command": "aws ec2 describe-internet-gateways",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Check which internet gateway is attached to a VPC when debugging why instances can't reach the internet.",
+      "beginnerNote": null,
+      "tags": ["vpc", "internet-gateway", "networking"]
+    },
+    {
+      "id": "elbv2-describe-load-balancers",
+      "title": "List load balancers",
+      "command": "aws elbv2 describe-load-balancers --query \"LoadBalancers[*].{Name:LoadBalancerName,DNS:DNSName,State:State.Code}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "See every Application or Network Load Balancer and its DNS name.",
+      "beginnerNote": null,
+      "tags": ["elbv2", "load-balancer", "describe"]
+    },
+    {
+      "id": "elbv2-describe-target-health",
+      "title": "Check target group health",
+      "command": "aws elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/my-targets/1234567890abcdef",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Debug why a load balancer is returning errors by checking whether its targets are passing health checks.",
+      "beginnerNote": "A target showing unhealthy usually means the health check path returns a non-200 response or the security group blocks the health check port, not that the instance itself is down.",
+      "tags": ["elbv2", "target-health", "debug", "health-check"]
+    },
+    {
+      "id": "route53-list-hosted-zones",
+      "title": "List Route53 hosted zones",
+      "command": "aws route53 list-hosted-zones",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "See every DNS hosted zone managed in the account.",
+      "beginnerNote": null,
+      "tags": ["route53", "hosted-zones", "dns"]
+    },
+    {
+      "id": "route53-list-resource-record-sets",
+      "title": "List DNS records in a hosted zone",
+      "command": "aws route53 list-resource-record-sets --hosted-zone-id Z1234567890ABC",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "See every DNS record configured within a specific hosted zone.",
+      "beginnerNote": null,
+      "tags": ["route53", "dns-records", "list"]
+    },
+    {
+      "id": "route53-change-resource-record-sets",
+      "title": "Create or update a DNS record",
+      "command": "aws route53 change-resource-record-sets --hosted-zone-id Z1234567890ABC --change-batch file://change-batch.json",
+      "flags": [],
+      "destructive": true,
+      "category": "networking",
+      "difficulty": "Advanced",
+      "useCase": "Point a domain or subdomain at a new target, such as updating a CNAME after migrating a load balancer.",
+      "beginnerNote": "DNS changes take time to propagate based on the record's TTL, a low TTL before a planned migration makes future changes take effect faster.",
+      "tags": ["route53", "change-resource-record-sets", "dns", "ttl"]
+    },
+
+    {
+      "id": "logs-describe-log-groups",
+      "title": "List CloudWatch log groups",
+      "command": "aws logs describe-log-groups --query \"logGroups[*].logGroupName\" --output text",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Beginner",
+      "useCase": "See every log group in the account, such as Lambda function logs or ECS task logs.",
+      "beginnerNote": null,
+      "tags": ["cloudwatch-logs", "describe-log-groups", "list"]
+    },
+    {
+      "id": "logs-tail",
+      "title": "Stream live logs",
+      "command": "aws logs tail /aws/lambda/my-function --follow",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Beginner",
+      "useCase": "Stream live logs from a Lambda function or any CloudWatch log group like a tail -f.",
+      "beginnerNote": "aws logs tail is a newer command that most developers do not know exists, it is far easier than get-log-events for live log monitoring.",
+      "tags": ["cloudwatch-logs", "tail", "follow", "live"]
+    },
+    {
+      "id": "logs-filter-log-events",
+      "title": "Search log events by pattern",
+      "command": "aws logs filter-log-events --log-group-name /aws/lambda/my-function --filter-pattern ERROR --start-time 1718400000000",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Intermediate",
+      "useCase": "Search a log group for lines matching a specific pattern, such as ERROR, within a time range.",
+      "beginnerNote": "--start-time and --end-time are epoch milliseconds not seconds, passing seconds instead of milliseconds returns no results without an error message.",
+      "tags": ["cloudwatch-logs", "filter-log-events", "epoch", "search"]
+    },
+    {
+      "id": "logs-start-query",
+      "title": "Run a CloudWatch Logs Insights query",
+      "command": "aws logs start-query --log-group-name /aws/lambda/my-function --start-time 1718400000 --end-time 1718486400 --query-string \"fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc | limit 20\"",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Advanced",
+      "useCase": "Run a CloudWatch Logs Insights query for powerful log analytics.",
+      "beginnerNote": "start-query returns a query ID immediately, you must then call get-query-results with that ID to retrieve the results once the query completes.",
+      "tags": ["cloudwatch-logs", "logs-insights", "start-query"]
+    },
+    {
+      "id": "logs-get-query-results",
+      "title": "Retrieve Logs Insights query results",
+      "command": "aws logs get-query-results --query-id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Advanced",
+      "useCase": "Fetch the results of a previously started CloudWatch Logs Insights query.",
+      "beginnerNote": "Call this in a loop until status is Complete, the query may take several seconds depending on log volume.",
+      "tags": ["cloudwatch-logs", "get-query-results", "logs-insights"]
+    },
+    {
+      "id": "ssm-start-session",
+      "title": "Start a shell session on an EC2 instance",
+      "command": "aws ssm start-session --target i-1234567890abcdef0",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Intermediate",
+      "useCase": "Get a shell on an EC2 instance without SSH or open inbound ports.",
+      "beginnerNote": "Requires the SSM agent running on the instance AND the Session Manager plugin installed on your local machine AND the instance to have an IAM role with AmazonSSMManagedInstanceCore, missing any of these three gives different errors.",
+      "tags": ["ssm", "start-session", "session-manager", "no-ssh"]
+    },
+    {
+      "id": "ssm-get-parameter",
+      "title": "Read a value from Parameter Store",
+      "command": "aws ssm get-parameter --name /my-app/database-url --with-decryption",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Beginner",
+      "useCase": "Read a configuration value or secret stored in Systems Manager Parameter Store.",
+      "beginnerNote": "--with-decryption is required for SecureString parameters, without it you get the encrypted value not the plaintext, the flag is silently ignored for String and StringList parameters so forgetting it only breaks SecureString.",
+      "tags": ["ssm", "parameter-store", "get-parameter", "securestring"]
+    },
+    {
+      "id": "ssm-put-parameter",
+      "title": "Store a value in Parameter Store",
+      "command": "aws ssm put-parameter --name /my-app/api-key --value mysecretvalue --type SecureString --overwrite",
+      "flags": [],
+      "destructive": true,
+      "category": "monitoring-ops",
+      "difficulty": "Intermediate",
+      "useCase": "Store or update a configuration value or encrypted secret in Parameter Store.",
+      "beginnerNote": null,
+      "tags": ["ssm", "parameter-store", "put-parameter", "securestring"]
+    },
+    {
+      "id": "ssm-send-command",
+      "title": "Run a shell command on EC2 instances remotely",
+      "command": "aws ssm send-command --document-name AWS-RunShellScript --targets Key=instanceids,Values=i-1234567890abcdef0 --parameters commands=[\"df -h\"]",
+      "flags": [],
+      "destructive": true,
+      "category": "monitoring-ops",
+      "difficulty": "Advanced",
+      "useCase": "Run a shell command on one or more EC2 instances without SSH.",
+      "beginnerNote": null,
+      "tags": ["ssm", "send-command", "run-shell-script", "no-ssh"]
+    },
+    {
+      "id": "cloudwatch-put-metric-alarm",
+      "title": "Create a CloudWatch alarm",
+      "command": "aws cloudwatch put-metric-alarm --alarm-name high-cpu --metric-name CPUUtilization --namespace AWS/EC2 --statistic Average --period 300 --threshold 80 --comparison-operator GreaterThanThreshold --evaluation-periods 2 --alarm-actions arn:aws:sns:us-east-1:123456789012:my-topic --dimensions Name=InstanceId,Value=i-1234567890abcdef0",
+      "flags": [],
+      "destructive": true,
+      "category": "monitoring-ops",
+      "difficulty": "Advanced",
+      "useCase": "Set up an alarm that notifies an SNS topic when a metric like CPU utilization crosses a threshold.",
+      "beginnerNote": null,
+      "tags": ["cloudwatch", "put-metric-alarm", "sns", "alerting"]
+    },
+    {
+      "id": "cloudwatch-get-metric-statistics",
+      "title": "Read historical metric data",
+      "command": "aws cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --dimensions Name=InstanceId,Value=i-1234567890abcdef0 --start-time 2026-07-01T00:00:00Z --end-time 2026-07-02T00:00:00Z --period 3600 --statistics Average",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Intermediate",
+      "useCase": "Pull historical metric values for a resource over a time range, such as average CPU over the last day.",
+      "beginnerNote": null,
+      "tags": ["cloudwatch", "get-metric-statistics", "metrics"]
+    },
+    {
+      "id": "cloudwatch-describe-alarms",
+      "title": "List CloudWatch alarms",
+      "command": "aws cloudwatch describe-alarms --query \"MetricAlarms[*].{Name:AlarmName,State:StateValue}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "monitoring-ops",
+      "difficulty": "Beginner",
+      "useCase": "See every configured alarm and whether it is currently OK, ALARM, or INSUFFICIENT_DATA.",
+      "beginnerNote": null,
+      "tags": ["cloudwatch", "describe-alarms", "list"]
+    },
+
+    {
+      "id": "rds-describe-db-instances",
+      "title": "List RDS database instances",
+      "command": "aws rds describe-db-instances --query \"DBInstances[*].{ID:DBInstanceIdentifier,Status:DBInstanceStatus,Engine:Engine}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "data-iac",
+      "difficulty": "Beginner",
+      "useCase": "See every RDS instance in the account, its engine, and its current status.",
+      "beginnerNote": null,
+      "tags": ["rds", "describe-db-instances", "list"]
+    },
+    {
+      "id": "rds-create-db-snapshot",
+      "title": "Create a manual RDS snapshot",
+      "command": "aws rds create-db-snapshot --db-instance-identifier mydb --db-snapshot-identifier mydb-backup-2026-07-05",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Intermediate",
+      "useCase": "Take a manual, on-demand backup of a database before a risky migration or change.",
+      "beginnerNote": null,
+      "tags": ["rds", "create-db-snapshot", "backup"]
+    },
+    {
+      "id": "rds-delete-db-instance",
+      "title": "Delete an RDS instance",
+      "command": "aws rds delete-db-instance --db-instance-identifier mydb --skip-final-snapshot",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Advanced",
+      "useCase": "Permanently decommission a database instance that is no longer needed.",
+      "beginnerNote": "--skip-final-snapshot is commonly copied from tutorial and CI scripts but means your data is permanently destroyed with no backup, remove this flag on production databases and let AWS create a final snapshot before deletion.",
+      "tags": ["rds", "delete-db-instance", "destructive", "skip-final-snapshot"]
+    },
+    {
+      "id": "rds-restore-db-instance-from-db-snapshot",
+      "title": "Restore a database from a snapshot",
+      "command": "aws rds restore-db-instance-from-db-snapshot --db-instance-identifier mydb-restored --db-snapshot-identifier mydb-backup-2026-07-05 --db-instance-class db.t3.micro",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Advanced",
+      "useCase": "Create a new database instance from an existing snapshot, such as recovering from an incident or standing up a test copy.",
+      "beginnerNote": null,
+      "tags": ["rds", "restore-db-instance", "snapshot", "recovery"]
+    },
+    {
+      "id": "cloudformation-deploy",
+      "title": "Deploy or update a CloudFormation stack",
+      "command": "aws cloudformation deploy --template-file template.yaml --stack-name my-stack --capabilities CAPABILITY_IAM",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Intermediate",
+      "useCase": "Create or update infrastructure defined in a CloudFormation template idempotently.",
+      "beginnerNote": "deploy is idempotent and creates the stack if it does not exist or updates it if it does, this is almost always what you want, use create-stack only if you specifically need to fail when the stack already exists.",
+      "tags": ["cloudformation", "deploy", "iac", "idempotent"]
+    },
+    {
+      "id": "cloudformation-describe-stacks",
+      "title": "Read a CloudFormation stack's outputs",
+      "command": "aws cloudformation describe-stacks --stack-name my-stack --query \"Stacks[0].Outputs\"",
+      "flags": [],
+      "destructive": false,
+      "category": "data-iac",
+      "difficulty": "Beginner",
+      "useCase": "Read the output values from a CloudFormation stack like a load balancer URL or database endpoint.",
+      "beginnerNote": null,
+      "tags": ["cloudformation", "describe-stacks", "outputs"]
+    },
+    {
+      "id": "cloudformation-describe-stack-events",
+      "title": "Debug a failed CloudFormation deployment",
+      "command": "aws cloudformation describe-stack-events --stack-name my-stack --query \"StackEvents[?ResourceStatus=='FAILED']\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "data-iac",
+      "difficulty": "Intermediate",
+      "useCase": "Find out why a CloudFormation stack deployment failed.",
+      "beginnerNote": null,
+      "tags": ["cloudformation", "describe-stack-events", "debug", "failed"]
+    },
+    {
+      "id": "cloudformation-delete-stack",
+      "title": "Delete a CloudFormation stack",
+      "command": "aws cloudformation delete-stack --stack-name my-stack",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Advanced",
+      "useCase": "Tear down every resource defined in a stack, such as decommissioning an entire environment.",
+      "beginnerNote": "This deletes every resource defined in the stack, for stacks containing RDS databases or S3 buckets the deletion may be blocked by DeletionPolicy or non-empty bucket errors.",
+      "tags": ["cloudformation", "delete-stack", "destructive", "deletionpolicy"]
+    },
+    {
+      "id": "secretsmanager-get-secret-value",
+      "title": "Read a secret's value",
+      "command": "aws secretsmanager get-secret-value --secret-id my-secret --query SecretString --output text | jq -r .password",
+      "flags": [],
+      "destructive": false,
+      "category": "data-iac",
+      "difficulty": "Intermediate",
+      "useCase": "Retrieve and decode a specific key from a JSON-formatted secret in Secrets Manager.",
+      "beginnerNote": "SecretString is itself a JSON string not a JSON object, you cannot use --query to navigate into keys inside it directly, pipe the output to jq to extract a nested key.",
+      "tags": ["secretsmanager", "get-secret-value", "jq", "json-string"]
+    },
+    {
+      "id": "secretsmanager-create-secret",
+      "title": "Create a new secret",
+      "command": "aws secretsmanager create-secret --name my-secret --secret-string file://secret.json",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Intermediate",
+      "useCase": "Store a new credential or API key in Secrets Manager.",
+      "beginnerNote": null,
+      "tags": ["secretsmanager", "create-secret"]
+    },
+    {
+      "id": "secretsmanager-put-secret-value",
+      "title": "Update an existing secret's value",
+      "command": "aws secretsmanager put-secret-value --secret-id my-secret --secret-string newvalue",
+      "flags": [],
+      "destructive": true,
+      "category": "data-iac",
+      "difficulty": "Intermediate",
+      "useCase": "Rotate or update the value of an existing secret without changing its ARN or name.",
+      "beginnerNote": null,
+      "tags": ["secretsmanager", "put-secret-value", "rotation"]
+    },
+    {
+      "id": "secretsmanager-list-secrets",
+      "title": "List all secrets",
+      "command": "aws secretsmanager list-secrets --query \"SecretList[*].{Name:Name,ARN:ARN}\" --output table",
+      "flags": [],
+      "destructive": false,
+      "category": "data-iac",
+      "difficulty": "Beginner",
+      "useCase": "See every secret stored in Secrets Manager for the account and region.",
+      "beginnerNote": null,
+      "tags": ["secretsmanager", "list-secrets"]
+    }
+  ]
+}

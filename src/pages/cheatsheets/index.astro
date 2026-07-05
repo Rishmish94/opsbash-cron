@@ -3,8 +3,9 @@ import Layout from '../../layouts/Layout.astro';
 import kubectlData from '../../data/cheatsheets/kubectl.json';
 import dockerData from '../../data/cheatsheets/docker.json';
 import gitData from '../../data/cheatsheets/git.json';
+import awsData from '../../data/cheatsheets/aws.json';
 
-const sheets = [kubectlData, dockerData, gitData];
+const sheets = [kubectlData, dockerData, gitData, awsData];
 const totalCommands = sheets.reduce((sum, s) => sum + s.commands.length, 0);
 const totalSheets = sheets.length;
 
@@ -13,13 +14,13 @@ const webAppSchema = {
   "@type": "CollectionPage",
   "name": "DevOps Cheat Sheets",
   "url": "https://opsbash.com/cheatsheets",
-  "description": "Searchable, copy-ready command references for kubectl, Docker, and Git. No login, no download, everything runs in your browser.",
+  "description": "Searchable, copy-ready command references for kubectl, Docker, Git, and AWS CLI. No login, no download, everything runs in your browser.",
 };
 ---
 
 <Layout
-  title="DevOps Cheat Sheets | kubectl, Docker, Git | OpsBash"
-  description="Searchable, copy-ready cheat sheets for kubectl, Docker, and Git. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
+  title="DevOps Cheat Sheets | kubectl, Docker, Git, AWS CLI | OpsBash"
+  description="Searchable, copy-ready cheat sheets for kubectl, Docker, Git, and AWS CLI. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
   canonicalURL="https://opsbash.com/cheatsheets"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
