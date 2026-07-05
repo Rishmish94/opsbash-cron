@@ -1,0 +1,249 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import kubectlData from '../../data/cheatsheets/kubectl.json';
+import dockerData from '../../data/cheatsheets/docker.json';
+import gitData from '../../data/cheatsheets/git.json';
+
+const sheets = [kubectlData, dockerData, gitData];
+const totalCommands = sheets.reduce((sum, s) => sum + s.commands.length, 0);
+const totalSheets = sheets.length;
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "DevOps Cheat Sheets",
+  "url": "https://opsbash.com/cheatsheets",
+  "description": "Searchable, copy-ready command references for kubectl, Docker, and Git. No login, no download, everything runs in your browser.",
+};
+---
+
+<Layout
+  title="DevOps Cheat Sheets | kubectl, Docker, Git | OpsBash"
+  description="Searchable, copy-ready cheat sheets for kubectl, Docker, and Git. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
+  canonicalURL="https://opsbash.com/cheatsheets"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-10 pb-6 text-center">
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style="color: #F8FAFC;">
+      DevOps Cheat Sheets
+    </h1>
+    <p class="text-base max-w-xl mx-auto mb-6" style="color: var(--fg2);">
+      Searchable, copy-ready command references. No login, no download. Everything runs in your browser.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-2.5">
+      <span class="stat-badge">{totalCommands}+ commands</span>
+      <span class="stat-badge">{totalSheets} cheat sheets live</span>
+      <span class="stat-badge">Verified against official docs</span>
+    </div>
+  </section>
+
+  <!-- ── SEARCH ────────────────────────────────────────────────────────────── -->
+  <section class="pb-8 max-w-lg mx-auto">
+    <div class="relative">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="sheetSearch" type="text" placeholder="Search cheat sheets..." autocomplete="off" spellcheck="false" class="sheet-search-input" />
+    </div>
+  </section>
+
+  <!-- ── CARDS GRID ────────────────────────────────────────────────────────── -->
+  <section class="pb-6">
+    <div class="cs-grid" id="cardsGrid">
+      {sheets.map((sheet) => (
+        <a
+          href={`/cheatsheets/${sheet.slug}`}
+          class="cs-card"
+          data-search={`${sheet.title} ${sheet.description} ${sheet.category}`.toLowerCase()}
+        >
+          <div class="cs-card-top">
+            <span class="cs-cat-pill">{sheet.category}</span>
+          </div>
+          <h2 class="cs-card-title">{sheet.title}</h2>
+          <p class="cs-card-desc">{sheet.description}</p>
+          <div class="cs-card-meta">
+            <span>{sheet.commands.length} commands</span>
+            <span class="cs-meta-sep">·</span>
+            <span>Updated {sheet.lastUpdated}</span>
+          </div>
+          <span class="cs-ghost-btn">View Cheat Sheet →</span>
+        </a>
+      ))}
+    </div>
+    <p id="cardsNoResults" class="hidden text-center text-sm py-10" style="color: var(--fg3);">
+      No cheat sheets match your search.
+    </p>
+  </section>
+
+  <!-- ── COMING SOON ───────────────────────────────────────────────────────── -->
+  <section class="pb-20 text-center">
+    <p class="text-sm" style="color: var(--fg3);">
+      More cheat sheets coming soon including Terraform, Helm, GitHub Actions, and Ansible.
+    </p>
+  </section>
+
+</div>
+</div>
+
+<style>
+  .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #334155;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--fg3);
+    pointer-events: none;
+  }
+  .sheet-search-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px 0 44px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .sheet-search-input:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.15);
+  }
+  .sheet-search-input::placeholder { color: var(--fg3); }
+
+  /* ── Cards grid — mirrors homepage tools-grid exactly ───────────────────── */
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .cs-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .cs-grid { grid-template-columns: 1fr; }
+  }
+
+  .cs-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 20px;
+    text-decoration: none;
+    transition: all 200ms ease;
+  }
+  .cs-card:hover {
+    background: #1A1A1A;
+    border-color: #F8FAFC;
+  }
+  .cs-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .cs-cat-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #F8FAFC;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .cs-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #F8FAFC;
+    line-height: 1.3;
+  }
+  .cs-card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #94A3B8;
+    line-height: 1.55;
+    flex: 1;
+  }
+  .cs-card-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #71717a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cs-meta-sep { color: #334155; }
+  .cs-ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    width: fit-content;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .cs-card:hover .cs-ghost-btn {
+    background: rgba(248,250,252,0.08);
+    border-color: #F8FAFC;
+  }
+</style>
+
+<script>
+  const searchInput = document.getElementById('sheetSearch') as HTMLInputElement;
+  const cards = Array.from(document.querySelectorAll('.cs-card')) as HTMLElement[];
+  const noResults = document.getElementById('cardsNoResults') as HTMLElement;
+
+  function applyFilter() {
+    const q = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const haystack = card.getAttribute('data-search') || '';
+      const match = !q || haystack.indexOf(q) !== -1;
+      card.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+    noResults.classList.toggle('hidden', visibleCount !== 0);
+  }
+
+  searchInput?.addEventListener('input', () => {
+    requestAnimationFrame(applyFilter);
+  });
+</script>
+
+</Layout>

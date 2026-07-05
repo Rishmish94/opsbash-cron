@@ -13,6 +13,7 @@ const currentPath = Astro.url.pathname;
 
 const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
+const isCheatsheetsPage = currentPath === '/cheatsheets' || currentPath.startsWith('/cheatsheets/');
 
 const orgSchema = {
   "@context": "https://schema.org",
@@ -140,12 +141,16 @@ const orgSchema = {
       </div>
     ))}
 
-    <!-- Blog link -->
+    <!-- Blog / Cheat Sheets links -->
     <div style="margin-bottom:16px;">
       <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:4px;padding:0 2px;">Content</p>
       <a href="/blog"
         style={'display:block;padding:9px 10px;text-decoration:none;font-size:13px;font-weight:500;border-radius:6px;margin-bottom:1px;transition:background 0.1s;color:' + (isBlogPage ? '#F8FAFC' : 'var(--text-primary)') + ';background:' + (isBlogPage ? 'rgba(248,250,252,0.08)' : 'transparent')}>
         Blog
+      </a>
+      <a href="/cheatsheets"
+        style={'display:block;padding:9px 10px;text-decoration:none;font-size:13px;font-weight:500;border-radius:6px;margin-bottom:1px;transition:background 0.1s;color:' + (isCheatsheetsPage ? '#F8FAFC' : 'var(--text-primary)') + ';background:' + (isCheatsheetsPage ? 'rgba(248,250,252,0.08)' : 'transparent')}>
+        Cheat Sheets
       </a>
     </div>
 
@@ -232,6 +237,7 @@ const orgSchema = {
           </div>
 
           <a href="/blog" class={'nav-link' + (isBlogPage ? ' nav-active' : '')}>Blog</a>
+          <a href="/cheatsheets" class={'nav-link' + (isCheatsheetsPage ? ' nav-active' : '')}>Cheat Sheets</a>
         </nav>
 
         <!-- Right side -->

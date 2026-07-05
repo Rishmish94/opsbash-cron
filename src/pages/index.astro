@@ -2,11 +2,16 @@
 import Layout from '../layouts/Layout.astro';
 import Terminal from '../components/Terminal.astro';
 import { getCollection } from 'astro:content';
+import kubectlCheatsheet from '../data/cheatsheets/kubectl.json';
+import dockerCheatsheet from '../data/cheatsheets/docker.json';
+import gitCheatsheet from '../data/cheatsheets/git.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
   .sort((a, b) => a.id.localeCompare(b.id))
   .slice(0, 3);
+
+const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet];
 
 const trustItems = [
   '100% Client-Side',
@@ -339,6 +344,41 @@ const toolCards = [
 
 
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- CHEAT SHEETS                                                               -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-[1280px] mx-auto px-5" style="padding-top:20px;padding-bottom:20px;">
+
+  <div class="text-center reveal" style="margin-bottom:40px;">
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:10px;">Cheat Sheets</p>
+    <h2 style="font-size:32px;font-weight:700;color:var(--text-primary);font-family:'Inter',sans-serif;margin-bottom:10px;">
+      Quick Reference for the Tools You Use Every Day
+    </h2>
+    <p style="font-size:15px;color:var(--text-secondary);">Searchable, copy-ready command references. Everything runs in your browser.</p>
+  </div>
+
+  <div class="cheatsheet-grid">
+    {cheatsheetCards.map((sheet, i) => (
+      <a
+        href={`/cheatsheets/${sheet.slug}`}
+        class={'reveal cheatsheet-card' + (i === 1 ? ' reveal-delay-1' : i === 2 ? ' reveal-delay-2' : '')}
+      >
+        <p class="cheatsheet-card-title">{sheet.title}</p>
+        <p class="cheatsheet-card-desc">{sheet.description}</p>
+        <p class="cheatsheet-card-count">{sheet.commands.length}+ commands</p>
+      </a>
+    ))}
+  </div>
+
+  <div style="text-align:center;margin-top:36px;">
+    <a href="/cheatsheets" class="browse-btn">
+      Browse all cheat sheets →
+    </a>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <!-- TOOL GRID — tools-grid class enforces 3-col via global.css                -->
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 <section id="tools" class="max-w-[1280px] mx-auto px-5" style="padding-top:48px;padding-bottom:80px;">
@@ -447,6 +487,53 @@ const toolCards = [
   }
   @media (max-width: 640px) {
     .home-blog-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Cheat sheet preview cards ──────────────────────────────────────────── */
+  .cheatsheet-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .cheatsheet-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .cheatsheet-grid { grid-template-columns: 1fr; }
+  }
+  .cheatsheet-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 20px;
+    text-decoration: none;
+    transition: all 200ms ease;
+  }
+  .cheatsheet-card:hover {
+    background: #1A1A1A;
+    border-color: #F8FAFC;
+  }
+  .cheatsheet-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #F8FAFC;
+  }
+  .cheatsheet-card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #94A3B8;
+    line-height: 1.55;
+    flex: 1;
+  }
+  .cheatsheet-card-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #71717a;
+    margin-top: 4px;
   }
 
   /* ── Tool cards ──────────────────────────────────────────────────────────── */

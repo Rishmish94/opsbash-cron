@@ -1,0 +1,961 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import kubectlData from '../../data/cheatsheets/kubectl.json';
+import dockerData from '../../data/cheatsheets/docker.json';
+import gitData from '../../data/cheatsheets/git.json';
+
+export function getStaticPaths() {
+  return [
+    { params: { slug: 'kubectl' }, props: { data: kubectlData } },
+    { params: { slug: 'docker' }, props: { data: dockerData } },
+    { params: { slug: 'git' }, props: { data: gitData } },
+  ];
+}
+
+const { data } = Astro.props;
+const slug = data.slug;
+
+const relatedToolsMap: Record<string, { href: string; name: string; desc: string }[]> = {
+  kubectl: [
+    { href: '/k8s-secret-decoder', name: 'Kubernetes Secret Decoder', desc: 'Decode Kubernetes Secret YAML and convert .env files into ready-to-apply Secret manifests.' },
+    { href: '/docker-compose-converter', name: 'Docker Run to Compose', desc: 'Convert docker run commands into docker-compose.yml, and back again.' },
+  ],
+  docker: [
+    { href: '/docker-compose-converter', name: 'Docker Run to Compose', desc: 'Convert docker run commands into docker-compose.yml, and back again.' },
+    { href: '/log-sanitiser', name: 'Log Sanitiser & PII Redactor', desc: 'Redact PII and secrets from logs before sharing them with AI tools or teammates.' },
+  ],
+  git: [
+    { href: '/gitignore-generator', name: 'gitignore Generator', desc: 'Generate .gitignore files for any technology stack with one click.' },
+    { href: '/json-diff', name: 'JSON Diff & Schema Validator', desc: 'Compare JSON files semantically and validate against JSON Schema draft-07.' },
+  ],
+};
+
+const seoContentMap: Record<string, string[]> = {
+  kubectl: [
+    "kubectl is the command-line tool that talks to the Kubernetes API server, and for nearly every engineer running workloads on Kubernetes it is the primary interface to the cluster, more so than any dashboard or GUI. Every action a Kubernetes cluster performs, whether deploying an application, checking why a pod crashed, or rotating a secret, ultimately reduces to an HTTP request that kubectl constructs and sends. Learning kubectl well is not a nice-to-have skill for a Kubernetes engineer, it is the equivalent of learning to type for a writer: everything else depends on it being second nature.",
+    "The reason kubectl shows up in daily workflows so relentlessly is that Kubernetes itself is declarative and API-driven rather than something you configure once and forget. Deployments roll out gradually, pods get rescheduled when nodes fail, and autoscalers adjust replica counts continuously in the background, which means the state of a cluster is always shifting. Engineers check in on that state constantly: is the rollout finished, did the new pod come up healthy, is the autoscaler doing what it's supposed to. kubectl get, kubectl describe, and kubectl logs together form the read loop that every other action depends on, and most of a working day spent operating Kubernetes is really just cycling through those three commands with different arguments.",
+    "The mental model that makes kubectl click is understanding that almost everything in Kubernetes is a resource living inside a namespace, and kubectl is just a lens for viewing and editing those resources. A Pod, a Deployment, a Service, a Secret, a ConfigMap: these are all objects stored in etcd behind the API server, described by YAML or JSON, and namespaces are the folders that group and isolate them logically. Once that clicks, most kubectl commands stop feeling like memorized incantations and start feeling like predictable variations on a theme: get lists resources, describe explains one resource in depth, apply reconciles a manifest against live state, and delete removes it. The verb-resource pattern (kubectl <verb> <resource> <name>) covers the overwhelming majority of daily usage.",
+    "Three mistakes trip up nearly every engineer learning kubectl. The first is forgetting namespaces exist at all: running kubectl get pods with no flags only searches the default namespace, so a perfectly healthy pod running in a different namespace looks like it vanished. The second is assuming kubectl get all actually means all — it excludes ConfigMaps, Secrets, Ingress objects and any custom resource, which causes confusing gaps during audits. The third is confusing kubectl delete pod with actually removing a workload: if a Deployment owns that pod, Kubernetes recreates it within seconds, so deleting a pod is really just forcing a restart, not decommissioning anything. Internalizing these three quirks early saves hours of confused debugging later.",
+  ],
+  docker: [
+    "Every Docker container goes through the same predictable lifecycle: an image is built or pulled, a container is created from that image, the container runs, and eventually it stops and is either restarted or removed. Understanding this lifecycle explicitly, rather than treating docker run as one big magic command, is what makes the rest of Docker's CLI make sense. docker create allocates the container's filesystem and configuration without starting its main process; docker start actually launches that process; docker stop sends a termination signal and waits for a graceful shutdown; and docker rm deletes the container object entirely, freeing its name for reuse. docker run is simply a convenience wrapper that does create and start in one step, which is exactly why it has such a large flag surface — it's really two commands' worth of options merged together.",
+    "The distinction between an image and a container is the second concept every Docker user needs solid before anything else clicks. An image is an immutable, read-only template: a set of filesystem layers plus metadata describing what command to run, what ports to expose, and what environment variables to expect. A container is a running (or stopped) instance of that image, with its own writable layer on top where any runtime changes get written. You can create many containers from the same image, each isolated from the others, the same way you can run many processes from the same compiled binary. This is why docker build only needs to happen once per code change, while docker run can happen many times against that same built image without rebuilding anything.",
+    "A recurring point of confusion is running docker ps and seeing nothing, despite being sure a container was started moments earlier. The explanation is almost always that the container already exited — plain docker ps only lists currently running containers, silently omitting anything that stopped, whether it exited cleanly or crashed. The fix is docker ps -a, which includes stopped containers alongside running ones, and pairing that with docker logs <container> immediately reveals why it exited: a missing environment variable, a failed database connection, or a foreground process that finished and had nothing left to keep the container alive. This single habit, defaulting to -a when something 'disappeared,' resolves a surprising fraction of early Docker confusion.",
+    "Docker Compose introduces its own well-known trap around service readiness: depends_on only guarantees that a dependency container has started, not that the service inside it is actually ready to accept connections. A Postgres container can report as started within a second while the database engine itself is still initializing for several more seconds, and an application container that starts immediately after will fail its very first connection attempt even though depends_on was configured correctly. The fix is to define a healthcheck on the dependency and have depends_on wait on that specific health condition instead of just container start, or to build retry logic into the application's own startup sequence. Treating depends_on as a strict ordering guarantee rather than a readiness guarantee is one of the most common sources of flaky local development environments.",
+  ],
+  git: [
+    "Git organizes every change you make across four distinct areas, and most confusion new users run into comes from not knowing which area a file currently sits in. The working directory is the literal files on disk that you edit in your editor. The staging area, sometimes called the index, is a holding area where you explicitly place changes with git add before they become part of a commit — this intermediate step is what lets you build a clean, focused commit out of a messy set of edits. The local repository is the full history of commits stored in the .git folder on your machine, private until you push it. And the remote repository is the shared copy, typically on GitHub or GitLab, that your teammates and CI systems interact with. Nearly every Git command moves something between two of these four areas, and once you can name which area a command touches, its behavior stops feeling arbitrary.",
+    "Commands that rewrite history — git commit --amend, git rebase, and force pushes — feel dangerous because they genuinely are, in a very specific and narrow way: they change commit hashes that other people or systems may already be relying on. A commit hash is effectively a fingerprint of a commit's content plus its parent, so changing a commit's message, reordering commits, or squashing them all produce a brand new hash, even when the code ends up looking identical. If a teammate already pulled the original hash, their local history and the rewritten remote history now disagree, and reconciling that divergence usually means their branch needs to be manually reset or re-fetched. This is exactly why rewriting history is safe on a private, unpushed branch — nobody else has a copy to diverge from — but risky the moment it touches anything shared.",
+    "What makes Git forgiving despite all this is a safety net most developers never learn about until they desperately need it: the reflog. Every time HEAD moves, whether through a commit, a checkout, a reset, or even a rebase, Git silently records that movement in a local log that persists for about 90 days by default. This means that even after a git reset --hard that appears to have permanently destroyed a commit, or after deleting a branch that still had valuable work on it, the actual commit objects are usually still sitting in Git's object database, simply unreferenced by any branch. Running git reflog surfaces every one of those past HEAD positions with their commit hashes, and a plain git checkout -b against the right hash brings the 'lost' work straight back. Very few things in Git are ever truly gone within that 90-day window — they're just temporarily unreachable, and the reflog is the map back to them.",
+  ],
+};
+
+const faqMap: Record<string, { q: string; a: string }[]> = {
+  kubectl: [
+    { q: 'What is kubectl and what does it do?', a: 'kubectl is the official command-line tool for interacting with a Kubernetes cluster. It sends requests to the Kubernetes API server to create, inspect, update, and delete resources like Pods, Deployments, and Services. Nearly every operational task on Kubernetes, from deploying an application to debugging a crash, goes through kubectl in some form.' },
+    { q: 'How do I switch between multiple Kubernetes clusters?', a: 'Run kubectl config get-contexts to see every cluster/user/namespace combination saved in your kubeconfig, then kubectl config use-context <context-name> to switch. Always confirm the switch worked with kubectl config current-context before running anything destructive — switching to the wrong cluster by mistake is one of the most common causes of production incidents.' },
+    { q: 'What is the difference between kubectl apply and kubectl create?', a: 'kubectl create is imperative: it creates a brand-new resource and errors out with AlreadyExists if one with that name already exists. kubectl apply is declarative: it computes a diff against the last-applied configuration and either creates or updates the resource to match your manifest. For GitOps and CI/CD pipelines, apply is almost always the right choice since it is idempotent and safe to re-run.' },
+    { q: 'How do I debug a pod stuck in CrashLoopBackOff?', a: 'Run kubectl logs <pod-name> --previous to see what the last crashed instance printed right before it died — plain logs shows the new, likely empty, container. Then run kubectl describe pod <pod-name> and check the Events section and exit code; exit code 137 specifically means the container was OOMKilled and needs a higher memory limit or a memory leak fix.' },
+  ],
+  docker: [
+    { q: 'What is the difference between docker run and docker start?', a: 'docker run creates a brand-new container from an image and immediately starts it — it is effectively docker create plus docker start combined. docker start only works on a container that already exists (usually one that was previously stopped) and resumes it with its original configuration, without creating anything new.' },
+    { q: 'What does the -it flag do in docker run?', a: '-i keeps STDIN open so the container can receive input, and -t allocates a pseudo-terminal so output is displayed interactively rather than piped. Together they are what let you get an interactive shell session inside a container. Without them, a shell process will start and exit immediately since it has no terminal to attach to.' },
+    { q: 'How do I get a shell inside a running container?', a: 'Run docker exec -it <container-name> sh (or bash if the image includes it). This opens a new interactive process inside the already-running container, separate from its main process, so you can inspect files, check environment variables, or test network connectivity without disrupting the container\'s primary workload.' },
+    { q: 'Why does docker compose up fail even when depends_on is set?', a: 'depends_on only waits for a dependency container to start, not for the service running inside it to be ready to accept connections. A database container can report as started while the database engine is still initializing. Add a healthcheck to the dependency and configure depends_on to wait on that specific health condition, or add retry logic to the dependent application.' },
+  ],
+  git: [
+    { q: 'What is the difference between git pull and git fetch?', a: 'git fetch downloads new commits and branches from the remote but does not touch your current working branch or working directory — it just updates your local view of the remote. git pull is git fetch immediately followed by a merge (or rebase, if configured) into your current branch. Use fetch when you want to review incoming changes before integrating them.' },
+    { q: 'How do I undo a commit I already pushed?', a: 'Use git revert <commit-hash>, which creates a new commit that reverses the changes, then push normally. This is safe on shared branches because it never rewrites existing history. Avoid git reset on a pushed commit unless you are prepared to force-push, which rewrites history and can break things for teammates who already pulled the original commit.' },
+    { q: 'What is a detached HEAD state and how do I fix it?', a: 'A detached HEAD happens when you check out a specific commit hash or tag directly instead of a branch, so HEAD points at a commit rather than at a branch reference. Any new commits you make there are not attached to any branch and can become hard to find later. Fix it by running git checkout -b <new-branch-name> to attach your current position to a proper branch before committing further.' },
+    { q: 'How do I safely force push without destroying teammates work?', a: 'Use git push --force-with-lease instead of git push --force. It checks whether the remote branch has changed since you last fetched it, and refuses to push if someone else has added commits you have not seen yet, preventing you from silently overwriting their work. Plain --force skips that check entirely.' },
+  ],
+};
+
+const relatedTools = relatedToolsMap[slug];
+const seoParagraphs = seoContentMap[slug];
+const faqs = faqMap[slug];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map((f) => ({
+    "@type": "Question",
+    "name": f.q,
+    "acceptedAnswer": { "@type": "Answer", "text": f.a },
+  })),
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": data.title,
+  "url": `https://opsbash.com/cheatsheets/${slug}`,
+  "description": data.description,
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+};
+
+const categoryCounts: Record<string, number> = {};
+data.commands.forEach((c: any) => {
+  categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
+});
+---
+
+<Layout
+  title={`${data.title} | OpsBash`}
+  description={data.description}
+  canonicalURL={`https://opsbash.com/cheatsheets/${slug}`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-8 pb-5">
+    <div class="flex items-center flex-wrap gap-2 mb-3">
+      <span class="cs-cat-pill">{data.category}</span>
+      <span class="cs-updated-text">Updated {data.lastUpdated}</span>
+      <span class="cs-count-badge">{data.commands.length}+ commands</span>
+      <span class="cs-verified-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Verified against official docs
+      </span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-2 tracking-tight" style="color: #F8FAFC;">{data.title}</h1>
+    <p class="text-base max-w-2xl" style="color: var(--fg2);">{data.description}</p>
+  </section>
+
+  <!-- ── SECURITY NOTICE ───────────────────────────────────────────────────── -->
+  <section class="mb-8">
+    <div class="security-notice">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" class="shrink-0">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <p>Everything runs in your browser. No command you type or copy is sent to any server.</p>
+    </div>
+  </section>
+
+  <!-- ── INCIDENT FLOW ─────────────────────────────────────────────────────── -->
+  {data.hasIncidentFlow && (
+    <section class="mb-10">
+      <h2 class="section-title">{data.incidentFlow.title}</h2>
+      <p class="section-subtitle">{data.incidentFlow.subtitle}</p>
+      <div class="incident-grid">
+        {data.incidentFlow.steps.map((step: any) => (
+          <div class="incident-card">
+            <span class="incident-step-badge">{step.step}</span>
+            <div class="incident-cmd-block">
+              <code class="incident-cmd-text">{step.command}</code>
+              <button class="incident-copy-btn copy-btn" data-copy={step.command}>Copy</button>
+            </div>
+            <p class="incident-why">{step.why}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- ── POD STATUS DECODER ────────────────────────────────────────────────── -->
+  {data.hasPodStatusDecoder && (
+    <section class="mb-10">
+      <h2 class="section-title">{data.podStatusDecoder.title}</h2>
+      <p class="section-subtitle">{data.podStatusDecoder.subtitle}</p>
+      <div class="decoder-table-wrap">
+        <table class="decoder-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>What it means</th>
+              <th>What to run next</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.podStatusDecoder.rows.map((row: any) => (
+              <tr>
+                <td class="decoder-status">{row.status}</td>
+                <td class="decoder-meaning">{row.meaning}</td>
+                <td class="decoder-action">{row.action}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+</div>
+
+<!-- ── STICKY CONTROLS BAR ───────────────────────────────────────────────── -->
+<div id="stickyBar">
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 sticky-bar-inner">
+    <div class="sticky-search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="cmdSearch" type="text" placeholder="Search commands, flags, use cases..." autocomplete="off" spellcheck="false" class="sticky-search-input" />
+    </div>
+    <div class="sticky-pills" id="pillsWrap">
+      <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
+      {data.categories.map((cat: any) => (
+        categoryCounts[cat.id] ? (
+          <button class="cat-pill" data-category={cat.id}>{cat.label} ({categoryCounts[cat.id]})</button>
+        ) : null
+      ))}
+    </div>
+  </div>
+</div>
+
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── RESULTS META ──────────────────────────────────────────────────────── -->
+  <p id="resultsMeta" class="results-meta">{data.commands.length} commands</p>
+
+  <!-- ── COMMAND CARDS GRID ────────────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="cmd-grid" id="cmdGrid">
+      {data.commands.map((cmd: any) => {
+        const searchBlob = [
+          cmd.title,
+          cmd.command,
+          ...(cmd.flags || []).map((f: any) => `${f.flag} ${f.description}`),
+          cmd.useCase || '',
+          cmd.beginnerNote || '',
+          ...(cmd.tags || []),
+        ].join(' ').toLowerCase();
+        return (
+          <div
+            class={`cmd-card${cmd.destructive ? ' destructive' : ''}`}
+            data-category={cmd.category}
+            data-search={searchBlob}
+          >
+            <div class="cmd-card-top">
+              <h3 class="cmd-card-title">{cmd.title}</h3>
+              <div class="cmd-badges">
+                <span class={`badge badge-${cmd.difficulty.toLowerCase()}`}>{cmd.difficulty}</span>
+                {cmd.destructive && <span class="badge badge-destructive">Destructive</span>}
+                {cmd.deprecated && <span class="badge badge-deprecated">Deprecated</span>}
+              </div>
+            </div>
+
+            <div class="cmd-block">
+              <code class="cmd-text">{cmd.command}</code>
+              <button class="copy-btn" data-copy={cmd.command}>Copy</button>
+            </div>
+
+            {cmd.flags && cmd.flags.length > 0 && (
+              <div class="cmd-flags">
+                {cmd.flags.map((f: any) => (
+                  <div class="cmd-flag-row">
+                    <code class="cmd-flag-name">{f.flag}</code>
+                    <span class="cmd-flag-desc">{f.description}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {cmd.useCase && (
+              <div class="cmd-usecase">
+                <p class="cmd-usecase-label">When to use this</p>
+                <p class="cmd-usecase-text">{cmd.useCase}</p>
+              </div>
+            )}
+
+            {cmd.beginnerNote && (
+              <div class="cmd-gotcha">
+                <p class="cmd-gotcha-label">Gotcha</p>
+                <p class="cmd-gotcha-text">{cmd.beginnerNote}</p>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- ── NO RESULTS STATE ────────────────────────────────────────────────── -->
+    <div id="noResultsState" class="no-results hidden">
+      <p>No commands match your search. Try a different term or clear the filter.</p>
+      <button id="clearSearchBtn" class="clear-btn">Clear Search</button>
+    </div>
+  </section>
+
+  <!-- ── RELATED TOOLS ─────────────────────────────────────────────────────── -->
+  <section class="mb-10">
+    <div class="related-card">
+      <h2 class="section-title" style="margin-bottom: 14px;">Related Tools</h2>
+      <div class="related-grid">
+        {relatedTools.map((tool) => (
+          <a href={tool.href} class="related-item">
+            <div>
+              <p class="related-name">{tool.name}</p>
+              <p class="related-desc">{tool.desc}</p>
+            </div>
+            <span class="related-arrow">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="mb-10">
+    <div class="seo-card">
+      {seoParagraphs.map((p) => <p class="seo-p">{p}</p>)}
+    </div>
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+      {faqs.map((faq, i) => (
+        <div class="faq-item" style={i === faqs.length - 1 ? 'border-bottom: none;' : ''}>
+          <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+            <span class="text-sm font-medium" style="color: var(--fg);">{faq.q}</span>
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            {faq.a}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+</div>
+</div>
+
+<style>
+  /* ── Hero badges ─────────────────────────────────────────────────────────── */
+  .cs-cat-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #F8FAFC;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cs-updated-text {
+    font-size: 12px;
+    color: var(--fg3);
+    font-family: 'Inter', sans-serif;
+  }
+  .cs-count-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(248,250,252,0.06);
+    border: 1px solid #334155;
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cs-verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.25);
+    color: #4ADE80;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Security notice ───────────────────────────────────────────────────────── */
+  .security-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #111111;
+    border: 1px solid #222222;
+    border-left: 3px solid #334155;
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .security-notice p {
+    font-size: 13px;
+    color: var(--fg2);
+    margin: 0;
+  }
+
+  /* ── Section titles ─────────────────────────────────────────────────────── */
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 6px;
+  }
+  .section-subtitle {
+    font-size: 13.5px;
+    color: var(--fg2);
+    margin-bottom: 18px;
+    max-width: 720px;
+    line-height: 1.6;
+  }
+
+  /* ── Incident flow ──────────────────────────────────────────────────────── */
+  .incident-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 1024px) {
+    .incident-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .incident-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .incident-card {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .incident-step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(248,250,252,0.08);
+    border: 1px solid #334155;
+    color: #F8FAFC;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .incident-cmd-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 10px;
+    overflow-x: auto;
+    min-width: 0;
+  }
+  .incident-cmd-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #F8FAFC;
+    white-space: nowrap;
+  }
+  .incident-why {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+
+  /* ── Pod status decoder ─────────────────────────────────────────────────── */
+  .decoder-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #222222;
+  }
+  .decoder-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #111111;
+  }
+  .decoder-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg2);
+    padding: 12px 16px;
+    background: rgba(248,250,252,0.04);
+    border-bottom: 1px solid #222222;
+    white-space: nowrap;
+  }
+  .decoder-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #222222;
+    vertical-align: top;
+    font-size: 13px;
+  }
+  .decoder-table tr:last-child td { border-bottom: none; }
+  .decoder-table tbody tr:hover { background: rgba(248,250,252,0.03); }
+  .decoder-status {
+    font-family: 'JetBrains Mono', monospace;
+    color: #F8FAFC;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .decoder-meaning, .decoder-action {
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+
+  /* ── Sticky controls bar ────────────────────────────────────────────────── */
+  #stickyBar {
+    position: sticky;
+    top: 64px;
+    z-index: 20;
+    background: #0A0A0A;
+    border-bottom: 1px solid #222222;
+    padding: 14px 0;
+  }
+  .sticky-bar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .sticky-search-wrap {
+    position: relative;
+    flex: 1 1 320px;
+    max-width: 480px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--fg3);
+    pointer-events: none;
+  }
+  .sticky-search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px 0 38px;
+    border-radius: 8px;
+    background: #111111;
+    border: 1px solid #222222;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .sticky-search-input:focus { border-color: #64748B; }
+  .sticky-search-input::placeholder { color: var(--fg3); }
+
+  .sticky-pills {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+  .cat-pill {
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--fg2);
+    border: 1px solid #222222;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .cat-pill:hover { border-color: #334155; color: #F8FAFC; }
+  .cat-pill.active {
+    background: rgba(248,250,252,0.1);
+    border-color: #F8FAFC;
+    color: #F8FAFC;
+  }
+
+  .results-meta {
+    font-size: 12.5px;
+    color: var(--fg3);
+    padding: 16px 0 14px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Command grid ────────────────────────────────────────────────────────── */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .cmd-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .cmd-card {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .cmd-card.destructive {
+    border-left: 3px solid rgba(248,113,113,0.4);
+  }
+  .cmd-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .cmd-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #F8FAFC;
+    line-height: 1.4;
+  }
+  .cmd-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-beginner { color: #4ADE80; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3); }
+  .badge-intermediate { color: #FBBF24; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3); }
+  .badge-advanced { color: #F472B6; background: rgba(244,114,182,0.12); border: 1px solid rgba(244,114,182,0.3); }
+  .badge-destructive { color: #F87171; background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); }
+  .badge-deprecated { color: #FB923C; background: rgba(251,146,60,0.12); border: 1px solid rgba(251,146,60,0.3); }
+
+  .cmd-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    min-width: 0;
+  }
+  .cmd-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #F8FAFC;
+    white-space: pre;
+  }
+  .copy-btn {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 11px;
+    border-radius: 6px;
+    background: rgba(248,250,252,0.06);
+    color: var(--fg2);
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s, color 0.15s;
+  }
+  .copy-btn:hover { background: rgba(248,250,252,0.12); color: #F8FAFC; }
+  .copy-btn.copied { color: #4ADE80 !important; background: rgba(74,222,128,0.12) !important; }
+
+  .cmd-flags {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 14px;
+  }
+  .cmd-flag-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .cmd-flag-name {
+    font-family: 'JetBrains Mono', monospace;
+    color: #60A5FA;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .cmd-flag-desc {
+    color: var(--fg2);
+    line-height: 1.5;
+  }
+
+  .cmd-usecase, .cmd-gotcha {
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .cmd-usecase {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+  }
+  .cmd-usecase-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #71717a;
+    margin-bottom: 4px;
+  }
+  .cmd-usecase-text {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+  .cmd-gotcha {
+    background: rgba(251,191,36,0.05);
+    border: 1px solid rgba(251,191,36,0.15);
+    margin-bottom: 0;
+  }
+  .cmd-gotcha-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #fbbf24;
+    margin-bottom: 4px;
+  }
+  .cmd-gotcha-text {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+
+  /* ── No results ──────────────────────────────────────────────────────────── */
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .no-results p {
+    color: var(--fg2);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .clear-btn {
+    background: transparent;
+    color: #F8FAFC;
+    border: 1px solid #334155;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+  }
+  .clear-btn:hover { background: rgba(248,250,252,0.08); }
+
+  /* ── Related tools ──────────────────────────────────────────────────────── */
+  .related-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 640px) {
+    .related-grid { grid-template-columns: 1fr; }
+  }
+  .related-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .related-item:hover { border-color: #F8FAFC; background: #111111; }
+  .related-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+    margin-bottom: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+  .related-desc {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.5;
+    font-family: 'Inter', sans-serif;
+  }
+  .related-arrow {
+    color: #F8FAFC;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ── SEO content ─────────────────────────────────────────────────────────── */
+  .seo-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .seo-p {
+    font-size: 14px;
+    color: var(--fg2);
+    line-height: 1.75;
+    margin-bottom: 16px;
+  }
+  .seo-p:last-child { margin-bottom: 0; }
+
+  /* ── FAQ ─────────────────────────────────────────────────────────────────── */
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .faq-trigger:hover { background: rgba(248,250,252,0.04); }
+</style>
+
+<script>
+  function copyText(text: string, btn: HTMLElement) {
+    function flash() {
+      btn.classList.add('copied');
+      const original = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = original;
+      }, 1400);
+    }
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(flash).catch(() => { fallback(); flash(); });
+    } else {
+      fallback(); flash();
+    }
+  }
+
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const text = btn.getAttribute('data-copy') || '';
+      if (text) copyText(text, btn as HTMLElement);
+    });
+  });
+
+  // ── Search + category filtering ──────────────────────────────────────────
+  const cmdCards = Array.from(document.querySelectorAll('.cmd-card')) as HTMLElement[];
+  const pills = Array.from(document.querySelectorAll('.cat-pill')) as HTMLElement[];
+  const searchInput = document.getElementById('cmdSearch') as HTMLInputElement;
+  const resultsMeta = document.getElementById('resultsMeta') as HTMLElement;
+  const noResultsState = document.getElementById('noResultsState') as HTMLElement;
+  const clearSearchBtn = document.getElementById('clearSearchBtn') as HTMLButtonElement;
+  const cmdGrid = document.getElementById('cmdGrid') as HTMLElement;
+
+  let activeCategory = 'all';
+
+  function applyFilters() {
+    const query = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    cmdCards.forEach((card) => {
+      const matchesCategory = activeCategory === 'all' || card.getAttribute('data-category') === activeCategory;
+      const haystack = card.getAttribute('data-search') || '';
+      const matchesSearch = !query || haystack.indexOf(query) !== -1;
+      const visible = matchesCategory && matchesSearch;
+      card.style.display = visible ? '' : 'none';
+      if (visible) visibleCount++;
+    });
+
+    // Results meta text
+    let metaText = `${visibleCount} command${visibleCount === 1 ? '' : 's'}`;
+    if (activeCategory !== 'all') {
+      const activePill = pills.find((p) => p.getAttribute('data-category') === activeCategory);
+      const label = activePill ? activePill.textContent!.replace(/\s*\(\d+\)$/, '') : '';
+      metaText += ` in ${label}`;
+    }
+    if (query) {
+      metaText += ` matching "${query}"`;
+    }
+    resultsMeta.textContent = metaText;
+
+    const noResults = visibleCount === 0;
+    noResultsState.classList.toggle('hidden', !noResults);
+    cmdGrid.style.display = noResults ? 'none' : '';
+  }
+
+  searchInput?.addEventListener('input', () => {
+    requestAnimationFrame(applyFilters);
+  });
+
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const cat = pill.getAttribute('data-category') || 'all';
+      if (cat === 'all') {
+        activeCategory = 'all';
+      } else if (activeCategory === cat) {
+        activeCategory = 'all';
+      } else {
+        activeCategory = cat;
+      }
+      pills.forEach((p) => {
+        const pCat = p.getAttribute('data-category') || 'all';
+        p.classList.toggle('active', pCat === activeCategory || (activeCategory === 'all' && pCat === 'all'));
+      });
+      requestAnimationFrame(applyFilters);
+    });
+  });
+
+  clearSearchBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    activeCategory = 'all';
+    pills.forEach((p) => p.classList.toggle('active', p.getAttribute('data-category') === 'all'));
+    requestAnimationFrame(applyFilters);
+  });
+
+  // ── FAQ accordion ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.faq-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item') as HTMLElement;
+      const content = item.querySelector('.faq-content') as HTMLElement;
+      const chevron = btn.querySelector('.faq-chevron') as HTMLElement;
+      const isOpen = !content.classList.contains('hidden');
+      content.classList.toggle('hidden', isOpen);
+      chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
+  });
+</script>
+
+</Layout>
