@@ -141,15 +141,13 @@ const orgSchema = {
       </div>
     ))}
 
-    <!-- Blog / Cheat Sheets links -->
-    <div style="margin-bottom:16px;">
-      <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:4px;padding:0 2px;">Content</p>
-      <a href="/blog"
-        style={'display:block;padding:9px 10px;text-decoration:none;font-size:13px;font-weight:500;border-radius:6px;margin-bottom:1px;transition:background 0.1s;color:' + (isBlogPage ? '#F8FAFC' : 'var(--text-primary)') + ';background:' + (isBlogPage ? 'rgba(248,250,252,0.08)' : 'transparent')}>
-        Blog
+    <!-- Blogs / Cheat Sheets links -->
+    <div style="margin-bottom:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+      <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:-4px;padding:0 2px;">Content</p>
+      <a href="/blog" class={'nav-pill-blog' + (isBlogPage ? ' nav-pill-active' : '')}>
+        Blogs
       </a>
-      <a href="/cheatsheets"
-        style={'display:block;padding:9px 10px;text-decoration:none;font-size:13px;font-weight:500;border-radius:6px;margin-bottom:1px;transition:background 0.1s;color:' + (isCheatsheetsPage ? '#F8FAFC' : 'var(--text-primary)') + ';background:' + (isCheatsheetsPage ? 'rgba(248,250,252,0.08)' : 'transparent')}>
+      <a href="/cheatsheets" class={'nav-pill-cheatsheets' + (isCheatsheetsPage ? ' nav-pill-active' : '')}>
         Cheat Sheets
       </a>
     </div>
@@ -236,8 +234,8 @@ const orgSchema = {
             </div>
           </div>
 
-          <a href="/blog" class={'nav-link' + (isBlogPage ? ' nav-active' : '')}>Blog</a>
-          <a href="/cheatsheets" class={'nav-link' + (isCheatsheetsPage ? ' nav-active' : '')}>Cheat Sheets</a>
+          <a href="/blog" class={'nav-pill-blog nav-pill-gap' + (isBlogPage ? ' nav-pill-active' : '')}>Blogs</a>
+          <a href="/cheatsheets" class={'nav-pill-cheatsheets' + (isCheatsheetsPage ? ' nav-pill-active' : '')}>Cheat Sheets</a>
         </nav>
 
         <!-- Right side -->
@@ -580,6 +578,46 @@ const orgSchema = {
     font-weight: 500;
     color: #F8FAFC;
     font-family: Inter, sans-serif;
+  }
+
+  /* ── Blogs / Cheat Sheets nav pills ──────────────────────────────────────── */
+  .nav-pill-gap {
+    margin-left: 16px;
+  }
+  .nav-pill-blog,
+  .nav-pill-cheatsheets {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 13px;
+    text-decoration: none;
+    font-family: Inter, sans-serif;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .nav-pill-blog:hover,
+  .nav-pill-cheatsheets:hover {
+    text-decoration: none;
+  }
+  .nav-pill-blog {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #F8FAFC;
+  }
+  .nav-pill-blog:hover,
+  .nav-pill-blog.nav-pill-active {
+    background: rgba(255, 255, 255, 0.10);
+  }
+  .nav-pill-cheatsheets {
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #818CF8;
+  }
+  .nav-pill-cheatsheets:hover,
+  .nav-pill-cheatsheets.nav-pill-active {
+    background: rgba(99, 102, 241, 0.20);
+    color: #A5B4FC;
   }
 </style>
 
