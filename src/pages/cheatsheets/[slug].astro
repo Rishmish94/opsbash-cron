@@ -521,22 +521,30 @@ data.commands.forEach((c: any) => {
   }
   .incident-cmd-block {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
     gap: 8px;
     background: #0A0A0A;
     border: 1px solid #222222;
     border-radius: 8px;
     padding: 10px;
-    overflow-x: auto;
+    overflow: hidden;
     min-width: 0;
   }
   .incident-cmd-text {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     color: #F8FAFC;
-    white-space: nowrap;
+    white-space: pre;
+    flex: 1;
+    overflow-x: auto;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
   }
+  .incident-cmd-text::-webkit-scrollbar { height: 4px; }
+  .incident-cmd-text::-webkit-scrollbar-track { background: transparent; }
+  .incident-cmd-text::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
   .incident-why {
     font-size: 12.5px;
     color: var(--fg2);
@@ -868,7 +876,7 @@ data.commands.forEach((c: any) => {
 
   .cmd-block {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
     gap: 10px;
     background: #0A0A0A;
@@ -876,7 +884,7 @@ data.commands.forEach((c: any) => {
     border-radius: 8px;
     padding: 10px;
     margin-bottom: 14px;
-    overflow-x: auto;
+    overflow: hidden;
     min-width: 0;
   }
   .cmd-text {
@@ -884,7 +892,15 @@ data.commands.forEach((c: any) => {
     font-size: 12.5px;
     color: #F8FAFC;
     white-space: pre;
+    flex: 1;
+    overflow-x: auto;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
   }
+  .cmd-text::-webkit-scrollbar { height: 4px; }
+  .cmd-text::-webkit-scrollbar-track { background: transparent; }
+  .cmd-text::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
   .copy-btn {
     flex-shrink: 0;
     font-size: 11px;
