@@ -5,13 +5,21 @@ import { getCollection } from 'astro:content';
 import kubectlCheatsheet from '../data/cheatsheets/kubectl.json';
 import dockerCheatsheet from '../data/cheatsheets/docker.json';
 import gitCheatsheet from '../data/cheatsheets/git.json';
+import awsCheatsheet from '../data/cheatsheets/aws.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
   .sort((a, b) => a.id.localeCompare(b.id))
   .slice(0, 3);
 
-const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet];
+const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet];
+
+const cheatsheetCardDescriptions: Record<string, string> = {
+  kubectl: '78 commands for pods, deployments, debugging, and cluster management.',
+  docker: '49 commands for images, containers, volumes, and Docker Compose.',
+  git: '49 commands for branching, commits, remotes, and recovery.',
+  aws: '119 commands for S3, EC2, IAM, Lambda, and more.',
+};
 
 const trustItems = [
   '100% Client-Side',
@@ -360,10 +368,10 @@ const toolCards = [
     {cheatsheetCards.map((sheet, i) => (
       <a
         href={`/cheatsheets/${sheet.slug}`}
-        class={'reveal cheatsheet-card' + (i === 1 ? ' reveal-delay-1' : i === 2 ? ' reveal-delay-2' : '')}
+        class={'reveal cheatsheet-card' + (i === 1 ? ' reveal-delay-1' : i === 2 ? ' reveal-delay-2' : i === 3 ? ' reveal-delay-3' : '')}
       >
         <p class="cheatsheet-card-title">{sheet.title}</p>
-        <p class="cheatsheet-card-desc">{sheet.description}</p>
+        <p class="cheatsheet-card-desc">{cheatsheetCardDescriptions[sheet.slug] ?? sheet.description}</p>
         <p class="cheatsheet-card-count">{sheet.commands.length}+ commands</p>
       </a>
     ))}
@@ -492,7 +500,7 @@ const toolCards = [
   /* ── Cheat sheet preview cards ──────────────────────────────────────────── */
   .cheatsheet-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
   @media (max-width: 900px) {
@@ -508,7 +516,7 @@ const toolCards = [
     background: #111111;
     border: 1px solid #222222;
     border-radius: 8px;
-    padding: 20px;
+    padding: 16px;
     text-decoration: none;
     transition: all 200ms ease;
   }
