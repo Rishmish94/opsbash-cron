@@ -120,6 +120,54 @@ data.commands.forEach((c: any) => {
 });
 
 const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder;
+
+// ── Start Here section ───────────────────────────────────────────────────
+const toolNameMap: Record<string, string> = {
+  kubectl: 'kubectl',
+  docker: 'Docker',
+  git: 'Git',
+  aws: 'AWS CLI',
+};
+const toolName = toolNameMap[slug] || data.title;
+
+const startHereIdsMap: Record<string, string[]> = {
+  kubectl: ['get-pods', 'describe', 'logs', 'apply-f', 'rollout-restart'],
+  docker: ['run', 'ps', 'logs', 'exec', 'compose-up'],
+  git: ['status', 'add', 'commit', 'push', 'log'],
+  aws: ['configure', 'sts-get-caller-identity', 's3-ls', 'ec2-describe-instances', 's3-cp-to-bucket'],
+};
+const startHereCommands = (startHereIdsMap[slug] || [])
+  .map((id) => data.commands.find((c: any) => c.id === id))
+  .filter(Boolean);
+
+// ── Category pill label overrides (display label only, ids/filtering unchanged) ──
+const pillLabelOverrides: Record<string, Record<string, { label: string; title?: string }>> = {
+  aws: {
+    'containers': { label: 'Containers', title: 'Amazon ECS, ECR, and EKS' },
+    'networking': { label: 'Networking', title: 'VPC and Route53' },
+    'data-iac': { label: 'Infra as Code' },
+    'sts-assume-role': { label: 'Auth and Roles' },
+    'monitoring-ops': { label: 'Monitoring' },
+  },
+  kubectl: {
+    'deployments-scaling': { label: 'Deployments' },
+    'services-networking': { label: 'Services' },
+    'configmaps-secrets': { label: 'Config and Secrets' },
+    'troubleshooting': { label: 'Debugging' },
+  },
+};
+
+const visibleCategories = data.categories
+  .filter((cat: any) => categoryCounts[cat.id])
+  .map((cat: any) => {
+    const override = pillLabelOverrides[slug]?.[cat.id];
+    return {
+      id: cat.id,
+      label: override?.label ?? cat.label,
+      title: override?.title,
+      count: categoryCounts[cat.id],
+    };
+  });
 ---
 
 <Layout
@@ -162,17 +210,53 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
   <!-- ── SLIM SECURITY NOTICE ──────────────────────────────────────────────── -->
   <p class="security-line">Everything runs in your browser. No commands or data are sent to any server.</p>
 
+  <!-- ── START HERE (collapsible, expanded by default) ─────────────────────── -->
+  {startHereCommands.length > 0 && (
+    <section class="start-here-section" id="startHereSection">
+      <div class="start-here-header">
+        <div>
+          <h2 class="start-here-title">New to {toolName}? Start with these</h2>
+          <p class="start-here-subtitle">5 essential commands to get you started. The full reference is right below.</p>
+        </div>
+        <button id="startHereToggle" class="start-here-toggle" aria-expanded="true">
+          <span class="start-here-toggle-label">Hide</span>
+          <svg class="start-here-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="start-here-body" id="startHereBody">
+        {startHereCommands.map((cmd: any) => (
+          <div class="start-here-card" data-difficulty="Beginner">
+            <h3 class="start-here-card-title">{cmd.title}</h3>
+            <div class="cmd-block">
+              <code class="cmd-text">{cmd.command}</code>
+              <button class="copy-btn" data-copy={cmd.command}>Copy</button>
+            </div>
+            {cmd.useCase && <p class="start-here-usecase">{cmd.useCase}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- ── EARNED DISCLOSURE BANNER (hidden until 3rd beginner copy) ──────────── -->
+  <div id="earnedBanner" class="earned-banner hidden">
+    <p class="earned-banner-text">You have copied 3 beginner commands. Ready for more? <a href="#" id="earnedBannerLink" class="earned-banner-link">Jump to Intermediate commands</a></p>
+    <button id="earnedBannerClose" class="earned-banner-close" aria-label="Dismiss">✕</button>
+  </div>
+
   <!-- ── RESULTS META ──────────────────────────────────────────────────────── -->
   <p id="resultsMeta" class="results-meta">{data.commands.length} commands</p>
 
-  <!-- ── CATEGORY PILLS (standalone row on first load) ────────────────────── -->
+  <!-- ── CATEGORY + DIFFICULTY PILLS (standalone row on first load) ────────── -->
   <div class="pills-row-standalone" id="pillsRowStandalone">
     <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
-    {data.categories.map((cat: any) => (
-      categoryCounts[cat.id] ? (
-        <button class="cat-pill" data-category={cat.id}>{cat.label} ({categoryCounts[cat.id]})</button>
-      ) : null
+    {visibleCategories.map((cat: any) => (
+      <button class="cat-pill" data-category={cat.id} title={cat.title}>{cat.label} ({cat.count})</button>
     ))}
+    <span class="pills-divider" aria-hidden="true"></span>
+    <button class="diff-pill diff-pill-beginner" data-difficulty="Beginner">Beginner</button>
+    <button class="diff-pill diff-pill-intermediate" data-difficulty="Intermediate">Intermediate</button>
+    <button class="diff-pill diff-pill-advanced" data-difficulty="Advanced">Advanced</button>
   </div>
 
   <!-- ── COMMAND CARDS GRID ────────────────────────────────────────────────── -->
@@ -191,6 +275,7 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
           <div
             class={`cmd-card${cmd.destructive ? ' destructive' : ''}`}
             data-category={cmd.category}
+            data-difficulty={cmd.difficulty}
             data-search={searchBlob}
           >
             <div class="cmd-card-top">
@@ -465,11 +550,13 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
     </div>
     <div class="sticky-pills" id="pillsRowSticky">
       <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
-      {data.categories.map((cat: any) => (
-        categoryCounts[cat.id] ? (
-          <button class="cat-pill" data-category={cat.id}>{cat.label} ({categoryCounts[cat.id]})</button>
-        ) : null
+      {visibleCategories.map((cat: any) => (
+        <button class="cat-pill" data-category={cat.id} title={cat.title}>{cat.label} ({cat.count})</button>
       ))}
+      <span class="pills-divider" aria-hidden="true"></span>
+      <button class="diff-pill diff-pill-beginner" data-difficulty="Beginner">Beginner</button>
+      <button class="diff-pill diff-pill-intermediate" data-difficulty="Intermediate">Intermediate</button>
+      <button class="diff-pill diff-pill-advanced" data-difficulty="Advanced">Advanced</button>
     </div>
   </div>
 </div>
@@ -575,6 +662,116 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
     font-family: 'Inter', sans-serif;
   }
 
+  /* ── Start Here section ──────────────────────────────────────────────────── */
+  .start-here-section {
+    margin-top: 18px;
+    border-left: 3px solid #3B82F6;
+    background: rgba(59,130,246,0.05);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+  }
+  .start-here-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .start-here-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin-bottom: 4px;
+  }
+  .start-here-subtitle {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.5;
+  }
+  .start-here-toggle {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid #334155;
+    border-radius: 20px;
+    padding: 5px 12px;
+    color: var(--fg2);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .start-here-toggle:hover { background: rgba(248,250,252,0.06); color: #F8FAFC; }
+  .start-here-chevron { transition: transform 0.25s ease; flex-shrink: 0; }
+  .start-here-section.collapsed .start-here-chevron { transform: rotate(-90deg); }
+  .start-here-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .start-here-section.collapsed .start-here-body { display: none; }
+  .start-here-card {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .start-here-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+    margin-bottom: 10px;
+  }
+  .start-here-card .cmd-block { margin-bottom: 8px; }
+  .start-here-usecase {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.5;
+  }
+
+  /* ── Earned Disclosure banner ────────────────────────────────────────────── */
+  .earned-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: rgba(74,222,128,0.06);
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+  .earned-banner.hidden { display: none; }
+  .earned-banner-text {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.5;
+  }
+  .earned-banner-link {
+    color: #4ADE80;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .earned-banner-close {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: var(--fg3);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+  .earned-banner-close:hover { color: #F8FAFC; }
+
   /* ── Category pills (shared by standalone row and sticky row) ───────────── */
   .pills-row-standalone {
     display: flex;
@@ -613,6 +810,34 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
     border-color: #F8FAFC;
     color: #F8FAFC;
   }
+
+  .pills-divider {
+    width: 1px;
+    align-self: stretch;
+    background: #222222;
+    margin: 2px 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Difficulty filter pills ─────────────────────────────────────────────── */
+  .diff-pill {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .diff-pill-beginner { color: #4ADE80; border: 1px solid rgba(74,222,128,0.35); }
+  .diff-pill-beginner.active { background: rgba(74,222,128,0.15); border-color: #4ADE80; }
+  .diff-pill-intermediate { color: #FBBF24; border: 1px solid rgba(251,191,36,0.35); }
+  .diff-pill-intermediate.active { background: rgba(251,191,36,0.15); border-color: #FBBF24; }
+  .diff-pill-advanced { color: #F472B6; border: 1px solid rgba(244,114,182,0.35); }
+  .diff-pill-advanced.active { background: rgba(244,114,182,0.15); border-color: #F472B6; }
 
   .results-meta {
     font-size: 12.5px;
@@ -1329,16 +1554,68 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
     }
   }
 
+  // ── Earned Disclosure banner (tracks Beginner command copies) ────────────
+  const earnedBanner = document.getElementById('earnedBanner') as HTMLElement | null;
+  const earnedBannerClose = document.getElementById('earnedBannerClose') as HTMLElement | null;
+  const earnedBannerLink = document.getElementById('earnedBannerLink') as HTMLElement | null;
+  const BEGINNER_COPIES_KEY = 'opsbash-beginner-copies';
+  const BANNER_DISMISSED_KEY = 'opsbash-earned-banner-dismissed';
+
+  function registerBeginnerCopy() {
+    if (localStorage.getItem(BANNER_DISMISSED_KEY) === 'true') return;
+    const count = parseInt(localStorage.getItem(BEGINNER_COPIES_KEY) || '0', 10) + 1;
+    localStorage.setItem(BEGINNER_COPIES_KEY, String(count));
+    if (count >= 3) earnedBanner?.classList.remove('hidden');
+  }
+
+  earnedBannerClose?.addEventListener('click', () => {
+    earnedBanner?.classList.add('hidden');
+    localStorage.setItem(BANNER_DISMISSED_KEY, 'true');
+  });
+
+  earnedBannerLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const intermediateCards = Array.from(document.querySelectorAll('.cmd-card[data-difficulty="Intermediate"]')) as HTMLElement[];
+    const target = intermediateCards.find((el) => el.style.display !== 'none') || intermediateCards[0];
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
   document.querySelectorAll('.copy-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const text = btn.getAttribute('data-copy') || '';
       if (text) copyText(text, btn as HTMLElement);
+
+      const difficultyCard = (btn as HTMLElement).closest('[data-difficulty]');
+      if (difficultyCard?.getAttribute('data-difficulty') === 'Beginner') {
+        registerBeginnerCopy();
+      }
     });
   });
 
-  // ── Search + category filtering ──────────────────────────────────────────
+  // ── Start Here collapse/expand ───────────────────────────────────────────
+  const startHereSection = document.getElementById('startHereSection') as HTMLElement | null;
+  const startHereToggle = document.getElementById('startHereToggle') as HTMLElement | null;
+  const STARTHERE_KEY = 'opsbash-starthere-collapsed';
+
+  function setStartHereCollapsed(collapsed: boolean) {
+    startHereSection?.classList.toggle('collapsed', collapsed);
+    startHereToggle?.setAttribute('aria-expanded', String(!collapsed));
+    const label = startHereToggle?.querySelector('.start-here-toggle-label');
+    if (label) label.textContent = collapsed ? 'Show' : 'Hide';
+  }
+
+  setStartHereCollapsed(localStorage.getItem(STARTHERE_KEY) === 'true');
+
+  startHereToggle?.addEventListener('click', () => {
+    const collapsed = !startHereSection?.classList.contains('collapsed');
+    setStartHereCollapsed(collapsed);
+    localStorage.setItem(STARTHERE_KEY, String(collapsed));
+  });
+
+  // ── Search + category + difficulty filtering ─────────────────────────────
   const cmdCards = Array.from(document.querySelectorAll('.cmd-card')) as HTMLElement[];
   const pills = Array.from(document.querySelectorAll('.cat-pill')) as HTMLElement[];
+  const diffPills = Array.from(document.querySelectorAll('.diff-pill')) as HTMLElement[];
   const searchLarge = document.getElementById('cmdSearchLarge') as HTMLInputElement | null;
   const searchSlim = document.getElementById('cmdSearchSlim') as HTMLInputElement | null;
   const searchInputs = [searchLarge, searchSlim].filter(Boolean) as HTMLInputElement[];
@@ -1349,6 +1626,7 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
   const stickySearchBar = document.getElementById('stickySearchBar') as HTMLElement;
 
   let activeCategory = 'all';
+  const activeDifficulties = new Set<string>();
 
   function currentQuery(): string {
     return (searchLarge?.value ?? searchSlim?.value ?? '').trim().toLowerCase();
@@ -1366,15 +1644,22 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
 
     cmdCards.forEach((card) => {
       const matchesCategory = activeCategory === 'all' || card.getAttribute('data-category') === activeCategory;
+      const matchesDifficulty = activeDifficulties.size === 0 || activeDifficulties.has(card.getAttribute('data-difficulty') || '');
       const haystack = card.getAttribute('data-search') || '';
       const matchesSearch = !query || haystack.indexOf(query) !== -1;
-      const visible = matchesCategory && matchesSearch;
+      const visible = matchesCategory && matchesDifficulty && matchesSearch;
       card.style.display = visible ? '' : 'none';
       if (visible) visibleCount++;
     });
 
     // Results meta text
-    let metaText = `${visibleCount} command${visibleCount === 1 ? '' : 's'}`;
+    let metaText = `${visibleCount} `;
+    if (activeDifficulties.size > 0) {
+      const order = ['Beginner', 'Intermediate', 'Advanced'];
+      metaText += `${order.filter((d) => activeDifficulties.has(d)).join(', ')} command${visibleCount === 1 ? '' : 's'}`;
+    } else {
+      metaText += `command${visibleCount === 1 ? '' : 's'}`;
+    }
     if (activeCategory !== 'all') {
       const activePill = pills.find((p) => p.getAttribute('data-category') === activeCategory);
       const label = activePill ? activePill.textContent!.replace(/\s*\(\d+\)$/, '') : '';
@@ -1415,10 +1700,27 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
     });
   });
 
+  diffPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const diff = pill.getAttribute('data-difficulty') || '';
+      if (activeDifficulties.has(diff)) {
+        activeDifficulties.delete(diff);
+      } else {
+        activeDifficulties.add(diff);
+      }
+      diffPills.forEach((p) => {
+        p.classList.toggle('active', activeDifficulties.has(p.getAttribute('data-difficulty') || ''));
+      });
+      requestAnimationFrame(applyFilters);
+    });
+  });
+
   function resetAllFilters() {
     searchInputs.forEach((el) => { el.value = ''; });
     activeCategory = 'all';
+    activeDifficulties.clear();
     pills.forEach((p) => p.classList.toggle('active', p.getAttribute('data-category') === 'all'));
+    diffPills.forEach((p) => p.classList.remove('active'));
     requestAnimationFrame(applyFilters);
   }
 
