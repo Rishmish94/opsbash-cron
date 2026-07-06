@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
 const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 
-const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser'].includes(currentPath);
+const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser', '/base64'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 const isCheatsheetsPage = currentPath === '/cheatsheets' || currentPath.startsWith('/cheatsheets/');
 
@@ -120,6 +120,7 @@ const orgSchema = {
           { href: '/jwt-decoder',   label: 'JWT Decoder' },
           { href: '/log-sanitiser', label: 'Log Sanitiser & PII Redactor' },
         ]},
+      { cat: 'Encoding',    tools: [{ href: '/base64', label: 'Base64 Encoder/Decoder' }] },
       { cat: 'Development', tools: [
           { href: '/json-yaml-converter',      label: 'JSON to YAML Converter' },
           { href: '/gitignore-generator',      label: 'gitignore Generator'    },
@@ -215,6 +216,9 @@ const orgSchema = {
               <a href="/jwt-decoder" class="dropdown-item">JWT Decoder</a>
               <a href="/log-sanitiser" class="dropdown-item">Log Sanitiser & PII Redactor</a>
 
+              <span class="dropdown-category">Encoding</span>
+              <a href="/base64" class="dropdown-item">Base64 Encoder/Decoder</a>
+
               <span class="dropdown-category">Development</span>
               <a href="/json-yaml-converter" class="dropdown-item">JSON to YAML Converter</a>
               <a href="/gitignore-generator" class="dropdown-item">gitignore Generator</a>
@@ -300,6 +304,7 @@ const orgSchema = {
               <li><a href="/json-diff"                 class="footer-link" style="font-size:13px;">JSON Diff &amp; Schema</a></li>
               <li><a href="/k8s-secret-decoder"        class="footer-link" style="font-size:13px;">Kubernetes Secret Decoder</a></li>
               <li><a href="/log-sanitiser"             class="footer-link" style="font-size:13px;">Log Sanitiser and PII Redactor</a></li>
+              <li><a href="/base64"                    class="footer-link" style="font-size:13px;">Base64 Encoder/Decoder</a></li>
             </ul>
           </div>
 
@@ -430,6 +435,8 @@ const orgSchema = {
         icon:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>' },
       { name:'Unix Timestamp Converter', desc:'Convert epoch timestamps to human dates and back, with batch conversion', url:'/timestamp-converter', cat:'Time',
         icon:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+      { name:'Base64 Encoder/Decoder', desc:'Encode and decode Base64 strings and files instantly in your browser', url:'/base64', cat:'Encoding',
+        icon:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>' },
       { name:'JSON Diff & Schema Validator', desc:'Compare JSON files semantically and validate against JSON Schema draft-07', url:'/json-diff', cat:'Dev',
         icon:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>' }
     ];

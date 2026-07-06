@@ -1,0 +1,924 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Base64 encoding and what is it used for?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Base64 is an encoding scheme that converts arbitrary binary or text data into a string of 64 printable ASCII characters (A-Z, a-z, 0-9, +, /). It exists because many systems — email, JSON, YAML, URLs — were designed to safely carry plain text but not arbitrary binary bytes, so Base64 acts as a safe wrapper. It shows up constantly in DevOps: Kubernetes Secrets, JWT tokens, Basic Auth headers, embedding images in CSS or HTML, and encoding binary attachments in email (MIME)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Base64 encoding the same as encryption?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Base64 is fully reversible with no key required — anyone can decode it back to the original data instantly using this tool or a single command like base64 -d. Encryption requires a secret key or password to reverse; Base64 requires nothing but the string itself. Never use Base64 alone to protect sensitive data — it provides zero confidentiality, only a safe text representation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between Base64 and URL-safe Base64?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Standard Base64 uses + and / as two of its 64 characters, both of which have special meaning inside a URL, so a Base64 string can break if placed directly in a URL or query parameter. URL-safe Base64 replaces + with - and / with _, and usually omits the trailing = padding characters, so the result can be used safely inside URLs, filenames, and cookies without escaping. JWTs use URL-safe Base64 for exactly this reason — the header, payload, and signature all need to travel safely inside a URL-embedded token."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do Kubernetes Secrets use Base64?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kubernetes Secret manifests are YAML or JSON documents, and both formats are designed for human-readable text, not arbitrary binary bytes or values containing special characters and newlines. Base64 encoding every value in a Secret's data field guarantees it can be safely stored, transmitted, and parsed as plain text regardless of what the original value contained. This is purely a data-safety measure, not a security control — anyone who can read a Secret object can decode its values in seconds, which is exactly what this tool does."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I decode a JWT token using Base64?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A JWT has three parts separated by dots: header.payload.signature. The header and payload are each Base64URL encoded JSON — split the token on the dots, take the first two parts, convert - back to + and _ back to /, restore the correct padding, and run it through this tool's decoder to get readable JSON. The signature is not Base64-encoded data you can meaningfully decode; it is a cryptographic value used to verify the token has not been tampered with, and checking it requires the signing secret or public key, not just decoding."
+      }
+    }
+  ]
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Base64 Encoder/Decoder",
+  "url": "https://opsbash.com/base64",
+  "description": "Encode and decode Base64 strings and files instantly in your browser. Supports URL-safe Base64, file encoding, and common DevOps use cases like Kubernetes Secrets and JWTs.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+};
+---
+
+<Layout
+  title="Base64 Encoder/Decoder | OpsBash"
+  description="Encode and decode Base64 strings and files instantly in your browser. URL-safe mode, drag-and-drop file support, and common DevOps use cases like Kubernetes Secrets and JWTs. Free, client-side, no data ever leaves your browser."
+  canonicalURL="https://opsbash.com/base64"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
+  <section class="pt-8 pb-5">
+    <div class="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full mb-4"
+         style="background: transparent; color: #F8FAFC; border: 1px solid #334155;">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+      Free Base64 Encoder/Decoder
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style="color: #F8FAFC;">
+      Base64 Encoder/Decoder
+    </h1>
+    <p class="text-base max-w-xl" style="color: var(--fg2);">
+      Encode and decode Base64 strings and files instantly, in real time. URL-safe mode, drag-and-drop file support — everything runs locally in your browser.
+    </p>
+  </section>
+
+  <!-- ── SECTION 1: ENCODE / DECODE PANEL ─────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="b64-panel-row">
+
+        <div class="b64-col-plain">
+          <div class="b64-col-header">
+            <label for="plainInput" class="b64-label">Plain Text</label>
+            <span id="plainBadge" class="status-badge hidden"></span>
+          </div>
+          <textarea id="plainInput" rows="10" class="b64-textarea" spellcheck="false" autocomplete="off"
+            placeholder="Type or paste plain text here..."></textarea>
+          <div class="b64-meta-row">
+            <span id="plainCharCount">0 characters</span>
+            <span id="plainByteCount">0 bytes</span>
+            <button id="copyPlainBtn" class="btn-secondary">Copy</button>
+          </div>
+        </div>
+
+        <div class="b64-arrows">
+          <button id="encodeBtn" class="arrow-btn">Encode →</button>
+          <button id="decodeBtn" class="arrow-btn">← Decode</button>
+        </div>
+
+        <div class="b64-col-b64">
+          <div class="b64-col-header">
+            <label for="b64Input" class="b64-label">Base64</label>
+            <span id="b64Badge" class="status-badge hidden"></span>
+          </div>
+          <textarea id="b64Input" rows="10" class="b64-textarea" spellcheck="false" autocomplete="off"
+            placeholder="Type or paste Base64 here..."></textarea>
+          <div class="b64-meta-row">
+            <span id="b64CharCount">0 characters</span>
+            <span id="b64ByteCount">0 bytes</span>
+            <button id="copyB64Btn" class="btn-secondary">Copy</button>
+          </div>
+          <p id="b64Error" class="err-box mt-2 hidden"></p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2: URL SAFE MODE ──────────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6 flex items-center gap-4 flex-wrap" style="background: var(--card); border: 1px solid var(--border);">
+      <label class="toggle-switch" for="urlSafeToggle">
+        <input type="checkbox" id="urlSafeToggle" />
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+      <label for="urlSafeToggle" class="toggle-label">URL Safe Mode</label>
+      <span id="urlSafeInfo" class="info-badge hidden">Replaces + with - and / with _ for use in URLs and JWTs</span>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3: ENCODE A FILE ──────────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="rounded-2xl p-5 sm:p-6" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">Encode a File</h2>
+
+      <div id="dropZone" class="drop-zone" role="button" tabindex="0">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p>Drag and drop a file here, or click to browse</p>
+        <p class="drop-zone-sub">Any file type, up to 5MB</p>
+        <input id="fileInput" type="file" class="hidden" />
+      </div>
+
+      <div id="fileInfo" class="file-info hidden">
+        <div class="file-info-row">
+          <span id="fileName"></span>
+          <span id="fileSize"></span>
+          <span id="fileType"></span>
+        </div>
+      </div>
+
+      <p id="fileWarning" class="warn-box mt-3 hidden"></p>
+      <p id="fileError" class="err-box mt-3 hidden"></p>
+
+      <div id="fileOutputWrap" class="hidden mt-4">
+        <textarea id="fileOutput" rows="8" class="b64-textarea" readonly spellcheck="false"></textarea>
+        <div class="b64-meta-row">
+          <button id="copyFileBtn" class="btn-secondary">Copy</button>
+          <button id="downloadFileBtn" class="btn-secondary">Download as .txt</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 4: COMMON USE CASES ───────────────────────────────────────────── -->
+  <section class="mb-6">
+    <h2 class="text-base font-semibold mb-4" style="color: var(--fg);">Common Use Cases</h2>
+    <div class="preset-grid">
+      <button class="preset-card" data-preset="k8s">
+        <span class="preset-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <span class="preset-title">Kubernetes Secret</span>
+        <span class="preset-desc">Loads username=admin and encodes it — how Kubernetes Secret values work.</span>
+      </button>
+
+      <button class="preset-card" data-preset="jwt">
+        <span class="preset-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <span class="preset-title">JWT Payload</span>
+        <span class="preset-desc">Loads a sample JWT claims object — how JWT payloads are Base64 encoded.</span>
+      </button>
+
+      <button class="preset-card" data-preset="auth">
+        <span class="preset-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a7.5 7.5 0 0 1 13 0"/></svg>
+        </span>
+        <span class="preset-title">Basic Auth Header</span>
+        <span class="preset-desc">Loads username:password and encodes it — how HTTP Basic Auth works.</span>
+      </button>
+
+      <button class="preset-card" data-preset="ssh">
+        <span class="preset-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg>
+        </span>
+        <span class="preset-title">SSH Public Key</span>
+        <span class="preset-desc">Loads a placeholder public key string and encodes it.</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
+  <div class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is Base64 encoding and what is it used for?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Base64 is an encoding scheme that converts arbitrary binary or text data into a string of 64 printable ASCII characters (<code class="ic">A-Z</code>, <code class="ic">a-z</code>, <code class="ic">0-9</code>, <code class="ic">+</code>, <code class="ic">/</code>). It exists because many systems — email, JSON, YAML, URLs — were designed to safely carry plain text but not arbitrary binary bytes, so Base64 acts as a safe wrapper. It shows up constantly in DevOps: Kubernetes Secrets, JWT tokens, Basic Auth headers, embedding images in CSS or HTML, and encoding binary attachments in email (MIME).
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">Is Base64 encoding the same as encryption?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          No. Base64 is fully reversible with no key required — anyone can decode it back to the original data instantly using this tool or a single command like <code class="ic">base64 -d</code>. Encryption requires a secret key or password to reverse; Base64 requires nothing but the string itself. Never use Base64 alone to protect sensitive data — it provides zero confidentiality, only a safe text representation.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">What is the difference between Base64 and URL-safe Base64?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Standard Base64 uses <code class="ic">+</code> and <code class="ic">/</code> as two of its 64 characters, both of which have special meaning inside a URL, so a Base64 string can break if placed directly in a URL or query parameter. URL-safe Base64 replaces <code class="ic">+</code> with <code class="ic">-</code> and <code class="ic">/</code> with <code class="ic">_</code>, and usually omits the trailing <code class="ic">=</code> padding characters, so the result can be used safely inside URLs, filenames, and cookies without escaping. JWTs use URL-safe Base64 for exactly this reason — the header, payload, and signature all need to travel safely inside a URL-embedded token.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">Why do Kubernetes Secrets use Base64?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          Kubernetes Secret manifests are YAML or JSON documents, and both formats are designed for human-readable text, not arbitrary binary bytes or values containing special characters and newlines. Base64 encoding every value in a Secret's <code class="ic">data</code> field guarantees it can be safely stored, transmitted, and parsed as plain text regardless of what the original value contained. This is purely a data-safety measure, not a security control — anyone who can read a Secret object can decode its values in seconds, which is exactly what this tool does.
+        </div>
+      </div>
+
+      <div class="faq-item" style="border-bottom: none;">
+        <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+          <span class="text-sm font-medium" style="color: var(--fg);">How do I decode a JWT token using Base64?</span>
+          <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+          A JWT has three parts separated by dots: <code class="ic">header.payload.signature</code>. The header and payload are each Base64URL encoded JSON — split the token on the dots, take the first two parts, convert <code class="ic">-</code> back to <code class="ic">+</code> and <code class="ic">_</code> back to <code class="ic">/</code>, restore the correct padding, and run it through this tool's decoder to get readable JSON. The signature is not Base64-encoded data you can meaningfully decode; it is a cryptographic value used to verify the token has not been tampered with, and checking it requires the signing secret or public key, not just decoding. The <a href="/jwt-decoder" style="color: var(--accent); text-decoration: underline;">JWT Decoder</a> tool does all three parts for you in one step.
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /faq -->
+
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-12">
+    <div class="grid sm:grid-cols-2 gap-6">
+
+      <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is Base64</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Base64 is a binary-to-text encoding scheme that represents arbitrary bytes using a fixed alphabet of 64 printable ASCII characters: A-Z, a-z, 0-9, plus <code class="ic">+</code> and <code class="ic">/</code>. It works by grouping input bytes into chunks of three (24 bits) and re-slicing them into four 6-bit groups, each mapped to one of the 64 output characters — which is why encoded output is always about 33% longer than the original data. The trailing <code class="ic">=</code> characters are padding, added when the input length is not a clean multiple of three bytes. Base64 is not compression and not encryption; it exists purely so binary or special-character data can travel safely through systems built for plain text.
+        </p>
+      </div>
+
+      <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Common DevOps Uses</h2>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Kubernetes Secrets store every value in their <code class="ic">data</code> field as Base64 so the YAML manifest can safely hold binary data, newlines, or special characters as plain text — decoding a Secret takes one command and reveals the real value in plaintext. JWTs Base64URL-encode their header and payload so the token can be embedded directly in a URL, cookie, or Authorization header without breaking. HTTP Basic Authentication encodes a <code class="ic">username:password</code> pair as Base64 and sends it in the Authorization header on every request — it is not encrypted, which is why Basic Auth should only ever be used over HTTPS. SSH public keys are also Base64-encoded strings, letting an arbitrary-length cryptographic key be pasted as a single line into an <code class="ic">authorized_keys</code> file or a Git hosting provider's settings page.
+        </p>
+      </div>
+
+      <div class="further-reading reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h3 class="text-base font-semibold mb-2" style="color: var(--fg);">Further reading</h3>
+        <p class="text-sm" style="margin: 0; color: var(--fg2);"><a href="/blog/base64-encoding-devops-explained" style="color: var(--accent); text-decoration: underline;">Base64 Encoding Explained: What It Actually Does in Kubernetes Secrets, JWTs, and Basic Auth</a></p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</div>
+
+<style>
+  /* ── Encode/Decode panel ──────────────────────────────────────────────────── */
+  .b64-panel-row {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .b64-col-plain { order: 1; min-width: 0; }
+  .b64-col-b64 { order: 2; min-width: 0; }
+  .b64-arrows {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  @media (min-width: 900px) {
+    .b64-panel-row { flex-direction: row; align-items: stretch; }
+    .b64-col-plain, .b64-col-b64 { flex: 1; order: initial; }
+    .b64-arrows { order: initial; flex: 0 0 140px; justify-content: center; }
+  }
+
+  .b64-col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .b64-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg2);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .b64-textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .b64-textarea:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.15);
+  }
+  .b64-textarea::placeholder { color: var(--fg3); opacity: 0.8; }
+  .b64-textarea[readonly] { color: var(--fg2); }
+
+  .b64-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    color: var(--fg3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .b64-meta-row .btn-secondary { margin-left: auto; }
+
+  .arrow-btn {
+    width: 100%;
+    background: #334155;
+    color: #F8FAFC;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+  }
+  .arrow-btn:hover { background: #475569; }
+
+  /* ── Status badges ────────────────────────────────────────────────────────── */
+  .status-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .badge-valid { color: #4ADE80; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3); }
+  .badge-invalid { color: #F87171; background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); }
+
+  /* ── Toggle switch ─────────────────────────────────────────────────────────── */
+  .toggle-switch {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle-switch input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+  .toggle-track {
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: #222222;
+    border: 1px solid #334155;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .toggle-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #94A3B8;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-track { background: rgba(74,222,128,0.15); border-color: #4ADE80; }
+  .toggle-switch input:checked + .toggle-track .toggle-thumb { transform: translateX(20px); background: #4ADE80; }
+  .toggle-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--fg);
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+  }
+  .info-badge {
+    font-size: 11.5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(96,165,250,0.1);
+    color: #60A5FA;
+    border: 1px solid rgba(96,165,250,0.3);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+  }
+
+  /* ── Drop zone / file upload ───────────────────────────────────────────────── */
+  .drop-zone {
+    border: 2px dashed #334155;
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    color: var(--fg2);
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: #F8FAFC;
+    background: rgba(248,250,252,0.03);
+  }
+  .drop-zone svg { margin: 0 auto 12px; color: var(--fg3); display: block; }
+  .drop-zone p { font-size: 13px; margin-bottom: 4px; color: var(--fg); }
+  .drop-zone-sub { font-size: 12px; color: var(--fg3) !important; }
+
+  .file-info {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .file-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 12.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--fg2);
+  }
+  .file-info-row span:first-child { color: #F8FAFC; font-weight: 600; }
+
+  /* ── Preset cards ──────────────────────────────────────────────────────────── */
+  .preset-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 900px) { .preset-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .preset-grid { grid-template-columns: 1fr; } }
+  .preset-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+  .preset-card:hover { border-color: #F8FAFC; background: #1A1A1A; }
+  .preset-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(248,250,252,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94A3B8;
+  }
+  .preset-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+  }
+  .preset-desc {
+    font-size: 12px;
+    color: var(--fg2);
+    line-height: 1.5;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Buttons ───────────────────────────────────────────────────────────────── */
+  .btn-secondary {
+    background: rgba(248,250,252,0.06);
+    color: var(--fg2);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-secondary:hover { background: rgba(248,250,252,0.12); color: #F8FAFC; }
+  .btn-secondary.copied { color: #4ADE80 !important; background: rgba(74,222,128,0.12) !important; }
+
+  /* ── Error / warning boxes ─────────────────────────────────────────────────── */
+  .err-box {
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(239,68,68,0.08);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,0.25);
+    word-break: break-word;
+  }
+  .warn-box {
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(245,158,11,0.08);
+    color: #F59E0B;
+    border: 1px solid rgba(245,158,11,0.3);
+    word-break: break-word;
+  }
+
+  /* ── Inline code ───────────────────────────────────────────────────────────── */
+  .ic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: #F8FAFC;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── FAQ ───────────────────────────────────────────────────────────────────── */
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .faq-trigger:hover { background: rgba(248,250,252,0.04); }
+</style>
+
+<script>
+  // ─── HELPERS ────────────────────────────────────────────────────────────────
+
+  function debounce(fn: (...args: any[]) => void, wait: number) {
+    let t: ReturnType<typeof setTimeout>;
+    return (...args: any[]) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
+  }
+
+  function toUrlSafe(b64: string): string {
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function fromUrlSafeToStandard(str: string): string {
+    let s = str.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = s.length % 4;
+    if (pad === 2) s += '==';
+    else if (pad === 3) s += '=';
+    return s;
+  }
+
+  function b64EncodeUtf8(str: string): string {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  function b64DecodeUtf8(standard: string): string {
+    const binary = atob(standard);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  }
+
+  interface B64Validation {
+    valid: boolean;
+    error?: string;
+    standard?: string;
+    byteLength?: number;
+  }
+
+  function validateBase64(raw: string): B64Validation {
+    const cleaned = raw.replace(/\s+/g, '');
+    if (cleaned === '') return { valid: false, error: '' };
+
+    const standard = fromUrlSafeToStandard(cleaned);
+
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(standard)) {
+      return { valid: false, error: 'Invalid Base64 — contains characters outside A-Z, a-z, 0-9, +, /, -, _ or =.' };
+    }
+    if (standard.length % 4 !== 0) {
+      return { valid: false, error: 'Invalid Base64 — length must be a multiple of 4 once padding is restored.' };
+    }
+    try {
+      const binary = atob(standard);
+      return { valid: true, standard, byteLength: binary.length };
+    } catch (e) {
+      return { valid: false, error: 'Invalid Base64 — string could not be decoded.' };
+    }
+  }
+
+  function formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  function copyText(text: string, btn: HTMLElement) {
+    function flash() {
+      const original = btn.textContent;
+      btn.classList.add('copied');
+      btn.textContent = 'Copied';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = original;
+      }, 1400);
+    }
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(flash).catch(() => { fallback(); flash(); });
+    } else {
+      fallback(); flash();
+    }
+  }
+
+  // ─── SECTION 1: ENCODE / DECODE PANEL ───────────────────────────────────────
+
+  const plainInput = document.getElementById('plainInput') as HTMLTextAreaElement;
+  const b64Input = document.getElementById('b64Input') as HTMLTextAreaElement;
+  const plainBadge = document.getElementById('plainBadge') as HTMLElement;
+  const b64Badge = document.getElementById('b64Badge') as HTMLElement;
+  const plainCharCount = document.getElementById('plainCharCount') as HTMLElement;
+  const plainByteCount = document.getElementById('plainByteCount') as HTMLElement;
+  const b64CharCount = document.getElementById('b64CharCount') as HTMLElement;
+  const b64ByteCount = document.getElementById('b64ByteCount') as HTMLElement;
+  const b64Error = document.getElementById('b64Error') as HTMLElement;
+  const copyPlainBtn = document.getElementById('copyPlainBtn') as HTMLButtonElement;
+  const copyB64Btn = document.getElementById('copyB64Btn') as HTMLButtonElement;
+  const encodeBtn = document.getElementById('encodeBtn') as HTMLButtonElement;
+  const decodeBtn = document.getElementById('decodeBtn') as HTMLButtonElement;
+  const urlSafeToggle = document.getElementById('urlSafeToggle') as HTMLInputElement;
+  const urlSafeInfo = document.getElementById('urlSafeInfo') as HTMLElement;
+
+  function updatePlainMeta(text: string) {
+    plainCharCount.textContent = `${text.length} character${text.length === 1 ? '' : 's'}`;
+    const byteLen = new TextEncoder().encode(text).length;
+    plainByteCount.textContent = `${byteLen} byte${byteLen === 1 ? '' : 's'}`;
+    if (text === '') {
+      plainBadge.classList.add('hidden');
+    } else {
+      plainBadge.textContent = 'Valid';
+      plainBadge.className = 'status-badge badge-valid';
+    }
+  }
+
+  function updateB64Meta(raw: string) {
+    b64CharCount.textContent = `${raw.length} character${raw.length === 1 ? '' : 's'}`;
+
+    if (raw.trim() === '') {
+      b64ByteCount.textContent = '0 bytes';
+      b64Badge.classList.add('hidden');
+      b64Error.classList.add('hidden');
+      return;
+    }
+
+    const result = validateBase64(raw);
+    if (result.valid) {
+      b64Badge.textContent = 'Valid';
+      b64Badge.className = 'status-badge badge-valid';
+      b64Error.classList.add('hidden');
+      const n = result.byteLength || 0;
+      b64ByteCount.textContent = `${n} byte${n === 1 ? '' : 's'} decoded`;
+    } else {
+      b64Badge.textContent = 'Invalid';
+      b64Badge.className = 'status-badge badge-invalid';
+      b64Error.textContent = result.error || 'Invalid Base64.';
+      b64Error.classList.remove('hidden');
+      b64ByteCount.textContent = '—';
+    }
+  }
+
+  // Tracks which field the user most recently typed into, so a stale debounced
+  // callback from the field they left doesn't clobber what they typed next.
+  let lastEdited: 'plain' | 'b64' | null = null;
+
+  function syncFromPlain() {
+    const text = plainInput.value;
+    updatePlainMeta(text);
+    if (text === '') {
+      b64Input.value = '';
+      updateB64Meta('');
+      return;
+    }
+    const encoded = b64EncodeUtf8(text);
+    const output = urlSafeToggle.checked ? toUrlSafe(encoded) : encoded;
+    b64Input.value = output;
+    updateB64Meta(output);
+  }
+
+  function syncFromB64() {
+    const raw = b64Input.value;
+    updateB64Meta(raw);
+    if (raw.trim() === '') {
+      plainInput.value = '';
+      updatePlainMeta('');
+      return;
+    }
+    const result = validateBase64(raw);
+    if (!result.valid || !result.standard) return;
+    try {
+      const decoded = b64DecodeUtf8(result.standard);
+      plainInput.value = decoded;
+      updatePlainMeta(decoded);
+    } catch (e) {
+      b64Badge.textContent = 'Invalid';
+      b64Badge.className = 'status-badge badge-invalid';
+      b64Error.textContent = 'Valid Base64 structure, but the decoded bytes are not valid UTF-8 text.';
+      b64Error.classList.remove('hidden');
+    }
+  }
+
+  const debouncedSyncFromPlain = debounce(() => { if (lastEdited === 'plain') syncFromPlain(); }, 200);
+  const debouncedSyncFromB64 = debounce(() => { if (lastEdited === 'b64') syncFromB64(); }, 200);
+
+  plainInput.addEventListener('input', () => { lastEdited = 'plain'; debouncedSyncFromPlain(); });
+  b64Input.addEventListener('input', () => { lastEdited = 'b64'; debouncedSyncFromB64(); });
+  encodeBtn.addEventListener('click', () => { lastEdited = 'plain'; syncFromPlain(); });
+  decodeBtn.addEventListener('click', () => { lastEdited = 'b64'; syncFromB64(); });
+
+  copyPlainBtn.addEventListener('click', () => copyText(plainInput.value, copyPlainBtn));
+  copyB64Btn.addEventListener('click', () => copyText(b64Input.value, copyB64Btn));
+
+  urlSafeToggle.addEventListener('change', () => {
+    urlSafeInfo.classList.toggle('hidden', !urlSafeToggle.checked);
+    if (plainInput.value !== '') { lastEdited = 'plain'; syncFromPlain(); }
+  });
+
+  // ─── SECTION 3: ENCODE A FILE ────────────────────────────────────────────────
+
+  const dropZone = document.getElementById('dropZone') as HTMLElement;
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+  const fileInfo = document.getElementById('fileInfo') as HTMLElement;
+  const fileName = document.getElementById('fileName') as HTMLElement;
+  const fileSize = document.getElementById('fileSize') as HTMLElement;
+  const fileType = document.getElementById('fileType') as HTMLElement;
+  const fileWarning = document.getElementById('fileWarning') as HTMLElement;
+  const fileError = document.getElementById('fileError') as HTMLElement;
+  const fileOutputWrap = document.getElementById('fileOutputWrap') as HTMLElement;
+  const fileOutput = document.getElementById('fileOutput') as HTMLTextAreaElement;
+  const copyFileBtn = document.getElementById('copyFileBtn') as HTMLButtonElement;
+  const downloadFileBtn = document.getElementById('downloadFileBtn') as HTMLButtonElement;
+
+  const MAX_FILE_BYTES = 5 * 1024 * 1024;
+  const WARN_FILE_BYTES = 1 * 1024 * 1024;
+
+  function handleFile(file: File | null | undefined) {
+    if (!file) return;
+
+    fileError.classList.add('hidden');
+    fileWarning.classList.add('hidden');
+
+    if (file.size > MAX_FILE_BYTES) {
+      fileError.textContent = 'File too large — maximum size is 5MB';
+      fileError.classList.remove('hidden');
+      fileInfo.classList.add('hidden');
+      fileOutputWrap.classList.add('hidden');
+      return;
+    }
+
+    fileName.textContent = file.name;
+    fileSize.textContent = formatBytes(file.size);
+    fileType.textContent = file.type || 'unknown type';
+    fileInfo.classList.remove('hidden');
+
+    if (file.size > WARN_FILE_BYTES) {
+      fileWarning.textContent = 'Large file — output may be very long';
+      fileWarning.classList.remove('hidden');
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const bytes = new Uint8Array(reader.result as ArrayBuffer);
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunkSize)));
+      }
+      let encoded = btoa(binary);
+      if (urlSafeToggle.checked) encoded = toUrlSafe(encoded);
+      fileOutput.value = encoded;
+      fileOutputWrap.classList.remove('hidden');
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer?.files?.[0];
+    handleFile(file);
+  });
+  fileInput.addEventListener('change', () => handleFile(fileInput.files?.[0]));
+
+  copyFileBtn.addEventListener('click', () => copyText(fileOutput.value, copyFileBtn));
+
+  downloadFileBtn.addEventListener('click', () => {
+    const blob = new Blob([fileOutput.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'base64-encoded.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ─── SECTION 4: COMMON USE CASES ─────────────────────────────────────────────
+
+  const PRESETS: Record<string, string> = {
+    k8s: 'username=admin',
+    jwt: '{"sub":"user123","role":"admin","exp":1718400000}',
+    auth: 'username:password',
+    ssh: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDGZ8p1XkQnZ3vRz... user@example.com',
+  };
+
+  document.querySelectorAll('.preset-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const key = card.getAttribute('data-preset') || '';
+      const text = PRESETS[key];
+      if (!text) return;
+      plainInput.value = text;
+      lastEdited = 'plain';
+      syncFromPlain();
+      plainInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  // ─── FAQ ACCORDION ───────────────────────────────────────────────────────────
+
+  document.querySelectorAll('.faq-trigger').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item') as HTMLElement;
+      const content = item.querySelector('.faq-content') as HTMLElement;
+      const chevron = btn.querySelector('.faq-chevron') as HTMLElement;
+      const isOpen = !content.classList.contains('hidden');
+      content.classList.toggle('hidden', isOpen);
+      chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
+  });
+</script>
+</Layout>
