@@ -118,6 +118,8 @@ const categoryCounts: Record<string, number> = {};
 data.commands.forEach((c: any) => {
   categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
 });
+
+const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder;
 ---
 
 <Layout
@@ -131,8 +133,8 @@ data.commands.forEach((c: any) => {
 <div style="background: var(--bg);">
 <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
 
-  <!-- ── HERO ──────────────────────────────────────────────────────────────── -->
-  <section class="pt-8 pb-5">
+  <!-- ── HERO (compact) ────────────────────────────────────────────────────── -->
+  <section class="pt-8 pb-4">
     <div class="flex items-center flex-wrap gap-2 mb-3">
       <span class="cs-cat-pill">{data.category}</span>
       <span class="cs-updated-text">Updated {data.lastUpdated}</span>
@@ -146,150 +148,32 @@ data.commands.forEach((c: any) => {
     <p class="text-base max-w-2xl" style="color: var(--fg2);">{data.description}</p>
   </section>
 
-  <!-- ── SECURITY NOTICE ───────────────────────────────────────────────────── -->
-  <section class="mb-8">
-    <div class="security-notice">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" class="shrink-0">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  <!-- ── LARGE SEARCH BAR (sentinel for sticky observer) ──────────────────── -->
+  <section id="searchSentinel" class="pb-1">
+    <div class="search-large-wrap">
+      <svg class="search-icon-lg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
       </svg>
-      <p>Everything runs in your browser. No command you type or copy is sent to any server.</p>
+      <input id="cmdSearchLarge" type="text" placeholder="Search commands, flags, use cases..." autocomplete="off" spellcheck="false" class="search-input-lg" />
+      <kbd class="kbd-hint">Ctrl+K</kbd>
     </div>
   </section>
 
-  <!-- ── CREDENTIAL CHAIN DEBUGGER ─────────────────────────────────────────── -->
-  {data.hasCredentialDebugger && (
-    <section class="mb-10">
-      <h2 class="section-title">{data.credentialDebugger.title}</h2>
-      <p class="section-subtitle">{data.credentialDebugger.subtitle}</p>
-      <div class="cred-steps-grid">
-        {data.credentialDebugger.steps.map((step: any) => (
-          <div class="cred-step-card">
-            <span class="incident-step-badge">{step.step}</span>
-            <p class="cred-step-source">{step.source}</p>
-            <code class="cred-step-example">{step.example}</code>
-            <p class="cred-step-note">{step.note}</p>
-          </div>
-        ))}
-      </div>
-
-      <h3 class="cred-subtitle">Debug Commands</h3>
-      <div class="cred-debug-grid">
-        {data.credentialDebugger.debugCommands.map((dc: any) => (
-          <div class="cred-debug-card">
-            <p class="cred-debug-title">{dc.title}</p>
-            <div class="cmd-block">
-              <code class="cmd-text">{dc.command}</code>
-              <button class="copy-btn" data-copy={dc.command}>Copy</button>
-            </div>
-            <p class="cred-debug-note">{dc.note}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  )}
-
-  <!-- ── S3 OPERATION PICKER ───────────────────────────────────────────────── -->
-  {data.hasS3Picker && (
-    <section class="mb-10">
-      <h2 class="section-title">{data.s3Picker.title}</h2>
-      <p class="section-subtitle">{data.s3Picker.subtitle}</p>
-      <div class="s3-picker-table">
-        <div class="s3-picker-header-row">
-          <span>Scenario</span>
-          <span>Command</span>
-          <span>Note</span>
-        </div>
-        {data.s3Picker.options.map((opt: any) => (
-          <div class="s3-picker-row">
-            <div class="s3-picker-scenario">{opt.scenario}</div>
-            <div class="s3-picker-cmd">
-              <code class="s3-picker-command-name">{opt.command}</code>
-              <div class="cmd-block" style="margin-bottom: 0;">
-                <code class="cmd-text">{opt.example}</code>
-                <button class="copy-btn" data-copy={opt.example}>Copy</button>
-              </div>
-            </div>
-            <div class="s3-picker-note">{opt.note}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )}
-
-  <!-- ── INCIDENT FLOW ─────────────────────────────────────────────────────── -->
-  {data.hasIncidentFlow && (
-    <section class="mb-10">
-      <h2 class="section-title">{data.incidentFlow.title}</h2>
-      <p class="section-subtitle">{data.incidentFlow.subtitle}</p>
-      <div class="incident-grid">
-        {data.incidentFlow.steps.map((step: any) => (
-          <div class="incident-card">
-            <span class="incident-step-badge">{step.step}</span>
-            <div class="incident-cmd-block">
-              <code class="incident-cmd-text">{step.command}</code>
-              <button class="incident-copy-btn copy-btn" data-copy={step.command}>Copy</button>
-            </div>
-            <p class="incident-why">{step.why}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  )}
-
-  <!-- ── POD STATUS DECODER ────────────────────────────────────────────────── -->
-  {data.hasPodStatusDecoder && (
-    <section class="mb-10">
-      <h2 class="section-title">{data.podStatusDecoder.title}</h2>
-      <p class="section-subtitle">{data.podStatusDecoder.subtitle}</p>
-      <div class="decoder-table-wrap">
-        <table class="decoder-table">
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>What it means</th>
-              <th>What to run next</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.podStatusDecoder.rows.map((row: any) => (
-              <tr>
-                <td class="decoder-status">{row.status}</td>
-                <td class="decoder-meaning">{row.meaning}</td>
-                <td class="decoder-action">{row.action}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  )}
-
-</div>
-
-<!-- ── STICKY CONTROLS BAR ───────────────────────────────────────────────── -->
-<div id="stickyBar">
-  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 sticky-bar-inner">
-    <div class="sticky-search-wrap">
-      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input id="cmdSearch" type="text" placeholder="Search commands, flags, use cases..." autocomplete="off" spellcheck="false" class="sticky-search-input" />
-    </div>
-    <div class="sticky-pills" id="pillsWrap">
-      <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
-      {data.categories.map((cat: any) => (
-        categoryCounts[cat.id] ? (
-          <button class="cat-pill" data-category={cat.id}>{cat.label} ({categoryCounts[cat.id]})</button>
-        ) : null
-      ))}
-    </div>
-  </div>
-</div>
-
-<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- ── SLIM SECURITY NOTICE ──────────────────────────────────────────────── -->
+  <p class="security-line">Everything runs in your browser. No commands or data are sent to any server.</p>
 
   <!-- ── RESULTS META ──────────────────────────────────────────────────────── -->
   <p id="resultsMeta" class="results-meta">{data.commands.length} commands</p>
+
+  <!-- ── CATEGORY PILLS (standalone row on first load) ────────────────────── -->
+  <div class="pills-row-standalone" id="pillsRowStandalone">
+    <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
+    {data.categories.map((cat: any) => (
+      categoryCounts[cat.id] ? (
+        <button class="cat-pill" data-category={cat.id}>{cat.label} ({categoryCounts[cat.id]})</button>
+      ) : null
+    ))}
+  </div>
 
   <!-- ── COMMAND CARDS GRID ────────────────────────────────────────────────── -->
   <section class="mb-6">
@@ -359,6 +243,169 @@ data.commands.forEach((c: any) => {
     </div>
   </section>
 
+  <!-- ── REFERENCE TOOLS (collapsed special sections) ──────────────────────── -->
+  {hasReferenceTools && (
+    <section class="mb-10">
+      <h2 class="section-title" style="margin-bottom: 14px;">Reference Tools</h2>
+
+      {data.hasCredentialDebugger && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-cred-debugger" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.credentialDebugger.title}</span>
+              <span class="ref-tool-desc">Diagnose auth errors — see exactly which credential source AWS is using and why</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-cred-debugger">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.credentialDebugger.subtitle}</p>
+              <div class="cred-steps-grid">
+                {data.credentialDebugger.steps.map((step: any) => (
+                  <div class="cred-step-card">
+                    <span class="incident-step-badge">{step.step}</span>
+                    <p class="cred-step-source">{step.source}</p>
+                    <code class="cred-step-example">{step.example}</code>
+                    <p class="cred-step-note">{step.note}</p>
+                  </div>
+                ))}
+              </div>
+
+              <h3 class="cred-subtitle">Debug Commands</h3>
+              <div class="cred-debug-grid">
+                {data.credentialDebugger.debugCommands.map((dc: any) => (
+                  <div class="cred-debug-card">
+                    <p class="cred-debug-title">{dc.title}</p>
+                    <div class="cmd-block">
+                      <code class="cmd-text">{dc.command}</code>
+                      <button class="copy-btn" data-copy={dc.command}>Copy</button>
+                    </div>
+                    <p class="cred-debug-note">{dc.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.hasS3Picker && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-s3-picker" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.s3Picker.title}</span>
+              <span class="ref-tool-desc">Not sure whether to use cp, sync, mv, or rm — answer two questions and get the right command</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-s3-picker">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.s3Picker.subtitle}</p>
+              <div class="s3-picker-table">
+                <div class="s3-picker-header-row">
+                  <span>Scenario</span>
+                  <span>Command</span>
+                  <span>Note</span>
+                </div>
+                {data.s3Picker.options.map((opt: any) => (
+                  <div class="s3-picker-row">
+                    <div class="s3-picker-scenario">{opt.scenario}</div>
+                    <div class="s3-picker-cmd">
+                      <code class="s3-picker-command-name">{opt.command}</code>
+                      <div class="cmd-block" style="margin-bottom: 0;">
+                        <code class="cmd-text">{opt.example}</code>
+                        <button class="copy-btn" data-copy={opt.example}>Copy</button>
+                      </div>
+                    </div>
+                    <div class="s3-picker-note">{opt.note}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.hasIncidentFlow && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-incident-flow" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.incidentFlow.title}</span>
+              <span class="ref-tool-desc">5 commands to run in order when something breaks in production</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-incident-flow">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.incidentFlow.subtitle}</p>
+              <div class="incident-grid">
+                {data.incidentFlow.steps.map((step: any) => (
+                  <div class="incident-card">
+                    <span class="incident-step-badge">{step.step}</span>
+                    <div class="incident-cmd-block">
+                      <code class="incident-cmd-text">{step.command}</code>
+                      <button class="incident-copy-btn copy-btn" data-copy={step.command}>Copy</button>
+                    </div>
+                    <p class="incident-why">{step.why}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.hasPodStatusDecoder && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-pod-decoder" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.podStatusDecoder.title}</span>
+              <span class="ref-tool-desc">What CrashLoopBackOff, OOMKilled, and ImagePullBackOff actually mean and what to run next</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-pod-decoder">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.podStatusDecoder.subtitle}</p>
+              <div class="decoder-table-wrap">
+                <table class="decoder-table">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>What it means</th>
+                      <th>What to run next</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.podStatusDecoder.rows.map((row: any) => (
+                      <tr>
+                        <td class="decoder-status">{row.status}</td>
+                        <td class="decoder-meaning">{row.meaning}</td>
+                        <td class="decoder-action">{row.action}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  )}
+
   <!-- ── RELATED TOOLS ─────────────────────────────────────────────────────── -->
   <section class="mb-10">
     <div class="related-card">
@@ -377,15 +424,8 @@ data.commands.forEach((c: any) => {
     </div>
   </section>
 
-  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
-  <section class="mb-10">
-    <div class="seo-card">
-      {seoParagraphs.map((p) => <p class="seo-p">{p}</p>)}
-    </div>
-  </section>
-
   <!-- ── FAQ ───────────────────────────────────────────────────────────────── -->
-  <section class="pb-16">
+  <section class="mb-10">
     <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
       <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
         <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
@@ -404,7 +444,34 @@ data.commands.forEach((c: any) => {
     </div>
   </section>
 
+  <!-- ── SEO CONTENT ───────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+    <div class="seo-card">
+      {seoParagraphs.map((p) => <p class="seo-p">{p}</p>)}
+    </div>
+  </section>
+
 </div>
+</div>
+
+<!-- ── SLIM STICKY SEARCH BAR (hidden until scrolled past the large search) ── -->
+<div id="stickySearchBar" class="sticky-search-bar">
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 sticky-bar-inner">
+    <div class="sticky-search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="cmdSearchSlim" type="text" placeholder="Search commands, flags, use cases..." autocomplete="off" spellcheck="false" class="sticky-search-input" />
+    </div>
+    <div class="sticky-pills" id="pillsRowSticky">
+      <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
+      {data.categories.map((cat: any) => (
+        categoryCounts[cat.id] ? (
+          <button class="cat-pill" data-category={cat.id}>{cat.label} ({categoryCounts[cat.id]})</button>
+        ) : null
+      ))}
+    </div>
+  </div>
 </div>
 
 <style>
@@ -450,312 +517,139 @@ data.commands.forEach((c: any) => {
     font-family: 'Inter', sans-serif;
   }
 
-  /* ── Security notice ───────────────────────────────────────────────────────── */
-  .security-notice {
+  /* ── Large search bar ────────────────────────────────────────────────────── */
+  .search-large-wrap {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 12px;
+  }
+  .search-icon-lg {
+    position: absolute;
+    left: 20px;
+    color: var(--fg3);
+    pointer-events: none;
+  }
+  .search-input-lg {
+    width: 100%;
+    height: 56px;
+    padding: 0 92px 0 52px;
+    border-radius: 12px;
     background: #111111;
     border: 1px solid #222222;
-    border-left: 3px solid #334155;
-    border-radius: 10px;
-    padding: 14px 18px;
-  }
-  .security-notice p {
-    font-size: 13px;
-    color: var(--fg2);
-    margin: 0;
-  }
-
-  /* ── Section titles ─────────────────────────────────────────────────────── */
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
     color: #F8FAFC;
     font-family: 'Inter', sans-serif;
-    margin-bottom: 6px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .section-subtitle {
-    font-size: 13.5px;
-    color: var(--fg2);
-    margin-bottom: 18px;
-    max-width: 720px;
-    line-height: 1.6;
+  .search-input-lg:focus {
+    border-color: #64748B;
+    box-shadow: 0 0 0 3px rgba(100,116,139,0.15);
   }
-
-  /* ── Incident flow ──────────────────────────────────────────────────────── */
-  .incident-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 14px;
-  }
-  @media (max-width: 1024px) {
-    .incident-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-  @media (max-width: 640px) {
-    .incident-grid { grid-template-columns: minmax(0, 1fr); }
-  }
-  .incident-card {
-    background: #111111;
-    border: 1px solid #222222;
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-width: 0;
-  }
-  .incident-step-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(248,250,252,0.08);
-    border: 1px solid #334155;
-    color: #F8FAFC;
+  .search-input-lg::placeholder { color: var(--fg3); }
+  .kbd-hint {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .incident-cmd-block {
-    display: flex;
-    align-items: stretch;
-    justify-content: space-between;
-    gap: 8px;
-    background: #0A0A0A;
-    border: 1px solid #222222;
-    border-radius: 8px;
-    padding: 10px;
-    overflow: hidden;
-    min-width: 0;
-  }
-  .incident-cmd-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: #F8FAFC;
-    white-space: pre;
-    flex: 1;
-    overflow-x: auto;
-    min-width: 0;
-    scrollbar-width: thin;
-    scrollbar-color: #333333 transparent;
-  }
-  .incident-cmd-text::-webkit-scrollbar { height: 4px; }
-  .incident-cmd-text::-webkit-scrollbar-track { background: transparent; }
-  .incident-cmd-text::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
-  .incident-why {
-    font-size: 12.5px;
-    color: var(--fg2);
-    line-height: 1.55;
-  }
-
-  /* ── Credential chain debugger ───────────────────────────────────────────── */
-  .cred-steps-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin-bottom: 28px;
-  }
-  @media (max-width: 900px) {
-    .cred-steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-  @media (max-width: 640px) {
-    .cred-steps-grid { grid-template-columns: minmax(0, 1fr); }
-  }
-  .cred-step-card {
-    background: #111111;
-    border: 1px solid #222222;
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
-  }
-  .cred-step-source {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #F8FAFC;
-  }
-  .cred-step-example {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    color: var(--fg2);
-    background: #0A0A0A;
+    color: var(--fg3);
+    background: rgba(248,250,252,0.06);
     border: 1px solid #222222;
     border-radius: 6px;
-    padding: 6px 8px;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    line-height: 1.5;
+    padding: 4px 8px;
+    pointer-events: none;
+    white-space: nowrap;
   }
-  .cred-step-note {
+  @media (max-width: 480px) {
+    .kbd-hint { display: none; }
+    .search-input-lg { padding-right: 20px; }
+  }
+
+  /* ── Slim security line ──────────────────────────────────────────────────── */
+  .security-line {
     font-size: 12.5px;
-    color: var(--fg2);
-    line-height: 1.55;
-  }
-  .cred-subtitle {
-    font-size: 15px;
-    font-weight: 700;
-    color: #F8FAFC;
+    color: #94A3B8;
+    margin: 10px 0 0;
     font-family: 'Inter', sans-serif;
-    margin-bottom: 12px;
   }
-  .cred-debug-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+
+  /* ── Category pills (shared by standalone row and sticky row) ───────────── */
+  .pills-row-standalone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 4px;
   }
   @media (max-width: 640px) {
-    .cred-debug-grid { grid-template-columns: minmax(0, 1fr); }
-  }
-  .cred-debug-card {
-    background: #111111;
-    border: 1px solid #222222;
-    border-radius: 10px;
-    padding: 16px;
-    min-width: 0;
-  }
-  .cred-debug-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #F8FAFC;
-    margin-bottom: 10px;
-  }
-  .cred-debug-note {
-    font-size: 12.5px;
-    color: var(--fg2);
-    line-height: 1.55;
-    margin-top: 10px;
-  }
-
-  /* ── S3 operation picker ─────────────────────────────────────────────────── */
-  .s3-picker-table {
-    background: #111111;
-    border: 1px solid #222222;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .s3-picker-header-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
-    gap: 16px;
-    padding: 10px 18px;
-    background: rgba(248,250,252,0.04);
-    border-bottom: 1px solid #222222;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--fg2);
-  }
-  .s3-picker-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
-    gap: 16px;
-    padding: 16px 18px;
-    border-bottom: 1px solid #222222;
-    min-width: 0;
-  }
-  .s3-picker-row:last-child { border-bottom: none; }
-  .s3-picker-scenario {
-    font-size: 13px;
-    color: #F8FAFC;
-    line-height: 1.5;
-    align-self: center;
-  }
-  .s3-picker-cmd {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-  }
-  .s3-picker-command-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 600;
-    color: #60A5FA;
-  }
-  .s3-picker-note {
-    font-size: 12px;
-    color: var(--fg2);
-    line-height: 1.5;
-    align-self: center;
-  }
-  @media (max-width: 768px) {
-    .s3-picker-header-row { display: none; }
-    .s3-picker-row {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 10px;
+    .pills-row-standalone {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #333333 transparent;
     }
+    .pills-row-standalone::-webkit-scrollbar { height: 4px; }
+    .pills-row-standalone::-webkit-scrollbar-track { background: transparent; }
+    .pills-row-standalone::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
   }
-
-  /* ── Pod status decoder ─────────────────────────────────────────────────── */
-  .decoder-table-wrap {
-    overflow-x: auto;
-    border-radius: 10px;
+  .cat-pill {
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--fg2);
     border: 1px solid #222222;
-  }
-  .decoder-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #111111;
-  }
-  .decoder-table th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--fg2);
-    padding: 12px 16px;
-    background: rgba(248,250,252,0.04);
-    border-bottom: 1px solid #222222;
+    cursor: pointer;
     white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+    flex-shrink: 0;
   }
-  .decoder-table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #222222;
-    vertical-align: top;
-    font-size: 13px;
-  }
-  .decoder-table tr:last-child td { border-bottom: none; }
-  .decoder-table tbody tr:hover { background: rgba(248,250,252,0.03); }
-  .decoder-status {
-    font-family: 'JetBrains Mono', monospace;
+  .cat-pill:hover { border-color: #334155; color: #F8FAFC; }
+  .cat-pill.active {
+    background: rgba(248,250,252,0.1);
+    border-color: #F8FAFC;
     color: #F8FAFC;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .decoder-meaning, .decoder-action {
-    color: var(--fg2);
-    line-height: 1.55;
   }
 
-  /* ── Sticky controls bar ────────────────────────────────────────────────── */
-  #stickyBar {
-    position: sticky;
+  .results-meta {
+    font-size: 12.5px;
+    color: var(--fg3);
+    padding: 10px 0 0;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Slim sticky search bar (fixed, hidden until scrolled past large bar) ── */
+  .sticky-search-bar {
+    position: fixed;
     top: 64px;
-    z-index: 20;
+    left: 0;
+    right: 0;
+    z-index: 25;
     background: #0A0A0A;
     border-bottom: 1px solid #222222;
-    padding: 14px 0;
+    padding: 4px 0;
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .sticky-search-bar.visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
   }
   .sticky-bar-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+    gap: 14px;
   }
   .sticky-search-wrap {
     position: relative;
-    flex: 1 1 320px;
-    max-width: 480px;
+    flex: 0 1 320px;
+    min-width: 140px;
   }
   .search-icon {
     position: absolute;
@@ -767,7 +661,7 @@ data.commands.forEach((c: any) => {
   }
   .sticky-search-input {
     width: 100%;
-    height: 40px;
+    height: 36px;
     padding: 0 14px 0 38px;
     border-radius: 8px;
     background: #111111;
@@ -785,35 +679,20 @@ data.commands.forEach((c: any) => {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
     flex: 1 1 auto;
-    justify-content: flex-end;
+    min-width: 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
   }
-  .cat-pill {
-    font-size: 11.5px;
-    font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 20px;
-    background: transparent;
-    color: var(--fg2);
-    border: 1px solid #222222;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.15s;
-  }
-  .cat-pill:hover { border-color: #334155; color: #F8FAFC; }
-  .cat-pill.active {
-    background: rgba(248,250,252,0.1);
-    border-color: #F8FAFC;
-    color: #F8FAFC;
-  }
+  .sticky-pills::-webkit-scrollbar { height: 4px; }
+  .sticky-pills::-webkit-scrollbar-track { background: transparent; }
+  .sticky-pills::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
 
-  .results-meta {
-    font-size: 12.5px;
-    color: var(--fg3);
-    padding: 16px 0 14px;
-    font-family: 'Inter', sans-serif;
+  @media (max-width: 480px) {
+    .sticky-search-wrap { flex: 0 1 130px; min-width: 100px; }
+    .sticky-search-input { font-size: 12px; padding: 0 10px 0 32px; }
   }
 
   /* ── Command grid ────────────────────────────────────────────────────────── */
@@ -1005,6 +884,351 @@ data.commands.forEach((c: any) => {
   }
   .clear-btn:hover { background: rgba(248,250,252,0.08); }
 
+  /* ── Section titles (shared) ─────────────────────────────────────────────── */
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 6px;
+  }
+  .section-subtitle {
+    font-size: 13.5px;
+    color: var(--fg2);
+    margin-bottom: 18px;
+    max-width: 720px;
+    line-height: 1.6;
+  }
+
+  /* ── Reference Tools collapsible cards ───────────────────────────────────── */
+  .ref-tool {
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .ref-tool-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+  }
+  .ref-tool-toggle:hover { background: rgba(248,250,252,0.04); }
+  .ref-tool-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(248,250,252,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94A3B8;
+  }
+  .ref-tool-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ref-tool-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #F8FAFC;
+  }
+  .ref-tool-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.4;
+  }
+  .ref-tool-chevron {
+    flex-shrink: 0;
+    color: var(--fg3);
+    transition: transform 0.25s ease;
+  }
+  .ref-tool-toggle[aria-expanded="true"] .ref-tool-chevron {
+    transform: rotate(180deg);
+  }
+  .ref-tool-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .ref-tool-panel.expanded {
+    grid-template-rows: 1fr;
+  }
+  .ref-tool-panel-inner {
+    overflow: hidden;
+    min-height: 0;
+    padding: 0 18px 0;
+  }
+  .ref-tool-panel.expanded .ref-tool-panel-inner {
+    padding: 0 18px 22px;
+  }
+
+  /* ── Incident flow ──────────────────────────────────────────────────────── */
+  .incident-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 1024px) {
+    .incident-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .incident-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .incident-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .incident-step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(248,250,252,0.08);
+    border: 1px solid #334155;
+    color: #F8FAFC;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .incident-cmd-block {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 8px;
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    padding: 10px;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .incident-cmd-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #F8FAFC;
+    white-space: pre;
+    flex: 1;
+    overflow-x: auto;
+    min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
+  }
+  .incident-cmd-text::-webkit-scrollbar { height: 4px; }
+  .incident-cmd-text::-webkit-scrollbar-track { background: transparent; }
+  .incident-cmd-text::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
+  .incident-why {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+
+  /* ── Credential chain debugger ───────────────────────────────────────────── */
+  .cred-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 900px) {
+    .cred-steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .cred-steps-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .cred-step-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .cred-step-source {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+  }
+  .cred-step-example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--fg2);
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 6px;
+    padding: 6px 8px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+  }
+  .cred-step-note {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+  .cred-subtitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 12px;
+  }
+  .cred-debug-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 640px) {
+    .cred-debug-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .cred-debug-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+  .cred-debug-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #F8FAFC;
+    margin-bottom: 10px;
+  }
+  .cred-debug-note {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+    margin-top: 10px;
+  }
+
+  /* ── S3 operation picker ─────────────────────────────────────────────────── */
+  .s3-picker-table {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .s3-picker-header-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    gap: 16px;
+    padding: 10px 18px;
+    background: rgba(248,250,252,0.04);
+    border-bottom: 1px solid #222222;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg2);
+  }
+  .s3-picker-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+    gap: 16px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #222222;
+    min-width: 0;
+  }
+  .s3-picker-row:last-child { border-bottom: none; }
+  .s3-picker-scenario {
+    font-size: 13px;
+    color: #F8FAFC;
+    line-height: 1.5;
+    align-self: center;
+  }
+  .s3-picker-cmd {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .s3-picker-command-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #60A5FA;
+  }
+  .s3-picker-note {
+    font-size: 12px;
+    color: var(--fg2);
+    line-height: 1.5;
+    align-self: center;
+  }
+  @media (max-width: 768px) {
+    .s3-picker-header-row { display: none; }
+    .s3-picker-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+  }
+
+  /* ── Pod status decoder ─────────────────────────────────────────────────── */
+  .decoder-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #222222;
+  }
+  .decoder-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #0A0A0A;
+  }
+  .decoder-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg2);
+    padding: 12px 16px;
+    background: rgba(248,250,252,0.04);
+    border-bottom: 1px solid #222222;
+    white-space: nowrap;
+  }
+  .decoder-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #222222;
+    vertical-align: top;
+    font-size: 13px;
+  }
+  .decoder-table tr:last-child td { border-bottom: none; }
+  .decoder-table tbody tr:hover { background: rgba(248,250,252,0.03); }
+  .decoder-status {
+    font-family: 'JetBrains Mono', monospace;
+    color: #F8FAFC;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .decoder-meaning, .decoder-action {
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+
   /* ── Related tools ──────────────────────────────────────────────────────── */
   .related-card {
     background: var(--card);
@@ -1115,16 +1339,29 @@ data.commands.forEach((c: any) => {
   // ── Search + category filtering ──────────────────────────────────────────
   const cmdCards = Array.from(document.querySelectorAll('.cmd-card')) as HTMLElement[];
   const pills = Array.from(document.querySelectorAll('.cat-pill')) as HTMLElement[];
-  const searchInput = document.getElementById('cmdSearch') as HTMLInputElement;
+  const searchLarge = document.getElementById('cmdSearchLarge') as HTMLInputElement | null;
+  const searchSlim = document.getElementById('cmdSearchSlim') as HTMLInputElement | null;
+  const searchInputs = [searchLarge, searchSlim].filter(Boolean) as HTMLInputElement[];
   const resultsMeta = document.getElementById('resultsMeta') as HTMLElement;
   const noResultsState = document.getElementById('noResultsState') as HTMLElement;
   const clearSearchBtn = document.getElementById('clearSearchBtn') as HTMLButtonElement;
   const cmdGrid = document.getElementById('cmdGrid') as HTMLElement;
+  const stickySearchBar = document.getElementById('stickySearchBar') as HTMLElement;
 
   let activeCategory = 'all';
 
+  function currentQuery(): string {
+    return (searchLarge?.value ?? searchSlim?.value ?? '').trim().toLowerCase();
+  }
+
+  function syncSearchInputs(source: HTMLInputElement) {
+    searchInputs.forEach((el) => {
+      if (el !== source) el.value = source.value;
+    });
+  }
+
   function applyFilters() {
-    const query = searchInput.value.trim().toLowerCase();
+    const query = currentQuery();
     let visibleCount = 0;
 
     cmdCards.forEach((card) => {
@@ -1153,8 +1390,11 @@ data.commands.forEach((c: any) => {
     cmdGrid.style.display = noResults ? 'none' : '';
   }
 
-  searchInput?.addEventListener('input', () => {
-    requestAnimationFrame(applyFilters);
+  searchInputs.forEach((input) => {
+    input.addEventListener('input', () => {
+      syncSearchInputs(input);
+      requestAnimationFrame(applyFilters);
+    });
   });
 
   pills.forEach((pill) => {
@@ -1175,11 +1415,62 @@ data.commands.forEach((c: any) => {
     });
   });
 
-  clearSearchBtn?.addEventListener('click', () => {
-    searchInput.value = '';
+  function resetAllFilters() {
+    searchInputs.forEach((el) => { el.value = ''; });
     activeCategory = 'all';
     pills.forEach((p) => p.classList.toggle('active', p.getAttribute('data-category') === 'all'));
     requestAnimationFrame(applyFilters);
+  }
+
+  clearSearchBtn?.addEventListener('click', resetAllFilters);
+
+  // ── Keyboard shortcuts: "/" and Ctrl+K focus search, Escape clears ─────────
+  document.addEventListener('keydown', (e) => {
+    const activeTag = (document.activeElement as HTMLElement)?.tagName;
+    const busy = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT';
+    const isCtrlK = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k';
+    const isSlash = e.key === '/' && !busy;
+
+    if (isCtrlK || isSlash) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const target = stickySearchBar?.classList.contains('visible') ? searchSlim : searchLarge;
+      target?.focus();
+      return;
+    }
+
+    if (e.key === 'Escape' && busy) {
+      resetAllFilters();
+      (document.activeElement as HTMLElement)?.blur();
+    }
+  }, true);
+
+  // ── Sticky search bar via IntersectionObserver ─────────────────────────────
+  const sentinel = document.getElementById('searchSentinel');
+  if (sentinel && stickySearchBar && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const scrolledPast = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+          stickySearchBar.classList.toggle('visible', scrolledPast);
+        });
+      },
+      { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+    );
+    observer.observe(sentinel);
+  }
+
+  // ── Reference Tools expand/collapse ────────────────────────────────────────
+  document.querySelectorAll('.ref-tool-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const panelId = btn.getAttribute('data-panel');
+      if (!panelId) return;
+      const panel = document.getElementById(panelId) as HTMLElement | null;
+      if (!panel) return;
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+      panel.classList.toggle('expanded', !isExpanded);
+    });
   });
 
   // ── FAQ accordion ─────────────────────────────────────────────────────────
