@@ -164,7 +164,7 @@
       "category": "cluster-context",
       "difficulty": "Advanced",
       "useCase": "Tear down an entire environment, such as a temporary review-app or staging namespace, in one command.",
-      "beginnerNote": "This deletes EVERY resource inside the namespace with no recovery option. This is the most dangerous command on this entire cheat sheet — double check kubectl config current-context first.",
+      "beginnerNote": "This deletes EVERY resource inside the namespace with no recovery option. This is the most dangerous command on this entire cheat sheet. Double check kubectl config current-context first.",
       "tags": ["namespace", "delete", "dangerous", "cleanup"]
     },
     {
@@ -177,7 +177,7 @@
       "category": "cluster-context",
       "difficulty": "Beginner",
       "useCase": "See every cluster/user/namespace combination saved in your kubeconfig before switching between clusters.",
-      "beginnerNote": "The asterisk in the first column marks your CURRENT context. Always check this before running any destructive command — it is the single fastest sanity check that exists.",
+      "beginnerNote": "The asterisk in the first column marks your CURRENT context. Always check this before running any destructive command. It is the single fastest sanity check that exists.",
       "tags": ["context", "kubeconfig", "cluster-switching"]
     },
     {
@@ -202,7 +202,7 @@
       "deprecated": false,
       "category": "cluster-context",
       "difficulty": "Beginner",
-      "useCase": "A sanity check before running any risky command — confirm you are actually pointed at the cluster you think you are.",
+      "useCase": "A sanity check before running any risky command, to confirm you are actually pointed at the cluster you think you are.",
       "beginnerNote": null,
       "tags": ["context", "sanity-check", "kubeconfig"]
     },
@@ -216,7 +216,7 @@
       "category": "cluster-context",
       "difficulty": "Intermediate",
       "useCase": "Avoid typing -n <namespace> on every single command when you are working in one namespace for an extended session.",
-      "beginnerNote": "This changes the default namespace stored in your kubeconfig, not just for the current terminal session — it persists until you change it again.",
+      "beginnerNote": "This changes the default namespace stored in your kubeconfig, not just for the current terminal session. It persists until you change it again.",
       "tags": ["namespace", "context", "kubeconfig", "default"]
     },
     {
@@ -244,7 +244,7 @@
       "category": "cluster-context",
       "difficulty": "Intermediate",
       "useCase": "Mark a node unschedulable before performing maintenance, so no new pods land on it while you investigate or patch it.",
-      "beginnerNote": "Cordon alone does NOT evict existing pods already running on the node — it only blocks new ones from being scheduled there. Pair it with drain to actually empty the node.",
+      "beginnerNote": "Cordon alone does NOT evict existing pods already running on the node. It only blocks new ones from being scheduled there. Pair it with drain to actually empty the node.",
       "tags": ["node", "cordon", "maintenance", "scheduling"]
     },
     {
@@ -252,7 +252,7 @@
       "title": "Drain a node",
       "command": "kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data",
       "flags": [
-        {"flag": "--ignore-daemonsets", "description": "Required — otherwise drain refuses to proceed because DaemonSet-managed pods cannot be safely evicted"},
+        {"flag": "--ignore-daemonsets", "description": "Required, otherwise drain refuses to proceed because DaemonSet-managed pods cannot be safely evicted"},
         {"flag": "--delete-emptydir-data", "description": "Required if any pod uses an emptyDir volume, since that data cannot survive eviction anyway"}
       ],
       "destructive": true,
@@ -315,8 +315,8 @@
       "deprecated": false,
       "category": "pods",
       "difficulty": "Beginner",
-      "useCase": "The most basic health check — see what pods exist and their current status in a namespace.",
-      "beginnerNote": "Running this with no flags only shows the default namespace. Use -A if your pod seems to have disappeared — it is almost always sitting in a different namespace.",
+      "useCase": "The most basic health check, showing what pods exist and their current status in a namespace.",
+      "beginnerNote": "Running this with no flags only shows the default namespace. Use -A if your pod seems to have disappeared. It is almost always sitting in a different namespace.",
       "tags": ["pods", "list", "status"]
     },
     {
@@ -370,7 +370,7 @@
       "category": "pods",
       "difficulty": "Intermediate",
       "useCase": "Attach non-identifying metadata, like a build hash or deploy timestamp, that a CI tool or dashboard reads later.",
-      "beginnerNote": "Labels are for selection and filtering, annotations are for arbitrary metadata that tooling reads. Mixing them up — like trying to select on an annotation — is a common conceptual error.",
+      "beginnerNote": "Labels are for selection and filtering, annotations are for arbitrary metadata that tooling reads. Mixing them up, like trying to select on an annotation, is a common conceptual error.",
       "tags": ["annotate", "metadata", "labels-vs-annotations"]
     },
     {
@@ -409,7 +409,7 @@
       "category": "pods",
       "difficulty": "Intermediate",
       "useCase": "Pull a log file, heap dump, or generated report off a container for local inspection.",
-      "beginnerNote": "Same tar dependency as copying into a pod — this also requires tar inside the source container or it will fail with an unclear error.",
+      "beginnerNote": "Same tar dependency as copying into a pod. This also requires tar inside the source container or it will fail with an unclear error.",
       "tags": ["cp", "copy", "file-transfer", "tar"]
     },
 
@@ -449,7 +449,7 @@
       "category": "deployments-scaling",
       "difficulty": "Beginner",
       "useCase": "Create a brand-new resource once, in a one-off script where you specifically want it to fail if the resource already exists.",
-      "beginnerNote": "Unlike apply, create errors out with AlreadyExists if the resource already exists — it has no built-in update behaviour.",
+      "beginnerNote": "Unlike apply, create errors out with AlreadyExists if the resource already exists. It has no built-in update behaviour.",
       "tags": ["create", "manifest", "imperative"]
     },
     {
@@ -527,7 +527,7 @@
       "category": "deployments-scaling",
       "difficulty": "Advanced",
       "useCase": "Force a full replacement of a resource's spec when apply's three-way merge is producing unwanted results.",
-      "beginnerNote": "Requires the full current spec or it fails outright. Most engineers should use apply instead — replace is a niche escape hatch, not a default.",
+      "beginnerNote": "Requires the full current spec or it fails outright. Most engineers should use apply instead. Replace is a niche escape hatch, not a default.",
       "tags": ["replace", "manifest", "full-replace"]
     },
     {
@@ -579,7 +579,7 @@
       "category": "deployments-scaling",
       "difficulty": "Beginner",
       "useCase": "The fastest way back to a known-good state after a bad deploy causes a production incident.",
-      "beginnerNote": "Only works if the ReplicaSet history for that revision still exists — Kubernetes keeps 10 revisions by default via revisionHistoryLimit.",
+      "beginnerNote": "Only works if the ReplicaSet history for that revision still exists. Kubernetes keeps 10 revisions by default via revisionHistoryLimit.",
       "tags": ["rollout", "undo", "rollback", "incident"]
     },
     {
@@ -592,7 +592,7 @@
       "category": "deployments-scaling",
       "difficulty": "Advanced",
       "useCase": "Stop a rolling update mid-flight to make multiple manifest changes that should be applied together as one rollout.",
-      "beginnerNote": "A paused deployment will NOT respond to kubectl rollout undo — you must resume it first before any rollout command takes effect.",
+      "beginnerNote": "A paused deployment will NOT respond to kubectl rollout undo. You must resume it first before any rollout command takes effect.",
       "tags": ["rollout", "pause", "batching-changes"]
     },
     {
@@ -658,7 +658,7 @@
       "category": "services-networking",
       "difficulty": "Beginner",
       "useCase": "Quickly create a Service in front of a deployment so other pods in the cluster can reach it by a stable name.",
-      "beginnerNote": "Forgetting --target-port when the container listens on a different port than the Service causes silent traffic failures — connections just time out with no obvious error.",
+      "beginnerNote": "Forgetting --target-port when the container listens on a different port than the Service causes silent traffic failures. Connections just time out with no obvious error.",
       "tags": ["expose", "service", "port", "target-port"]
     },
     {
@@ -671,7 +671,7 @@
       "category": "services-networking",
       "difficulty": "Beginner",
       "useCase": "Access a database or internal service running in the cluster from your local machine for debugging, without exposing it publicly.",
-      "beginnerNote": "The forward only lasts as long as the terminal session stays open, and it only proxies to that single pod — it does not load-balance across replicas.",
+      "beginnerNote": "The forward only lasts as long as the terminal session stays open, and it only proxies to that single pod. It does not load-balance across replicas.",
       "tags": ["port-forward", "debug", "local-access"]
     },
     {
@@ -684,7 +684,7 @@
       "category": "services-networking",
       "difficulty": "Advanced",
       "useCase": "Audit which pods have traffic restrictions applied when investigating an unexpected connection failure or a security review.",
-      "beginnerNote": "A namespace with zero NetworkPolicies allows all traffic by default. Isolation only kicks in once at least one policy selects a pod — half-configured policies can be more dangerous than none.",
+      "beginnerNote": "A namespace with zero NetworkPolicies allows all traffic by default. Isolation only kicks in once at least one policy selects a pod, so half-configured policies can be more dangerous than none.",
       "tags": ["networkpolicy", "security", "isolation"]
     },
 
@@ -741,7 +741,7 @@
       "category": "configmaps-secrets",
       "difficulty": "Beginner",
       "useCase": "Store a database password, API key, or token for a pod to consume as an environment variable or mounted file.",
-      "beginnerNote": "Secrets are only base64-encoded, not encrypted, by default. Anyone with kubectl get/describe access on the Secret can decode the value instantly — treat RBAC on Secrets as your real protection.",
+      "beginnerNote": "Secrets are only base64-encoded, not encrypted, by default. Anyone with kubectl get/describe access on the Secret can decode the value instantly, so treat RBAC on Secrets as your real protection.",
       "tags": ["secret", "create", "base64", "credentials"]
     },
     {
@@ -767,7 +767,7 @@
       "category": "configmaps-secrets",
       "difficulty": "Intermediate",
       "useCase": "Authenticate the kubelet against a private container registry so it can pull images that require a login.",
-      "beginnerNote": "Creating the Secret is only half the fix — it does nothing until it's referenced by name in the pod spec's imagePullSecrets field.",
+      "beginnerNote": "Creating the Secret is only half the fix. It does nothing until it's referenced by name in the pod spec's imagePullSecrets field.",
       "tags": ["secret", "docker-registry", "imagepullsecret", "private-registry"]
     },
 
@@ -781,7 +781,7 @@
       "category": "storage",
       "difficulty": "Intermediate",
       "useCase": "Check which cluster-wide storage volumes exist and whether they're Bound, Available, or Released.",
-      "beginnerNote": "PersistentVolumes are cluster-scoped, not namespaced. Never pass -n to this command — it will simply be ignored since PVs don't belong to any namespace.",
+      "beginnerNote": "PersistentVolumes are cluster-scoped, not namespaced. Never pass -n to this command. It will simply be ignored since PVs don't belong to any namespace.",
       "tags": ["pv", "storage", "cluster-scoped"]
     },
     {
@@ -794,7 +794,7 @@
       "category": "storage",
       "difficulty": "Beginner",
       "useCase": "Check whether a pod's storage request has been successfully bound to a volume before assuming a database pod's storage issue is elsewhere.",
-      "beginnerNote": "A PVC stuck in Pending almost always means no StorageClass can satisfy the requested size or access mode — check the storageClassName and requested capacity.",
+      "beginnerNote": "A PVC stuck in Pending almost always means no StorageClass can satisfy the requested size or access mode. Check the storageClassName and requested capacity.",
       "tags": ["pvc", "storage", "pending", "storageclass"]
     },
     {
@@ -820,7 +820,7 @@
       "category": "storage",
       "difficulty": "Intermediate",
       "useCase": "Check which StorageClass is marked as default before creating a PVC that doesn't explicitly specify one.",
-      "beginnerNote": "Having zero or multiple default StorageClasses both cause confusing provisioning failures — with multiple defaults the behaviour depends on your cloud provider's admission controller.",
+      "beginnerNote": "Having zero or multiple default StorageClasses both cause confusing provisioning failures. With multiple defaults the behaviour depends on your cloud provider's admission controller.",
       "tags": ["storageclass", "default", "provisioning"]
     },
 
@@ -847,7 +847,7 @@
       "category": "rbac",
       "difficulty": "Intermediate",
       "useCase": "Define a set of permissions, like read-only access to pods, scoped to a single namespace.",
-      "beginnerNote": "A Role only grants access within its own namespace no matter how it is bound — it can never grant cluster-wide access.",
+      "beginnerNote": "A Role only grants access within its own namespace no matter how it is bound. It can never grant cluster-wide access.",
       "tags": ["rbac", "role", "verb", "resource"]
     },
     {
@@ -860,7 +860,7 @@
       "category": "rbac",
       "difficulty": "Intermediate",
       "useCase": "Actually grant the permissions defined in a Role to a specific user, group, or ServiceAccount.",
-      "beginnerNote": "A Role by itself grants nothing until it is bound to a subject via a RoleBinding — creating the Role alone is a no-op.",
+      "beginnerNote": "A Role by itself grants nothing until it is bound to a subject via a RoleBinding. Creating the Role alone is a no-op.",
       "tags": ["rbac", "rolebinding", "subject"]
     },
     {
@@ -927,8 +927,8 @@
       "deprecated": false,
       "category": "troubleshooting",
       "difficulty": "Beginner",
-      "useCase": "The number one debugging command — shows the Events section that explains why something failed, not just its current status.",
-      "beginnerNote": "New users see CrashLoopBackOff in kubectl get pod and stop there. describe is where the actual reason lives — always run it next.",
+      "useCase": "The number one debugging command, showing the Events section that explains why something failed, not just its current status.",
+      "beginnerNote": "New users see CrashLoopBackOff in kubectl get pod and stop there. describe is where the actual reason lives, so always run it next.",
       "tags": ["describe", "events", "debug", "troubleshooting"]
     },
     {
@@ -946,8 +946,8 @@
       "deprecated": false,
       "category": "troubleshooting",
       "difficulty": "Beginner",
-      "useCase": "Read what an application actually printed before or during a failure — the single most-used debugging command after describe.",
-      "beginnerNote": "If the pod already restarted, plain kubectl logs shows the new container's empty logs. Use --previous to see why the last one crashed — this is the flag people forget at 2am.",
+      "useCase": "Read what an application actually printed before or during a failure. It's the single most-used debugging command after describe.",
+      "beginnerNote": "If the pod already restarted, plain kubectl logs shows the new container's empty logs. Use --previous to see why the last one crashed. This is the flag people forget at 2am.",
       "tags": ["logs", "debug", "previous", "crashloopbackoff"]
     },
     {
@@ -962,7 +962,7 @@
       "category": "troubleshooting",
       "difficulty": "Intermediate",
       "useCase": "See scheduling failures, probe failures, and image pull errors across a namespace in one chronological timeline.",
-      "beginnerNote": "Events expire after about an hour by default, so check this early during an incident — by the time you circle back the evidence may already be gone.",
+      "beginnerNote": "Events expire after about an hour by default, so check this early during an incident, because by the time you circle back the evidence may already be gone.",
       "tags": ["events", "timeline", "incident", "debug"]
     },
     {
@@ -974,7 +974,7 @@
       "deprecated": false,
       "category": "troubleshooting",
       "difficulty": "Beginner",
-      "useCase": "Poke around inside a running container — check environment variables, test DNS, or inspect a mounted file directly.",
+      "useCase": "Poke around inside a running container to check environment variables, test DNS, or inspect a mounted file directly.",
       "beginnerNote": "Minimal and distroless images often have no shell at all. exec failing with 'executable file not found' usually means no shell exists, not that something is broken.",
       "tags": ["exec", "shell", "debug", "distroless"]
     },
@@ -1005,7 +1005,7 @@
       "category": "troubleshooting",
       "difficulty": "Beginner",
       "useCase": "Check live CPU and memory usage when investigating an OOMKilled pod or deciding whether to raise resource limits.",
-      "beginnerNote": "Silently fails with 'metrics not available' unless metrics-server is installed in the cluster — it is not part of Kubernetes core.",
+      "beginnerNote": "Silently fails with 'metrics not available' unless metrics-server is installed in the cluster, which is not part of Kubernetes core.",
       "tags": ["top", "metrics", "cpu", "memory", "oomkilled"]
     },
     {
@@ -1018,7 +1018,7 @@
       "category": "troubleshooting",
       "difficulty": "Beginner",
       "useCase": "Check overall cluster capacity pressure before assuming a scheduling failure is caused by something else.",
-      "beginnerNote": "Same metrics-server dependency as kubectl top pods — this fails the same way if metrics-server isn't installed.",
+      "beginnerNote": "Same metrics-server dependency as kubectl top pods. This fails the same way if metrics-server isn't installed.",
       "tags": ["top", "nodes", "metrics", "capacity"]
     },
     {
@@ -1044,7 +1044,7 @@
       "category": "troubleshooting",
       "difficulty": "Advanced",
       "useCase": "Clean up a temporary test namespace by removing pods, services, deployments and replicasets in one shot.",
-      "beginnerNote": "Same as kubectl get all — this only targets common resource types and will NOT delete ConfigMaps, Secrets, PVCs, or CRDs left behind.",
+      "beginnerNote": "Same as kubectl get all. This only targets common resource types and will NOT delete ConfigMaps, Secrets, PVCs, or CRDs left behind.",
       "tags": ["delete", "all", "cleanup", "namespace"]
     },
 
@@ -1084,7 +1084,7 @@
       "category": "advanced",
       "difficulty": "Intermediate",
       "useCase": "Watch pods come up in real time during a rollout or scale-up, without repeatedly re-running kubectl get.",
-      "beginnerNote": "This command never exits on its own — you have to Ctrl-C out of it, which trips up scripts that call it expecting it to return.",
+      "beginnerNote": "This command never exits on its own. You have to Ctrl-C out of it, which trips up scripts that call it expecting it to return.",
       "tags": ["watch", "live", "rollout"]
     },
     {
@@ -1092,7 +1092,7 @@
       "title": "Preview an apply without changing anything",
       "command": "kubectl apply -f deployment.yaml --dry-run=client",
       "flags": [
-        {"flag": "--dry-run=client", "description": "Validate locally against the schema only — never contacts the cluster"},
+        {"flag": "--dry-run=client", "description": "Validate locally against the schema only, without contacting the cluster"},
         {"flag": "--dry-run=server", "description": "Send the request to the API server for full validation, including admission webhooks, without persisting it"}
       ],
       "destructive": false,

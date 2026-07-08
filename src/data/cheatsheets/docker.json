@@ -32,7 +32,7 @@
       "category": "images",
       "difficulty": "Beginner",
       "useCase": "Build a container image from a Dockerfile before pushing it to a registry or running it locally.",
-      "beginnerNote": "The dot at the end is the build context — it is not optional, and sending a large directory as context slows every build. Add a .dockerignore file to exclude node_modules and other large directories.",
+      "beginnerNote": "The dot at the end is the build context. It is not optional, and sending a large directory as context slows every build. Add a .dockerignore file to exclude node_modules and other large directories.",
       "tags": ["build", "image", "dockerfile", "context"]
     },
     {
@@ -112,7 +112,7 @@
       "category": "images",
       "difficulty": "Intermediate",
       "useCase": "Clean up untagged layers left behind by repeated docker build runs during local development.",
-      "beginnerNote": "With -a this removes every image not currently used by a container, not just dangling ones — check docker ps -a first if you don't want to re-pull anything.",
+      "beginnerNote": "With -a this removes every image not currently used by a container, not just dangling ones. Check docker ps -a first if you don't want to re-pull anything.",
       "tags": ["prune", "cleanup", "disk-space", "dangling"]
     },
 
@@ -132,7 +132,7 @@
       "category": "containers",
       "difficulty": "Beginner",
       "useCase": "Start a new container from an image, mapping ports and mounting volumes as needed for local development.",
-      "beginnerNote": "-d runs detached in the background, -it allocates an interactive terminal — they serve completely different purposes. Using -d then wondering why there is no output is the most common docker run confusion.",
+      "beginnerNote": "-d runs detached in the background, -it allocates an interactive terminal, and they serve completely different purposes. Using -d then wondering why there is no output is the most common docker run confusion.",
       "tags": ["run", "container", "detached", "interactive", "ports"]
     },
     {
@@ -214,7 +214,7 @@
       "category": "containers",
       "difficulty": "Beginner",
       "useCase": "Delete a stopped container permanently, freeing its name so a new container can reuse it.",
-      "beginnerNote": "Fails on a running container unless you pass -f — this is a safety guard, not a bug.",
+      "beginnerNote": "Fails on a running container unless you pass -f. This is a safety guard, not a bug.",
       "tags": ["rm", "remove", "container", "cleanup"]
     },
     {
@@ -245,7 +245,7 @@
       "category": "logs-monitoring",
       "difficulty": "Beginner",
       "useCase": "Read stdout and stderr from a running or recently stopped container to debug a startup failure.",
-      "beginnerNote": "Without -f it prints a snapshot and exits. With -f it streams, but the stream stops if the container restarts — you'll need to run it again.",
+      "beginnerNote": "Without -f it prints a snapshot and exits. With -f it streams, but the stream stops if the container restarts, so you'll need to run it again.",
       "tags": ["logs", "debug", "stream"]
     },
     {
@@ -431,7 +431,7 @@
       "category": "networks",
       "difficulty": "Beginner",
       "useCase": "Clean up an unused custom network left over from a stopped project.",
-      "beginnerNote": "Fails if any container is still attached to the network — disconnect or remove those containers first.",
+      "beginnerNote": "Fails if any container is still attached to the network. Disconnect or remove those containers first.",
       "tags": ["network", "remove", "cleanup"]
     },
 
@@ -497,7 +497,7 @@
       "category": "volumes",
       "difficulty": "Intermediate",
       "useCase": "Reclaim disk space taken up by volumes left behind from containers that were removed without --volumes.",
-      "beginnerNote": "Removes all volumes not attached to any container, including volumes with data you might want. There is no undo — check docker volume ls first.",
+      "beginnerNote": "Removes all volumes not attached to any container, including volumes with data you might want. There is no undo, so check docker volume ls first.",
       "tags": ["prune", "cleanup", "disk-space", "destructive"]
     },
 
@@ -514,7 +514,7 @@
       "category": "docker-compose",
       "difficulty": "Beginner",
       "useCase": "Bring up an entire multi-container stack, like an app plus its database and cache, with one command.",
-      "beginnerNote": "depends_on only waits for a container to start, not for the service inside it to be ready. A database container starting does not mean PostgreSQL is accepting connections yet — use healthchecks for real readiness waiting.",
+      "beginnerNote": "depends_on only waits for a container to start, not for the service inside it to be ready. A database container starting does not mean PostgreSQL is accepting connections yet, so use healthchecks for real readiness waiting.",
       "tags": ["compose", "up", "depends_on", "healthcheck"]
     },
     {
@@ -528,7 +528,7 @@
       "deprecated": false,
       "category": "docker-compose",
       "difficulty": "Beginner",
-      "useCase": "Tear down an entire stack — containers, networks, and optionally volumes — after finishing local development.",
+      "useCase": "Tear down an entire stack, including containers, networks, and optionally volumes, after finishing local development.",
       "beginnerNote": "Without -v your named volumes persist, which is usually what you want for databases, but it surprises people expecting a completely clean slate.",
       "tags": ["compose", "down", "cleanup", "volumes"]
     },
@@ -665,7 +665,7 @@
       "category": "system",
       "difficulty": "Beginner",
       "useCase": "Authenticate against a private or third-party registry before pulling or pushing images that require credentials.",
-      "beginnerNote": "Credentials are stored in plaintext in ~/.docker/config.json by default unless a credential helper is configured — worth knowing on a shared machine.",
+      "beginnerNote": "Credentials are stored in plaintext in ~/.docker/config.json by default unless a credential helper is configured, which is worth knowing on a shared machine.",
       "tags": ["login", "registry", "credentials"]
     },
     {

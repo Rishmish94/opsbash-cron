@@ -133,5 +133,5 @@ Every one of these rules is individually documented, and every one of them is ea
 The [gitignore Generator](/gitignore-generator) on opsbash builds tech stack specific .gitignore files using patterns that are already known to work, including the file level exclusion plus negation pattern for the "ignore a directory except one file" case. If you're hitting one of the gotchas above on an existing .gitignore, it's also a good sanity check to regenerate the relevant section and compare it against what you wrote by hand.
 
 <div class="tool-cta">
-  <p>Try it yourself → <a href="/gitignore-generator">Gitignore Generator</a> — generate a stack-specific .gitignore with correct wildcard and negation patterns for any technology stack.</p>
+  <p>Try it yourself → <a href="/gitignore-generator">Gitignore Generator</a>, which lets you generate a stack-specific .gitignore with correct wildcard and negation patterns for any technology stack.</p>
 </div>

@@ -12,7 +12,7 @@ author: "Rishabh"
 
 ## What is a Cron Expression?
 
-A cron expression is a string that defines when a task should run. It's the backbone of automation in Linux and DevOps — from database backups to CI/CD pipelines.
+A cron expression is a string that defines when a task should run. It's the backbone of automation in Linux and DevOps, powering everything from database backups to CI/CD pipelines.
 
 At first glance, cron expressions look like random numbers and symbols. But once you understand the structure, they become incredibly powerful.
 

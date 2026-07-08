@@ -143,7 +143,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
       Log Sanitiser &amp; PII Redactor
     </h1>
     <p class="text-base max-w-xl" style="color: var(--fg2);">
-      Paste raw logs and instantly redact passwords, API keys, AWS credentials, JWTs, credit cards, and private keys — live, in your browser, before sharing with ChatGPT, Claude, or a support ticket.
+      Paste raw logs and instantly redact passwords, API keys, AWS credentials, JWTs, credit cards, and private keys, live, in your browser, before sharing with ChatGPT, Claude, or a support ticket.
     </p>
   </section>
 
@@ -257,7 +257,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
           <input id="customLabelInput" type="text" class="k8s-input" spellcheck="false" autocomplete="off"
             placeholder="Label, e.g. SSN" style="max-width: 100%;width:100%;" />
         </div>
-        <p id="customPatternError" class="mt-2 text-xs hidden" style="color: #ef4444;">Invalid regular expression — pattern is not being applied.</p>
+        <p id="customPatternError" class="mt-2 text-xs hidden" style="color: #ef4444;">Invalid regular expression. Pattern is not being applied.</p>
       </div>
     </div>
   </div>
@@ -283,7 +283,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
         <h2 class="text-base font-semibold" style="color: var(--fg);">Why Sanitising Logs Before Sharing With AI Is Critical</h2>
       </div>
       <div class="p-5">
-        <p class="seo-p">Pasting a raw stack trace or log dump into ChatGPT or Claude has become one of the fastest ways to get unstuck while debugging — but application logs are also one of the richest sources of accidental secret exposure in a typical engineering org. A single error log can contain a database password, an internal hostname, a customer's email address, and a live API key all in the same twenty lines. Once that text leaves your terminal and lands inside a third-party chat interface, you no longer control where it goes: it may be retained for abuse monitoring, reviewed by a support agent, or in the worst case exposed through a account or infrastructure compromise on the vendor's side. None of this requires malicious intent from the AI provider — it is simply the nature of handing raw, unfiltered production data to any system outside your security perimeter.</p>
+        <p class="seo-p">Pasting a raw stack trace or log dump into ChatGPT or Claude has become one of the fastest ways to get unstuck while debugging, but application logs are also one of the richest sources of accidental secret exposure in a typical engineering org. A single error log can contain a database password, an internal hostname, a customer's email address, and a live API key all in the same twenty lines. Once that text leaves your terminal and lands inside a third-party chat interface, you no longer control where it goes: it may be retained for abuse monitoring, reviewed by a support agent, or in the worst case exposed through a account or infrastructure compromise on the vendor's side. None of this requires malicious intent from the AI provider. It is simply the nature of handing raw, unfiltered production data to any system outside your security perimeter.</p>
       </div>
     </div>
   </div>
@@ -295,7 +295,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
         <h2 class="text-base font-semibold" style="color: var(--fg);">What Sensitive Data Commonly Appears in Logs</h2>
       </div>
       <div class="p-5">
-        <p class="seo-p">Verbose logging — the same practice that makes debugging easier — is exactly what leaks credentials. The most common categories are: authentication material (passwords, API keys, JWTs, session cookies, OAuth tokens); cloud provider credentials (AWS access keys and secret keys, service account JSON, connection strings for managed databases); customer PII (emails, phone numbers, IP addresses, physical addresses, and sometimes payment card numbers logged during checkout failures); and infrastructure details (internal hostnames, private key material from misconfigured SSH or TLS setups, and full database connection URLs with embedded credentials). Most of this ends up in logs unintentionally — a debug-level logger set too verbose, an exception handler that dumps the entire request object, or a middleware library that logs headers by default including <code class="ic">Authorization</code>.</p>
+        <p class="seo-p">Verbose logging, the same practice that makes debugging easier, is exactly what leaks credentials. The most common categories are: authentication material (passwords, API keys, JWTs, session cookies, OAuth tokens); cloud provider credentials (AWS access keys and secret keys, service account JSON, connection strings for managed databases); customer PII (emails, phone numbers, IP addresses, physical addresses, and sometimes payment card numbers logged during checkout failures); and infrastructure details (internal hostnames, private key material from misconfigured SSH or TLS setups, and full database connection URLs with embedded credentials). Most of this ends up in logs unintentionally, whether from a debug-level logger set too verbose, an exception handler that dumps the entire request object, or a middleware library that logs headers by default including <code class="ic">Authorization</code>.</p>
       </div>
     </div>
   </div>
@@ -307,7 +307,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
         <h2 class="text-base font-semibold" style="color: var(--fg);">How Credential Leakage Actually Leads to Breaches</h2>
       </div>
       <div class="p-5">
-        <p class="seo-p">Leaked credentials are not a theoretical risk — they are one of the most consistently reported root causes of real intrusions year after year in industry breach reports. AWS access keys committed to a public GitHub repository are typically discovered and exploited by automated scanning bots within minutes, not days; security researchers have repeatedly demonstrated this by publishing intentionally "leaked" honeytoken keys and watching unauthorized usage appear in CloudTrail almost immediately. Support tickets, Slack threads, and — increasingly — AI chat histories pasted with raw logs are a quieter but equally real version of the same problem: once a credential is visible in plaintext outside your access-controlled systems, you have to treat it as compromised and rotate it, whether or not you can prove it was actually misused. The safest assumption is that any secret pasted somewhere you don't fully control should be rotated the moment you realize it was exposed.</p>
+        <p class="seo-p">Leaked credentials are not a theoretical risk. They are one of the most consistently reported root causes of real intrusions year after year in industry breach reports. AWS access keys committed to a public GitHub repository are typically discovered and exploited by automated scanning bots within minutes, not days; security researchers have repeatedly demonstrated this by publishing intentionally "leaked" honeytoken keys and watching unauthorized usage appear in CloudTrail almost immediately. Support tickets, Slack threads, and increasingly AI chat histories pasted with raw logs are a quieter but equally real version of the same problem: once a credential is visible in plaintext outside your access-controlled systems, you have to treat it as compromised and rotate it, whether or not you can prove it was actually misused. The safest assumption is that any secret pasted somewhere you don't fully control should be rotated the moment you realize it was exposed.</p>
       </div>
     </div>
   </div>
@@ -319,7 +319,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
         <h2 class="text-base font-semibold" style="color: var(--fg);">Best Practices for Log Sanitisation in CI/CD Pipelines</h2>
       </div>
       <div class="p-5">
-        <p class="seo-p">Sanitisation should happen as close to the source as possible, not as a manual cleanup step before pasting into a chat window. Configure structured logging libraries (Pino, Winston, Serilog, structlog) with field-level redaction so keys like <code class="ic">password</code>, <code class="ic">authorization</code>, and <code class="ic">secret</code> are masked automatically before a log line is ever written or shipped to your aggregator. Run a secret-scanning tool such as <strong style="color: var(--fg);">gitleaks</strong> or <strong style="color: var(--fg);">truffleHog</strong> as a CI gate on every commit and on CI job output itself, since build logs frequently print environment variables during debugging. Configure your CI provider to automatically mask any value stored as a secret variable so it never appears in plaintext in job logs, and treat any CI log artifact retained for troubleshooting the same way you'd treat a database backup — access-controlled and time-limited.</p>
+        <p class="seo-p">Sanitisation should happen as close to the source as possible, not as a manual cleanup step before pasting into a chat window. Configure structured logging libraries (Pino, Winston, Serilog, structlog) with field-level redaction so keys like <code class="ic">password</code>, <code class="ic">authorization</code>, and <code class="ic">secret</code> are masked automatically before a log line is ever written or shipped to your aggregator. Run a secret-scanning tool such as <strong style="color: var(--fg);">gitleaks</strong> or <strong style="color: var(--fg);">truffleHog</strong> as a CI gate on every commit and on CI job output itself, since build logs frequently print environment variables during debugging. Configure your CI provider to automatically mask any value stored as a secret variable so it never appears in plaintext in job logs, and treat any CI log artifact retained for troubleshooting the same way you'd treat a database backup: access-controlled and time-limited.</p>
       </div>
     </div>
   </div>
@@ -331,7 +331,7 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
         <h2 class="text-base font-semibold" style="color: var(--fg);">Using This Tool as Part of a Secure Debugging Workflow</h2>
       </div>
       <div class="p-5">
-        <p class="seo-p">Make sanitising the default step, not an afterthought, whenever a log needs to leave your terminal: paste it into this tool first, glance at the stats bar to confirm the categories you expect were actually redacted, and only then copy, download, or hand it to an AI assistant. Add a custom pattern for anything specific to your stack — an internal token prefix, a customer ID format, an employee badge number — so the default categories don't miss what matters most to your organisation. Because everything runs client-side with no network calls, this fits naturally into a workflow where you can't or shouldn't send raw data anywhere: air-gapped environments, regulated industries, or simply a habit of never trusting a paste box with production data until it's been through a filter first.</p>
+        <p class="seo-p">Make sanitising the default step, not an afterthought, whenever a log needs to leave your terminal: paste it into this tool first, glance at the stats bar to confirm the categories you expect were actually redacted, and only then copy, download, or hand it to an AI assistant. Add a custom pattern for anything specific to your stack, such as an internal token prefix, a customer ID format, or an employee badge number, so the default categories don't miss what matters most to your organisation. Because everything runs client-side with no network calls, this fits naturally into a workflow where you can't or shouldn't send raw data anywhere: air-gapped environments, regulated industries, or simply a habit of never trusting a paste box with production data until it's been through a filter first.</p>
       </div>
     </div>
   </div>
@@ -350,29 +350,29 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Only after removing sensitive values. Raw application logs frequently contain passwords, API keys, session tokens, database connection strings, internal hostnames, and customer PII. Once pasted into a third-party AI chat, that data may be retained, used for model training or abuse monitoring, or exposed through account compromise, depending on the provider's data retention settings and your plan. Sanitise every log with a tool like this one — which replaces sensitive values with descriptive placeholders while keeping the surrounding structure intact — before sharing it with any AI assistant.
+          Only after removing sensitive values. Raw application logs frequently contain passwords, API keys, session tokens, database connection strings, internal hostnames, and customer PII. Once pasted into a third-party AI chat, that data may be retained, used for model training or abuse monitoring, or exposed through account compromise, depending on the provider's data retention settings and your plan. Sanitise every log with a tool like this one, which replaces sensitive values with descriptive placeholders while keeping the surrounding structure intact, before sharing it with any AI assistant.
         </div>
       </div>
 
       <div class="faq-item">
-        <p class="direct-answer">PII is any data that identifies a person — emails, phone numbers, IPs, names. It ends up in logs mostly by accident, from verbose debug logging and exception handlers dumping full request contexts.</p>
+        <p class="direct-answer">PII is any data that identifies a person, such as emails, phone numbers, IPs, and names. It ends up in logs mostly by accident, from verbose debug logging and exception handlers dumping full request contexts.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">What is PII and why does it appear in logs?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          <strong style="color: var(--fg);">PII</strong> (Personally Identifiable Information) is any data that can identify a specific person — email addresses, phone numbers, IP addresses, names, and payment card numbers are all common examples. It ends up in logs because application code frequently logs full request and response payloads for debugging, error handlers dump entire exception contexts including request headers, and authentication middleware logs tokens or session data without realizing production traffic contains real user information. Most PII in logs is unintentional — a side effect of verbose logging rather than a deliberate design decision.
+          <strong style="color: var(--fg);">PII</strong> (Personally Identifiable Information) is any data that can identify a specific person: email addresses, phone numbers, IP addresses, names, and payment card numbers are all common examples. It ends up in logs because application code frequently logs full request and response payloads for debugging, error handlers dump entire exception contexts including request headers, and authentication middleware logs tokens or session data without realizing production traffic contains real user information. Most PII in logs is unintentional, a side effect of verbose logging rather than a deliberate design decision.
         </div>
       </div>
 
       <div class="faq-item">
-        <p class="direct-answer">No. All regex detection runs in your browser's JavaScript engine. Nothing you paste is sent to a server — you can verify this yourself in your browser's network tab.</p>
+        <p class="direct-answer">No. All regex detection runs in your browser's JavaScript engine. Nothing you paste is sent to a server, and you can verify this yourself in your browser's network tab.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">Does this tool store or transmit my log data?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          No. Every regex pattern runs entirely in your browser's JavaScript engine. Nothing you paste is sent to any server, logged, stored in a database, or transmitted over the network — there is no backend call involved in sanitisation at all. You can verify this yourself by opening your browser's network tab while using the tool: no requests fire when you type, paste, or click any button. Closing or refreshing the tab clears everything from memory.
+          No. Every regex pattern runs entirely in your browser's JavaScript engine. Nothing you paste is sent to any server, logged, stored in a database, or transmitted over the network, and there is no backend call involved in sanitisation at all. You can verify this yourself by opening your browser's network tab while using the tool: no requests fire when you type, paste, or click any button. Closing or refreshing the tab clears everything from memory.
         </div>
       </div>
 
@@ -383,18 +383,18 @@ const SAMPLE_LOG = `2026-06-22 14:32:01 ERROR Database connection failed
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Skim the sanitised output before sharing it anywhere — automated regex detection catches the overwhelming majority of common secret formats but is not a 100% guarantee, especially for custom or unusually formatted credentials. Use the <strong style="color: var(--fg);">Custom Pattern</strong> rule to add any organisation-specific secret format (like an internal token prefix) so it gets redacted too. Once you're confident the output is clean, use the Copy or Download buttons to share it, or use the built-in <strong style="color: var(--fg);">AI Prompt Helper</strong> to paste it directly into a debugging prompt for ChatGPT or Claude.
+          Skim the sanitised output before sharing it anywhere. Automated regex detection catches the overwhelming majority of common secret formats but is not a 100% guarantee, especially for custom or unusually formatted credentials. Use the <strong style="color: var(--fg);">Custom Pattern</strong> rule to add any organisation-specific secret format (like an internal token prefix) so it gets redacted too. Once you're confident the output is clean, use the Copy or Download buttons to share it, or use the built-in <strong style="color: var(--fg);">AI Prompt Helper</strong> to paste it directly into a debugging prompt for ChatGPT or Claude.
         </div>
       </div>
 
       <div class="faq-item" style="border-bottom: none;">
-        <p class="direct-answer">Add redaction at the logging layer itself — field-level redaction in your logging library, avoid logging full request bodies, use a secrets manager, and run a CI secret scanner like gitleaks.</p>
+        <p class="direct-answer">Add redaction at the logging layer itself: field-level redaction in your logging library, avoid logging full request bodies, use a secrets manager, and run a CI secret scanner like gitleaks.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color: var(--fg);">How do I prevent sensitive data from appearing in logs in the first place?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Add redaction at the logging layer itself rather than relying on cleanup after the fact — most structured logging libraries (Pino, Winston, Serilog, structlog) support field-level redaction so keys like <code class="ic">password</code>, <code class="ic">authorization</code>, and <code class="ic">secret</code> are automatically masked before a log line is ever written. Avoid logging full request/response bodies in production; log only the fields you actually need for debugging. Use a secrets manager instead of environment variables printed in startup logs, and add a pre-commit hook or CI scanner (like <code class="ic">gitleaks</code> or <code class="ic">truffleHog</code>) that blocks commits containing credential-shaped strings before they ever reach a log aggregator or a shared repository.
+          Add redaction at the logging layer itself rather than relying on cleanup after the fact. Most structured logging libraries (Pino, Winston, Serilog, structlog) support field-level redaction so keys like <code class="ic">password</code>, <code class="ic">authorization</code>, and <code class="ic">secret</code> are automatically masked before a log line is ever written. Avoid logging full request/response bodies in production; log only the fields you actually need for debugging. Use a secrets manager instead of environment variables printed in startup logs, and add a pre-commit hook or CI scanner (like <code class="ic">gitleaks</code> or <code class="ic">truffleHog</code>) that blocks commits containing credential-shaped strings before they ever reach a log aggregator or a shared repository.
         </div>
       </div>
 

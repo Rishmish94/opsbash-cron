@@ -93,7 +93,7 @@ Check whether expiry is treated as optional. Decoding a token and trusting the p
 Add security tests that specifically cover alg none, expired tokens, and tampered payloads. Enable logging for every rejected token and watch for patterns over time.
 
 <div class="tool-cta">
-  <p>Try it yourself → <a href="/jwt-decoder">JWT Decoder</a> — paste any token and inspect the payload, headers, and expiry without trusting unverified claims.</p>
+  <p>Try it yourself → <a href="/jwt-decoder">JWT Decoder</a>, which lets you paste any token and inspect the payload, headers, and expiry without trusting unverified claims.</p>
 </div>
 
 ## A debugging tool is not a verification library

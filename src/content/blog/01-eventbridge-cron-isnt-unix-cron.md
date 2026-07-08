@@ -115,5 +115,5 @@ This is exactly the kind of task that's tedious to get right manually and quietl
 It also outputs the equivalent Kubernetes CronJob, GitHub Actions, and standard Unix cron syntax side by side, so if you're maintaining the same schedule across multiple platforms, you can see all four dialects at once instead of translating between them in your head.
 
 <div class="tool-cta">
-  <p>Try it yourself → <a href="/cron-builder">Cron Expression Builder</a> — generate EventBridge-compatible cron syntax with automatic field validation across Linux, AWS, Kubernetes, and GitHub Actions.</p>
+  <p>Try it yourself → <a href="/cron-builder">Cron Expression Builder</a>, which lets you generate EventBridge-compatible cron syntax with automatic field validation across Linux, AWS, Kubernetes, and GitHub Actions.</p>
 </div>

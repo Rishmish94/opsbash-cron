@@ -84,7 +84,7 @@ const webAppSchema = {
       JSON Diff &amp; Schema Validator
     </h1>
     <p class="text-base max-w-xl" style="color: var(--fg2);">
-      Semantic JSON diff, JSON Schema validation, and JSON formatter — all client-side. Your data never leaves the browser.
+      Semantic JSON diff, JSON Schema validation, and JSON formatter, all client-side. Your data never leaves the browser.
     </p>
   </section>
 
@@ -168,7 +168,7 @@ const webAppSchema = {
              style="position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid; font-family: 'JetBrains Mono', monospace; pointer-events: none; white-space: nowrap;"></div>
         <div id="fmtBigWarning" class="hidden"
              style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(245,158,11,0.12); border: 1px solid #F59E0B; color: #F59E0B; pointer-events: none; white-space: nowrap;">
-          ⚠ Large file — processing may be slow
+          ⚠ Large file, so processing may be slow
         </div>
       </div>
       <p id="fmtError" class="hidden mt-1.5 text-xs jd-error-text"></p>
@@ -204,7 +204,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          JSON diff is a tool that shows exactly what changed between two JSON documents — which fields were added, removed, or modified. Developers use it to audit API response changes between releases, compare Terraform state files before and after an apply, review Kubernetes manifest drift, and inspect configuration changes in code review. A semantic diff is more useful than a plain text diff because it first normalises both inputs by sorting keys, so reordering properties in an object — which carries no semantic meaning in JSON — does not produce false change markers.
+          JSON diff is a tool that shows exactly what changed between two JSON documents, including which fields were added, removed, or modified. Developers use it to audit API response changes between releases, compare Terraform state files before and after an apply, review Kubernetes manifest drift, and inspect configuration changes in code review. A semantic diff is more useful than a plain text diff because it first normalises both inputs by sorting keys, so reordering properties in an object, which carries no semantic meaning in JSON, does not produce false change markers.
         </div>
       </div>
 
@@ -224,7 +224,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Yes. All processing happens entirely in your browser using JavaScript. Your JSON data, schemas, and diffs never leave your machine and are never sent to any server. The tool has no backend, no database, and no logging of any kind. You can verify this by opening your browser's network inspector — no outbound requests are made when you click Compare, Validate, Format, or Minify.
+          Yes. All processing happens entirely in your browser using JavaScript. Your JSON data, schemas, and diffs never leave your machine and are never sent to any server. The tool has no backend, no database, and no logging of any kind. You can verify this by opening your browser's network inspector: no outbound requests are made when you click Compare, Validate, Format, or Minify.
         </div>
       </div>
 
@@ -265,7 +265,7 @@ const webAppSchema = {
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">JSON Schema Validation</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          JSON Schema validation checks whether a JSON document conforms to a set of explicit rules. Where unit tests check runtime behaviour, schema validation checks data shape — whether a field exists, whether it has the right type, and whether its value falls within defined constraints. This catches problems like a missing required field in an API request body, a string value where a number is expected, or a configuration value outside the allowed set. Teams use schemas at CI boundaries, in API gateways, and in infrastructure pipelines to prevent malformed data from reaching production systems.
+          JSON Schema validation checks whether a JSON document conforms to a set of explicit rules. Where unit tests check runtime behaviour, schema validation checks data shape, meaning whether a field exists, whether it has the right type, and whether its value falls within defined constraints. This catches problems like a missing required field in an API request body, a string value where a number is expected, or a configuration value outside the allowed set. Teams use schemas at CI boundaries, in API gateways, and in infrastructure pipelines to prevent malformed data from reaching production systems.
         </p>
       </div>
 

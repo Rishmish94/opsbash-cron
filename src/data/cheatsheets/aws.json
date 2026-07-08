@@ -36,7 +36,7 @@
         "step": 2,
         "source": "Environment variables",
         "example": "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, AWS_PROFILE",
-        "note": "If any of these are set in your shell they will be used. This is the most common cause of using the wrong credentials — a leftover export from a previous assume-role session."
+        "note": "If any of these are set in your shell they will be used. This is the most common cause of using the wrong credentials, which are often a leftover export from a previous assume-role session."
       },
       {
         "step": 3,
@@ -72,7 +72,7 @@
       {
         "title": "Check which profile is active and where credentials are coming from",
         "command": "aws configure list",
-        "note": "Shows where each configuration value is coming from — env variable, config file, or default. The source column tells you exactly which file or variable is winning."
+        "note": "Shows whether each configuration value comes from an env variable, config file, or default. The source column tells you exactly which file or variable is winning."
       },
       {
         "title": "List all configured profiles",
@@ -155,7 +155,7 @@
       "destructive": false,
       "category": "setup-identity",
       "difficulty": "Beginner",
-      "useCase": "Debug which credentials and region are actually active right now — the source column shows whether each value comes from an env variable, config file, or default.",
+      "useCase": "Debug which credentials and region are actually active right now. The source column shows whether each value comes from an env variable, config file, or default.",
       "beginnerNote": null,
       "tags": ["configure", "debug", "credentials"]
     },
@@ -180,7 +180,7 @@
       "category": "setup-identity",
       "difficulty": "Beginner",
       "useCase": "Verify which AWS account and IAM identity is active before running any destructive command.",
-      "beginnerNote": "This is the first command to run when anything fails with an authentication error — it shows exactly who AWS thinks you are.",
+      "beginnerNote": "This is the first command to run when anything fails with an authentication error. It shows exactly who AWS thinks you are.",
       "tags": ["sts", "identity", "debug", "auth"]
     },
     {
@@ -831,7 +831,7 @@
       "title": "Assume an IAM role",
       "command": "aws sts assume-role --role-arn arn:aws:iam::123456789012:role/my-role --role-session-name my-session",
       "flags": [
-        {"flag": "--role-session-name", "description": "Required in practice — a name identifying this temporary session in logs and CloudTrail"},
+        {"flag": "--role-session-name", "description": "Required in practice, as a name identifying this temporary session in logs and CloudTrail"},
         {"flag": "--duration-seconds", "description": "Extend the session length beyond the default 1 hour, up to the role's configured maximum"}
       ],
       "destructive": true,
@@ -886,7 +886,7 @@
       "category": "sts-assume-role",
       "difficulty": "Advanced",
       "useCase": "Federate into an AWS role using an OIDC token, such as the token GitHub Actions provides for keyless CI/CD deployments.",
-      "beginnerNote": "This is what powers GitHub Actions OIDC and similar keyless CI integrations — no long-lived AWS access keys are stored anywhere.",
+      "beginnerNote": "This is what powers GitHub Actions OIDC and similar keyless CI integrations, so no long-lived AWS access keys are stored anywhere.",
       "tags": ["sts", "web-identity", "oidc", "github-actions", "federation"]
     },
     {

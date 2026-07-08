@@ -81,7 +81,7 @@
       "deprecated": false,
       "category": "setup-config",
       "difficulty": "Beginner",
-      "useCase": "Check which settings are active and where they came from — system, global, or local repo config — when something behaves unexpectedly.",
+      "useCase": "Check which settings are active and where they came from, whether system, global, or local repo config, when something behaves unexpectedly.",
       "beginnerNote": "Config is layered: system, then global, then local repo config, with later ones overriding earlier ones. A local .git/config override is a common reason a setting doesn't match what you expect from your global config.",
       "tags": ["config", "list", "settings"]
     },
@@ -121,7 +121,7 @@
       "deprecated": false,
       "category": "staging-committing",
       "difficulty": "Beginner",
-      "useCase": "See what's staged, unstaged, and untracked before committing — the command you should run before nearly every other Git command.",
+      "useCase": "See what's staged, unstaged, and untracked before committing. This is the command you should run before nearly every other Git command.",
       "beginnerNote": null,
       "tags": ["status", "sanity-check"]
     },
@@ -257,7 +257,7 @@
       "category": "branching",
       "difficulty": "Intermediate",
       "useCase": "Pull a single bugfix commit onto a release branch without merging the entire branch it originated on.",
-      "beginnerNote": "Cherry-pick creates a new commit with a different hash even if the content is identical. The original commit still exists on its original branch — this is a copy, not a move.",
+      "beginnerNote": "Cherry-pick creates a new commit with a different hash even if the content is identical. The original commit still exists on its original branch. This is a copy, not a move.",
       "tags": ["cherry-pick", "commit", "backport"]
     },
 
@@ -350,7 +350,7 @@
       "category": "stashing",
       "difficulty": "Beginner",
       "useCase": "Temporarily shelve uncommitted work so you can switch branches to handle an urgent fix, then come back to it later.",
-      "beginnerNote": "Stash is a stack, not a single slot — you can stash multiple times and pop them in order. Name your stashes with git stash push -m \"message\" or you will forget what each one contains.",
+      "beginnerNote": "Stash is a stack, not a single slot, so you can stash multiple times and pop them in order. Name your stashes with git stash push -m \"message\" or you will forget what each one contains.",
       "tags": ["stash", "wip", "context-switch"]
     },
     {
@@ -389,7 +389,7 @@
       "category": "stashing",
       "difficulty": "Intermediate",
       "useCase": "Remove a stash you no longer need, such as an outdated work-in-progress that's no longer relevant.",
-      "beginnerNote": "Dropped stashes are not immediately gone — they can often still be recovered with git fsck --unreachable for a short time before garbage collection, but don't rely on this.",
+      "beginnerNote": "Dropped stashes are not immediately gone. They can often still be recovered with git fsck --unreachable for a short time before garbage collection, but don't rely on this.",
       "tags": ["stash", "drop", "cleanup"]
     },
 
@@ -403,7 +403,7 @@
       "category": "undoing-changes",
       "difficulty": "Intermediate",
       "useCase": "Undo a specific commit on a shared branch by creating a new commit that reverses it, safe even after the commit has been pushed.",
-      "beginnerNote": "Unlike reset, revert never rewrites history — it's the safe way to undo something on a branch other people have already pulled.",
+      "beginnerNote": "Unlike reset, revert never rewrites history. It's the safe way to undo something on a branch other people have already pulled.",
       "tags": ["revert", "undo", "shared-branch"]
     },
     {
@@ -424,7 +424,7 @@
       "title": "Remove untracked files and directories",
       "command": "git clean -fd",
       "flags": [
-        {"flag": "-n", "description": "Dry run — show what would be deleted without actually deleting anything"}
+        {"flag": "-n", "description": "Dry run, showing what would be deleted without actually deleting anything"}
       ],
       "destructive": true,
       "deprecated": false,
@@ -444,7 +444,7 @@
       "category": "undoing-changes",
       "difficulty": "Intermediate",
       "useCase": "Remove a file from Git tracking, such as one that should have been in .gitignore from the start, while leaving it on disk.",
-      "beginnerNote": "The file still exists locally after this — only Git's tracking of it is removed. Add it to .gitignore too, or it will show up as untracked and be easy to accidentally re-add.",
+      "beginnerNote": "The file still exists locally after this. Only Git's tracking of it is removed. Add it to .gitignore too, or it will show up as untracked and be easy to accidentally re-add.",
       "tags": ["rm", "cached", "untrack", "gitignore"]
     },
     {
@@ -523,7 +523,7 @@
       "category": "viewing-history",
       "difficulty": "Intermediate",
       "useCase": "Find the commit that introduced a specific line, to understand the reasoning behind it before changing it.",
-      "beginnerNote": "The goal is to find context, not to blame people. Use it to understand why a line was written, not who wrote it — check the linked commit message for the actual reasoning.",
+      "beginnerNote": "The goal is to find context, not to blame people. Use it to understand why a line was written, not who wrote it, and check the linked commit message for the actual reasoning.",
       "tags": ["blame", "history", "context"]
     },
 
@@ -550,7 +550,7 @@
       "category": "tags",
       "difficulty": "Beginner",
       "useCase": "Mark a specific commit as an official release with a message, author, and date attached, unlike a lightweight tag.",
-      "beginnerNote": "Prefer annotated tags (-a) over lightweight tags for releases — they store the tagger, date, and message as a full Git object, which lightweight tags don't.",
+      "beginnerNote": "Prefer annotated tags (-a) over lightweight tags for releases. They store the tagger, date, and message as a full Git object, which lightweight tags don't.",
       "tags": ["tag", "annotated", "release", "versioning"]
     },
     {
@@ -562,7 +562,7 @@
       "deprecated": false,
       "category": "tags",
       "difficulty": "Beginner",
-      "useCase": "Share a newly created release tag with the remote — tags are not pushed automatically by a plain git push.",
+      "useCase": "Share a newly created release tag with the remote, since tags are not pushed automatically by a plain git push.",
       "beginnerNote": "A regular git push does not push tags by default. Forgetting --tags after tagging a release is a common reason a CI pipeline watching for tags never triggers.",
       "tags": ["push", "tags", "release", "ci-cd"]
     },
@@ -589,8 +589,8 @@
       "deprecated": false,
       "category": "recovery-commands",
       "difficulty": "Intermediate",
-      "useCase": "You committed too early or bundled the wrong files, and want to fix the staging before recommitting — without losing any code.",
-      "beginnerNote": "Step by step: this moves the commit back to your staging area, so the commit itself disappears but your code changes are not lost — they show up as staged changes in git status. Fix what you need, then run git commit again.",
+      "useCase": "You committed too early or bundled the wrong files, and want to fix the staging before recommitting, without losing any code.",
+      "beginnerNote": "Step by step: this moves the commit back to your staging area, so the commit itself disappears but your code changes are not lost. They show up as staged changes in git status. Fix what you need, then run git commit again.",
       "tags": ["recovery", "reset", "undo-commit", "safe"]
     },
     {
@@ -602,8 +602,8 @@
       "deprecated": false,
       "category": "recovery-commands",
       "difficulty": "Advanced",
-      "useCase": "You committed something completely wrong — like a debug commit with garbage content — and want it gone entirely, code included.",
-      "beginnerNote": "Step by step: this permanently destroys both the commit and all the code changes it introduced. There is no undo once this runs. Only use this if you are absolutely certain you do not want those changes back — if in doubt, use the non-destructive git reset HEAD~1 instead.",
+      "useCase": "You committed something completely wrong, like a debug commit with garbage content, and want it gone entirely, code included.",
+      "beginnerNote": "Step by step: this permanently destroys both the commit and all the code changes it introduced. There is no undo once this runs. Only use this if you are absolutely certain you do not want those changes back. If in doubt, use the non-destructive git reset HEAD~1 instead.",
       "tags": ["recovery", "reset", "hard", "destructive", "undo-commit"]
     },
     {
@@ -616,7 +616,7 @@
       "category": "recovery-commands",
       "difficulty": "Advanced",
       "useCase": "You or a teammate deleted a branch that still had unmerged work on it, and need it back.",
-      "beginnerNote": "Step by step: run git reflog to find the last commit hash the deleted branch was pointing at — reflog shows every HEAD movement for 90 days by default, so the branch's last commit is still there until garbage collection runs. Then run git checkout -b <branch-name> <commit-hash> using that hash to recreate the branch pointing at exactly where it left off.",
+      "beginnerNote": "Step by step: run git reflog to find the last commit hash the deleted branch was pointing at. Reflog shows every HEAD movement for 90 days by default, so the branch's last commit is still there until garbage collection runs. Then run git checkout -b <branch-name> <commit-hash> using that hash to recreate the branch pointing at exactly where it left off.",
       "tags": ["recovery", "reflog", "deleted-branch", "checkout"]
     },
     {
@@ -629,7 +629,7 @@
       "category": "recovery-commands",
       "difficulty": "Advanced",
       "useCase": "You pushed a commit with a typo or an incorrect message and need to correct it on the remote branch.",
-      "beginnerNote": "Step by step: first run git commit --amend to rewrite the message locally, then git push --force-with-lease to update the remote. This rewrites history — anyone who already pulled the original commit will have a diverged branch. Coordinate with your team before doing this on a shared branch.",
+      "beginnerNote": "Step by step: first run git commit --amend to rewrite the message locally, then git push --force-with-lease to update the remote. This rewrites history, so anyone who already pulled the original commit will have a diverged branch. Coordinate with your team before doing this on a shared branch.",
       "tags": ["recovery", "amend", "force-push", "history-rewrite"]
     },
     {
@@ -642,7 +642,7 @@
       "category": "recovery-commands",
       "difficulty": "Beginner",
       "useCase": "You ran git add on the wrong file, or on everything with git add ., and want to remove just one file from staging before committing.",
-      "beginnerNote": "Step by step: this moves the file back to unstaged without touching its contents on disk. This is the correct modern command — older tutorials show git reset HEAD <filename>, which also works, but restore is clearer about intent.",
+      "beginnerNote": "Step by step: this moves the file back to unstaged without touching its contents on disk. This is the correct modern command. Older tutorials show git reset HEAD <filename>, which also works, but restore is clearer about intent.",
       "tags": ["recovery", "restore", "unstage", "modern-syntax"]
     },
     {
@@ -655,7 +655,7 @@
       "category": "recovery-commands",
       "difficulty": "Beginner",
       "useCase": "You made experimental edits to a file that didn't work out, and want to revert it back to the last committed version.",
-      "beginnerNote": "Step by step: this permanently discards all uncommitted changes to that file with no undo. Double-check with git diff <filename> before running this — once it runs, the edits are gone for good.",
+      "beginnerNote": "Step by step: this permanently discards all uncommitted changes to that file with no undo. Double-check with git diff <filename> before running this. Once it runs, the edits are gone for good.",
       "tags": ["recovery", "restore", "discard", "destructive"]
     },
     {
@@ -667,8 +667,8 @@
       "deprecated": false,
       "category": "recovery-commands",
       "difficulty": "Advanced",
-      "useCase": "Recover commits that seem lost after a hard reset or an accidental branch deletion — Git keeps a local log of every HEAD movement for 90 days by default, so this is your undo button for things that feel undoable.",
-      "beginnerNote": "The reflog is local to your machine only — it is never pushed or shared, so it won't help recover another teammate's lost commits, only your own local history.",
+      "useCase": "Recover commits that seem lost after a hard reset or an accidental branch deletion. Git keeps a local log of every HEAD movement for 90 days by default, so this is your undo button for things that feel undoable.",
+      "beginnerNote": "The reflog is local to your machine only. It is never pushed or shared, so it won't help recover another teammate's lost commits, only your own local history.",
       "tags": ["recovery", "reflog", "undo-button", "lost-commits"]
     }
   ]

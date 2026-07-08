@@ -4,6 +4,7 @@ import kubectlData from '../../data/cheatsheets/kubectl.json';
 import dockerData from '../../data/cheatsheets/docker.json';
 import gitData from '../../data/cheatsheets/git.json';
 import awsData from '../../data/cheatsheets/aws.json';
+import terraformData from '../../data/cheatsheets/terraform.json';
 
 export function getStaticPaths() {
   return [
@@ -11,6 +12,7 @@ export function getStaticPaths() {
     { params: { slug: 'docker' }, props: { data: dockerData } },
     { params: { slug: 'git' }, props: { data: gitData } },
     { params: { slug: 'aws' }, props: { data: awsData } },
+    { params: { slug: 'terraform' }, props: { data: terraformData } },
   ];
 }
 
@@ -34,6 +36,10 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
     { href: '/cidr-calculator', name: 'CIDR Calculator', desc: 'Calculate subnet masks, usable hosts, and network ranges for your VPCs and subnets.' },
     { href: '/json-diff', name: 'JSON Diff & Schema Validator', desc: 'Compare AWS CLI JSON output or CloudFormation templates semantically, side by side.' },
   ],
+  terraform: [
+    { href: '/json-diff', name: 'JSON Diff & Schema Validator', desc: 'Compare Terraform plan JSON output or state file snapshots semantically, side by side.' },
+    { href: '/cidr-calculator', name: 'CIDR Calculator', desc: 'Calculate subnet masks and usable host ranges for VPCs and subnets defined in your Terraform code.' },
+  ],
 };
 
 const seoContentMap: Record<string, string[]> = {
@@ -41,51 +47,63 @@ const seoContentMap: Record<string, string[]> = {
     "kubectl is the command-line tool that talks to the Kubernetes API server, and for nearly every engineer running workloads on Kubernetes it is the primary interface to the cluster, more so than any dashboard or GUI. Every action a Kubernetes cluster performs, whether deploying an application, checking why a pod crashed, or rotating a secret, ultimately reduces to an HTTP request that kubectl constructs and sends. Learning kubectl well is not a nice-to-have skill for a Kubernetes engineer, it is the equivalent of learning to type for a writer: everything else depends on it being second nature.",
     "The reason kubectl shows up in daily workflows so relentlessly is that Kubernetes itself is declarative and API-driven rather than something you configure once and forget. Deployments roll out gradually, pods get rescheduled when nodes fail, and autoscalers adjust replica counts continuously in the background, which means the state of a cluster is always shifting. Engineers check in on that state constantly: is the rollout finished, did the new pod come up healthy, is the autoscaler doing what it's supposed to. kubectl get, kubectl describe, and kubectl logs together form the read loop that every other action depends on, and most of a working day spent operating Kubernetes is really just cycling through those three commands with different arguments.",
     "The mental model that makes kubectl click is understanding that almost everything in Kubernetes is a resource living inside a namespace, and kubectl is just a lens for viewing and editing those resources. A Pod, a Deployment, a Service, a Secret, a ConfigMap: these are all objects stored in etcd behind the API server, described by YAML or JSON, and namespaces are the folders that group and isolate them logically. Once that clicks, most kubectl commands stop feeling like memorized incantations and start feeling like predictable variations on a theme: get lists resources, describe explains one resource in depth, apply reconciles a manifest against live state, and delete removes it. The verb-resource pattern (kubectl <verb> <resource> <name>) covers the overwhelming majority of daily usage.",
-    "Three mistakes trip up nearly every engineer learning kubectl. The first is forgetting namespaces exist at all: running kubectl get pods with no flags only searches the default namespace, so a perfectly healthy pod running in a different namespace looks like it vanished. The second is assuming kubectl get all actually means all — it excludes ConfigMaps, Secrets, Ingress objects and any custom resource, which causes confusing gaps during audits. The third is confusing kubectl delete pod with actually removing a workload: if a Deployment owns that pod, Kubernetes recreates it within seconds, so deleting a pod is really just forcing a restart, not decommissioning anything. Internalizing these three quirks early saves hours of confused debugging later.",
+    "Three mistakes trip up nearly every engineer learning kubectl. The first is forgetting namespaces exist at all: running kubectl get pods with no flags only searches the default namespace, so a perfectly healthy pod running in a different namespace looks like it vanished. The second is assuming kubectl get all actually means all. It excludes ConfigMaps, Secrets, Ingress objects and any custom resource, which causes confusing gaps during audits. The third is confusing kubectl delete pod with actually removing a workload: if a Deployment owns that pod, Kubernetes recreates it within seconds, so deleting a pod is really just forcing a restart, not decommissioning anything. Internalizing these three quirks early saves hours of confused debugging later.",
   ],
   docker: [
-    "Every Docker container goes through the same predictable lifecycle: an image is built or pulled, a container is created from that image, the container runs, and eventually it stops and is either restarted or removed. Understanding this lifecycle explicitly, rather than treating docker run as one big magic command, is what makes the rest of Docker's CLI make sense. docker create allocates the container's filesystem and configuration without starting its main process; docker start actually launches that process; docker stop sends a termination signal and waits for a graceful shutdown; and docker rm deletes the container object entirely, freeing its name for reuse. docker run is simply a convenience wrapper that does create and start in one step, which is exactly why it has such a large flag surface — it's really two commands' worth of options merged together.",
+    "Every Docker container goes through the same predictable lifecycle: an image is built or pulled, a container is created from that image, the container runs, and eventually it stops and is either restarted or removed. Understanding this lifecycle explicitly, rather than treating docker run as one big magic command, is what makes the rest of Docker's CLI make sense. docker create allocates the container's filesystem and configuration without starting its main process; docker start actually launches that process; docker stop sends a termination signal and waits for a graceful shutdown; and docker rm deletes the container object entirely, freeing its name for reuse. docker run is simply a convenience wrapper that does create and start in one step, which is exactly why it has such a large flag surface. It's really two commands' worth of options merged together.",
     "The distinction between an image and a container is the second concept every Docker user needs solid before anything else clicks. An image is an immutable, read-only template: a set of filesystem layers plus metadata describing what command to run, what ports to expose, and what environment variables to expect. A container is a running (or stopped) instance of that image, with its own writable layer on top where any runtime changes get written. You can create many containers from the same image, each isolated from the others, the same way you can run many processes from the same compiled binary. This is why docker build only needs to happen once per code change, while docker run can happen many times against that same built image without rebuilding anything.",
-    "A recurring point of confusion is running docker ps and seeing nothing, despite being sure a container was started moments earlier. The explanation is almost always that the container already exited — plain docker ps only lists currently running containers, silently omitting anything that stopped, whether it exited cleanly or crashed. The fix is docker ps -a, which includes stopped containers alongside running ones, and pairing that with docker logs <container> immediately reveals why it exited: a missing environment variable, a failed database connection, or a foreground process that finished and had nothing left to keep the container alive. This single habit, defaulting to -a when something 'disappeared,' resolves a surprising fraction of early Docker confusion.",
+    "A recurring point of confusion is running docker ps and seeing nothing, despite being sure a container was started moments earlier. The explanation is almost always that the container already exited. Plain docker ps only lists currently running containers, silently omitting anything that stopped, whether it exited cleanly or crashed. The fix is docker ps -a, which includes stopped containers alongside running ones, and pairing that with docker logs <container> immediately reveals why it exited: a missing environment variable, a failed database connection, or a foreground process that finished and had nothing left to keep the container alive. This single habit, defaulting to -a when something 'disappeared,' resolves a surprising fraction of early Docker confusion.",
     "Docker Compose introduces its own well-known trap around service readiness: depends_on only guarantees that a dependency container has started, not that the service inside it is actually ready to accept connections. A Postgres container can report as started within a second while the database engine itself is still initializing for several more seconds, and an application container that starts immediately after will fail its very first connection attempt even though depends_on was configured correctly. The fix is to define a healthcheck on the dependency and have depends_on wait on that specific health condition instead of just container start, or to build retry logic into the application's own startup sequence. Treating depends_on as a strict ordering guarantee rather than a readiness guarantee is one of the most common sources of flaky local development environments.",
   ],
   git: [
-    "Git organizes every change you make across four distinct areas, and most confusion new users run into comes from not knowing which area a file currently sits in. The working directory is the literal files on disk that you edit in your editor. The staging area, sometimes called the index, is a holding area where you explicitly place changes with git add before they become part of a commit — this intermediate step is what lets you build a clean, focused commit out of a messy set of edits. The local repository is the full history of commits stored in the .git folder on your machine, private until you push it. And the remote repository is the shared copy, typically on GitHub or GitLab, that your teammates and CI systems interact with. Nearly every Git command moves something between two of these four areas, and once you can name which area a command touches, its behavior stops feeling arbitrary.",
-    "Commands that rewrite history — git commit --amend, git rebase, and force pushes — feel dangerous because they genuinely are, in a very specific and narrow way: they change commit hashes that other people or systems may already be relying on. A commit hash is effectively a fingerprint of a commit's content plus its parent, so changing a commit's message, reordering commits, or squashing them all produce a brand new hash, even when the code ends up looking identical. If a teammate already pulled the original hash, their local history and the rewritten remote history now disagree, and reconciling that divergence usually means their branch needs to be manually reset or re-fetched. This is exactly why rewriting history is safe on a private, unpushed branch — nobody else has a copy to diverge from — but risky the moment it touches anything shared.",
-    "What makes Git forgiving despite all this is a safety net most developers never learn about until they desperately need it: the reflog. Every time HEAD moves, whether through a commit, a checkout, a reset, or even a rebase, Git silently records that movement in a local log that persists for about 90 days by default. This means that even after a git reset --hard that appears to have permanently destroyed a commit, or after deleting a branch that still had valuable work on it, the actual commit objects are usually still sitting in Git's object database, simply unreferenced by any branch. Running git reflog surfaces every one of those past HEAD positions with their commit hashes, and a plain git checkout -b against the right hash brings the 'lost' work straight back. Very few things in Git are ever truly gone within that 90-day window — they're just temporarily unreachable, and the reflog is the map back to them.",
+    "Git organizes every change you make across four distinct areas, and most confusion new users run into comes from not knowing which area a file currently sits in. The working directory is the literal files on disk that you edit in your editor. The staging area, sometimes called the index, is a holding area where you explicitly place changes with git add before they become part of a commit. This intermediate step is what lets you build a clean, focused commit out of a messy set of edits. The local repository is the full history of commits stored in the .git folder on your machine, private until you push it. And the remote repository is the shared copy, typically on GitHub or GitLab, that your teammates and CI systems interact with. Nearly every Git command moves something between two of these four areas, and once you can name which area a command touches, its behavior stops feeling arbitrary.",
+    "Commands that rewrite history, such as git commit --amend, git rebase, and force pushes, feel dangerous because they genuinely are, in a very specific and narrow way: they change commit hashes that other people or systems may already be relying on. A commit hash is effectively a fingerprint of a commit's content plus its parent, so changing a commit's message, reordering commits, or squashing them all produce a brand new hash, even when the code ends up looking identical. If a teammate already pulled the original hash, their local history and the rewritten remote history now disagree, and reconciling that divergence usually means their branch needs to be manually reset or re-fetched. This is exactly why rewriting history is safe on a private, unpushed branch, since nobody else has a copy to diverge from, but risky the moment it touches anything shared.",
+    "What makes Git forgiving despite all this is a safety net most developers never learn about until they desperately need it: the reflog. Every time HEAD moves, whether through a commit, a checkout, a reset, or even a rebase, Git silently records that movement in a local log that persists for about 90 days by default. This means that even after a git reset --hard that appears to have permanently destroyed a commit, or after deleting a branch that still had valuable work on it, the actual commit objects are usually still sitting in Git's object database, simply unreferenced by any branch. Running git reflog surfaces every one of those past HEAD positions with their commit hashes, and a plain git checkout -b against the right hash brings the 'lost' work straight back. Very few things in Git are ever truly gone within that 90-day window. They're just temporarily unreachable, and the reflog is the map back to them.",
   ],
   aws: [
     "The AWS CLI is a single command-line tool that wraps every AWS service API behind one consistent interface, and for engineers who manage AWS infrastructure day to day it is often faster and more precise than clicking through the console. Almost every action available in the AWS Management Console has a direct CLI equivalent, but the CLI adds what the console cannot: it is scriptable, reproducible, and pipeable into other Unix tools like jq and grep, which makes it the backbone of CI/CD pipelines, cron jobs, and one-off investigations alike. Whether the task is checking why a Lambda function is failing, rotating a secret, or auditing which IAM policies are attached to a role, the CLI turns what would be several minutes of console navigation into a single reusable command.",
     "The reason the AWS CLI shows up constantly in daily engineering work is that AWS environments are rarely static. Auto-scaling groups launch and terminate instances continuously, Lambda functions deploy multiple times a day, and IAM permissions get adjusted as teams and services change. Engineers are constantly checking the current state of the world: is this instance still running, did that deployment actually update the function code, does this role really have the permission it needs. Commands like aws sts get-caller-identity, aws ec2 describe-instances, and aws logs tail form the same kind of always-reached-for read loop that kubectl get and docker ps represent in their respective ecosystems, and most real AWS CLI usage is those few commands repeated with different arguments.",
-    "The single most important mental model for working with the AWS CLI is the credential chain: the ordered list of places the CLI looks for credentials before it gives up. Command-line flags beat environment variables, which beat the SSO cache, which beats named profiles in your config files, which beats an assumed role, which beats the EC2 or ECS metadata service. Almost every confusing AWS CLI authentication error traces back to a credential source further up this chain winning unexpectedly — a leftover AWS_PROFILE environment variable from a previous session, or an SSO token that quietly expired. Once that ordered list clicks, debugging authentication stops being guesswork: run aws configure list and aws sts get-caller-identity, and the winning source is right there in the output.",
+    "The single most important mental model for working with the AWS CLI is the credential chain: the ordered list of places the CLI looks for credentials before it gives up. Command-line flags beat environment variables, which beat the SSO cache, which beats named profiles in your config files, which beats an assumed role, which beats the EC2 or ECS metadata service. Almost every confusing AWS CLI authentication error traces back to a credential source further up this chain winning unexpectedly, whether a leftover AWS_PROFILE environment variable from a previous session, or an SSO token that quietly expired. Once that ordered list clicks, debugging authentication stops being guesswork: run aws configure list and aws sts get-caller-identity, and the winning source is right there in the output.",
     "Three mistakes account for the overwhelming majority of AWS CLI frustration. The first is forgetting that --query returns null silently on a bad JMESPath expression instead of raising an error, which makes a typo in a query look like missing data. The second is confusing s3 cp with s3 sync: cp only touches the exact file or prefix you name, while sync recursively mirrors an entire folder and, combined with --delete, can permanently remove files that exist only in the destination. The third is running a destructive command like terminate-instances or delete-db-instance against the wrong account entirely, because a stale AWS_PROFILE or an expired SSO session silently fell back to a different set of credentials. Running aws sts get-caller-identity before any destructive command is the single habit that prevents the most expensive version of this mistake.",
+  ],
+  terraform: [
+    "Terraform is HashiCorp's infrastructure as code tool that lets you define cloud resources such as servers, networks, and databases in a declarative configuration language and have Terraform figure out how to create, update, or destroy the real infrastructure to match. Instead of clicking through a cloud console or writing imperative scripts that create resources step by step, you describe the end state you want, and Terraform computes the difference between that desired state and what actually exists, then applies only the changes needed. This declarative model is what makes Terraform valuable across almost every major cloud provider through the same consistent workflow, so a team that knows Terraform for AWS can apply the same commands and mental model to Azure, Google Cloud, or dozens of smaller providers with only the resource blocks changing.",
+    "The reason terraform commands appear in daily engineering work so often is that infrastructure, like application code, changes constantly. New environments get spun up for feature branches, security groups get tightened after an audit, and database instances get resized as traffic grows, and every one of those changes should go through the same reviewable plan and apply cycle rather than a manual console click that nobody can trace later. terraform plan and terraform apply together form the same kind of always reached for read and write loop that kubectl get and aws sts get-caller-identity represent in their own ecosystems, and most real Terraform usage in a mature team is those two commands run repeatedly against a growing set of modules and workspaces.",
+    "The single most important mental model for working with Terraform is the state file. Terraform does not inspect your cloud account from scratch on every run. It keeps a JSON record, usually stored remotely in an S3 bucket or Terraform Cloud, that maps every resource block in your configuration to the real object it created, and every plan is really a three way comparison between your configuration, that state file, and the actual infrastructure. Nearly every confusing Terraform error, from a resource that Terraform insists it needs to recreate to one it insists already exists, traces back to state being out of sync with reality in some way, which is exactly why terraform state list, terraform state show, and terraform plan are the first commands worth reaching for when something looks wrong.",
+    "Three mistakes account for most of the frustration engineers hit when learning Terraform. The first is running terraform apply without ever looking at the plan output first, since apply without a saved plan generates a brand new plan on the spot that may not match what was reviewed in a pull request. The second is manually editing or deleting resources in the cloud console after they were created by Terraform, which leaves the state file believing a resource exists when it does not, and the next plan either tries to recreate it or throws a confusing error. The third is running terraform destroy or terraform apply in the wrong workspace, because Terraform gives no visual warning about which workspace is active beyond the output of terraform workspace show, so always checking the active workspace before any destructive command is the single habit that prevents the most expensive version of this mistake.",
   ],
 };
 
 const faqMap: Record<string, { q: string; a: string }[]> = {
   kubectl: [
     { q: 'What is kubectl and what does it do?', a: 'kubectl is the official command-line tool for interacting with a Kubernetes cluster. It sends requests to the Kubernetes API server to create, inspect, update, and delete resources like Pods, Deployments, and Services. Nearly every operational task on Kubernetes, from deploying an application to debugging a crash, goes through kubectl in some form.' },
-    { q: 'How do I switch between multiple Kubernetes clusters?', a: 'Run kubectl config get-contexts to see every cluster/user/namespace combination saved in your kubeconfig, then kubectl config use-context <context-name> to switch. Always confirm the switch worked with kubectl config current-context before running anything destructive — switching to the wrong cluster by mistake is one of the most common causes of production incidents.' },
+    { q: 'How do I switch between multiple Kubernetes clusters?', a: 'Run kubectl config get-contexts to see every cluster/user/namespace combination saved in your kubeconfig, then kubectl config use-context <context-name> to switch. Always confirm the switch worked with kubectl config current-context before running anything destructive, since switching to the wrong cluster by mistake is one of the most common causes of production incidents.' },
     { q: 'What is the difference between kubectl apply and kubectl create?', a: 'kubectl create is imperative: it creates a brand-new resource and errors out with AlreadyExists if one with that name already exists. kubectl apply is declarative: it computes a diff against the last-applied configuration and either creates or updates the resource to match your manifest. For GitOps and CI/CD pipelines, apply is almost always the right choice since it is idempotent and safe to re-run.' },
-    { q: 'How do I debug a pod stuck in CrashLoopBackOff?', a: 'Run kubectl logs <pod-name> --previous to see what the last crashed instance printed right before it died — plain logs shows the new, likely empty, container. Then run kubectl describe pod <pod-name> and check the Events section and exit code; exit code 137 specifically means the container was OOMKilled and needs a higher memory limit or a memory leak fix.' },
+    { q: 'How do I debug a pod stuck in CrashLoopBackOff?', a: 'Run kubectl logs <pod-name> --previous to see what the last crashed instance printed right before it died. Plain logs shows the new, likely empty, container. Then run kubectl describe pod <pod-name> and check the Events section and exit code; exit code 137 specifically means the container was OOMKilled and needs a higher memory limit or a memory leak fix.' },
   ],
   docker: [
-    { q: 'What is the difference between docker run and docker start?', a: 'docker run creates a brand-new container from an image and immediately starts it — it is effectively docker create plus docker start combined. docker start only works on a container that already exists (usually one that was previously stopped) and resumes it with its original configuration, without creating anything new.' },
+    { q: 'What is the difference between docker run and docker start?', a: 'docker run creates a brand-new container from an image and immediately starts it. It is effectively docker create plus docker start combined. docker start only works on a container that already exists (usually one that was previously stopped) and resumes it with its original configuration, without creating anything new.' },
     { q: 'What does the -it flag do in docker run?', a: '-i keeps STDIN open so the container can receive input, and -t allocates a pseudo-terminal so output is displayed interactively rather than piped. Together they are what let you get an interactive shell session inside a container. Without them, a shell process will start and exit immediately since it has no terminal to attach to.' },
     { q: 'How do I get a shell inside a running container?', a: 'Run docker exec -it <container-name> sh (or bash if the image includes it). This opens a new interactive process inside the already-running container, separate from its main process, so you can inspect files, check environment variables, or test network connectivity without disrupting the container\'s primary workload.' },
     { q: 'Why does docker compose up fail even when depends_on is set?', a: 'depends_on only waits for a dependency container to start, not for the service running inside it to be ready to accept connections. A database container can report as started while the database engine is still initializing. Add a healthcheck to the dependency and configure depends_on to wait on that specific health condition, or add retry logic to the dependent application.' },
   ],
   git: [
-    { q: 'What is the difference between git pull and git fetch?', a: 'git fetch downloads new commits and branches from the remote but does not touch your current working branch or working directory — it just updates your local view of the remote. git pull is git fetch immediately followed by a merge (or rebase, if configured) into your current branch. Use fetch when you want to review incoming changes before integrating them.' },
+    { q: 'What is the difference between git pull and git fetch?', a: 'git fetch downloads new commits and branches from the remote but does not touch your current working branch or working directory. It just updates your local view of the remote. git pull is git fetch immediately followed by a merge (or rebase, if configured) into your current branch. Use fetch when you want to review incoming changes before integrating them.' },
     { q: 'How do I undo a commit I already pushed?', a: 'Use git revert <commit-hash>, which creates a new commit that reverses the changes, then push normally. This is safe on shared branches because it never rewrites existing history. Avoid git reset on a pushed commit unless you are prepared to force-push, which rewrites history and can break things for teammates who already pulled the original commit.' },
     { q: 'What is a detached HEAD state and how do I fix it?', a: 'A detached HEAD happens when you check out a specific commit hash or tag directly instead of a branch, so HEAD points at a commit rather than at a branch reference. Any new commits you make there are not attached to any branch and can become hard to find later. Fix it by running git checkout -b <new-branch-name> to attach your current position to a proper branch before committing further.' },
     { q: 'How do I safely force push without destroying teammates work?', a: 'Use git push --force-with-lease instead of git push --force. It checks whether the remote branch has changed since you last fetched it, and refuses to push if someone else has added commits you have not seen yet, preventing you from silently overwriting their work. Plain --force skips that check entirely.' },
   ],
   aws: [
-    { q: 'What is the AWS CLI credential chain and why does it matter?', a: 'The credential chain is the ordered list of places the AWS CLI checks for credentials: command-line flags, then environment variables, then the SSO cache, then named profiles, then an assumed role, then EC2/ECS instance metadata. The first source with valid credentials wins. Most confusing authentication errors happen because a source earlier in the chain — often a leftover environment variable — is silently overriding the profile you actually meant to use.' },
+    { q: 'What is the AWS CLI credential chain and why does it matter?', a: 'The credential chain is the ordered list of places the AWS CLI checks for credentials: command-line flags, then environment variables, then the SSO cache, then named profiles, then an assumed role, then EC2/ECS instance metadata. The first source with valid credentials wins. Most confusing authentication errors happen because a source earlier in the chain, often a leftover environment variable, is silently overriding the profile you actually meant to use.' },
     { q: 'How do I switch between multiple AWS profiles?', a: 'Pass --profile myprofile on any individual command, or run export AWS_PROFILE=myprofile to switch the default for your entire shell session. Run aws configure list-profiles to see every profile that is configured, and aws sts get-caller-identity --profile myprofile to confirm which account and identity that profile actually resolves to before running anything destructive.' },
-    { q: 'Why does my --query expression return null?', a: 'AWS CLI does not raise an error for an invalid JMESPath expression passed to --query — it silently returns null. This almost always means a typo or wrong field name somewhere in the path. Build the expression incrementally, starting from the raw JSON output and adding one level of the path at a time, to find exactly where it breaks.' },
-    { q: 'What is the difference between aws s3 cp and aws s3 sync?', a: 'aws s3 cp copies exactly what you name — one file or, with --recursive, one prefix — every time you run it, regardless of what already exists at the destination. aws s3 sync compares source and destination and only transfers files that are new or changed, and with --delete it also removes destination files that no longer exist in the source. Use cp for one-off copies and sync for keeping a folder or bucket mirrored over time.' },
+    { q: 'Why does my --query expression return null?', a: 'AWS CLI does not raise an error for an invalid JMESPath expression passed to --query. It silently returns null. This almost always means a typo or wrong field name somewhere in the path. Build the expression incrementally, starting from the raw JSON output and adding one level of the path at a time, to find exactly where it breaks.' },
+    { q: 'What is the difference between aws s3 cp and aws s3 sync?', a: 'aws s3 cp copies exactly what you name, whether one file or, with --recursive, one prefix, every time you run it, regardless of what already exists at the destination. aws s3 sync compares source and destination and only transfers files that are new or changed, and with --delete it also removes destination files that no longer exist in the source. Use cp for one-off copies and sync for keeping a folder or bucket mirrored over time.' },
+  ],
+  terraform: [
+    { q: 'What is Terraform and how is it different from clicking through the cloud console?', a: 'Terraform is an infrastructure as code tool that lets you define cloud resources in configuration files and have Terraform create, update, or destroy them to match. Unlike clicking through a console, every change is written down, reviewable in a pull request, and repeatable across environments. The core workflow is terraform plan to preview changes and terraform apply to make them, both driven from the same configuration files that live in version control.' },
+    { q: 'What is the Terraform state file and why does it matter?', a: 'The state file is a JSON record Terraform keeps that maps every resource in your configuration to the real infrastructure object it created. Terraform compares your configuration, the state file, and actual cloud resources on every plan to figure out what changed. Most confusing Terraform errors trace back to the state file being out of sync with reality, which is why commands like terraform state list and terraform state show are the first place to look when something seems wrong.' },
+    { q: 'How do I fix a stuck Terraform state lock?', a: 'Run terraform force-unlock followed by the lock ID shown in the error message. This happens when a previous Terraform run crashed or was interrupted before it could release the lock, commonly stored in a DynamoDB table for S3 backends. Only run force-unlock after confirming no other legitimate Terraform process is actually running, since forcing an unlock while another process is mid apply can corrupt your state.' },
+    { q: 'What is the difference between terraform plan and terraform apply?', a: 'terraform plan is a dry run that shows exactly what Terraform would create, change, or destroy without touching any real infrastructure. terraform apply performs those changes for real, either using a freshly generated plan or a previously saved plan file passed as an argument. Saving the plan with terraform plan -out=tfplan and then running terraform apply tfplan ensures the changes applied are exactly the ones that were reviewed, which is standard practice in CI pipelines.' },
   ],
 };
 
@@ -127,6 +145,7 @@ const toolNameMap: Record<string, string> = {
   docker: 'Docker',
   git: 'Git',
   aws: 'AWS CLI',
+  terraform: 'Terraform',
 };
 const toolName = toolNameMap[slug] || data.title;
 
@@ -135,6 +154,7 @@ const startHereIdsMap: Record<string, string[]> = {
   docker: ['run', 'ps', 'logs', 'exec', 'compose-up'],
   git: ['status', 'add', 'commit', 'push', 'log'],
   aws: ['configure', 'sts-get-caller-identity', 's3-ls', 'ec2-describe-instances', 's3-cp-to-bucket'],
+  terraform: ['init', 'validate', 'fmt', 'plan', 'apply'],
 };
 const startHereCommands = (startHereIdsMap[slug] || [])
   .map((id) => data.commands.find((c: any) => c.id === id))
@@ -209,6 +229,57 @@ const visibleCategories = data.categories
 
   <!-- ── SLIM SECURITY NOTICE ──────────────────────────────────────────────── -->
   <p class="security-line">Everything runs in your browser. No commands or data are sent to any server.</p>
+
+  <!-- ── ERROR MESSAGE LOOKUP (collapsed by default, same pattern as Reference Tools) ── -->
+  {data.hasErrorLookup && (
+    <div class="ref-tool" id="errorLookupSection" style="margin-top: 14px;">
+      <button class="ref-tool-toggle" data-panel="panel-error-lookup" aria-expanded="false">
+        <span class="ref-tool-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </span>
+        <span class="ref-tool-info">
+          <span class="ref-tool-title">{data.errorLookup.title}</span>
+          <span class="ref-tool-desc">Find the fix for your Terraform error</span>
+        </span>
+        <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="ref-tool-panel" id="panel-error-lookup">
+        <div class="ref-tool-panel-inner">
+          <p class="section-subtitle" style="margin-top: 14px;">{data.errorLookup.subtitle}</p>
+          <div class="error-lookup-search-wrap">
+            <svg class="error-lookup-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="errorSearchInput" type="text" placeholder="Paste your error message here" autocomplete="off" spellcheck="false" class="error-lookup-search-input" aria-label="Paste your error message here" />
+          </div>
+          <div class="error-cards-list" id="errorCardsList">
+            {data.errorLookup.errors.map((err: any) => (
+              <div class="error-card" data-search={err.errorText.toLowerCase()}>
+                <div class="cmd-block">
+                  <code class="cmd-text">{err.errorText}</code>
+                  <button class="copy-btn" data-copy={err.errorText}>Copy</button>
+                </div>
+                <div class="cmd-usecase">
+                  <p class="cmd-usecase-label">What it means</p>
+                  <p class="cmd-usecase-text">{err.whatItMeans}</p>
+                </div>
+                <div class="error-fix-block">
+                  <p class="cmd-usecase-label">Fix</p>
+                  <div class="cmd-block">
+                    <code class="cmd-text">{err.fix}</code>
+                    <button class="copy-btn" data-copy={err.fix}>Copy</button>
+                  </div>
+                </div>
+                <div class="cmd-gotcha">
+                  <p class="cmd-gotcha-label">Gotcha</p>
+                  <p class="cmd-gotcha-text">{err.fixNote}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p class="error-no-results hidden" id="errorNoResults">No errors match your search. Try different keywords from the error message.</p>
+        </div>
+      </div>
+    </div>
+  )}
 
   <!-- ── START HERE (collapsible, expanded by default) ─────────────────────── -->
   {startHereCommands.length > 0 && (
@@ -341,7 +412,7 @@ const visibleCategories = data.categories
             </span>
             <span class="ref-tool-info">
               <span class="ref-tool-title">{data.credentialDebugger.title}</span>
-              <span class="ref-tool-desc">Diagnose auth errors — see exactly which credential source AWS is using and why</span>
+              <span class="ref-tool-desc">Diagnose auth errors and see exactly which credential source AWS is using and why</span>
             </span>
             <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
@@ -385,7 +456,7 @@ const visibleCategories = data.categories
             </span>
             <span class="ref-tool-info">
               <span class="ref-tool-title">{data.s3Picker.title}</span>
-              <span class="ref-tool-desc">Not sure whether to use cp, sync, mv, or rm — answer two questions and get the right command</span>
+              <span class="ref-tool-desc">Not sure whether to use cp, sync, mv, or rm? Answer two questions and get the right command</span>
             </span>
             <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
@@ -1201,6 +1272,55 @@ const visibleCategories = data.categories
     padding: 0 18px 22px;
   }
 
+  /* ── Error Message Lookup ────────────────────────────────────────────────── */
+  .error-lookup-search-wrap {
+    position: relative;
+    margin: 0 0 18px;
+  }
+  .error-lookup-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--fg3);
+    pointer-events: none;
+  }
+  .error-lookup-search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px 0 40px;
+    border-radius: 8px;
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .error-lookup-search-input:focus { border-color: #64748B; }
+  .error-lookup-search-input::placeholder { color: var(--fg3); }
+  .error-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .error-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+  .error-fix-block { margin-bottom: 10px; }
+  .error-fix-block .cmd-block { margin-top: 6px; margin-bottom: 0; }
+  .error-no-results {
+    text-align: center;
+    padding: 30px 10px;
+    color: var(--fg2);
+    font-size: 13px;
+  }
+
   /* ── Incident flow ──────────────────────────────────────────────────────── */
   .incident-grid {
     display: grid;
@@ -1761,6 +1881,22 @@ const visibleCategories = data.categories
     );
     observer.observe(sentinel);
   }
+
+  // ── Error Message Lookup search filter ─────────────────────────────────────
+  const errorSearchInput = document.getElementById('errorSearchInput') as HTMLInputElement | null;
+  const errorCards = Array.from(document.querySelectorAll('.error-card')) as HTMLElement[];
+  const errorNoResults = document.getElementById('errorNoResults') as HTMLElement | null;
+
+  errorSearchInput?.addEventListener('input', () => {
+    const query = errorSearchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+    errorCards.forEach((card) => {
+      const matches = !query || (card.getAttribute('data-search') || '').indexOf(query) !== -1;
+      card.style.display = matches ? '' : 'none';
+      if (matches) visibleCount++;
+    });
+    errorNoResults?.classList.toggle('hidden', visibleCount !== 0);
+  });
 
   // ── Reference Tools expand/collapse ────────────────────────────────────────
   document.querySelectorAll('.ref-tool-toggle').forEach((btn) => {

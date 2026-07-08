@@ -6,19 +6,21 @@ import kubectlCheatsheet from '../data/cheatsheets/kubectl.json';
 import dockerCheatsheet from '../data/cheatsheets/docker.json';
 import gitCheatsheet from '../data/cheatsheets/git.json';
 import awsCheatsheet from '../data/cheatsheets/aws.json';
+import terraformCheatsheet from '../data/cheatsheets/terraform.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
   .sort((a, b) => a.id.localeCompare(b.id))
   .slice(0, 3);
 
-const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet];
+const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet];
 
 const cheatsheetCardDescriptions: Record<string, string> = {
   kubectl: '78 commands for pods, deployments, debugging, and cluster management.',
   docker: '49 commands for images, containers, volumes, and Docker Compose.',
   git: '49 commands for branching, commits, remotes, and recovery.',
   aws: '119 commands for S3, EC2, IAM, Lambda, and more.',
+  terraform: '100+ commands for init, plan, apply, state, workspaces, and import.',
 };
 
 const trustItems = [
@@ -76,7 +78,7 @@ const toolCards = [
     href: '/docker-compose-converter',
     cat: 'Containers',
     name: 'Docker Run to Compose',
-    desc: 'Convert docker run commands into docker-compose.yml — and back.',
+    desc: 'Convert docker run commands into docker-compose.yml and back again.',
     icon: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
   },
   {

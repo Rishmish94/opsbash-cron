@@ -746,8 +746,8 @@ const webAppSchema = {
           </p>
 
           <h2 class="seo-h2">How to Use This Cron Expression Generator</h2>
-          <p class="seo-p">This free <strong style="color: var(--fg);">online cron generator</strong> works entirely in your browser — no sign-up, no install. There are three ways to build an expression:</p>
-          <p class="seo-p"><strong style="color: var(--fg);">1. Use a preset.</strong> Click any preset button at the top — "Every 5 minutes," "Daily at 9 AM," "Weekdays 9–5," and more. The expression field and all dropdowns update instantly.</p>
+          <p class="seo-p">This free <strong style="color: var(--fg);">online cron generator</strong> works entirely in your browser, with no sign-up and no install required. There are three ways to build an expression:</p>
+          <p class="seo-p"><strong style="color: var(--fg);">1. Use a preset.</strong> Click any preset button at the top, including "Every 5 minutes," "Daily at 9 AM," "Weekdays 9–5," and more. The expression field and all dropdowns update instantly.</p>
           <p class="seo-p"><strong style="color: var(--fg);">2. Use the visual dropdowns.</strong> Select values for Minute, Hour, Day, Month, and Weekday from the dropdowns. The expression field updates in real time and the <strong style="color: var(--fg);">Plain English</strong> panel explains what the schedule means in plain language.</p>
           <p class="seo-p"><strong style="color: var(--fg);">3. Type directly.</strong> Enter any cron expression, including step values (<code class="ic">*/5</code>), ranges (<code class="ic">9-17</code>), and comma lists (<code class="ic">1,15</code>), into the Expression field. The generator validates it instantly and syncs the dropdowns to match.</p>
 
@@ -812,7 +812,7 @@ const webAppSchema = {
                 </tr>
                 <tr>
                   <td class="seo-td seo-expr" onclick="document.getElementById('cronInput').value=this.textContent.trim();document.getElementById('cronInput').dispatchEvent(new Event('input'))">0 0 1 1 *</td>
-                  <td class="seo-td" style="color: var(--fg2);">Once a year — Jan 1 midnight</td>
+                  <td class="seo-td" style="color: var(--fg2);">Once a year on Jan 1 at midnight</td>
                   <td class="seo-td seo-aws hidden sm:table-cell">cron(0 0 1 1 ? *)</td>
                 </tr>
               </tbody>
@@ -896,7 +896,7 @@ const webAppSchema = {
                 </tr>
                 <tr>
                   <td class="seo-td font-medium" style="color: var(--fg);">Day/weekday conflict</td>
-                  <td class="seo-td" style="color: var(--fg2);">OR logic — both can be set</td>
+                  <td class="seo-td" style="color: var(--fg2);">Both fields can be set using OR logic</td>
                   <td class="seo-td" style="color: var(--fg2);">Requires <code class="ic">?</code> in one field</td>
                 </tr>
                 <tr>
@@ -1039,7 +1039,7 @@ const webAppSchema = {
       </div>
       <div class="p-5">
         <p class="seo-p">For decades, cron was the only game in town for scheduling recurring tasks on Linux. Every sysadmin knew <code class="ic">crontab -e</code> and the five-field expression format. But since systemd became the default init system on Debian, Ubuntu, Fedora, Arch, and nearly every major Linux distribution, a more capable alternative has been sitting right there in your init system: <strong style="color:var(--fg);">systemd timers</strong>.</p>
-        <p class="seo-p">A systemd timer is a pair of unit files: a <code class="ic">.timer</code> file that defines the schedule and a <code class="ic">.service</code> file that defines what to run. Unlike cron, timers integrate fully with journald for logging (<code class="ic">journalctl -u my-task.service</code>), support dependency ordering through standard systemd directives, and can be inspected with <code class="ic">systemctl status</code>. They also support the <code class="ic">Persistent=true</code> directive, which catches up missed runs after a system was powered off — something cron cannot do at all.</p>
+        <p class="seo-p">A systemd timer is a pair of unit files: a <code class="ic">.timer</code> file that defines the schedule and a <code class="ic">.service</code> file that defines what to run. Unlike cron, timers integrate fully with journald for logging (<code class="ic">journalctl -u my-task.service</code>), support dependency ordering through standard systemd directives, and can be inspected with <code class="ic">systemctl status</code>. They also support the <code class="ic">Persistent=true</code> directive, which catches up missed runs after a system was powered off. Cron cannot do this at all.</p>
         <p class="seo-p">The key syntax difference is in how schedules are expressed. Cron uses five space-separated fields (minute, hour, day-of-month, month, day-of-week). systemd uses <strong style="color:var(--fg);">OnCalendar</strong> strings in the format <code class="ic">DayOfWeek Year-Month-Day Hour:Minute:Second</code>, with <code class="ic">*</code> for any value and <code class="ic">/N</code> for step intervals. The shorthand <code class="ic">--</code> represents any year, month, and day. You can verify any OnCalendar expression with <code class="ic">systemd-analyze calendar 'Mon *-*-* 09:00:00'</code> which shows the next matching time without needing to deploy anything.</p>
         <p class="seo-p">Once you have your two unit files, enabling a timer is three commands:</p>
         <pre class="rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre text-xs mb-4" style="background:#0A0A0A;color:#F8FAFC;font-family:'JetBrains Mono',monospace;"># Copy unit files to the systemd user or system directory
@@ -1053,7 +1053,7 @@ sudo systemctl enable --now my-task.timer
 
 # Verify it is active and check the next trigger time
 systemctl status my-task.timer</pre>
-        <p class="seo-p">To verify a schedule before deploying, use <code class="ic">systemd-analyze calendar</code> — it parses any OnCalendar string and prints the next matching timestamp:</p>
+        <p class="seo-p">To verify a schedule before deploying, use <code class="ic">systemd-analyze calendar</code>, which parses any OnCalendar string and prints the next matching timestamp:</p>
         <pre class="rounded-xl p-4 overflow-x-auto leading-relaxed whitespace-pre text-xs mb-4" style="background:#0A0A0A;color:#F8FAFC;font-family:'JetBrains Mono',monospace;">$ systemd-analyze calendar 'Mon *-*-* 09:00:00'
   Original form: Mon *-*-* 09:00:00
 Normalized form: Mon *-*-* 09:00:00
@@ -1139,28 +1139,28 @@ Normalized form: Mon *-*-* 09:00:00
       </div>
 
       <div class="faq-item">
-        <p class="direct-answer"><code class="ic">Persistent=true</code> tells systemd to run the timer immediately after boot if the last scheduled trigger was missed while the system was off or sleeping — useful for tasks like backups that must not be silently skipped.</p>
+        <p class="direct-answer"><code class="ic">Persistent=true</code> tells systemd to run the timer immediately after boot if the last scheduled trigger was missed while the system was off or sleeping, which is useful for tasks like backups that must not be silently skipped.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color:var(--fg);">What does Persistent=true do in a timer file?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-          <p>When <code class="ic">Persistent=true</code> is set in a <code class="ic">[Timer]</code> section, systemd records the last time the service was triggered. If the system was offline during the scheduled time, systemd will fire the timer as soon as possible after the next boot — effectively making it a "catch-up" mechanism.</p>
+          <p>When <code class="ic">Persistent=true</code> is set in a <code class="ic">[Timer]</code> section, systemd records the last time the service was triggered. If the system was offline during the scheduled time, systemd will fire the timer as soon as possible after the next boot, effectively making it a "catch-up" mechanism.</p>
           <p class="mt-2">For example, a nightly backup timer set to <code class="ic">OnCalendar=*-*-* 02:00:00</code> with <code class="ic">Persistent=true</code> will run the backup immediately on reboot if the machine was off at 2 AM. Without this flag, the missed run is simply skipped. cron has no equivalent feature.</p>
         </div>
       </div>
 
       <div class="faq-item" style="border-bottom:none;">
-        <p class="direct-answer">Run <code class="ic">systemd-analyze calendar 'YOUR_ONCALENDAR_VALUE'</code>. It parses the expression and prints the next elapse time without needing to deploy or enable anything — the safest way to verify a schedule before going live.</p>
+        <p class="direct-answer">Run <code class="ic">systemd-analyze calendar 'YOUR_ONCALENDAR_VALUE'</code>. It parses the expression and prints the next elapse time without needing to deploy or enable anything, making it the safest way to verify a schedule before going live.</p>
         <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
           <span class="text-sm font-medium" style="color:var(--fg);">How do I test a systemd timer is using the correct schedule?</span>
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
           <p>There are two approaches: before and after deployment.</p>
-          <p class="mt-2"><strong style="color:var(--fg);">Before deploying</strong> — use <code class="ic">systemd-analyze calendar</code> to verify the OnCalendar string parses correctly and shows the right next trigger:</p>
+          <p class="mt-2"><strong style="color:var(--fg);">Before deploying</strong>, use <code class="ic">systemd-analyze calendar</code> to verify the OnCalendar string parses correctly and shows the right next trigger:</p>
           <pre class="rounded-lg p-3 mt-2 text-xs overflow-x-auto" style="background:#0A0A0A;font-family:'JetBrains Mono',monospace;">systemd-analyze calendar 'Mon *-*-* 09:00:00'</pre>
-          <p class="mt-2"><strong style="color:var(--fg);">After deploying</strong> — once the timer is enabled, <code class="ic">systemctl status my-task.timer</code> shows the last trigger time and the next scheduled run. You can also list all active timers with <code class="ic">systemctl list-timers</code> to see the countdown to each timer's next execution.</p>
+          <p class="mt-2"><strong style="color:var(--fg);">After deploying</strong>, once the timer is enabled, <code class="ic">systemctl status my-task.timer</code> shows the last trigger time and the next scheduled run. You can also list all active timers with <code class="ic">systemctl list-timers</code> to see the countdown to each timer's next execution.</p>
         </div>
       </div>
 

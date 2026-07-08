@@ -121,5 +121,5 @@ The fastest way to avoid this category of bug is to not hand translate flag by f
 It also converts in the other direction. If you've got a docker-compose.yml and need the equivalent docker run commands for a script or a one off debugging session, the same tool handles that with the same topology aware translation.
 
 <div class="tool-cta">
-  <p>Try it yourself → <a href="/json-yaml-converter">JSON↔YAML Converter</a> — convert between JSON and YAML instantly in your browser, no uploads, no account needed.</p>
+  <p>Try it yourself → <a href="/json-yaml-converter">JSON↔YAML Converter</a>, which lets you convert between JSON and YAML instantly in your browser, no uploads, no account needed.</p>
 </div>

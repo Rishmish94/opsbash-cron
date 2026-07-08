@@ -492,7 +492,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform" style="color:var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color:var(--fg2);">
-          Set the first N bits to 1, where N is the prefix length, in a 32-bit number. For <code class="ic">/24</code>: <code class="ic">11111111.11111111.11111111.00000000</code> = <code class="ic">255.255.255.0</code>. For <code class="ic">/16</code>: <code class="ic">255.255.0.0</code>. For <code class="ic">/8</code>: <code class="ic">255.0.0.0</code>. The wildcard mask is the bitwise inverse — for /24 that's <code class="ic">0.0.0.255</code>, useful in ACLs and firewall rules. This calculator shows both subnet and wildcard masks instantly.
+          Set the first N bits to 1, where N is the prefix length, in a 32-bit number. For <code class="ic">/24</code>: <code class="ic">11111111.11111111.11111111.00000000</code> = <code class="ic">255.255.255.0</code>. For <code class="ic">/16</code>: <code class="ic">255.255.0.0</code>. For <code class="ic">/8</code>: <code class="ic">255.0.0.0</code>. The wildcard mask is the bitwise inverse, which for /24 is <code class="ic">0.0.0.255</code>, useful in ACLs and firewall rules. This calculator shows both subnet and wildcard masks instantly.
         </div>
       </div>
 

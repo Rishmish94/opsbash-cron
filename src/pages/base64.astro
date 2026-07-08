@@ -84,7 +84,7 @@ const webAppSchema = {
       Base64 Encoder/Decoder
     </h1>
     <p class="text-base max-w-xl" style="color: var(--fg2);">
-      Encode and decode Base64 strings and files instantly, in real time. URL-safe mode, drag-and-drop file support — everything runs locally in your browser.
+      Encode and decode Base64 strings and files instantly, in real time. URL-safe mode and drag-and-drop file support, with everything running locally in your browser.
     </p>
   </section>
 
@@ -187,7 +187,7 @@ const webAppSchema = {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </span>
         <span class="preset-title">Kubernetes Secret</span>
-        <span class="preset-desc">Loads username=admin and encodes it — how Kubernetes Secret values work.</span>
+        <span class="preset-desc">Loads username=admin and encodes it, showing how Kubernetes Secret values work.</span>
       </button>
 
       <button class="preset-card" data-preset="jwt">
@@ -195,7 +195,7 @@ const webAppSchema = {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </span>
         <span class="preset-title">JWT Payload</span>
-        <span class="preset-desc">Loads a sample JWT claims object — how JWT payloads are Base64 encoded.</span>
+        <span class="preset-desc">Loads a sample JWT claims object, showing how JWT payloads are Base64 encoded.</span>
       </button>
 
       <button class="preset-card" data-preset="auth">
@@ -203,7 +203,7 @@ const webAppSchema = {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a7.5 7.5 0 0 1 13 0"/></svg>
         </span>
         <span class="preset-title">Basic Auth Header</span>
-        <span class="preset-desc">Loads username:password and encodes it — how HTTP Basic Auth works.</span>
+        <span class="preset-desc">Loads username:password and encodes it, showing how HTTP Basic Auth works.</span>
       </button>
 
       <button class="preset-card" data-preset="ssh">
@@ -229,7 +229,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Base64 is an encoding scheme that converts arbitrary binary or text data into a string of 64 printable ASCII characters (<code class="ic">A-Z</code>, <code class="ic">a-z</code>, <code class="ic">0-9</code>, <code class="ic">+</code>, <code class="ic">/</code>). It exists because many systems — email, JSON, YAML, URLs — were designed to safely carry plain text but not arbitrary binary bytes, so Base64 acts as a safe wrapper. It shows up constantly in DevOps: Kubernetes Secrets, JWT tokens, Basic Auth headers, embedding images in CSS or HTML, and encoding binary attachments in email (MIME).
+          Base64 is an encoding scheme that converts arbitrary binary or text data into a string of 64 printable ASCII characters (<code class="ic">A-Z</code>, <code class="ic">a-z</code>, <code class="ic">0-9</code>, <code class="ic">+</code>, <code class="ic">/</code>). It exists because many systems, including email, JSON, YAML, and URLs, were designed to safely carry plain text but not arbitrary binary bytes, so Base64 acts as a safe wrapper. It shows up constantly in DevOps: Kubernetes Secrets, JWT tokens, Basic Auth headers, embedding images in CSS or HTML, and encoding binary attachments in email (MIME).
         </div>
       </div>
 
@@ -239,7 +239,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          No. Base64 is fully reversible with no key required — anyone can decode it back to the original data instantly using this tool or a single command like <code class="ic">base64 -d</code>. Encryption requires a secret key or password to reverse; Base64 requires nothing but the string itself. Never use Base64 alone to protect sensitive data — it provides zero confidentiality, only a safe text representation.
+          No. Base64 is fully reversible with no key required, so anyone can decode it back to the original data instantly using this tool or a single command like <code class="ic">base64 -d</code>. Encryption requires a secret key or password to reverse; Base64 requires nothing but the string itself. Never use Base64 alone to protect sensitive data. It provides zero confidentiality, only a safe text representation.
         </div>
       </div>
 
@@ -249,7 +249,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Standard Base64 uses <code class="ic">+</code> and <code class="ic">/</code> as two of its 64 characters, both of which have special meaning inside a URL, so a Base64 string can break if placed directly in a URL or query parameter. URL-safe Base64 replaces <code class="ic">+</code> with <code class="ic">-</code> and <code class="ic">/</code> with <code class="ic">_</code>, and usually omits the trailing <code class="ic">=</code> padding characters, so the result can be used safely inside URLs, filenames, and cookies without escaping. JWTs use URL-safe Base64 for exactly this reason — the header, payload, and signature all need to travel safely inside a URL-embedded token.
+          Standard Base64 uses <code class="ic">+</code> and <code class="ic">/</code> as two of its 64 characters, both of which have special meaning inside a URL, so a Base64 string can break if placed directly in a URL or query parameter. URL-safe Base64 replaces <code class="ic">+</code> with <code class="ic">-</code> and <code class="ic">/</code> with <code class="ic">_</code>, and usually omits the trailing <code class="ic">=</code> padding characters, so the result can be used safely inside URLs, filenames, and cookies without escaping. JWTs use URL-safe Base64 for exactly this reason, since the header, payload, and signature all need to travel safely inside a URL-embedded token.
         </div>
       </div>
 
@@ -259,7 +259,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          Kubernetes Secret manifests are YAML or JSON documents, and both formats are designed for human-readable text, not arbitrary binary bytes or values containing special characters and newlines. Base64 encoding every value in a Secret's <code class="ic">data</code> field guarantees it can be safely stored, transmitted, and parsed as plain text regardless of what the original value contained. This is purely a data-safety measure, not a security control — anyone who can read a Secret object can decode its values in seconds, which is exactly what this tool does.
+          Kubernetes Secret manifests are YAML or JSON documents, and both formats are designed for human-readable text, not arbitrary binary bytes or values containing special characters and newlines. Base64 encoding every value in a Secret's <code class="ic">data</code> field guarantees it can be safely stored, transmitted, and parsed as plain text regardless of what the original value contained. This is purely a data-safety measure, not a security control, since anyone who can read a Secret object can decode its values in seconds, which is exactly what this tool does.
         </div>
       </div>
 
@@ -269,7 +269,7 @@ const webAppSchema = {
           <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
-          A JWT has three parts separated by dots: <code class="ic">header.payload.signature</code>. The header and payload are each Base64URL encoded JSON — split the token on the dots, take the first two parts, convert <code class="ic">-</code> back to <code class="ic">+</code> and <code class="ic">_</code> back to <code class="ic">/</code>, restore the correct padding, and run it through this tool's decoder to get readable JSON. The signature is not Base64-encoded data you can meaningfully decode; it is a cryptographic value used to verify the token has not been tampered with, and checking it requires the signing secret or public key, not just decoding. The <a href="/jwt-decoder" style="color: var(--accent); text-decoration: underline;">JWT Decoder</a> tool does all three parts for you in one step.
+          A JWT has three parts separated by dots: <code class="ic">header.payload.signature</code>. The header and payload are each Base64URL encoded JSON, so split the token on the dots, take the first two parts, convert <code class="ic">-</code> back to <code class="ic">+</code> and <code class="ic">_</code> back to <code class="ic">/</code>, restore the correct padding, and run it through this tool's decoder to get readable JSON. The signature is not Base64-encoded data you can meaningfully decode; it is a cryptographic value used to verify the token has not been tampered with, and checking it requires the signing secret or public key, not just decoding. The <a href="/jwt-decoder" style="color: var(--accent); text-decoration: underline;">JWT Decoder</a> tool does all three parts for you in one step.
         </div>
       </div>
 
@@ -283,14 +283,14 @@ const webAppSchema = {
       <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">What is Base64</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Base64 is a binary-to-text encoding scheme that represents arbitrary bytes using a fixed alphabet of 64 printable ASCII characters: A-Z, a-z, 0-9, plus <code class="ic">+</code> and <code class="ic">/</code>. It works by grouping input bytes into chunks of three (24 bits) and re-slicing them into four 6-bit groups, each mapped to one of the 64 output characters — which is why encoded output is always about 33% longer than the original data. The trailing <code class="ic">=</code> characters are padding, added when the input length is not a clean multiple of three bytes. Base64 is not compression and not encryption; it exists purely so binary or special-character data can travel safely through systems built for plain text.
+          Base64 is a binary-to-text encoding scheme that represents arbitrary bytes using a fixed alphabet of 64 printable ASCII characters: A-Z, a-z, 0-9, plus <code class="ic">+</code> and <code class="ic">/</code>. It works by grouping input bytes into chunks of three (24 bits) and re-slicing them into four 6-bit groups, each mapped to one of the 64 output characters, which is why encoded output is always about 33% longer than the original data. The trailing <code class="ic">=</code> characters are padding, added when the input length is not a clean multiple of three bytes. Base64 is not compression and not encryption; it exists purely so binary or special-character data can travel safely through systems built for plain text.
         </p>
       </div>
 
       <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Common DevOps Uses</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Kubernetes Secrets store every value in their <code class="ic">data</code> field as Base64 so the YAML manifest can safely hold binary data, newlines, or special characters as plain text — decoding a Secret takes one command and reveals the real value in plaintext. JWTs Base64URL-encode their header and payload so the token can be embedded directly in a URL, cookie, or Authorization header without breaking. HTTP Basic Authentication encodes a <code class="ic">username:password</code> pair as Base64 and sends it in the Authorization header on every request — it is not encrypted, which is why Basic Auth should only ever be used over HTTPS. SSH public keys are also Base64-encoded strings, letting an arbitrary-length cryptographic key be pasted as a single line into an <code class="ic">authorized_keys</code> file or a Git hosting provider's settings page.
+          Kubernetes Secrets store every value in their <code class="ic">data</code> field as Base64 so the YAML manifest can safely hold binary data, newlines, or special characters as plain text. Decoding a Secret takes one command and reveals the real value in plaintext. JWTs Base64URL-encode their header and payload so the token can be embedded directly in a URL, cookie, or Authorization header without breaking. HTTP Basic Authentication encodes a <code class="ic">username:password</code> pair as Base64 and sends it in the Authorization header on every request. It is not encrypted, which is why Basic Auth should only ever be used over HTTPS. SSH public keys are also Base64-encoded strings, letting an arbitrary-length cryptographic key be pasted as a single line into an <code class="ic">authorized_keys</code> file or a Git hosting provider's settings page.
         </p>
       </div>
 

@@ -95,5 +95,5 @@ One practical workflow: if you're hand writing a Helm values file or a ConfigMap
 The [JSON to YAML Converter](/json-yaml-converter) on opsbash does exactly this conversion in your browser. Paste JSON, get YAML with types preserved, including quoting ambiguous looking strings like "NO" or "1.10" so they survive the trip through whichever parser reads them next. It's also useful in reverse. If you've inherited a YAML file and want to check what types its values actually resolve to, converting it to JSON will show you the resolved types directly, so you're not left guessing whether that NO in the country list is a string or a boolean until it's already in production.
 
 <div class="tool-cta">
-  <p>Try it yourself → <a href="/json-yaml-converter">JSON↔YAML Converter</a> — convert between JSON and YAML with types preserved so strings stay strings and NO never becomes false.</p>
+  <p>Try it yourself → <a href="/json-yaml-converter">JSON↔YAML Converter</a>, which lets you convert between JSON and YAML with types preserved so strings stay strings and NO never becomes false.</p>
 </div>

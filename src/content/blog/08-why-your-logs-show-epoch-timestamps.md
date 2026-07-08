@@ -86,5 +86,5 @@ Yes, if your logging uses second precision and two events occur within the same 
 The AWS CLI accepts epoch milliseconds in the start-time and end-time parameters for get-log-events. Convert your target time range to milliseconds and pass them directly.
 
 <div class="tool-cta">
-  <p>Try it yourself → <a href="/timestamp-converter">Timestamp Converter</a> — paste any Unix epoch value and get a human-readable date instantly, no code required.</p>
+  <p>Try it yourself → <a href="/timestamp-converter">Timestamp Converter</a>, which lets you paste any Unix epoch value and get a human-readable date instantly, no code required.</p>
 </div>

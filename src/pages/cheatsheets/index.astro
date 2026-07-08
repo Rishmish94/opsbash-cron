@@ -4,8 +4,9 @@ import kubectlData from '../../data/cheatsheets/kubectl.json';
 import dockerData from '../../data/cheatsheets/docker.json';
 import gitData from '../../data/cheatsheets/git.json';
 import awsData from '../../data/cheatsheets/aws.json';
+import terraformData from '../../data/cheatsheets/terraform.json';
 
-const sheets = [kubectlData, dockerData, gitData, awsData];
+const sheets = [kubectlData, dockerData, gitData, awsData, terraformData];
 const totalCommands = sheets.reduce((sum, s) => sum + s.commands.length, 0);
 const totalSheets = sheets.length;
 
@@ -14,13 +15,13 @@ const webAppSchema = {
   "@type": "CollectionPage",
   "name": "DevOps Cheat Sheets",
   "url": "https://opsbash.com/cheatsheets",
-  "description": "Searchable, copy-ready command references for kubectl, Docker, Git, and AWS CLI. No login, no download, everything runs in your browser.",
+  "description": "Searchable, copy-ready command references for kubectl, Docker, Git, AWS CLI, and Terraform. No login, no download, everything runs in your browser.",
 };
 ---
 
 <Layout
-  title="DevOps Cheat Sheets | kubectl, Docker, Git, AWS CLI | OpsBash"
-  description="Searchable, copy-ready cheat sheets for kubectl, Docker, Git, and AWS CLI. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
+  title="DevOps Cheat Sheets | kubectl, Docker, Git, AWS CLI, Terraform | OpsBash"
+  description="Searchable, copy-ready cheat sheets for kubectl, Docker, Git, AWS CLI, and Terraform. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
   canonicalURL="https://opsbash.com/cheatsheets"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
@@ -85,7 +86,7 @@ const webAppSchema = {
   <!-- ── COMING SOON ───────────────────────────────────────────────────────── -->
   <section class="pb-20 text-center">
     <p class="text-sm" style="color: var(--fg3);">
-      More cheat sheets coming soon including Terraform, Helm, GitHub Actions, and Ansible.
+      More cheat sheets coming soon including Helm, GitHub Actions, and Ansible.
     </p>
   </section>
 
