@@ -82,6 +82,7 @@
     { name: 'cheatsheets', desc: 'kubectl, Docker, Git command references' },
     { name: 'base64', desc: 'Encode and decode Base64 strings and files' },
     { name: 'terraform', desc: 'Terraform CLI commands for infra provisioning' },
+    { name: 'helm', desc: 'Helm chart management for Kubernetes' },
   ];
 
   async function runTerminal() {
@@ -109,7 +110,7 @@
       await sleep(300);
 
       const headerLine = document.createElement('div');
-      headerLine.textContent = 'Available tools (14):';
+      headerLine.textContent = 'Available tools (15):';
       headerLine.style.color = '#F8FAFC';
       headerLine.style.fontFamily = 'JetBrains Mono, monospace';
       headerLine.style.fontSize = '13px';
