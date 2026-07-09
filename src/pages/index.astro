@@ -9,6 +9,7 @@ import awsCheatsheet from '../data/cheatsheets/aws.json';
 import terraformCheatsheet from '../data/cheatsheets/terraform.json';
 import helmCheatsheet from '../data/cheatsheets/helm.json';
 import linuxCheatsheet from '../data/cheatsheets/linux.json';
+import githubCheatsheet from '../data/cheatsheets/github.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
@@ -16,7 +17,7 @@ const recentPosts = allPosts
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .slice(0, 3);
 
-const cheatsheetCards = [kubernetesCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet, linuxCheatsheet];
+const cheatsheetCards = [kubernetesCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet, linuxCheatsheet, githubCheatsheet];
 
 const cheatsheetCardDescriptions: Record<string, string> = {
   kubernetes: '78 commands for pods, deployments, debugging, and cluster management.',
@@ -26,6 +27,7 @@ const cheatsheetCardDescriptions: Record<string, string> = {
   terraform: '100+ commands for init, plan, apply, state, workspaces, and import.',
   helm: '80+ commands for install, upgrade, rollback, values, and debugging.',
   linux: '180+ commands for files, text processing, networking, systemd, and pipelines.',
+  github: '180+ GitHub CLI commands and Actions workflow patterns. Includes a Failure Decoder.',
 };
 
 const trustItems = [

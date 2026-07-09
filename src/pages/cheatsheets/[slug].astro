@@ -7,6 +7,7 @@ import awsData from '../../data/cheatsheets/aws.json';
 import terraformData from '../../data/cheatsheets/terraform.json';
 import helmData from '../../data/cheatsheets/helm.json';
 import linuxData from '../../data/cheatsheets/linux.json';
+import githubData from '../../data/cheatsheets/github.json';
 
 export function getStaticPaths() {
   return [
@@ -17,6 +18,7 @@ export function getStaticPaths() {
     { params: { slug: 'terraform' }, props: { data: terraformData } },
     { params: { slug: 'helm' }, props: { data: helmData } },
     { params: { slug: 'linux' }, props: { data: linuxData } },
+    { params: { slug: 'github' }, props: { data: githubData } },
   ];
 }
 
@@ -32,6 +34,7 @@ const brandColors: Record<string, string> = {
   terraform: '#7B42BC',
   helm: '#0F1689',
   linux: '#FCC624',
+  github: '#2DA44E',
 };
 const brandColor = brandColors[slug] || '#3B82F6';
 
@@ -43,6 +46,7 @@ const brandLogos: Record<string, string | null> = {
   terraform: '/logos/terraform.svg',
   helm: '/logos/helm-light.svg',
   linux: '/logos/linux.svg',
+  github: '/logos/github.svg',
 };
 const brandLogo = brandLogos[slug] ?? null;
 
@@ -83,6 +87,10 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
   linux: [
     { href: '/cron-builder', name: 'Cron Builder', desc: 'Build and validate cron expressions for Linux, AWS, Kubernetes, and GitHub Actions.' },
     { href: '/chmod-calculator', name: 'chmod Calculator', desc: 'Convert between octal and symbolic file permissions and generate the exact chmod command.' },
+  ],
+  github: [
+    { href: '/cheatsheets/git', name: 'Git Cheat Sheet', desc: 'Command reference for branching, commits, remotes, and recovery.' },
+    { href: '/cron-builder', name: 'Cron Builder', desc: 'Build and validate cron expressions for Linux, AWS, Kubernetes, and GitHub Actions.' },
   ],
 };
 
@@ -127,6 +135,12 @@ const seoContentMap: Record<string, string[]> = {
     "The reason Linux commands show up in daily DevOps work so constantly is that almost every layer of modern infrastructure, from the container a service runs in to the CI runner that builds it to the virtual machine hosting a database, is Linux underneath. Debugging a slow container means running ps, top, and du inside it. Debugging a networking issue means reaching for ss, curl, and dig. Debugging a permissions error means reading the output of ls -la and running chmod or chown to fix it. These commands are not a specialized skill reserved for system administrators anymore, they are the baseline literacy every engineer touching servers, containers, or CI pipelines needs, in the same way SQL is baseline literacy for anyone touching a database.",
     "The two mental models that unlock most of Linux are the permission system and the process model. Every file has an owner, a group, and a set of read, write, and execute permissions for the owner, the group, and everyone else, and almost every confusing permission error traces back to one of those three categories not having the access it needs. Every running program is a process with a unique process ID, a parent process that spawned it, and a set of open files and network connections you can inspect with tools like ps, lsof, and pstree. Once you can read chmod 755 as owner read write execute, group and others read execute, and once you understand that a process id is just a number you can target with kill, most of the Linux command line stops feeling like memorized incantations and starts feeling predictable.",
     "Three mistakes account for most of the trouble engineers run into with Linux commands. The first is running rm -rf or dd with a typo in the path, since neither command asks for confirmation and both can destroy data permanently in seconds, which is why testing destructive one-liners with a safer flag like -i or a dry run first is worth the extra step. The second is assuming a command that works on Ubuntu will work identically on every distro, when in reality the package manager, the default shell, and even basic service management differ completely between Debian-based, RHEL-based, and Alpine-based systems. The third is forgetting that permission and ownership problems are usually the real cause of a mysterious failure, so running ls -la and id before assuming a tool itself is broken saves far more time than it costs.",
+  ],
+  github: [
+    "GitHub CLI, installed as the gh command, brings the parts of GitHub you normally reach for in a browser tab, pull requests, issues, releases, and workflow runs, directly into the terminal where the rest of your development work already happens. Creating a pull request with gh pr create --fill takes one command and reuses your commit messages as the title and body, instead of switching to a browser, finding the compare view, and typing everything again. The same applies to checking out someone else's PR to test it locally, watching a deploy workflow run live, or reading issue comments without losing your place in the terminal. Once gh is authenticated, almost everything you would normally click through on github.com has a direct command equivalent.",
+    "GitHub Actions changed continuous integration for small teams by removing the setup cost that used to keep CI out of reach for smaller projects. Before Actions, adding CI to a repository usually meant signing up for a separate service, connecting it to GitHub, and maintaining a second system with its own billing and its own configuration format. Actions ships inside the same repository as a YAML file in .github/workflows, triggered automatically by the same push and pull request events developers already generate, with a generous free tier for public repositories. A team can go from no CI at all to running tests on every pull request in the time it takes to commit one workflow file, which is a big part of why Actions became the default choice for new projects rather than an add-on decided later.",
+    "The syntax of a GitHub Actions workflow trips up almost everyone the first few times, usually in the same handful of places. Mixing shell variable syntax with GitHub Actions expression syntax, writing $VAR instead of ${{ inputs.var }} or the reverse, silently produces an empty string instead of an error. Step ids that contain a hyphen cannot be referenced with dot notation in an expression, so a step named build-app makes steps.build-app.outputs.version return nothing until the id is changed to use an underscore or the reference switches to bracket notation. Composite actions are another common trap, since every run step inside one must declare its own shell explicitly, unlike a normal job where the shell is inherited automatically. None of these produce a clear error message, which is exactly why they show up so often in troubleshooting threads.",
+    "The security model behind GITHUB_TOKEN and secrets is worth understanding before writing workflows that deploy anything or touch sensitive data. Every workflow run gets a GITHUB_TOKEN automatically, scoped to that single run, expiring when the run finishes, and since a security update in May 2021 defaulting to read-only access unless the workflow explicitly requests write permissions. Secrets referenced as ${{ secrets.NAME }} are masked in logs automatically, but a secret copied into a shell variable and echoed, or transformed through base64 or another encoding, may not be masked, which is why manual masking with the add-mask command matters for anything derived from a secret. Pull requests from forks never receive secrets on the pull_request event for the same reason, and switching to pull_request_target to get around that restriction requires real care since that event runs with access to secrets in the context of the base branch.",
   ],
 };
 
@@ -173,6 +187,12 @@ const faqMap: Record<string, { q: string; a: string }[]> = {
     { q: 'What does 2>/dev/null mean?', a: '2 refers to file descriptor 2, which is stderr, the stream a program uses for error messages, separate from file descriptor 1, which is stdout for normal output. The greater than sign redirects that stream, and /dev/null is a special device file that silently discards anything written to it. Together, 2>/dev/null redirects only error messages into the void while normal output still prints, which is why it shows up constantly in commands like find that would otherwise flood the terminal with permission denied errors.' },
     { q: 'How do I find which process is using a port?', a: 'Run lsof -i :PORT, replacing PORT with the port number, such as lsof -i :8080, and it lists the process ID and name holding that port. ss -tlnp or the older netstat -tlnp also show listening ports alongside the process using each one. If you need to immediately free the port, kill $(lsof -t -i:8080) finds the process ID with lsof and kills it in a single command.' },
   ],
+  github: [
+    { q: 'What is the difference between GitHub CLI and git?', a: 'git is the version control tool that manages commits, branches, and history, and it works with any Git hosting provider, not just GitHub. gh, the GitHub CLI, is a separate tool that talks to the GitHub API for everything git itself does not know about, such as pull requests, issues, releases, and Actions workflow runs. In practice you use both together: git for the actual version control operations like commit and push, and gh for GitHub-specific actions like creating a pull request or watching a workflow run.' },
+    { q: 'How do I pass secrets to a reusable workflow?', a: 'Secrets are not automatically available inside a called reusable workflow, even if the caller has them. The called workflow must declare which secrets it needs in its workflow_call trigger, and the caller must explicitly pass each one in the secrets block when it calls the workflow with uses. The shorthand secrets: inherit passes every secret the caller has instead of listing them individually, which is convenient but should be used carefully since it grants the called workflow access to everything.' },
+    { q: 'Why does my workflow get a 403 error when writing to packages or pull requests?', a: 'Since a GitHub security update in May 2021, the GITHUB_TOKEN a workflow receives defaults to read-only access. Writing to GitHub Packages, creating a release, commenting on a pull request, or deploying to Pages all require write permissions that are not granted by default. Add a permissions block to the job or workflow specifying exactly which scopes need write access, such as packages: write or pull-requests: write, and the 403 error goes away.' },
+    { q: 'What is the difference between github.sha and github.event.pull_request.head.sha?', a: 'On a push event github.sha reliably refers to the commit that was pushed. On a pull_request event github.sha instead refers to a temporary merge commit that GitHub creates automatically to test what merging the PR would look like, which is not a commit that exists in your actual branch history. To get the real HEAD commit of the pull request branch on a pull_request event, use github.event.pull_request.head.sha instead, especially when tagging a Docker image or artifact with a commit SHA that needs to match what appears in git log.' },
+  ],
 };
 
 const relatedTools = relatedToolsMap[slug];
@@ -205,7 +225,7 @@ data.commands.forEach((c: any) => {
   categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
 });
 
-const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef || data.hasDistroRosetta;
+const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef || data.hasDistroRosetta || data.hasFailureDecoder;
 
 // ── Start Here section ───────────────────────────────────────────────────
 const toolNameMap: Record<string, string> = {
@@ -216,6 +236,7 @@ const toolNameMap: Record<string, string> = {
   terraform: 'Terraform',
   helm: 'Helm',
   linux: 'Linux',
+  github: 'GitHub CLI',
 };
 const toolName = toolNameMap[slug] || data.title;
 
@@ -227,6 +248,7 @@ const startHereIdsMap: Record<string, string[]> = {
   terraform: ['init', 'validate', 'fmt', 'plan', 'apply'],
   helm: ['install', 'upgrade-install', 'list', 'rollback', 'uninstall'],
   linux: ['ls', 'cd', 'grep', 'chmod', 'ps'],
+  github: ['gh-auth-login', 'gh-pr-create', 'gh-pr-merge', 'gh-run-watch', 'on-push-workflow-trigger'],
 };
 const startHereCommands = (startHereIdsMap[slug] || [])
   .map((id) => data.commands.find((c: any) => c.id === id))
@@ -613,6 +635,52 @@ const visibleCategories = data.categories
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.hasFailureDecoder && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-failure-decoder" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="6" width="8" height="10" rx="4"/><path d="M12 20v-4"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M4 10h4"/><path d="M16 10h4"/><path d="M4 16h4"/><path d="M16 16h4"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.failureDecoder.title}</span>
+              <span class="ref-tool-desc">Describe what you see and find the real cause</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-failure-decoder">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.failureDecoder.subtitle}</p>
+              <div class="error-lookup-search-wrap">
+                <svg class="error-lookup-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="failureSearchInput" type="text" placeholder="Describe what you are seeing..." autocomplete="off" spellcheck="false" class="error-lookup-search-input" aria-label="Describe what you are seeing" />
+              </div>
+              <div class="error-cards-list" id="failureCardsList">
+                {data.failureDecoder.entries.map((entry: any) => (
+                  <div class="failure-card" data-search={entry.symptom.toLowerCase()}>
+                    <p class="failure-card-title">{entry.symptom}</p>
+                    <div class="cmd-usecase">
+                      <p class="cmd-usecase-label">Why this happens</p>
+                      <p class="cmd-usecase-text">{entry.cause}</p>
+                    </div>
+                    <div class="cmd-usecase">
+                      <p class="cmd-usecase-label">How to fix it</p>
+                      <p class="cmd-usecase-text">{entry.fix}</p>
+                    </div>
+                    {entry.example && (
+                      <div class="cmd-block" style="margin-bottom: 0;">
+                        <code class="cmd-text">{entry.example}</code>
+                        <button class="copy-btn" data-copy={entry.example}>Copy</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p class="error-no-results hidden" id="failureNoResults">No failures match your search. Try different keywords describing what you see.</p>
             </div>
           </div>
         </div>
@@ -1571,6 +1639,23 @@ const visibleCategories = data.categories
     font-size: 13px;
   }
 
+  /* ── GitHub Actions Failure Decoder (reuses error-lookup search + card list styles) ── */
+  .failure-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+  .failure-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #F8FAFC;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+
   /* ── Go Template Quick Reference ─────────────────────────────────────────── */
   .gotpl-grid {
     display: grid;
@@ -2219,6 +2304,22 @@ const visibleCategories = data.categories
       if (matches) visibleCount++;
     });
     errorNoResults?.classList.toggle('hidden', visibleCount !== 0);
+  });
+
+  // ── GitHub Actions Failure Decoder search filter ─────────────────────────
+  const failureSearchInput = document.getElementById('failureSearchInput') as HTMLInputElement | null;
+  const failureCards = Array.from(document.querySelectorAll('.failure-card')) as HTMLElement[];
+  const failureNoResults = document.getElementById('failureNoResults') as HTMLElement | null;
+
+  failureSearchInput?.addEventListener('input', () => {
+    const query = failureSearchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+    failureCards.forEach((card) => {
+      const matches = !query || (card.getAttribute('data-search') || '').indexOf(query) !== -1;
+      card.style.display = matches ? '' : 'none';
+      if (matches) visibleCount++;
+    });
+    failureNoResults?.classList.toggle('hidden', visibleCount !== 0);
   });
 
   // ── Reference Tools expand/collapse ────────────────────────────────────────

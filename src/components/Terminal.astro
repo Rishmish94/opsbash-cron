@@ -84,6 +84,7 @@
     { name: 'terraform', desc: 'Terraform CLI commands for infra provisioning' },
     { name: 'helm', desc: 'Helm chart management for Kubernetes' },
     { name: 'linux', desc: 'Linux commands for files, processes, and networking' },
+    { name: 'github', desc: 'GitHub CLI commands and Actions workflow patterns' },
   ];
 
   async function runTerminal() {
@@ -111,7 +112,7 @@
       await sleep(300);
 
       const headerLine = document.createElement('div');
-      headerLine.textContent = 'Available tools (16):';
+      headerLine.textContent = 'Available tools (17):';
       headerLine.style.color = '#F8FAFC';
       headerLine.style.fontFamily = 'JetBrains Mono, monospace';
       headerLine.style.fontSize = '13px';
