@@ -1,0 +1,2640 @@
+{
+  "slug": "linux",
+  "title": "Linux Commands Cheat Sheet",
+  "description": "180+ Linux commands for file operations, text processing, process management, networking, permissions, disk, systemd, and package management. Includes a Distro Rosetta Stone. Verified against man pages.",
+  "category": "LINUX",
+  "lastUpdated": "2026-07-08",
+  "hasIncidentFlow": false,
+  "hasPodStatusDecoder": false,
+  "hasCredentialDebugger": false,
+  "hasS3Picker": false,
+  "hasErrorLookup": false,
+  "hasGoTemplateRef": false,
+  "hasDistroRosetta": true,
+  "categories": [
+    {"id": "start-here", "label": "Start Here"},
+    {"id": "file-operations", "label": "File Operations"},
+    {"id": "permissions", "label": "Permissions and Ownership"},
+    {"id": "text-processing", "label": "Text Processing"},
+    {"id": "process-management", "label": "Process Management"},
+    {"id": "networking", "label": "Networking"},
+    {"id": "disk-storage", "label": "Disk and Storage"},
+    {"id": "system-info", "label": "System Information"},
+    {"id": "systemd", "label": "systemd and Services"},
+    {"id": "package-management", "label": "Package Management"},
+    {"id": "pipeline-patterns", "label": "Pipeline Patterns"}
+  ],
+  "incidentFlow": null,
+  "podStatusDecoder": null,
+  "distroRosetta": {
+    "title": "Distro Rosetta Stone",
+    "subtitle": "The same operation across Ubuntu/Debian, RHEL/CentOS/Fedora, and Alpine. Commands that work on one distro silently fail on another. This table shows you why.",
+    "rows": [
+      {"operation": "Update package index", "ubuntu": "apt update", "rhel": "dnf check-update", "alpine": "apk update"},
+      {"operation": "Install a package", "ubuntu": "apt install nginx", "rhel": "dnf install nginx", "alpine": "apk add nginx"},
+      {"operation": "Remove a package", "ubuntu": "apt remove nginx", "rhel": "dnf remove nginx", "alpine": "apk del nginx"},
+      {"operation": "Search for a package", "ubuntu": "apt search nginx", "rhel": "dnf search nginx", "alpine": "apk search nginx"},
+      {"operation": "List installed packages", "ubuntu": "dpkg -l", "rhel": "rpm -qa", "alpine": "apk list --installed"},
+      {"operation": "Show package info", "ubuntu": "apt show nginx", "rhel": "dnf info nginx", "alpine": "apk info nginx"},
+      {"operation": "Upgrade all packages", "ubuntu": "apt upgrade", "rhel": "dnf upgrade", "alpine": "apk upgrade"},
+      {"operation": "Start a service", "ubuntu": "systemctl start nginx", "rhel": "systemctl start nginx", "alpine": "rc-service nginx start"},
+      {"operation": "Enable service on boot", "ubuntu": "systemctl enable nginx", "rhel": "systemctl enable nginx", "alpine": "rc-update add nginx default"},
+      {"operation": "Check service status", "ubuntu": "systemctl status nginx", "rhel": "systemctl status nginx", "alpine": "rc-service nginx status"},
+      {"operation": "View system logs", "ubuntu": "journalctl -f", "rhel": "journalctl -f", "alpine": "tail -f /var/log/messages"},
+      {"operation": "Find which package owns a file", "ubuntu": "dpkg -S /usr/bin/nginx", "rhel": "rpm -qf /usr/bin/nginx", "alpine": "apk info --who-owns /usr/bin/nginx"},
+      {"operation": "Add a user", "ubuntu": "useradd -m username", "rhel": "useradd -m username", "alpine": "adduser -D username"},
+      {"operation": "Install security updates only", "ubuntu": "apt upgrade --with-new-pkgs", "rhel": "dnf update --security", "alpine": "apk upgrade --available"},
+      {"operation": "Clean package cache", "ubuntu": "apt clean", "rhel": "dnf clean all", "alpine": "apk cache clean"}
+    ],
+    "gotchas": [
+      {
+        "id": "alpine-musl",
+        "title": "Alpine uses musl libc not glibc",
+        "note": "Many Linux binaries compiled for glibc will not run on Alpine without recompilation. This is the most common reason a Docker image works locally but fails in a container built on Alpine."
+      },
+      {
+        "id": "alpine-no-bash",
+        "title": "Alpine does not have bash by default",
+        "note": "Alpine uses ash as the default shell. Scripts starting with #!/bin/bash will fail. Either install bash with apk add bash or rewrite scripts to use #!/bin/sh."
+      },
+      {
+        "id": "rhel-selinux",
+        "title": "RHEL and CentOS have SELinux enabled by default",
+        "note": "Many commands that work on Ubuntu fail silently on RHEL because SELinux is blocking them. Run ausearch -m avc -ts recent to see SELinux denials before assuming the command is wrong."
+      },
+      {
+        "id": "systemd-vs-openrc",
+        "title": "Alpine uses OpenRC not systemd",
+        "note": "All systemctl commands fail on Alpine by default because Alpine uses OpenRC for service management. Use rc-service and rc-update instead."
+      }
+    ]
+  },
+  "commands": [
+    {
+      "id": "ls",
+      "title": "List files and directories",
+      "command": "ls -la",
+      "flags": [
+        {"flag": "-l", "description": "Long format showing permissions, size, and date"},
+        {"flag": "-a", "description": "Shows hidden files starting with a dot"},
+        {"flag": "-h", "description": "Human readable file sizes"},
+        {"flag": "-t", "description": "Sorts by modification time, newest first"},
+        {"flag": "-r", "description": "Reverses sort order"}
+      ],
+      "destructive": false,
+      "category": "start-here",
+      "difficulty": "Beginner",
+      "useCase": "List files and directories in the current directory.",
+      "beginnerNote": "ls -la is the most useful combination, showing all files including hidden ones in long format with permissions and sizes.",
+      "tags": ["ls", "list", "files", "directory"]
+    },
+    {
+      "id": "cd",
+      "title": "Change the current directory",
+      "command": "cd /path/to/directory",
+      "flags": [
+        {"flag": "cd (no arguments)", "description": "Goes to the home directory"},
+        {"flag": "cd -", "description": "Goes back to the previous directory"},
+        {"flag": "cd ..", "description": "Goes up one level"}
+      ],
+      "destructive": false,
+      "category": "start-here",
+      "difficulty": "Beginner",
+      "useCase": "Change the current working directory.",
+      "beginnerNote": "cd - is one of the most useful shortcuts for switching between two directories quickly.",
+      "tags": ["cd", "navigate", "directory"]
+    },
+    {
+      "id": "grep",
+      "title": "Search for text inside files",
+      "command": "grep -r \"search term\" /path",
+      "flags": [
+        {"flag": "-r", "description": "Recursive search through directories"},
+        {"flag": "-i", "description": "Case insensitive"},
+        {"flag": "-n", "description": "Shows line numbers"},
+        {"flag": "-l", "description": "Shows only filenames with matches"},
+        {"flag": "-v", "description": "Inverts to show lines that do not match"},
+        {"flag": "-E", "description": "Enables extended regex"}
+      ],
+      "destructive": false,
+      "category": "start-here",
+      "difficulty": "Beginner",
+      "useCase": "Search for text inside files.",
+      "beginnerNote": "Always quote your search term to prevent the shell from interpreting special characters.",
+      "tags": ["grep", "search", "text", "find"]
+    },
+    {
+      "id": "chmod",
+      "title": "Change file permissions",
+      "command": "chmod 755 filename",
+      "flags": [
+        {"flag": "-R", "description": "Applies recursively to all files and subdirectories"},
+        {"flag": "u+x", "description": "Adds execute permission for the owner"},
+        {"flag": "a-w", "description": "Removes write permission for everyone"}
+      ],
+      "destructive": true,
+      "category": "start-here",
+      "difficulty": "Beginner",
+      "useCase": "Change file permissions.",
+      "beginnerNote": "755 means the owner can read, write, and execute, while group and others can read and execute but not write. Never use 777 on files that will be executed or that contain sensitive data.",
+      "tags": ["chmod", "permissions", "files"]
+    },
+    {
+      "id": "ps",
+      "title": "List all running processes",
+      "command": "ps aux",
+      "flags": [
+        {"flag": "a", "description": "Shows processes from all users"},
+        {"flag": "u", "description": "Shows user-oriented format with CPU and memory"},
+        {"flag": "x", "description": "Shows processes without a controlling terminal"}
+      ],
+      "destructive": false,
+      "category": "start-here",
+      "difficulty": "Beginner",
+      "useCase": "List all running processes with their CPU and memory usage.",
+      "beginnerNote": "ps aux is a snapshot in time. Use top or htop for a live updating view.",
+      "tags": ["ps", "processes", "running", "list"]
+    },
+
+    {
+      "id": "pwd",
+      "title": "Print the current directory path",
+      "command": "pwd",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Print the full path of the current working directory.",
+      "beginnerNote": null,
+      "tags": ["pwd", "path", "current", "directory"]
+    },
+    {
+      "id": "mkdir",
+      "title": "Create a new directory",
+      "command": "mkdir -p /path/to/new/directory",
+      "flags": [
+        {"flag": "-p", "description": "Creates all parent directories in the path if they do not exist"}
+      ],
+      "destructive": true,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Create a new directory.",
+      "beginnerNote": "Without -p, mkdir fails if the parent directory does not exist.",
+      "tags": ["mkdir", "create", "directory"]
+    },
+    {
+      "id": "cp",
+      "title": "Copy files or directories",
+      "command": "cp -r source/ destination/",
+      "flags": [
+        {"flag": "-r", "description": "Copies directories recursively"},
+        {"flag": "-p", "description": "Preserves file timestamps and permissions"},
+        {"flag": "-i", "description": "Prompts before overwriting"},
+        {"flag": "-v", "description": "Verbose, shows each file being copied"}
+      ],
+      "destructive": true,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Copy files or directories.",
+      "beginnerNote": "cp overwrites the destination without warning unless you use -i.",
+      "tags": ["cp", "copy", "files"]
+    },
+    {
+      "id": "mv",
+      "title": "Move or rename files and directories",
+      "command": "mv oldname newname",
+      "flags": [
+        {"flag": "-i", "description": "Prompts before overwriting"},
+        {"flag": "-v", "description": "Verbose, shows what is being moved"}
+      ],
+      "destructive": true,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Move or rename files and directories.",
+      "beginnerNote": "mv overwrites the destination file without warning, and there is no recycle bin on Linux.",
+      "tags": ["mv", "move", "rename", "files"]
+    },
+    {
+      "id": "rm",
+      "title": "Delete files or directories",
+      "command": "rm -rf /path/to/directory",
+      "flags": [
+        {"flag": "-r", "description": "Removes directories and their contents recursively"},
+        {"flag": "-f", "description": "Forces deletion without prompting"},
+        {"flag": "-i", "description": "Prompts before each deletion"},
+        {"flag": "-v", "description": "Verbose, shows each file deleted"}
+      ],
+      "destructive": true,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Delete files or directories.",
+      "beginnerNote": "rm -rf is permanent with no undo and no trash. Triple check the path before running it, especially as root.",
+      "tags": ["rm", "delete", "remove", "files"]
+    },
+    {
+      "id": "touch",
+      "title": "Create an empty file or update its timestamp",
+      "command": "touch filename.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Create an empty file or update the timestamp of an existing file.",
+      "beginnerNote": null,
+      "tags": ["touch", "create", "file", "timestamp"]
+    },
+    {
+      "id": "cat",
+      "title": "Display the contents of a file",
+      "command": "cat filename.txt",
+      "flags": [
+        {"flag": "-n", "description": "Shows line numbers"},
+        {"flag": "-A", "description": "Shows non-printing characters"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Display the contents of a file.",
+      "beginnerNote": "cat is not good for large files. Use less or tail instead.",
+      "tags": ["cat", "read", "file", "output"]
+    },
+    {
+      "id": "less",
+      "title": "View a file one page at a time",
+      "command": "less filename.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "View a file one page at a time with the ability to scroll up and down.",
+      "beginnerNote": "Press q to quit, use slash to search within the file, and press n to find the next match.",
+      "tags": ["less", "read", "file", "pager"]
+    },
+    {
+      "id": "head",
+      "title": "Show the first lines of a file",
+      "command": "head -n 20 filename.txt",
+      "flags": [
+        {"flag": "-n", "description": "Sets how many lines to show, default is 10"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Show the first lines of a file.",
+      "beginnerNote": null,
+      "tags": ["head", "first", "lines", "file"]
+    },
+    {
+      "id": "tail",
+      "title": "Show the last lines of a file or follow it",
+      "command": "tail -f /var/log/nginx/access.log",
+      "flags": [
+        {"flag": "-n", "description": "Sets how many lines to show"},
+        {"flag": "-f", "description": "Follows the file and prints new lines as they are written"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Show the last lines of a file or stream new log lines in real time.",
+      "beginnerNote": "tail -f is one of the most used commands for watching log files during debugging.",
+      "tags": ["tail", "last", "lines", "file", "log", "follow"]
+    },
+    {
+      "id": "find",
+      "title": "Search for files by name, type, size, or time",
+      "command": "find /path -name \"*.log\" -mtime +7",
+      "flags": [
+        {"flag": "-name", "description": "Matches by filename"},
+        {"flag": "-type f", "description": "Finds only files"},
+        {"flag": "-type d", "description": "Finds only directories"},
+        {"flag": "-mtime +7", "description": "Finds files modified more than 7 days ago"},
+        {"flag": "-size +100M", "description": "Finds files larger than 100MB"},
+        {"flag": "-exec", "description": "Runs a command on each result"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Search for files by name, type, size, or modification time.",
+      "beginnerNote": "find searches recursively by default. Always test with -ls or -print before using -exec rm to delete found files.",
+      "tags": ["find", "search", "files", "recursive"]
+    },
+    {
+      "id": "ln-s",
+      "title": "Create a symbolic link",
+      "command": "ln -s /path/to/original /path/to/link",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Create a symbolic link to a file or directory.",
+      "beginnerNote": "The order is source first, then link name. Reversing these creates a broken symlink.",
+      "tags": ["ln", "symlink", "link", "symbolic"]
+    },
+    {
+      "id": "du",
+      "title": "Check how much space a directory uses",
+      "command": "du -sh /path/to/directory",
+      "flags": [
+        {"flag": "-s", "description": "Summarizes total size instead of listing each file"},
+        {"flag": "-h", "description": "Human readable sizes"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Check how much disk space a directory is using.",
+      "beginnerNote": null,
+      "tags": ["du", "disk", "usage", "size", "directory"]
+    },
+    {
+      "id": "wc",
+      "title": "Count lines, words, or bytes in a file",
+      "command": "wc -l filename.txt",
+      "flags": [
+        {"flag": "-l", "description": "Counts lines"},
+        {"flag": "-w", "description": "Counts words"},
+        {"flag": "-c", "description": "Counts bytes"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Count lines, words, or bytes in a file.",
+      "beginnerNote": null,
+      "tags": ["wc", "count", "lines", "words"]
+    },
+    {
+      "id": "diff",
+      "title": "Compare two files",
+      "command": "diff file1.txt file2.txt",
+      "flags": [
+        {"flag": "-u", "description": "Unified format, shows context lines"},
+        {"flag": "-r", "description": "Compares directories recursively"},
+        {"flag": "-i", "description": "Ignores case differences"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Compare two files line by line and show the differences.",
+      "beginnerNote": null,
+      "tags": ["diff", "compare", "files", "differences"]
+    },
+    {
+      "id": "tar",
+      "title": "Create or extract compressed archives",
+      "command": "tar -czf archive.tar.gz /path/to/directory",
+      "flags": [
+        {"flag": "-c", "description": "Creates an archive"},
+        {"flag": "-x", "description": "Extracts an archive"},
+        {"flag": "-z", "description": "Compresses with gzip"},
+        {"flag": "-j", "description": "Compresses with bzip2"},
+        {"flag": "-v", "description": "Verbose, shows files being processed"},
+        {"flag": "-f", "description": "Specifies the archive filename"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Create or extract compressed archives.",
+      "beginnerNote": "Remember the flags with the phrase create czf, extract xzf. The f flag must come last because it takes the filename as the next argument.",
+      "tags": ["tar", "archive", "compress", "extract", "gzip"]
+    },
+    {
+      "id": "rsync",
+      "title": "Sync files between local and remote directories",
+      "command": "rsync -avz /source/ user@host:/destination/",
+      "flags": [
+        {"flag": "-a", "description": "Archive mode, preserves permissions, timestamps, and symlinks"},
+        {"flag": "-v", "description": "Verbose"},
+        {"flag": "-z", "description": "Compresses during transfer"},
+        {"flag": "--delete", "description": "Removes files from destination that no longer exist in source"},
+        {"flag": "--dry-run", "description": "Previews without making changes"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Sync files between local and remote directories efficiently.",
+      "beginnerNote": "The trailing slash on the source directory matters. With a slash, rsync copies the contents of the directory. Without a slash, it copies the directory itself.",
+      "tags": ["rsync", "sync", "transfer", "remote", "backup"]
+    },
+    {
+      "id": "xargs",
+      "title": "Pass piped input as arguments to another command",
+      "command": "find . -name \"*.log\" | xargs rm",
+      "flags": [
+        {"flag": "-I", "description": "Replaces a placeholder string with each input line"},
+        {"flag": "-n", "description": "Sets how many arguments to pass per command invocation"},
+        {"flag": "-P", "description": "Sets parallel processes"}
+      ],
+      "destructive": true,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Pipe the output of one command as arguments to another command.",
+      "beginnerNote": "If filenames contain spaces, use find with -print0 and xargs with -0 to handle them correctly.",
+      "tags": ["xargs", "pipe", "arguments", "batch"]
+    },
+    {
+      "id": "file",
+      "title": "Determine a file's type",
+      "command": "file unknown-file",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Determine the type of a file based on its content, not just its extension.",
+      "beginnerNote": null,
+      "tags": ["file", "type", "identify"]
+    },
+    {
+      "id": "stat",
+      "title": "Show detailed file metadata",
+      "command": "stat filename.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Show detailed file metadata including size, permissions, inode, and all three timestamps.",
+      "beginnerNote": null,
+      "tags": ["stat", "metadata", "timestamps", "permissions", "inode"]
+    },
+    {
+      "id": "rmdir",
+      "title": "Remove an empty directory",
+      "command": "rmdir empty-directory",
+      "flags": [
+        {"flag": "-p", "description": "Removes a directory and its empty parent directories"}
+      ],
+      "destructive": true,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Remove an empty directory.",
+      "beginnerNote": "rmdir only works on empty directories. Use rm -r for directories that still contain files.",
+      "tags": ["rmdir", "delete", "directory", "empty"]
+    },
+    {
+      "id": "basename",
+      "title": "Extract the filename from a path",
+      "command": "basename /path/to/file.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Extract just the filename from a full path, useful in shell scripts.",
+      "beginnerNote": null,
+      "tags": ["basename", "path", "filename", "scripting"]
+    },
+    {
+      "id": "dirname",
+      "title": "Extract the directory from a path",
+      "command": "dirname /path/to/file.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Beginner",
+      "useCase": "Extract just the directory portion from a full path, useful in shell scripts.",
+      "beginnerNote": null,
+      "tags": ["dirname", "path", "directory", "scripting"]
+    },
+    {
+      "id": "readlink",
+      "title": "Resolve a symlink to its real target",
+      "command": "readlink -f symlink-name",
+      "flags": [
+        {"flag": "-f", "description": "Resolves the link and every parent directory to an absolute path"}
+      ],
+      "destructive": false,
+      "category": "file-operations",
+      "difficulty": "Intermediate",
+      "useCase": "Show the real target path that a symbolic link points to.",
+      "beginnerNote": "readlink -f is the most reliable way to resolve a chain of nested symlinks down to the real file.",
+      "tags": ["readlink", "symlink", "resolve", "path"]
+    },
+
+    {
+      "id": "chmod-symbolic",
+      "title": "Change permissions with symbolic notation",
+      "command": "chmod u+x script.sh",
+      "flags": [
+        {"flag": "u", "description": "Owner"},
+        {"flag": "g", "description": "Group"},
+        {"flag": "o", "description": "Others"},
+        {"flag": "a", "description": "All"},
+        {"flag": "+", "description": "Adds permission"},
+        {"flag": "-", "description": "Removes permission"},
+        {"flag": "=", "description": "Sets exact permission"}
+      ],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Intermediate",
+      "useCase": "Add execute permission to a script for the owner using symbolic notation.",
+      "beginnerNote": "Symbolic notation is easier to read and less error prone than octal for making targeted changes like adding execute for the owner only.",
+      "tags": ["chmod", "permissions", "symbolic", "execute"]
+    },
+    {
+      "id": "chmod-octal",
+      "title": "Change permissions with octal notation",
+      "command": "chmod 644 filename.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Beginner",
+      "useCase": "Set permissions using octal notation, where 644 means the owner can read and write, the group can read only, and others can read only.",
+      "beginnerNote": "Common octal values to remember are 644 for files, 755 for directories and scripts, and 600 for private key files. 777 should almost never be used.",
+      "tags": ["chmod", "permissions", "octal"]
+    },
+    {
+      "id": "chown",
+      "title": "Change the owner and group of a file",
+      "command": "chown user:group filename.txt",
+      "flags": [
+        {"flag": "-R", "description": "Applies recursively to all files and subdirectories"}
+      ],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Intermediate",
+      "useCase": "Change the owner and group of a file.",
+      "beginnerNote": "chown requires root or sudo unless you own the file. chown -R is one of the commands that can cause widespread permission problems if run on the wrong directory.",
+      "tags": ["chown", "owner", "group", "permissions"]
+    },
+    {
+      "id": "chgrp",
+      "title": "Change the group ownership of a file",
+      "command": "chgrp groupname filename.txt",
+      "flags": [
+        {"flag": "-R", "description": "Applies recursively"}
+      ],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Intermediate",
+      "useCase": "Change only the group ownership of a file without changing the owner.",
+      "beginnerNote": null,
+      "tags": ["chgrp", "group", "permissions"]
+    },
+    {
+      "id": "umask",
+      "title": "Set the default permission mask",
+      "command": "umask 022",
+      "flags": [],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Intermediate",
+      "useCase": "Set the default permission mask for new files and directories in the current shell session.",
+      "beginnerNote": "umask subtracts from the maximum permissions, so 022 means new files get 644 and new directories get 755.",
+      "tags": ["umask", "permissions", "default", "new files"]
+    },
+    {
+      "id": "sudo",
+      "title": "Run a command with elevated privileges",
+      "command": "sudo command",
+      "flags": [
+        {"flag": "-u", "description": "Runs as a different user"},
+        {"flag": "-i", "description": "Opens an interactive root shell"},
+        {"flag": "-s", "description": "Opens a shell as root"}
+      ],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Beginner",
+      "useCase": "Run a command with superuser or another user's privileges.",
+      "beginnerNote": "Never run sudo rm -rf / and be extremely careful with sudo rm -rf on any path.",
+      "tags": ["sudo", "root", "superuser", "privilege"]
+    },
+    {
+      "id": "su",
+      "title": "Switch to another user account",
+      "command": "su - username",
+      "flags": [
+        {"flag": "-", "description": "Loads the target user's full environment; without it you keep your current environment"}
+      ],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Intermediate",
+      "useCase": "Switch to another user account.",
+      "beginnerNote": "su - with the hyphen is almost always what you want, because without it you keep the current user's PATH, which can cause confusing command-not-found errors.",
+      "tags": ["su", "switch", "user"]
+    },
+    {
+      "id": "passwd",
+      "title": "Change a user account password",
+      "command": "passwd username",
+      "flags": [],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Beginner",
+      "useCase": "Change a user account password.",
+      "beginnerNote": null,
+      "tags": ["passwd", "password", "user"]
+    },
+    {
+      "id": "id",
+      "title": "Show a user's ID and group memberships",
+      "command": "id username",
+      "flags": [],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Beginner",
+      "useCase": "Show the user ID, group ID, and all group memberships for a user.",
+      "beginnerNote": null,
+      "tags": ["id", "user", "groups", "uid", "gid"]
+    },
+    {
+      "id": "groups",
+      "title": "List a user's group memberships",
+      "command": "groups username",
+      "flags": [],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Beginner",
+      "useCase": "List all groups a user belongs to.",
+      "beginnerNote": null,
+      "tags": ["groups", "user", "membership"]
+    },
+    {
+      "id": "useradd",
+      "title": "Create a new user account",
+      "command": "useradd -m -s /bin/bash username",
+      "flags": [
+        {"flag": "-m", "description": "Creates a home directory"},
+        {"flag": "-s", "description": "Sets the login shell"},
+        {"flag": "-G", "description": "Adds to supplementary groups"}
+      ],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Intermediate",
+      "useCase": "Create a new user account.",
+      "beginnerNote": "useradd without -m does not create a home directory, which causes login issues. Always use -m for interactive users.",
+      "tags": ["useradd", "create", "user", "account"]
+    },
+    {
+      "id": "visudo",
+      "title": "Safely edit the sudoers file",
+      "command": "visudo",
+      "flags": [],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Advanced",
+      "useCase": "Safely edit the sudoers file with syntax validation to grant or modify sudo permissions.",
+      "beginnerNote": "Never edit /etc/sudoers directly with a regular editor. A syntax error in sudoers can lock you out of sudo on the entire system. visudo validates syntax before saving.",
+      "tags": ["visudo", "sudo", "permissions", "sudoers"]
+    },
+    {
+      "id": "getfacl",
+      "title": "View a file's access control list",
+      "command": "getfacl filename.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "permissions",
+      "difficulty": "Advanced",
+      "useCase": "View the access control list of a file for permissions that go beyond the standard owner, group, and other model.",
+      "beginnerNote": null,
+      "tags": ["getfacl", "acl", "permissions", "advanced"]
+    },
+    {
+      "id": "setfacl",
+      "title": "Grant a specific user permissions on a file",
+      "command": "setfacl -m u:username:rwx filename.txt",
+      "flags": [
+        {"flag": "-m", "description": "Modifies the ACL by adding or changing an entry"},
+        {"flag": "-x", "description": "Removes an entry from the ACL"}
+      ],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Advanced",
+      "useCase": "Grant a specific user or group permissions on a file without changing its primary owner or group.",
+      "beginnerNote": "ACLs let you grant extra users access without adding them to the file's group, useful when the standard owner and group model is not flexible enough.",
+      "tags": ["setfacl", "acl", "permissions", "advanced"]
+    },
+    {
+      "id": "chattr",
+      "title": "Set special filesystem attributes",
+      "command": "chattr +i filename.txt",
+      "flags": [
+        {"flag": "+i", "description": "Makes a file immutable so it cannot be deleted, modified, or renamed even by root"},
+        {"flag": "-i", "description": "Removes the immutable attribute"}
+      ],
+      "destructive": true,
+      "category": "permissions",
+      "difficulty": "Advanced",
+      "useCase": "Set special filesystem attributes on a file, such as making it immutable to protect against accidental deletion.",
+      "beginnerNote": "An immutable file cannot be deleted even with sudo rm until the immutable attribute is removed with chattr -i first, which confuses people who forget they set it.",
+      "tags": ["chattr", "attributes", "immutable", "protect"]
+    },
+
+    {
+      "id": "grep-basic",
+      "title": "Search for lines containing a pattern",
+      "command": "grep \"error\" /var/log/app.log",
+      "flags": [
+        {"flag": "-i", "description": "Case insensitive"},
+        {"flag": "-n", "description": "Shows line numbers"},
+        {"flag": "-v", "description": "Inverts match"},
+        {"flag": "-c", "description": "Counts matching lines"},
+        {"flag": "-l", "description": "Shows only filenames"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Search for lines containing a pattern in a file.",
+      "beginnerNote": null,
+      "tags": ["grep", "search", "text", "log"]
+    },
+    {
+      "id": "grep-regex",
+      "title": "Search using regex alternation",
+      "command": "grep -E \"error|warning|critical\" /var/log/app.log",
+      "flags": [
+        {"flag": "-E", "description": "Enables extended regex"},
+        {"flag": "-P", "description": "Enables Perl-compatible regex"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Search for multiple patterns using regex alternation.",
+      "beginnerNote": null,
+      "tags": ["grep", "regex", "multiple", "patterns"]
+    },
+    {
+      "id": "grep-recursive",
+      "title": "Search recursively by file type",
+      "command": "grep -r \"TODO\" --include=\"*.py\" /path/to/project",
+      "flags": [
+        {"flag": "--include", "description": "Filters to specific file types"},
+        {"flag": "--exclude", "description": "Excludes file types"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Search for a pattern across all files of a specific type in a directory tree.",
+      "beginnerNote": null,
+      "tags": ["grep", "recursive", "search", "codebase"]
+    },
+    {
+      "id": "awk",
+      "title": "Extract columns from delimited text",
+      "command": "awk '{print $1, $3}' filename.txt",
+      "flags": [
+        {"flag": "-F", "description": "Sets the field separator"},
+        {"flag": "-v", "description": "Assigns a variable"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Extract specific columns from a space or delimiter separated file.",
+      "beginnerNote": "awk counts fields starting from 1, not 0. $0 is the entire line, and $NF is the last field.",
+      "tags": ["awk", "columns", "fields", "text", "extract"]
+    },
+    {
+      "id": "awk-condition",
+      "title": "Filter rows with a condition in awk",
+      "command": "awk '$3 > 100 {print $1, $3}' data.txt",
+      "flags": [],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Filter rows based on a condition and print specific columns.",
+      "beginnerNote": null,
+      "tags": ["awk", "filter", "condition", "columns"]
+    },
+    {
+      "id": "sed-replace",
+      "title": "Find and replace text in a file",
+      "command": "sed -i 's/old/new/g' filename.txt",
+      "flags": [
+        {"flag": "-i", "description": "Edits the file in place"},
+        {"flag": "g", "description": "Replaces all occurrences on each line, not just the first"},
+        {"flag": "-e", "description": "Allows multiple expressions"}
+      ],
+      "destructive": true,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Find and replace text in a file in place.",
+      "beginnerNote": "Always test without -i first to see what sed would change before editing the file in place.",
+      "tags": ["sed", "replace", "substitute", "text", "inplace"]
+    },
+    {
+      "id": "sed-delete",
+      "title": "Delete lines matching a pattern",
+      "command": "sed -i '/pattern/d' filename.txt",
+      "flags": [],
+      "destructive": true,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Delete all lines matching a pattern from a file.",
+      "beginnerNote": null,
+      "tags": ["sed", "delete", "lines", "pattern"]
+    },
+    {
+      "id": "cut",
+      "title": "Extract a column from a delimited file",
+      "command": "cut -d: -f1 /etc/passwd",
+      "flags": [
+        {"flag": "-d", "description": "Sets the delimiter"},
+        {"flag": "-f", "description": "Sets which field or fields to extract"},
+        {"flag": "-c", "description": "Extracts by character position"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Extract a specific column from a delimited file.",
+      "beginnerNote": "cut is simpler than awk for simple column extraction but cannot handle variable whitespace as a delimiter.",
+      "tags": ["cut", "columns", "delimiter", "fields"]
+    },
+    {
+      "id": "sort",
+      "title": "Sort lines in a file",
+      "command": "sort -k2 -n filename.txt",
+      "flags": [
+        {"flag": "-n", "description": "Numeric sort"},
+        {"flag": "-r", "description": "Reverse order"},
+        {"flag": "-k", "description": "Sorts by a specific column"},
+        {"flag": "-u", "description": "Removes duplicate lines"},
+        {"flag": "-t", "description": "Sets the field separator"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Sort lines in a file alphabetically or numerically.",
+      "beginnerNote": "sort without -n sorts lexicographically, so 10 comes before 2. Always use -n for numeric sorting.",
+      "tags": ["sort", "order", "lines", "alphabetical", "numeric"]
+    },
+    {
+      "id": "uniq",
+      "title": "Count or deduplicate repeated lines",
+      "command": "sort file.txt | uniq -c | sort -rn",
+      "flags": [
+        {"flag": "-c", "description": "Prefixes lines with occurrence count"},
+        {"flag": "-d", "description": "Shows only duplicate lines"},
+        {"flag": "-u", "description": "Shows only unique lines"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Count or deduplicate repeated lines.",
+      "beginnerNote": "uniq only removes adjacent duplicate lines. Always sort first before piping to uniq.",
+      "tags": ["uniq", "deduplicate", "count", "unique"]
+    },
+    {
+      "id": "tr",
+      "title": "Translate or delete characters in text",
+      "command": "tr 'a-z' 'A-Z' < filename.txt",
+      "flags": [
+        {"flag": "-d", "description": "Deletes specified characters"},
+        {"flag": "-s", "description": "Squeezes repeated characters into one"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Translate or delete characters in text.",
+      "beginnerNote": null,
+      "tags": ["tr", "translate", "characters", "uppercase", "lowercase"]
+    },
+    {
+      "id": "tee",
+      "title": "Pipe output to a file and stdout at once",
+      "command": "command | tee output.txt",
+      "flags": [
+        {"flag": "-a", "description": "Appends to the file instead of overwriting"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Pipe output to both a file and stdout simultaneously so you can see it and save it at the same time.",
+      "beginnerNote": null,
+      "tags": ["tee", "pipe", "output", "file", "split"]
+    },
+    {
+      "id": "jq",
+      "title": "Parse and extract values from JSON",
+      "command": "jq '.key.nested' data.json",
+      "flags": [
+        {"flag": "-r", "description": "Raw output without quotes"},
+        {"flag": "-c", "description": "Compact output on one line"},
+        {"flag": "-s", "description": "Slurps multiple JSON inputs into an array"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Parse and extract values from JSON files or API responses on the command line.",
+      "beginnerNote": "jq must be installed separately on most systems with apt install jq or brew install jq.",
+      "tags": ["jq", "json", "parse", "extract"]
+    },
+    {
+      "id": "head-tail-combined",
+      "title": "Extract a range of lines from a file",
+      "command": "head -n 100 large.log | tail -n 10",
+      "flags": [],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Extract lines 91 through 100 from a file by combining head and tail.",
+      "beginnerNote": null,
+      "tags": ["head", "tail", "lines", "extract", "range"]
+    },
+    {
+      "id": "column",
+      "title": "Format delimited text into aligned columns",
+      "command": "column -t -s, data.csv",
+      "flags": [
+        {"flag": "-t", "description": "Creates a table"},
+        {"flag": "-s", "description": "Sets the separator character"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Format a comma or tab separated file into aligned columns for readable terminal output.",
+      "beginnerNote": null,
+      "tags": ["column", "format", "table", "csv", "aligned"]
+    },
+    {
+      "id": "paste",
+      "title": "Merge files line by line",
+      "command": "paste file1.txt file2.txt",
+      "flags": [
+        {"flag": "-d", "description": "Sets the delimiter between merged columns"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Merge two files line by line side by side.",
+      "beginnerNote": null,
+      "tags": ["paste", "merge", "columns", "files"]
+    },
+    {
+      "id": "strings",
+      "title": "Extract text strings from a binary file",
+      "command": "strings binary-file | grep -i password",
+      "flags": [],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Extract printable text strings from a binary file.",
+      "beginnerNote": null,
+      "tags": ["strings", "binary", "extract", "text"]
+    },
+    {
+      "id": "xxd",
+      "title": "Display a hexadecimal dump of a file",
+      "command": "xxd filename | head",
+      "flags": [],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Advanced",
+      "useCase": "Display a hexadecimal dump of a file for binary inspection.",
+      "beginnerNote": null,
+      "tags": ["xxd", "hex", "binary", "dump"]
+    },
+    {
+      "id": "envsubst",
+      "title": "Substitute environment variables in a template",
+      "command": "envsubst < template.yaml > output.yaml",
+      "flags": [],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Substitute environment variable references in a template file with their actual values.",
+      "beginnerNote": "Only replaces variables that are already exported in the current shell environment.",
+      "tags": ["envsubst", "environment", "variables", "template", "substitute"]
+    },
+    {
+      "id": "base64",
+      "title": "Encode or decode base64 text",
+      "command": "echo -n \"value\" | base64",
+      "flags": [
+        {"flag": "-d", "description": "Decodes instead of encoding"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Encode text to base64 or decode base64 to text.",
+      "beginnerNote": "Always use echo -n to avoid encoding a trailing newline character, which changes the output.",
+      "tags": ["base64", "encode", "decode", "kubernetes", "secrets"]
+    },
+    {
+      "id": "nl",
+      "title": "Add line numbers to text",
+      "command": "nl filename.txt",
+      "flags": [
+        {"flag": "-b a", "description": "Numbers every line including blank ones"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Add line numbers to a file's output, similar to cat -n but with more formatting control.",
+      "beginnerNote": null,
+      "tags": ["nl", "number", "lines", "text"]
+    },
+    {
+      "id": "comm",
+      "title": "Compare two sorted files",
+      "command": "comm -12 sorted1.txt sorted2.txt",
+      "flags": [
+        {"flag": "-1", "description": "Suppresses lines unique to the first file"},
+        {"flag": "-2", "description": "Suppresses lines unique to the second file"},
+        {"flag": "-3", "description": "Suppresses lines common to both files"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Advanced",
+      "useCase": "Compare two sorted files and show lines that are unique to each or common to both.",
+      "beginnerNote": "comm requires both input files to already be sorted, or the comparison produces incorrect results.",
+      "tags": ["comm", "compare", "sorted", "files"]
+    },
+    {
+      "id": "rev",
+      "title": "Reverse the characters in each line",
+      "command": "echo \"hello\" | rev",
+      "flags": [],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Beginner",
+      "useCase": "Reverse the characters in each line of text.",
+      "beginnerNote": null,
+      "tags": ["rev", "reverse", "text", "characters"]
+    },
+    {
+      "id": "fold",
+      "title": "Wrap long lines to a fixed width",
+      "command": "fold -w 80 longline.txt",
+      "flags": [
+        {"flag": "-w", "description": "Sets the maximum line width before wrapping"}
+      ],
+      "destructive": false,
+      "category": "text-processing",
+      "difficulty": "Intermediate",
+      "useCase": "Wrap long lines of text to a fixed width, useful for formatting output for terminals or fixed-width displays.",
+      "beginnerNote": null,
+      "tags": ["fold", "wrap", "width", "text"]
+    },
+
+    {
+      "id": "ps-aux",
+      "title": "List running processes with resource usage",
+      "command": "ps aux",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "List all running processes with user, CPU, and memory information.",
+      "beginnerNote": "ps aux is a snapshot. Combine it with grep to find a specific process, like ps aux | grep nginx.",
+      "tags": ["ps", "processes", "list", "running"]
+    },
+    {
+      "id": "top",
+      "title": "Monitor processes in real time",
+      "command": "top",
+      "flags": [
+        {"flag": "1", "description": "Press 1 to show individual CPUs"},
+        {"flag": "M", "description": "Press M to sort by memory"},
+        {"flag": "P", "description": "Press P to sort by CPU"},
+        {"flag": "k", "description": "Press k to kill a process by PID"},
+        {"flag": "q", "description": "Press q to quit"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Monitor system processes and resource usage in real time.",
+      "beginnerNote": "htop is a more user-friendly alternative if it is installed.",
+      "tags": ["top", "monitor", "processes", "cpu", "memory", "realtime"]
+    },
+    {
+      "id": "kill",
+      "title": "Terminate a process by PID",
+      "command": "kill -9 PID",
+      "flags": [
+        {"flag": "-9", "description": "Sends SIGKILL, which cannot be caught or ignored"},
+        {"flag": "-15", "description": "Sends SIGTERM, which allows graceful shutdown"},
+        {"flag": "-HUP", "description": "Sends SIGHUP, which reloads configuration for many daemons"}
+      ],
+      "destructive": true,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Terminate a process by its PID.",
+      "beginnerNote": "Always try kill PID (SIGTERM) first and only use kill -9 if the process does not respond. SIGKILL prevents the process from cleaning up resources.",
+      "tags": ["kill", "process", "terminate", "signal", "pid"]
+    },
+    {
+      "id": "killall",
+      "title": "Terminate processes by name",
+      "command": "killall nginx",
+      "flags": [
+        {"flag": "-9", "description": "Sends SIGKILL"},
+        {"flag": "-u", "description": "Kills only processes owned by a specific user"}
+      ],
+      "destructive": true,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Terminate all processes with a matching name.",
+      "beginnerNote": "killall matches by exact process name. pkill is more flexible and supports patterns.",
+      "tags": ["killall", "kill", "process", "name"]
+    },
+    {
+      "id": "pkill",
+      "title": "Kill processes matching a pattern",
+      "command": "pkill -f \"python script.py\"",
+      "flags": [
+        {"flag": "-f", "description": "Matches against the full command line including arguments"},
+        {"flag": "-u", "description": "Matches only processes owned by a user"},
+        {"flag": "-9", "description": "Sends SIGKILL"}
+      ],
+      "destructive": true,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Kill processes matching a name or pattern.",
+      "beginnerNote": null,
+      "tags": ["pkill", "kill", "pattern", "process"]
+    },
+    {
+      "id": "pgrep",
+      "title": "Find a process's PID by name",
+      "command": "pgrep -a nginx",
+      "flags": [
+        {"flag": "-a", "description": "Shows the full command line"},
+        {"flag": "-l", "description": "Shows the process name alongside the PID"},
+        {"flag": "-u", "description": "Filters by user"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Find the PID of a running process by name.",
+      "beginnerNote": null,
+      "tags": ["pgrep", "find", "process", "pid"]
+    },
+    {
+      "id": "nohup",
+      "title": "Run a command that survives logout",
+      "command": "nohup ./script.sh > output.log 2>&1 &",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Run a command that continues after you log out by ignoring the HUP signal.",
+      "beginnerNote": "The & at the end runs the command in the background. Redirect both stdout and stderr with 2>&1 so you do not lose error messages.",
+      "tags": ["nohup", "background", "persist", "logout"]
+    },
+    {
+      "id": "jobs",
+      "title": "List background jobs in the current shell",
+      "command": "jobs",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "List all background jobs running in the current shell session.",
+      "beginnerNote": null,
+      "tags": ["jobs", "background", "shell", "list"]
+    },
+    {
+      "id": "bg",
+      "title": "Resume a suspended job in the background",
+      "command": "bg %1",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Resume a suspended background job.",
+      "beginnerNote": null,
+      "tags": ["bg", "background", "resume", "job"]
+    },
+    {
+      "id": "fg",
+      "title": "Bring a background job to the foreground",
+      "command": "fg %1",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Bring a background job to the foreground.",
+      "beginnerNote": null,
+      "tags": ["fg", "foreground", "job", "bring"]
+    },
+    {
+      "id": "nice",
+      "title": "Run a command with lower CPU priority",
+      "command": "nice -n 10 command",
+      "flags": [
+        {"flag": "-n", "description": "Sets the priority from -20 (highest) to 19 (lowest); default niceness is 0"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Run a command with a lower CPU priority so it does not slow down other processes.",
+      "beginnerNote": "Only root can set a negative nice value to increase priority.",
+      "tags": ["nice", "priority", "cpu", "scheduling"]
+    },
+    {
+      "id": "renice",
+      "title": "Change the priority of a running process",
+      "command": "renice -n 15 -p PID",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Change the CPU scheduling priority of an already running process.",
+      "beginnerNote": null,
+      "tags": ["renice", "priority", "running", "process"]
+    },
+    {
+      "id": "lsof",
+      "title": "List open files and network connections",
+      "command": "lsof -i :8080",
+      "flags": [
+        {"flag": "-i", "description": "Filters by network connection"},
+        {"flag": "-p", "description": "Filters by PID"},
+        {"flag": "-u", "description": "Filters by user"},
+        {"flag": "-c", "description": "Filters by command name"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "List open files and network connections, most commonly used to find which process is using a specific port.",
+      "beginnerNote": "lsof -i :PORT is one of the fastest ways to find what is listening on a port.",
+      "tags": ["lsof", "open", "files", "ports", "connections"]
+    },
+    {
+      "id": "strace",
+      "title": "Trace system calls made by a process",
+      "command": "strace -p PID",
+      "flags": [
+        {"flag": "-p", "description": "Attaches to a running process"},
+        {"flag": "-e trace", "description": "Filters to specific system calls"},
+        {"flag": "-o", "description": "Writes output to a file"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Advanced",
+      "useCase": "Trace system calls made by a running process to debug unexpected behavior.",
+      "beginnerNote": "strace adds significant overhead to the traced process. Do not use it on performance-sensitive production processes.",
+      "tags": ["strace", "trace", "syscalls", "debug", "advanced"]
+    },
+    {
+      "id": "watch",
+      "title": "Run a command repeatedly at an interval",
+      "command": "watch -n 2 \"df -h\"",
+      "flags": [
+        {"flag": "-n", "description": "Sets the refresh interval in seconds"},
+        {"flag": "-d", "description": "Highlights differences between updates"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Run a command repeatedly at an interval and show updated output.",
+      "beginnerNote": null,
+      "tags": ["watch", "repeat", "interval", "monitor"]
+    },
+    {
+      "id": "pstree",
+      "title": "Show processes as a parent-child tree",
+      "command": "pstree -p",
+      "flags": [
+        {"flag": "-p", "description": "Shows PIDs alongside each process"}
+      ],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Show running processes as a tree, making it easy to see which process spawned which.",
+      "beginnerNote": null,
+      "tags": ["pstree", "tree", "processes", "parent", "child"]
+    },
+    {
+      "id": "vmstat",
+      "title": "Report memory, CPU, and I/O statistics",
+      "command": "vmstat 2 5",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Intermediate",
+      "useCase": "Report virtual memory, process, CPU, and I/O statistics at a regular interval, useful for spotting memory pressure or CPU bottlenecks.",
+      "beginnerNote": "The first line of vmstat output is an average since boot. Ignore it and look at the following lines for current activity.",
+      "tags": ["vmstat", "memory", "cpu", "statistics", "monitor"]
+    },
+    {
+      "id": "time",
+      "title": "Measure how long a command takes",
+      "command": "time ./script.sh",
+      "flags": [],
+      "destructive": false,
+      "category": "process-management",
+      "difficulty": "Beginner",
+      "useCase": "Measure how long a command takes to run, broken down into real, user, and system time.",
+      "beginnerNote": "real is wall clock time, user is CPU time spent in the process itself, and sys is CPU time spent in kernel calls on the process's behalf.",
+      "tags": ["time", "measure", "performance", "duration"]
+    },
+
+    {
+      "id": "curl",
+      "title": "Make HTTP requests from the command line",
+      "command": "curl -X POST https://api.example.com/endpoint -H \"Content-Type: application/json\" -d '{\"key\":\"value\"}'",
+      "flags": [
+        {"flag": "-X", "description": "Sets the HTTP method"},
+        {"flag": "-H", "description": "Adds a header"},
+        {"flag": "-d", "description": "Sends request body data"},
+        {"flag": "-o", "description": "Saves output to a file"},
+        {"flag": "-I", "description": "Shows only headers"},
+        {"flag": "-s", "description": "Silent mode"},
+        {"flag": "-L", "description": "Follows redirects"},
+        {"flag": "--insecure", "description": "Skips SSL verification"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Make HTTP requests from the command line.",
+      "beginnerNote": "Always use -v to debug connection problems and see the full request and response headers.",
+      "tags": ["curl", "http", "request", "api", "download"]
+    },
+    {
+      "id": "wget",
+      "title": "Download files from the internet",
+      "command": "wget https://example.com/file.tar.gz",
+      "flags": [
+        {"flag": "-O", "description": "Saves to a specific filename"},
+        {"flag": "-q", "description": "Quiet mode"},
+        {"flag": "-r", "description": "Recursive download"},
+        {"flag": "--no-check-certificate", "description": "Skips SSL verification"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Download files from the internet.",
+      "beginnerNote": null,
+      "tags": ["wget", "download", "http", "file"]
+    },
+    {
+      "id": "ping",
+      "title": "Test basic network connectivity",
+      "command": "ping -c 4 google.com",
+      "flags": [
+        {"flag": "-c", "description": "Sets the number of packets to send"},
+        {"flag": "-i", "description": "Sets the interval between packets"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Test basic network connectivity to a host.",
+      "beginnerNote": null,
+      "tags": ["ping", "network", "connectivity", "test"]
+    },
+    {
+      "id": "netstat",
+      "title": "List listening ports and connections",
+      "command": "netstat -tlnp",
+      "flags": [
+        {"flag": "-t", "description": "Shows TCP connections"},
+        {"flag": "-u", "description": "Shows UDP"},
+        {"flag": "-l", "description": "Shows listening sockets"},
+        {"flag": "-n", "description": "Shows numeric addresses instead of resolving hostnames"},
+        {"flag": "-p", "description": "Shows the process using the socket"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "List all listening ports and their associated processes.",
+      "beginnerNote": "netstat is deprecated on modern Linux. Use ss instead, which is faster and more feature-rich.",
+      "tags": ["netstat", "ports", "listening", "connections"]
+    },
+    {
+      "id": "ss",
+      "title": "List listening ports, the modern netstat replacement",
+      "command": "ss -tlnp",
+      "flags": [
+        {"flag": "-t", "description": "TCP"},
+        {"flag": "-u", "description": "UDP"},
+        {"flag": "-l", "description": "Listening only"},
+        {"flag": "-n", "description": "Numeric"},
+        {"flag": "-p", "description": "Shows process"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "List listening ports and connections, the modern replacement for netstat.",
+      "beginnerNote": null,
+      "tags": ["ss", "ports", "listening", "connections", "modern"]
+    },
+    {
+      "id": "ip-addr",
+      "title": "Show IP addresses on network interfaces",
+      "command": "ip addr show",
+      "flags": [
+        {"flag": "show", "description": "Displays all interfaces"},
+        {"flag": "ip addr show eth0", "description": "Shows a specific interface"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Show IP addresses assigned to all network interfaces.",
+      "beginnerNote": "ifconfig is deprecated. Use ip addr instead.",
+      "tags": ["ip", "addr", "interfaces", "network", "address"]
+    },
+    {
+      "id": "ip-route",
+      "title": "Display the routing table",
+      "command": "ip route show",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Display the routing table.",
+      "beginnerNote": null,
+      "tags": ["ip", "route", "routing", "table"]
+    },
+    {
+      "id": "dig",
+      "title": "Query DNS records for a domain",
+      "command": "dig google.com A",
+      "flags": [
+        {"flag": "A", "description": "Queries the A record"},
+        {"flag": "MX", "description": "Queries mail records"},
+        {"flag": "TXT", "description": "Queries text records"},
+        {"flag": "@8.8.8.8", "description": "Queries a specific DNS server"},
+        {"flag": "+short", "description": "Shows only the answer"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Query DNS records for a domain.",
+      "beginnerNote": "dig is more detailed than nslookup and is the preferred tool for DNS troubleshooting.",
+      "tags": ["dig", "dns", "query", "lookup", "records"]
+    },
+    {
+      "id": "nslookup",
+      "title": "Resolve a hostname to an IP address",
+      "command": "nslookup google.com",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Query DNS to resolve a hostname to an IP address.",
+      "beginnerNote": "nslookup is simpler than dig but less feature-rich. Use dig for detailed DNS troubleshooting.",
+      "tags": ["nslookup", "dns", "lookup", "hostname"]
+    },
+    {
+      "id": "traceroute",
+      "title": "Trace the network path to a host",
+      "command": "traceroute google.com",
+      "flags": [
+        {"flag": "-n", "description": "Shows numeric IPs without reverse DNS lookup"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Trace the network path to a host, showing each hop and its latency.",
+      "beginnerNote": "traceroute may be blocked by firewalls, which can make hops appear as asterisks rather than IP addresses.",
+      "tags": ["traceroute", "network", "path", "hops", "latency"]
+    },
+    {
+      "id": "nmap",
+      "title": "Scan a host for open ports and services",
+      "command": "nmap -sV -p 80,443 192.168.1.1",
+      "flags": [
+        {"flag": "-sV", "description": "Detects service versions"},
+        {"flag": "-p", "description": "Specifies ports"},
+        {"flag": "-A", "description": "Enables OS detection and version detection"},
+        {"flag": "-sn", "description": "Ping scan only, without port scanning"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Advanced",
+      "useCase": "Scan a host or network for open ports and running services.",
+      "beginnerNote": "Never run nmap against hosts you do not own or have permission to scan.",
+      "tags": ["nmap", "scan", "ports", "services", "network", "security"]
+    },
+    {
+      "id": "ssh",
+      "title": "Connect to a remote machine securely",
+      "command": "ssh user@hostname",
+      "flags": [
+        {"flag": "-i", "description": "Specifies a private key file"},
+        {"flag": "-p", "description": "Specifies a non-standard port"},
+        {"flag": "-L", "description": "Sets up local port forwarding"},
+        {"flag": "-R", "description": "Sets up remote port forwarding"},
+        {"flag": "-N", "description": "Does not execute a command, just sets up tunneling"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Connect to a remote machine securely.",
+      "beginnerNote": null,
+      "tags": ["ssh", "remote", "connect", "secure"]
+    },
+    {
+      "id": "scp",
+      "title": "Copy files over SSH",
+      "command": "scp -r user@host:/remote/path /local/path",
+      "flags": [
+        {"flag": "-r", "description": "Copies directories recursively"},
+        {"flag": "-P", "description": "Specifies a non-standard port"},
+        {"flag": "-i", "description": "Specifies a private key"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Copy files to or from a remote machine over SSH.",
+      "beginnerNote": "scp is being deprecated in favor of rsync or sftp for most use cases.",
+      "tags": ["scp", "copy", "remote", "ssh", "transfer"]
+    },
+    {
+      "id": "nc",
+      "title": "Test if a port is open with netcat",
+      "command": "nc -zv hostname 80",
+      "flags": [
+        {"flag": "-z", "description": "Scan mode, tests if a port is open without sending data"},
+        {"flag": "-v", "description": "Verbose"},
+        {"flag": "-l", "description": "Listen mode"},
+        {"flag": "-p", "description": "Specifies port"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Advanced",
+      "useCase": "Test if a specific port is open on a remote host.",
+      "beginnerNote": "nc -zv is one of the fastest ways to test port connectivity without curl or telnet.",
+      "tags": ["nc", "netcat", "port", "test", "connectivity"]
+    },
+    {
+      "id": "iptables",
+      "title": "View or modify firewall rules",
+      "command": "iptables -L -n -v",
+      "flags": [
+        {"flag": "-L", "description": "Lists all rules"},
+        {"flag": "-n", "description": "Numeric output"},
+        {"flag": "-v", "description": "Verbose, shows packet and byte counts"},
+        {"flag": "-A", "description": "Appends a rule"},
+        {"flag": "-D", "description": "Deletes a rule"},
+        {"flag": "-I", "description": "Inserts a rule"}
+      ],
+      "destructive": true,
+      "category": "networking",
+      "difficulty": "Advanced",
+      "useCase": "View or modify Linux firewall rules.",
+      "beginnerNote": "iptables changes are not persistent across reboots by default. Use iptables-save and iptables-restore, or a tool like ufw or firewalld, to manage persistent rules.",
+      "tags": ["iptables", "firewall", "rules", "network", "security"]
+    },
+    {
+      "id": "ufw",
+      "title": "Manage the Ubuntu firewall",
+      "command": "ufw allow 80/tcp",
+      "flags": [
+        {"flag": "allow", "description": "Permits traffic"},
+        {"flag": "deny", "description": "Blocks traffic"},
+        {"flag": "status", "description": "Shows current rules"},
+        {"flag": "enable", "description": "Activates the firewall"},
+        {"flag": "disable", "description": "Deactivates it"}
+      ],
+      "destructive": true,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Manage the Ubuntu uncomplicated firewall.",
+      "beginnerNote": "Always verify ufw allow 22 before enabling ufw on a remote SSH session, or you will lock yourself out.",
+      "tags": ["ufw", "firewall", "ubuntu", "allow", "deny"]
+    },
+    {
+      "id": "hostname",
+      "title": "Show the hostname or IP of this machine",
+      "command": "hostname -I",
+      "flags": [
+        {"flag": "-I", "description": "Shows all IP addresses"},
+        {"flag": "-f", "description": "Shows the fully qualified domain name"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Show the hostname or IP addresses of the current machine.",
+      "beginnerNote": null,
+      "tags": ["hostname", "name", "ip", "machine"]
+    },
+    {
+      "id": "curl-health-check",
+      "title": "Get only the HTTP status code from a URL",
+      "command": "curl -o /dev/null -s -w \"%{http_code}\" https://example.com",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Get only the HTTP status code from a URL for use in health check scripts.",
+      "beginnerNote": null,
+      "tags": ["curl", "health", "status", "code", "check"]
+    },
+    {
+      "id": "ip-link",
+      "title": "Show network interface link status",
+      "command": "ip link show",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Show the status of network interfaces at the link layer, including whether they are up or down.",
+      "beginnerNote": null,
+      "tags": ["ip", "link", "interfaces", "network"]
+    },
+    {
+      "id": "arp",
+      "title": "Show the ARP cache",
+      "command": "arp -a",
+      "flags": [
+        {"flag": "-a", "description": "Lists all entries in the ARP cache"},
+        {"flag": "-d", "description": "Deletes an entry from the ARP cache"}
+      ],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Show the ARP cache mapping local network IP addresses to MAC addresses.",
+      "beginnerNote": "On modern systems ip neigh is the replacement for arp, in the same way ip addr replaced ifconfig.",
+      "tags": ["arp", "mac", "address", "cache", "network"]
+    },
+    {
+      "id": "whois",
+      "title": "Look up domain registration information",
+      "command": "whois example.com",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Beginner",
+      "useCase": "Look up domain registration information including the registrar and expiration date.",
+      "beginnerNote": null,
+      "tags": ["whois", "domain", "registration", "lookup"]
+    },
+    {
+      "id": "curl-timing",
+      "title": "Measure request latency with curl",
+      "command": "curl -o /dev/null -s -w \"%{time_total}\\n\" https://example.com",
+      "flags": [],
+      "destructive": false,
+      "category": "networking",
+      "difficulty": "Intermediate",
+      "useCase": "Measure the total time a request takes, useful for basic latency checks against an endpoint.",
+      "beginnerNote": null,
+      "tags": ["curl", "timing", "latency", "performance"]
+    },
+
+    {
+      "id": "df",
+      "title": "Show disk space on mounted filesystems",
+      "command": "df -h",
+      "flags": [
+        {"flag": "-h", "description": "Human readable sizes"},
+        {"flag": "-T", "description": "Shows the filesystem type"},
+        {"flag": "-i", "description": "Shows inode usage instead of block usage"}
+      ],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Beginner",
+      "useCase": "Show available and used disk space on all mounted filesystems.",
+      "beginnerNote": "df shows filesystem usage while du shows directory usage. Use both to understand disk space problems.",
+      "tags": ["df", "disk", "space", "filesystem", "usage"]
+    },
+    {
+      "id": "du-top-dirs",
+      "title": "Find the largest directories in root",
+      "command": "du -sh /* 2>/dev/null | sort -rh | head -20",
+      "flags": [],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Beginner",
+      "useCase": "Find the top 20 largest directories in the root filesystem.",
+      "beginnerNote": null,
+      "tags": ["du", "disk", "usage", "largest", "find"]
+    },
+    {
+      "id": "lsblk",
+      "title": "List block devices and partitions",
+      "command": "lsblk",
+      "flags": [
+        {"flag": "-f", "description": "Shows filesystem information"},
+        {"flag": "-o", "description": "Customizes output columns"}
+      ],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Beginner",
+      "useCase": "List block devices including disks and partitions in a tree view.",
+      "beginnerNote": null,
+      "tags": ["lsblk", "block", "devices", "disks", "partitions"]
+    },
+    {
+      "id": "mount",
+      "title": "Mount a filesystem",
+      "command": "mount /dev/sdb1 /mnt/data",
+      "flags": [
+        {"flag": "-t", "description": "Specifies the filesystem type"},
+        {"flag": "-o", "description": "Sets mount options, like ro for read only"}
+      ],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Mount a filesystem to make it accessible at a directory path.",
+      "beginnerNote": null,
+      "tags": ["mount", "filesystem", "disk", "attach"]
+    },
+    {
+      "id": "umount",
+      "title": "Unmount a filesystem",
+      "command": "umount /mnt/data",
+      "flags": [],
+      "destructive": true,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Unmount a filesystem.",
+      "beginnerNote": "Unmounting fails if any process has open files on the filesystem. Use lsof +D /mnt/data to find them.",
+      "tags": ["umount", "unmount", "filesystem", "detach"]
+    },
+    {
+      "id": "fdisk",
+      "title": "List or manage disk partitions",
+      "command": "fdisk -l",
+      "flags": [
+        {"flag": "-l", "description": "Lists the partition table"}
+      ],
+      "destructive": true,
+      "category": "disk-storage",
+      "difficulty": "Advanced",
+      "useCase": "List partition tables or manage disk partitions.",
+      "beginnerNote": "fdisk operations are destructive. Partition changes take effect only after writing with w. Use lsblk and df first to understand the current state.",
+      "tags": ["fdisk", "partition", "disk", "table"]
+    },
+    {
+      "id": "mkfs",
+      "title": "Format a partition with a filesystem",
+      "command": "mkfs.ext4 /dev/sdb1",
+      "flags": [],
+      "destructive": true,
+      "category": "disk-storage",
+      "difficulty": "Advanced",
+      "useCase": "Format a partition with a filesystem.",
+      "beginnerNote": "mkfs permanently erases all data on the partition. Double check the device name with lsblk before running.",
+      "tags": ["mkfs", "format", "filesystem", "ext4"]
+    },
+    {
+      "id": "dd",
+      "title": "Copy raw data between devices",
+      "command": "dd if=/dev/sda of=/dev/sdb bs=64M status=progress",
+      "flags": [
+        {"flag": "if", "description": "Input file or device"},
+        {"flag": "of", "description": "Output file or device"},
+        {"flag": "bs", "description": "Block size"},
+        {"flag": "status=progress", "description": "Shows copy progress"}
+      ],
+      "destructive": true,
+      "category": "disk-storage",
+      "difficulty": "Advanced",
+      "useCase": "Copy raw data between devices for disk cloning or creating disk images.",
+      "beginnerNote": "dd has no safety checks. A single typo swapping if and of can wipe your source disk.",
+      "tags": ["dd", "copy", "clone", "disk", "raw", "dangerous"]
+    },
+    {
+      "id": "iostat",
+      "title": "Monitor disk I/O performance",
+      "command": "iostat -x 2",
+      "flags": [
+        {"flag": "-x", "description": "Shows extended statistics"},
+        {"flag": "2", "description": "Sets the refresh interval in seconds"}
+      ],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Monitor disk I/O performance in real time.",
+      "beginnerNote": "iostat is part of the sysstat package and may need to be installed.",
+      "tags": ["iostat", "io", "disk", "performance", "monitor"]
+    },
+    {
+      "id": "ncdu",
+      "title": "Interactively browse disk usage",
+      "command": "ncdu /path/to/directory",
+      "flags": [],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Interactive disk usage viewer that lets you navigate directories and find what is using space.",
+      "beginnerNote": "ncdu must be installed separately with apt install ncdu or similar.",
+      "tags": ["ncdu", "disk", "usage", "interactive", "find"]
+    },
+    {
+      "id": "ln-hardlink",
+      "title": "Create a hard link",
+      "command": "ln /path/to/file /path/to/hardlink",
+      "flags": [],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Create a hard link to a file so both paths point to the same inode and data.",
+      "beginnerNote": "Hard links cannot cross filesystem boundaries and cannot link to directories. Use symlinks for those cases.",
+      "tags": ["ln", "hard", "link", "inode"]
+    },
+    {
+      "id": "inode-check",
+      "title": "Check inode usage across filesystems",
+      "command": "df -i",
+      "flags": [],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Check inode usage across filesystems, because running out of inodes prevents creating new files even when disk space is available.",
+      "beginnerNote": "A full inode table is a common cause of mysterious no space left on device errors when df -h shows space remaining.",
+      "tags": ["inode", "df", "usage", "filesystem"]
+    },
+    {
+      "id": "blkid",
+      "title": "Show block device UUIDs and filesystem types",
+      "command": "blkid",
+      "flags": [],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Show the UUID and filesystem type of every block device, useful when writing entries for /etc/fstab.",
+      "beginnerNote": "Use the UUID from blkid instead of a device name like /dev/sdb1 in /etc/fstab, since device names can shift after a reboot but UUIDs stay stable.",
+      "tags": ["blkid", "uuid", "filesystem", "fstab"]
+    },
+    {
+      "id": "swapon",
+      "title": "Show or enable swap space",
+      "command": "swapon --show",
+      "flags": [
+        {"flag": "--show", "description": "Lists active swap devices and their usage"},
+        {"flag": "-a", "description": "Enables all swap devices listed in /etc/fstab"}
+      ],
+      "destructive": false,
+      "category": "disk-storage",
+      "difficulty": "Intermediate",
+      "useCase": "Show or enable swap space on the system.",
+      "beginnerNote": null,
+      "tags": ["swapon", "swap", "memory", "enable"]
+    },
+    {
+      "id": "parted",
+      "title": "View or modify GPT and MBR partition tables",
+      "command": "parted /dev/sdb print",
+      "flags": [],
+      "destructive": true,
+      "category": "disk-storage",
+      "difficulty": "Advanced",
+      "useCase": "View or modify disk partition tables, including support for GPT partitions that fdisk historically struggled with.",
+      "beginnerNote": "parted can apply changes immediately without a separate write step, unlike fdisk. Double check every command before confirming.",
+      "tags": ["parted", "partition", "disk", "gpt"]
+    },
+
+    {
+      "id": "uname",
+      "title": "Show the kernel version and architecture",
+      "command": "uname -a",
+      "flags": [
+        {"flag": "-a", "description": "Shows all information"},
+        {"flag": "-r", "description": "Shows only the kernel version"},
+        {"flag": "-m", "description": "Shows the machine hardware architecture"}
+      ],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Show the Linux kernel version and system architecture.",
+      "beginnerNote": null,
+      "tags": ["uname", "kernel", "version", "architecture", "system"]
+    },
+    {
+      "id": "uptime",
+      "title": "Show system uptime and load average",
+      "command": "uptime",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Show how long the system has been running and the current load averages.",
+      "beginnerNote": "Load average above the number of CPU cores means the system is overloaded.",
+      "tags": ["uptime", "load", "system", "runtime"]
+    },
+    {
+      "id": "free",
+      "title": "Show memory and swap usage",
+      "command": "free -h",
+      "flags": [
+        {"flag": "-h", "description": "Human readable"},
+        {"flag": "-m", "description": "Shows in megabytes"},
+        {"flag": "-g", "description": "Shows in gigabytes"}
+      ],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Show total, used, and available memory and swap.",
+      "beginnerNote": "Linux aggressively uses free memory for disk caching, which makes the used memory number look high. The available column is the real indicator of free memory.",
+      "tags": ["free", "memory", "ram", "swap", "usage"]
+    },
+    {
+      "id": "lscpu",
+      "title": "Show CPU architecture information",
+      "command": "lscpu",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Display CPU architecture information including number of cores, threads, and clock speed.",
+      "beginnerNote": null,
+      "tags": ["lscpu", "cpu", "cores", "architecture", "info"]
+    },
+    {
+      "id": "env",
+      "title": "List all environment variables",
+      "command": "env",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "List all environment variables in the current shell.",
+      "beginnerNote": "Use env | grep VARIABLE_NAME to find a specific variable.",
+      "tags": ["env", "environment", "variables", "list"]
+    },
+    {
+      "id": "printenv",
+      "title": "Print a single environment variable's value",
+      "command": "printenv PATH",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Print the value of a specific environment variable.",
+      "beginnerNote": null,
+      "tags": ["printenv", "environment", "variable", "value"]
+    },
+    {
+      "id": "history",
+      "title": "View and search previous commands",
+      "command": "history | grep \"kubectl\"",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "View previously run commands and search them for a specific command.",
+      "beginnerNote": "history stores commands in ~/.bash_history, which is written when the shell exits. Commands from a current session may not appear until logout.",
+      "tags": ["history", "commands", "previous", "search"]
+    },
+    {
+      "id": "who",
+      "title": "Show who is logged in",
+      "command": "who",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Show who is currently logged in to the system.",
+      "beginnerNote": null,
+      "tags": ["who", "logged", "users", "sessions"]
+    },
+    {
+      "id": "last",
+      "title": "Show recent login and logout events",
+      "command": "last -n 20",
+      "flags": [
+        {"flag": "-n", "description": "Limits output to the most recent entries"}
+      ],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "Show the last 20 login and logout events.",
+      "beginnerNote": null,
+      "tags": ["last", "login", "history", "users", "audit"]
+    },
+    {
+      "id": "dmesg",
+      "title": "View kernel messages",
+      "command": "dmesg -T | tail -50",
+      "flags": [
+        {"flag": "-T", "description": "Shows human readable timestamps"},
+        {"flag": "-l", "description": "Filters by log level"}
+      ],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Intermediate",
+      "useCase": "View kernel messages, especially for diagnosing hardware errors, OOM kills, and disk errors.",
+      "beginnerNote": "dmesg -T | grep -i error is one of the first commands to run when diagnosing hardware problems.",
+      "tags": ["dmesg", "kernel", "messages", "hardware", "oom", "errors"]
+    },
+    {
+      "id": "lsmod",
+      "title": "List loaded kernel modules",
+      "command": "lsmod",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Intermediate",
+      "useCase": "List kernel modules currently loaded into the running kernel.",
+      "beginnerNote": null,
+      "tags": ["lsmod", "kernel", "modules", "loaded"]
+    },
+    {
+      "id": "lspci",
+      "title": "List PCI devices",
+      "command": "lspci",
+      "flags": [
+        {"flag": "-v", "description": "Verbose, shows more details per device"},
+        {"flag": "-k", "description": "Shows the kernel driver in use for each device"}
+      ],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Intermediate",
+      "useCase": "List PCI devices such as network cards, GPUs, and storage controllers detected by the kernel.",
+      "beginnerNote": null,
+      "tags": ["lspci", "pci", "hardware", "devices"]
+    },
+    {
+      "id": "lsusb",
+      "title": "List connected USB devices",
+      "command": "lsusb",
+      "flags": [],
+      "destructive": false,
+      "category": "system-info",
+      "difficulty": "Beginner",
+      "useCase": "List USB devices currently connected to the system.",
+      "beginnerNote": null,
+      "tags": ["lsusb", "usb", "devices", "hardware"]
+    },
+
+    {
+      "id": "systemctl-status",
+      "title": "Check a service's current status",
+      "command": "systemctl status nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Check the current status of a service, including whether it is running and the last few log lines.",
+      "beginnerNote": "This is the first command to run when a service is not working as expected.",
+      "tags": ["systemctl", "status", "service", "running"]
+    },
+    {
+      "id": "systemctl-start",
+      "title": "Start a service",
+      "command": "systemctl start nginx",
+      "flags": [],
+      "destructive": true,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Start a service.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "start", "service"]
+    },
+    {
+      "id": "systemctl-stop",
+      "title": "Stop a running service",
+      "command": "systemctl stop nginx",
+      "flags": [],
+      "destructive": true,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Stop a running service.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "stop", "service"]
+    },
+    {
+      "id": "systemctl-restart",
+      "title": "Restart a service",
+      "command": "systemctl restart nginx",
+      "flags": [],
+      "destructive": true,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Stop and start a service to apply configuration changes.",
+      "beginnerNote": "Use reload instead of restart when possible, since reload applies new configuration without dropping existing connections.",
+      "tags": ["systemctl", "restart", "service"]
+    },
+    {
+      "id": "systemctl-reload",
+      "title": "Reload a service's configuration",
+      "command": "systemctl reload nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "Reload a service configuration without stopping and restarting it.",
+      "beginnerNote": "Not all services support reload. If the service does not support it, systemctl reload fails with an error.",
+      "tags": ["systemctl", "reload", "service", "config"]
+    },
+    {
+      "id": "systemctl-enable",
+      "title": "Enable a service to start at boot",
+      "command": "systemctl enable nginx",
+      "flags": [
+        {"flag": "--now", "description": "Enables and immediately starts the service"}
+      ],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "Configure a service to start automatically at boot.",
+      "beginnerNote": "enable does not start the service immediately. Use --now to enable and start in one command.",
+      "tags": ["systemctl", "enable", "boot", "startup"]
+    },
+    {
+      "id": "systemctl-disable",
+      "title": "Disable a service from starting at boot",
+      "command": "systemctl disable nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "Prevent a service from starting automatically at boot.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "disable", "boot", "startup"]
+    },
+    {
+      "id": "systemctl-list-units",
+      "title": "List failed services",
+      "command": "systemctl list-units --type=service --state=failed",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "List all failed services so you can identify what is broken.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "list", "failed", "services"]
+    },
+    {
+      "id": "journalctl",
+      "title": "View and follow a service's logs",
+      "command": "journalctl -u nginx -f",
+      "flags": [
+        {"flag": "-u", "description": "Filters by service unit"},
+        {"flag": "-f", "description": "Follows new log entries in real time"},
+        {"flag": "-n", "description": "Shows the last N lines"},
+        {"flag": "--since", "description": "Filters by time"},
+        {"flag": "-p", "description": "Filters by priority level"}
+      ],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "View and follow logs from a specific service.",
+      "beginnerNote": "journalctl -u servicename -n 100 --no-pager is the fastest way to see the last 100 lines of a service log without scrolling through a pager.",
+      "tags": ["journalctl", "logs", "service", "follow", "systemd"]
+    },
+    {
+      "id": "journalctl-since",
+      "title": "View logs from a specific time range",
+      "command": "journalctl --since \"2026-07-08 10:00:00\" --until \"2026-07-08 11:00:00\"",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "View logs from a specific time range during incident investigation.",
+      "beginnerNote": null,
+      "tags": ["journalctl", "logs", "time", "range", "incident"]
+    },
+    {
+      "id": "daemon-reload",
+      "title": "Reload the systemd manager configuration",
+      "command": "systemctl daemon-reload",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "Reload the systemd manager configuration after adding or modifying unit files.",
+      "beginnerNote": "Always run daemon-reload after creating or editing a .service file in /etc/systemd/system before starting or restarting the service.",
+      "tags": ["systemctl", "daemon", "reload", "unit", "files"]
+    },
+    {
+      "id": "systemctl-cat",
+      "title": "Display a service's unit file",
+      "command": "systemctl cat nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Display the content of a service unit file.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "cat", "unit", "file", "view"]
+    },
+    {
+      "id": "systemctl-edit",
+      "title": "Create a drop-in override for a service",
+      "command": "systemctl edit nginx",
+      "flags": [],
+      "destructive": true,
+      "category": "systemd",
+      "difficulty": "Advanced",
+      "useCase": "Create a drop-in override file for a service unit without modifying the original unit file.",
+      "beginnerNote": "Edits made here go into an override.conf file that takes precedence over the original unit. Run daemon-reload after editing.",
+      "tags": ["systemctl", "edit", "override", "unit"]
+    },
+    {
+      "id": "timedatectl",
+      "title": "Show system time, timezone, and NTP status",
+      "command": "timedatectl",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Show the current system time, timezone, and NTP synchronization status.",
+      "beginnerNote": "Clock skew causes mysterious authentication failures in distributed systems, especially with Kubernetes and AWS. Check timedatectl first.",
+      "tags": ["timedatectl", "time", "timezone", "ntp", "clock"]
+    },
+    {
+      "id": "hostnamectl",
+      "title": "View or change the system hostname",
+      "command": "hostnamectl set-hostname new-hostname",
+      "flags": [],
+      "destructive": true,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "View or permanently change the system hostname.",
+      "beginnerNote": null,
+      "tags": ["hostnamectl", "hostname", "set", "change"]
+    },
+    {
+      "id": "systemctl-is-enabled",
+      "title": "Check if a service is enabled at boot",
+      "command": "systemctl is-enabled nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Beginner",
+      "useCase": "Check whether a service is enabled to start at boot without opening the full status output.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "is-enabled", "boot", "check"]
+    },
+    {
+      "id": "systemctl-list-timers",
+      "title": "List systemd timers",
+      "command": "systemctl list-timers",
+      "flags": [],
+      "destructive": false,
+      "category": "systemd",
+      "difficulty": "Intermediate",
+      "useCase": "List all systemd timers, the modern systemd-native replacement for cron jobs, along with when each will next run.",
+      "beginnerNote": null,
+      "tags": ["systemctl", "timers", "cron", "schedule"]
+    },
+
+    {
+      "id": "apt-update-upgrade",
+      "title": "Update and upgrade packages on Debian-based systems",
+      "command": "apt update && apt upgrade -y",
+      "flags": [],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Update the package index and upgrade all installed packages on Ubuntu or Debian.",
+      "beginnerNote": "Always run apt update before apt install to ensure you get the latest version of the package.",
+      "tags": ["apt", "update", "upgrade", "ubuntu", "debian", "packages"]
+    },
+    {
+      "id": "apt-install",
+      "title": "Install a package on Ubuntu or Debian",
+      "command": "apt install -y nginx",
+      "flags": [
+        {"flag": "-y", "description": "Automatically answers yes to all prompts"}
+      ],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Install a package on Ubuntu or Debian.",
+      "beginnerNote": null,
+      "tags": ["apt", "install", "package", "ubuntu", "debian"]
+    },
+    {
+      "id": "apt-remove",
+      "title": "Remove a package on Ubuntu or Debian",
+      "command": "apt remove nginx",
+      "flags": [
+        {"flag": "--purge", "description": "Also removes configuration files"}
+      ],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Intermediate",
+      "useCase": "Remove a package while keeping its configuration files.",
+      "beginnerNote": "Use --purge if you want a completely clean removal including config files.",
+      "tags": ["apt", "remove", "uninstall", "package"]
+    },
+    {
+      "id": "dnf-install",
+      "title": "Install a package on RHEL, CentOS, or Fedora",
+      "command": "dnf install -y nginx",
+      "flags": [],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Install a package on RHEL, CentOS, or Fedora.",
+      "beginnerNote": "dnf replaced yum as the default package manager on RHEL 8 and later. yum still works as an alias on most systems.",
+      "tags": ["dnf", "install", "package", "rhel", "centos", "fedora"]
+    },
+    {
+      "id": "apk-add",
+      "title": "Install a package on Alpine Linux",
+      "command": "apk add --no-cache nginx",
+      "flags": [
+        {"flag": "--no-cache", "description": "Installs without using the local cache, useful in Docker builds to keep image size small"}
+      ],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Install a package on Alpine Linux.",
+      "beginnerNote": "Always use --no-cache in Dockerfile RUN instructions to avoid leaving the cache in the image layer.",
+      "tags": ["apk", "add", "install", "alpine", "docker"]
+    },
+    {
+      "id": "snap-install",
+      "title": "Install a snap package on Ubuntu",
+      "command": "snap install code --classic",
+      "flags": [
+        {"flag": "--classic", "description": "Allows the snap to access the filesystem like a traditional package"}
+      ],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Intermediate",
+      "useCase": "Install a snap package on Ubuntu.",
+      "beginnerNote": "snap packages run in a sandbox, so some applications need --classic to access the filesystem normally.",
+      "tags": ["snap", "install", "ubuntu", "package"]
+    },
+    {
+      "id": "pip-install",
+      "title": "Install a Python package",
+      "command": "pip install --break-system-packages package-name",
+      "flags": [],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Install a Python package.",
+      "beginnerNote": "On modern systems, pip install without --break-system-packages or a virtual environment fails with an externally-managed-environment error.",
+      "tags": ["pip", "install", "python", "package"]
+    },
+    {
+      "id": "which",
+      "title": "Show the full path of a command",
+      "command": "which terraform",
+      "flags": [],
+      "destructive": false,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Show the full path of an executable command.",
+      "beginnerNote": "If which returns nothing, the command is not in your PATH. Check if the package is installed or if the binary path needs to be added to PATH.",
+      "tags": ["which", "path", "command", "executable", "location"]
+    },
+    {
+      "id": "whereis",
+      "title": "Locate a command's binary, source, and man page",
+      "command": "whereis nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Locate the binary, source, and man page for a command.",
+      "beginnerNote": null,
+      "tags": ["whereis", "locate", "binary", "manpage"]
+    },
+    {
+      "id": "man",
+      "title": "Display the manual page for a command",
+      "command": "man grep",
+      "flags": [],
+      "destructive": false,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "Display the manual page for a command.",
+      "beginnerNote": "Press q to quit, use slash to search within the man page, and man man shows the manual for the man command itself.",
+      "tags": ["man", "manual", "help", "documentation", "command"]
+    },
+    {
+      "id": "apt-list-upgradable",
+      "title": "List packages with an available upgrade",
+      "command": "apt list --upgradable",
+      "flags": [],
+      "destructive": false,
+      "category": "package-management",
+      "difficulty": "Beginner",
+      "useCase": "See which installed packages have a newer version available without actually upgrading anything.",
+      "beginnerNote": null,
+      "tags": ["apt", "list", "upgradable", "packages"]
+    },
+    {
+      "id": "dpkg-install",
+      "title": "Install a local .deb package file",
+      "command": "dpkg -i package.deb",
+      "flags": [
+        {"flag": "-i", "description": "Installs a local .deb package file"},
+        {"flag": "-r", "description": "Removes a package"}
+      ],
+      "destructive": true,
+      "category": "package-management",
+      "difficulty": "Intermediate",
+      "useCase": "Install a package directly from a local .deb file instead of a repository, common for third-party software not available in apt.",
+      "beginnerNote": "dpkg -i does not resolve dependencies automatically. If it fails with a dependency error, run apt install -f immediately after to fix it.",
+      "tags": ["dpkg", "install", "deb", "local"]
+    },
+
+    {
+      "id": "find-largest-files",
+      "title": "Find the largest files on the filesystem",
+      "command": "find / -type f -size +100M 2>/dev/null | sort -rh | head -20",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Find the 20 largest files on the entire filesystem.",
+      "beginnerNote": "2>/dev/null suppresses permission errors.",
+      "tags": ["find", "large", "files", "disk", "space"]
+    },
+    {
+      "id": "find-and-grep",
+      "title": "Find all log files containing an error",
+      "command": "grep -r \"ERROR\" /var/log/ --include=\"*.log\" -l 2>/dev/null",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Find all log files containing the word ERROR.",
+      "beginnerNote": null,
+      "tags": ["grep", "find", "logs", "error", "recursive"]
+    },
+    {
+      "id": "count-errors-per-minute",
+      "title": "Count errors per timestamp to find spikes",
+      "command": "grep \"ERROR\" app.log | awk '{print $1, $2}' | sort | uniq -c | sort -rn",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Advanced",
+      "useCase": "Count how many errors occurred per timestamp to find error spikes.",
+      "beginnerNote": null,
+      "tags": ["grep", "awk", "sort", "uniq", "errors", "count"]
+    },
+    {
+      "id": "monitor-log-realtime",
+      "title": "Watch a log in real time filtered to errors",
+      "command": "tail -f /var/log/syslog | grep --line-buffered \"error\"",
+      "flags": [
+        {"flag": "--line-buffered", "description": "Flushes output after each line so grep does not buffer when piped"}
+      ],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Beginner",
+      "useCase": "Watch a log file in real time and show only error lines.",
+      "beginnerNote": "Without --line-buffered, grep may not print matches immediately when piped from tail -f.",
+      "tags": ["tail", "grep", "log", "realtime", "monitor"]
+    },
+    {
+      "id": "extract-ips-from-log",
+      "title": "Extract and count the top IPs from an access log",
+      "command": "grep -oE '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' access.log | sort | uniq -c | sort -rn | head -20",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Extract and count the top 20 IP addresses from a web server access log.",
+      "beginnerNote": null,
+      "tags": ["grep", "regex", "ip", "log", "count", "top"]
+    },
+    {
+      "id": "check-port-in-use",
+      "title": "Check if a port is in use and by which process",
+      "command": "ss -tlnp | grep :8080",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Beginner",
+      "useCase": "Check if a specific port is already in use and which process is using it.",
+      "beginnerNote": null,
+      "tags": ["ss", "port", "check", "process", "listening"]
+    },
+    {
+      "id": "kill-process-on-port",
+      "title": "Kill whatever process is listening on a port",
+      "command": "kill $(lsof -t -i:8080)",
+      "flags": [],
+      "destructive": true,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Kill whatever process is listening on port 8080.",
+      "beginnerNote": null,
+      "tags": ["kill", "lsof", "port", "process", "terminate"]
+    },
+    {
+      "id": "disk-usage-top-dirs",
+      "title": "Find the largest directories in /var",
+      "command": "du -h --max-depth=1 /var | sort -rh | head -10",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Beginner",
+      "useCase": "Find the top 10 largest directories in /var.",
+      "beginnerNote": null,
+      "tags": ["du", "disk", "largest", "directories", "sort"]
+    },
+    {
+      "id": "watch-connections",
+      "title": "Monitor connection counts in real time",
+      "command": "watch -n 1 \"ss -s\"",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Monitor TCP connection counts in real time.",
+      "beginnerNote": null,
+      "tags": ["watch", "ss", "connections", "monitor", "realtime"]
+    },
+    {
+      "id": "replace-multiple-files",
+      "title": "Replace a string across multiple files",
+      "command": "find . -name \"*.yaml\" -exec sed -i 's/old-image/new-image/g' {} +",
+      "flags": [],
+      "destructive": true,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Replace a string across multiple files of a specific type.",
+      "beginnerNote": "Test with grep first using grep -r \"old-image\" --include=\"*.yaml\" to see what will be changed.",
+      "tags": ["find", "sed", "replace", "multiple", "files", "yaml"]
+    },
+    {
+      "id": "generate-random-password",
+      "title": "Generate a secure random password",
+      "command": "openssl rand -base64 32",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Beginner",
+      "useCase": "Generate a cryptographically secure random password.",
+      "beginnerNote": null,
+      "tags": ["openssl", "random", "password", "generate", "secure"]
+    },
+    {
+      "id": "check-cert-expiry",
+      "title": "Check when an SSL certificate expires",
+      "command": "echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -noout -dates",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Check when an SSL certificate expires without installing any extra tools.",
+      "beginnerNote": null,
+      "tags": ["openssl", "ssl", "certificate", "expiry", "tls"]
+    },
+    {
+      "id": "continuous-ping-timestamp",
+      "title": "Ping continuously with a timestamp on each line",
+      "command": "ping google.com | while read line; do echo \"$(date): $line\"; done",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Beginner",
+      "useCase": "Ping a host continuously and prefix each line with a timestamp for logging.",
+      "beginnerNote": null,
+      "tags": ["ping", "timestamp", "log", "monitor", "connectivity"]
+    },
+    {
+      "id": "archive-old-logs",
+      "title": "Compress log files older than 30 days",
+      "command": "find /var/log -name \"*.log\" -mtime +30 -exec gzip {} \\;",
+      "flags": [],
+      "destructive": true,
+      "category": "pipeline-patterns",
+      "difficulty": "Advanced",
+      "useCase": "Compress log files older than 30 days to save disk space.",
+      "beginnerNote": "Test with find /var/log -name \"*.log\" -mtime +30 -ls first to see what will be compressed.",
+      "tags": ["find", "gzip", "logs", "archive", "compress", "disk"]
+    },
+    {
+      "id": "show-process-environment",
+      "title": "Show environment variables of a running process",
+      "command": "cat /proc/PID/environ | tr '\\0' '\\n'",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Advanced",
+      "useCase": "Show all environment variables of a running process, including ones set at launch that are not visible in the current shell.",
+      "beginnerNote": "Replace PID with the actual process ID from ps aux. This is useful for debugging applications that read config from environment variables.",
+      "tags": ["proc", "environment", "process", "variables", "debug"]
+    },
+    {
+      "id": "check-disk-before-deploy",
+      "title": "Check root disk usage percentage in a script",
+      "command": "df -h / | awk 'NR==2 {print $5}'",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Get just the percentage of disk space used on the root filesystem, useful as a pre-deploy safety check in a script.",
+      "beginnerNote": null,
+      "tags": ["df", "awk", "disk", "script", "check"]
+    },
+    {
+      "id": "tar-over-ssh",
+      "title": "Stream a directory to a remote host over SSH",
+      "command": "tar -czf - /path/to/dir | ssh user@host 'tar -xzf - -C /destination'",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Advanced",
+      "useCase": "Copy a directory to a remote host by streaming a tar archive over SSH without creating a temporary file on either end.",
+      "beginnerNote": null,
+      "tags": ["tar", "ssh", "copy", "remote", "stream"]
+    },
+    {
+      "id": "curl-jq-combo",
+      "title": "Fetch JSON from an API and extract a field",
+      "command": "curl -s https://api.example.com/status | jq -r '.status'",
+      "flags": [],
+      "destructive": false,
+      "category": "pipeline-patterns",
+      "difficulty": "Intermediate",
+      "useCase": "Fetch JSON from an API and extract a single field with jq, a common pattern for health checks and CI scripts.",
+      "beginnerNote": null,
+      "tags": ["curl", "jq", "api", "json", "script"]
+    },
+    {
+      "id": "find-and-fix-permissions",
+      "title": "Recursively fix permissions on a web directory",
+      "command": "find /var/www -type f -exec chmod 644 {} \\; -o -type d -exec chmod 755 {} \\;",
+      "flags": [],
+      "destructive": true,
+      "category": "pipeline-patterns",
+      "difficulty": "Advanced",
+      "useCase": "Recursively fix permissions on a web directory, setting files to 644 and directories to 755 in one pass.",
+      "beginnerNote": "Test the find expression with -print instead of -exec first to confirm it matches exactly the files and directories you expect.",
+      "tags": ["find", "chmod", "permissions", "fix", "batch"]
+    }
+  ]
+}

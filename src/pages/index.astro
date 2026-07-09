@@ -8,13 +8,14 @@ import gitCheatsheet from '../data/cheatsheets/git.json';
 import awsCheatsheet from '../data/cheatsheets/aws.json';
 import terraformCheatsheet from '../data/cheatsheets/terraform.json';
 import helmCheatsheet from '../data/cheatsheets/helm.json';
+import linuxCheatsheet from '../data/cheatsheets/linux.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
   .sort((a, b) => a.id.localeCompare(b.id))
   .slice(0, 3);
 
-const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet];
+const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet, linuxCheatsheet];
 
 const cheatsheetCardDescriptions: Record<string, string> = {
   kubectl: '78 commands for pods, deployments, debugging, and cluster management.',
@@ -23,6 +24,7 @@ const cheatsheetCardDescriptions: Record<string, string> = {
   aws: '119 commands for S3, EC2, IAM, Lambda, and more.',
   terraform: '100+ commands for init, plan, apply, state, workspaces, and import.',
   helm: '80+ commands for install, upgrade, rollback, values, and debugging.',
+  linux: '180+ commands for files, text processing, networking, systemd, and pipelines.',
 };
 
 const trustItems = [

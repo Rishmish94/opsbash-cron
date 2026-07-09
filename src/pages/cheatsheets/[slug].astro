@@ -6,6 +6,7 @@ import gitData from '../../data/cheatsheets/git.json';
 import awsData from '../../data/cheatsheets/aws.json';
 import terraformData from '../../data/cheatsheets/terraform.json';
 import helmData from '../../data/cheatsheets/helm.json';
+import linuxData from '../../data/cheatsheets/linux.json';
 
 export function getStaticPaths() {
   return [
@@ -15,6 +16,7 @@ export function getStaticPaths() {
     { params: { slug: 'aws' }, props: { data: awsData } },
     { params: { slug: 'terraform' }, props: { data: terraformData } },
     { params: { slug: 'helm' }, props: { data: helmData } },
+    { params: { slug: 'linux' }, props: { data: linuxData } },
   ];
 }
 
@@ -45,6 +47,10 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
   helm: [
     { href: '/cheatsheets/kubectl', name: 'kubectl Cheat Sheet', desc: 'Command reference for pods, deployments, debugging, and cluster management.' },
     { href: '/k8s-secret-decoder', name: 'Kubernetes Secret Decoder', desc: 'Decode Kubernetes Secret YAML and convert .env files into ready-to-apply Secret manifests.' },
+  ],
+  linux: [
+    { href: '/cron-builder', name: 'Cron Builder', desc: 'Build and validate cron expressions for Linux, AWS, Kubernetes, and GitHub Actions.' },
+    { href: '/chmod-calculator', name: 'chmod Calculator', desc: 'Convert between octal and symbolic file permissions and generate the exact chmod command.' },
   ],
 };
 
@@ -83,6 +89,12 @@ const seoContentMap: Record<string, string[]> = {
     "The reason Helm shows up constantly in Kubernetes workflows is that most real applications are not a single Deployment. A typical service might need a Deployment, a Service, an Ingress, a ConfigMap, a Secret, and a HorizontalPodAutoscaler, and keeping all of those in sync by hand across every environment and every release becomes unmanageable quickly. helm install and helm upgrade let a team ship that entire bundle as one versioned, reviewable unit, and because Helm tracks every release as a numbered revision, rolling back a bad deploy is a single helm rollback command instead of manually reconstructing the previous state of five different YAML files. This is exactly why helm upgrade --install has become the default deploy step in most Kubernetes CI pipelines.",
     "The two core concepts that make Helm click are charts and releases. A chart is the packaged template, the reusable blueprint that defines what an application looks like and which values can be customized. A release is a specific installed instance of a chart in a cluster, identified by a release name and tracked as a sequence of numbered revisions in Kubernetes secrets. The same chart can be installed multiple times under different release names, for example running two separate instances of the same nginx chart side by side, and each release keeps its own independent history so upgrading or rolling back one release never touches the other.",
     "Three mistakes account for most of the frustration engineers hit when learning Helm. The first is accessing a nested value like .Values.ingress.host without first checking that .Values.ingress itself is defined, which produces the notorious nil pointer evaluating interface error the moment a user omits that section from their values file. The second is using indent instead of nindent when embedding a multi-line block inside a YAML template, which leaves the first line of the block unindented and produces invalid YAML that only fails once it reaches the cluster. The third is running helm upgrade without --atomic in production, so a failing upgrade leaves the release stuck in a pending-upgrade state that silently blocks every future upgrade until someone notices and runs a manual rollback.",
+  ],
+  linux: [
+    "Linux commands are the small, single-purpose programs that make up the command line interface almost every server, container, and CI pipeline runs on. Instead of one large tool that does everything, Linux follows the Unix philosophy of many small programs, each doing one job well, that you combine with pipes to build exactly the workflow you need. A command like grep only searches text, sort only orders lines, and awk only extracts fields, but chained together with the pipe character they can turn a raw log file into a ranked list of the most common errors in a single line. Learning these commands is really learning a small, composable toolkit rather than memorizing a fixed list of features.",
+    "The reason Linux commands show up in daily DevOps work so constantly is that almost every layer of modern infrastructure, from the container a service runs in to the CI runner that builds it to the virtual machine hosting a database, is Linux underneath. Debugging a slow container means running ps, top, and du inside it. Debugging a networking issue means reaching for ss, curl, and dig. Debugging a permissions error means reading the output of ls -la and running chmod or chown to fix it. These commands are not a specialized skill reserved for system administrators anymore, they are the baseline literacy every engineer touching servers, containers, or CI pipelines needs, in the same way SQL is baseline literacy for anyone touching a database.",
+    "The two mental models that unlock most of Linux are the permission system and the process model. Every file has an owner, a group, and a set of read, write, and execute permissions for the owner, the group, and everyone else, and almost every confusing permission error traces back to one of those three categories not having the access it needs. Every running program is a process with a unique process ID, a parent process that spawned it, and a set of open files and network connections you can inspect with tools like ps, lsof, and pstree. Once you can read chmod 755 as owner read write execute, group and others read execute, and once you understand that a process id is just a number you can target with kill, most of the Linux command line stops feeling like memorized incantations and starts feeling predictable.",
+    "Three mistakes account for most of the trouble engineers run into with Linux commands. The first is running rm -rf or dd with a typo in the path, since neither command asks for confirmation and both can destroy data permanently in seconds, which is why testing destructive one-liners with a safer flag like -i or a dry run first is worth the extra step. The second is assuming a command that works on Ubuntu will work identically on every distro, when in reality the package manager, the default shell, and even basic service management differ completely between Debian-based, RHEL-based, and Alpine-based systems. The third is forgetting that permission and ownership problems are usually the real cause of a mysterious failure, so running ls -la and id before assuming a tool itself is broken saves far more time than it costs.",
   ],
 };
 
@@ -123,6 +135,12 @@ const faqMap: Record<string, { q: string; a: string }[]> = {
     { q: 'How do I debug a Helm template error?', a: 'Start with helm lint to catch syntax and best practice issues, then run helm template on the chart to render the manifests locally and see the exact YAML Helm is generating, including the line where a nil pointer or formatting error occurs. Add --debug to either command for more detail about which values were resolved. If the error only appears during a real install, add --dry-run --debug to helm install to get a server-validated render without actually deploying anything.' },
     { q: 'What is the difference between helm get values and helm show values?', a: 'helm get values reads the values that were actually used for an already installed release, and by default only shows the values a user explicitly overrode. Add --all to see every computed value including chart defaults. helm show values reads the default values.yaml straight from a chart before it is installed, showing what the chart author shipped as the baseline. Use show values to see what you can configure before installing, and get values to see what configuration a running release is actually using.' },
   ],
+  linux: [
+    { q: 'What is the difference between grep and find?', a: 'grep searches inside the contents of files for lines matching a pattern, such as finding every line containing the word ERROR in a log file. find searches the filesystem itself for files and directories matching criteria like name, size, or modification time, without looking at what is inside them. A common pattern combines both: use find to locate files by name or age, then pipe or pass them to grep to search inside those specific files.' },
+    { q: 'How do I read Linux file permissions?', a: 'A permission string like -rwxr-xr-- has four parts. The first character shows the file type, a dash for a regular file or a d for a directory. The next three characters are the owner\'s permissions, the next three are the group\'s permissions, and the final three are permissions for everyone else, each group showing read, write, and execute as r, w, and x or a dash if that permission is missing. In octal notation, read is 4, write is 2, and execute is 1, added together per group, so rwxr-xr-- becomes 754.' },
+    { q: 'What does 2>/dev/null mean?', a: '2 refers to file descriptor 2, which is stderr, the stream a program uses for error messages, separate from file descriptor 1, which is stdout for normal output. The greater than sign redirects that stream, and /dev/null is a special device file that silently discards anything written to it. Together, 2>/dev/null redirects only error messages into the void while normal output still prints, which is why it shows up constantly in commands like find that would otherwise flood the terminal with permission denied errors.' },
+    { q: 'How do I find which process is using a port?', a: 'Run lsof -i :PORT, replacing PORT with the port number, such as lsof -i :8080, and it lists the process ID and name holding that port. ss -tlnp or the older netstat -tlnp also show listening ports alongside the process using each one. If you need to immediately free the port, kill $(lsof -t -i:8080) finds the process ID with lsof and kills it in a single command.' },
+  ],
 };
 
 const relatedTools = relatedToolsMap[slug];
@@ -155,7 +173,7 @@ data.commands.forEach((c: any) => {
   categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
 });
 
-const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef;
+const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef || data.hasDistroRosetta;
 
 // ── Start Here section ───────────────────────────────────────────────────
 const toolNameMap: Record<string, string> = {
@@ -165,6 +183,7 @@ const toolNameMap: Record<string, string> = {
   aws: 'AWS CLI',
   terraform: 'Terraform',
   helm: 'Helm',
+  linux: 'Linux',
 };
 const toolName = toolNameMap[slug] || data.title;
 
@@ -175,6 +194,7 @@ const startHereIdsMap: Record<string, string[]> = {
   aws: ['configure', 'sts-get-caller-identity', 's3-ls', 'ec2-describe-instances', 's3-cp-to-bucket'],
   terraform: ['init', 'validate', 'fmt', 'plan', 'apply'],
   helm: ['install', 'upgrade-install', 'list', 'rollback', 'uninstall'],
+  linux: ['ls', 'cd', 'grep', 'chmod', 'ps'],
 };
 const startHereCommands = (startHereIdsMap[slug] || [])
   .map((id) => data.commands.find((c: any) => c.id === id))
@@ -501,6 +521,56 @@ const visibleCategories = data.categories
                       <p class="cmd-gotcha-label">Gotcha</p>
                       <p class="cmd-gotcha-text">{p.gotcha}</p>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.hasDistroRosetta && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-distro-rosetta" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.distroRosetta.title}</span>
+              <span class="ref-tool-desc">Same operation across Ubuntu, RHEL, and Alpine</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-distro-rosetta">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.distroRosetta.subtitle}</p>
+              <div class="decoder-table-wrap">
+                <table class="decoder-table">
+                  <thead>
+                    <tr>
+                      <th>Operation</th>
+                      <th>Ubuntu/Debian</th>
+                      <th>RHEL/CentOS/Fedora</th>
+                      <th>Alpine</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.distroRosetta.rows.map((row: any) => (
+                      <tr>
+                        <td class="decoder-meaning">{row.operation}</td>
+                        <td class="decoder-status">{row.ubuntu}</td>
+                        <td class="decoder-status">{row.rhel}</td>
+                        <td class="decoder-status">{row.alpine}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div class="rosetta-gotcha-grid">
+                {data.distroRosetta.gotchas.map((g: any) => (
+                  <div class="rosetta-gotcha">
+                    <p class="rosetta-gotcha-title">{g.title}</p>
+                    <p class="rosetta-gotcha-note">{g.note}</p>
                   </div>
                 ))}
               </div>
@@ -1424,6 +1494,35 @@ const visibleCategories = data.categories
     border: 1px solid rgba(74,222,128,0.3);
     color: #4ADE80;
     width: fit-content;
+  }
+
+  /* ── Distro Rosetta Stone ────────────────────────────────────────────────── */
+  .rosetta-gotcha-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+  @media (max-width: 900px) {
+    .rosetta-gotcha-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .rosetta-gotcha {
+    background: #0A0A0A;
+    border-left: 3px solid #FBBF24;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+  }
+  .rosetta-gotcha-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #F8FAFC;
+    margin-bottom: 5px;
+  }
+  .rosetta-gotcha-note {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
   }
 
   /* ── Incident flow ──────────────────────────────────────────────────────── */
