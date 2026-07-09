@@ -1,6 +1,6 @@
 {
-  "slug": "kubectl",
-  "title": "kubectl Cheat Sheet",
+  "slug": "kubernetes",
+  "title": "Kubernetes Cheat Sheet",
   "description": "80+ kubectl commands with flags, real-world use cases, and gotchas. Searchable and filterable. Verified against official Kubernetes docs.",
   "category": "KUBERNETES",
   "lastUpdated": "2026-07-05",

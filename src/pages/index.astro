@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Terminal from '../components/Terminal.astro';
 import { getCollection } from 'astro:content';
-import kubectlCheatsheet from '../data/cheatsheets/kubectl.json';
+import kubernetesCheatsheet from '../data/cheatsheets/kubernetes.json';
 import dockerCheatsheet from '../data/cheatsheets/docker.json';
 import gitCheatsheet from '../data/cheatsheets/git.json';
 import awsCheatsheet from '../data/cheatsheets/aws.json';
@@ -12,13 +12,14 @@ import linuxCheatsheet from '../data/cheatsheets/linux.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
-  .sort((a, b) => a.id.localeCompare(b.id))
+  .sort((a, b) => (a.filePath ?? '').localeCompare(b.filePath ?? ''))
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .slice(0, 3);
 
-const cheatsheetCards = [kubectlCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet, linuxCheatsheet];
+const cheatsheetCards = [kubernetesCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet, linuxCheatsheet];
 
 const cheatsheetCardDescriptions: Record<string, string> = {
-  kubectl: '78 commands for pods, deployments, debugging, and cluster management.',
+  kubernetes: '78 commands for pods, deployments, debugging, and cluster management.',
   docker: '49 commands for images, containers, volumes, and Docker Compose.',
   git: '49 commands for branching, commits, remotes, and recovery.',
   aws: '119 commands for S3, EC2, IAM, Lambda, and more.',

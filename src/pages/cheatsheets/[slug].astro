@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import kubectlData from '../../data/cheatsheets/kubectl.json';
+import kubernetesData from '../../data/cheatsheets/kubernetes.json';
 import dockerData from '../../data/cheatsheets/docker.json';
 import gitData from '../../data/cheatsheets/git.json';
 import awsData from '../../data/cheatsheets/aws.json';
@@ -10,7 +10,7 @@ import linuxData from '../../data/cheatsheets/linux.json';
 
 export function getStaticPaths() {
   return [
-    { params: { slug: 'kubectl' }, props: { data: kubectlData } },
+    { params: { slug: 'kubernetes' }, props: { data: kubernetesData } },
     { params: { slug: 'docker' }, props: { data: dockerData } },
     { params: { slug: 'git' }, props: { data: gitData } },
     { params: { slug: 'aws' }, props: { data: awsData } },
@@ -23,8 +23,40 @@ export function getStaticPaths() {
 const { data } = Astro.props;
 const slug = data.slug;
 
+// Brand colors + logos, sourced from files that actually exist in public/logos/.
+const brandColors: Record<string, string> = {
+  kubernetes: '#326CE5',
+  docker: '#2496ED',
+  git: '#F05032',
+  aws: '#FF9900',
+  terraform: '#7B42BC',
+  helm: '#0F1689',
+  linux: '#FCC624',
+};
+const brandColor = brandColors[slug] || '#3B82F6';
+
+const brandLogos: Record<string, string | null> = {
+  kubernetes: '/logos/kubernetes.svg',
+  docker: '/logos/docker.svg',
+  git: '/logos/git.svg',
+  aws: '/logos/aws-logo.svg',
+  terraform: '/logos/terraform.svg',
+  helm: '/logos/helm-light.svg',
+  linux: '/logos/linux.svg',
+};
+const brandLogo = brandLogos[slug] ?? null;
+
+function hexToRgb(hex: string): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+}
+const brandRgb = hexToRgb(brandColor);
+
 const relatedToolsMap: Record<string, { href: string; name: string; desc: string }[]> = {
-  kubectl: [
+  kubernetes: [
     { href: '/k8s-secret-decoder', name: 'Kubernetes Secret Decoder', desc: 'Decode Kubernetes Secret YAML and convert .env files into ready-to-apply Secret manifests.' },
     { href: '/docker-compose-converter', name: 'Docker Run to Compose', desc: 'Convert docker run commands into docker-compose.yml, and back again.' },
   ],
@@ -45,7 +77,7 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
     { href: '/cidr-calculator', name: 'CIDR Calculator', desc: 'Calculate subnet masks and usable host ranges for VPCs and subnets defined in your Terraform code.' },
   ],
   helm: [
-    { href: '/cheatsheets/kubectl', name: 'kubectl Cheat Sheet', desc: 'Command reference for pods, deployments, debugging, and cluster management.' },
+    { href: '/cheatsheets/kubernetes', name: 'Kubernetes Cheat Sheet', desc: 'Command reference for pods, deployments, debugging, and cluster management.' },
     { href: '/k8s-secret-decoder', name: 'Kubernetes Secret Decoder', desc: 'Decode Kubernetes Secret YAML and convert .env files into ready-to-apply Secret manifests.' },
   ],
   linux: [
@@ -55,7 +87,7 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
 };
 
 const seoContentMap: Record<string, string[]> = {
-  kubectl: [
+  kubernetes: [
     "kubectl is the command-line tool that talks to the Kubernetes API server, and for nearly every engineer running workloads on Kubernetes it is the primary interface to the cluster, more so than any dashboard or GUI. Every action a Kubernetes cluster performs, whether deploying an application, checking why a pod crashed, or rotating a secret, ultimately reduces to an HTTP request that kubectl constructs and sends. Learning kubectl well is not a nice-to-have skill for a Kubernetes engineer, it is the equivalent of learning to type for a writer: everything else depends on it being second nature.",
     "The reason kubectl shows up in daily workflows so relentlessly is that Kubernetes itself is declarative and API-driven rather than something you configure once and forget. Deployments roll out gradually, pods get rescheduled when nodes fail, and autoscalers adjust replica counts continuously in the background, which means the state of a cluster is always shifting. Engineers check in on that state constantly: is the rollout finished, did the new pod come up healthy, is the autoscaler doing what it's supposed to. kubectl get, kubectl describe, and kubectl logs together form the read loop that every other action depends on, and most of a working day spent operating Kubernetes is really just cycling through those three commands with different arguments.",
     "The mental model that makes kubectl click is understanding that almost everything in Kubernetes is a resource living inside a namespace, and kubectl is just a lens for viewing and editing those resources. A Pod, a Deployment, a Service, a Secret, a ConfigMap: these are all objects stored in etcd behind the API server, described by YAML or JSON, and namespaces are the folders that group and isolate them logically. Once that clicks, most kubectl commands stop feeling like memorized incantations and start feeling like predictable variations on a theme: get lists resources, describe explains one resource in depth, apply reconciles a manifest against live state, and delete removes it. The verb-resource pattern (kubectl <verb> <resource> <name>) covers the overwhelming majority of daily usage.",
@@ -99,7 +131,7 @@ const seoContentMap: Record<string, string[]> = {
 };
 
 const faqMap: Record<string, { q: string; a: string }[]> = {
-  kubectl: [
+  kubernetes: [
     { q: 'What is kubectl and what does it do?', a: 'kubectl is the official command-line tool for interacting with a Kubernetes cluster. It sends requests to the Kubernetes API server to create, inspect, update, and delete resources like Pods, Deployments, and Services. Nearly every operational task on Kubernetes, from deploying an application to debugging a crash, goes through kubectl in some form.' },
     { q: 'How do I switch between multiple Kubernetes clusters?', a: 'Run kubectl config get-contexts to see every cluster/user/namespace combination saved in your kubeconfig, then kubectl config use-context <context-name> to switch. Always confirm the switch worked with kubectl config current-context before running anything destructive, since switching to the wrong cluster by mistake is one of the most common causes of production incidents.' },
     { q: 'What is the difference between kubectl apply and kubectl create?', a: 'kubectl create is imperative: it creates a brand-new resource and errors out with AlreadyExists if one with that name already exists. kubectl apply is declarative: it computes a diff against the last-applied configuration and either creates or updates the resource to match your manifest. For GitOps and CI/CD pipelines, apply is almost always the right choice since it is idempotent and safe to re-run.' },
@@ -177,7 +209,7 @@ const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data
 
 // ── Start Here section ───────────────────────────────────────────────────
 const toolNameMap: Record<string, string> = {
-  kubectl: 'kubectl',
+  kubernetes: 'kubectl',
   docker: 'Docker',
   git: 'Git',
   aws: 'AWS CLI',
@@ -188,7 +220,7 @@ const toolNameMap: Record<string, string> = {
 const toolName = toolNameMap[slug] || data.title;
 
 const startHereIdsMap: Record<string, string[]> = {
-  kubectl: ['get-pods', 'describe', 'logs', 'apply-f', 'rollout-restart'],
+  kubernetes: ['get-pods', 'describe', 'logs', 'apply-f', 'rollout-restart'],
   docker: ['run', 'ps', 'logs', 'exec', 'compose-up'],
   git: ['status', 'add', 'commit', 'push', 'log'],
   aws: ['configure', 'sts-get-caller-identity', 's3-ls', 'ec2-describe-instances', 's3-cp-to-bucket'],
@@ -209,7 +241,7 @@ const pillLabelOverrides: Record<string, Record<string, { label: string; title?:
     'sts-assume-role': { label: 'Auth and Roles' },
     'monitoring-ops': { label: 'Monitoring' },
   },
-  kubectl: {
+  kubernetes: {
     'deployments-scaling': { label: 'Deployments' },
     'services-networking': { label: 'Services' },
     'configmaps-secrets': { label: 'Config and Secrets' },
@@ -238,11 +270,12 @@ const visibleCategories = data.categories
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
 
-<div style="background: var(--bg);">
+<!-- BRAND COLORS ADDED 2026-07-09 — revert this commit to remove all brand color changes -->
+<div style={`background: var(--bg); --brand: ${brandColor}; --brand-rgb: ${brandRgb};`}>
 <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
 
   <!-- ── HERO (compact) ────────────────────────────────────────────────────── -->
-  <section class="pt-8 pb-4">
+  <section class="pt-8 pb-4 hero-brand-glow">
     <div class="flex items-center flex-wrap gap-2 mb-3">
       <span class="cs-cat-pill">{data.category}</span>
       <span class="cs-updated-text">Updated {data.lastUpdated}</span>
@@ -252,7 +285,10 @@ const visibleCategories = data.categories
         Verified against official docs
       </span>
     </div>
-    <h1 class="text-3xl sm:text-4xl font-bold mb-2 tracking-tight" style="color: #F8FAFC;">{data.title}</h1>
+    <div class="hero-title-row">
+      {brandLogo && <img src={brandLogo} alt="" aria-hidden="true" class="hero-brand-logo" width="40" height="40" loading="eager" />}
+      <h1 class="text-3xl sm:text-4xl font-bold mb-2 tracking-tight" style="color: #F8FAFC;">{data.title}</h1>
+    </div>
     <p class="text-base max-w-2xl" style="color: var(--fg2);">{data.description}</p>
   </section>
 
@@ -355,20 +391,23 @@ const visibleCategories = data.categories
     <button id="earnedBannerClose" class="earned-banner-close" aria-label="Dismiss">✕</button>
   </div>
 
-  <!-- ── RESULTS META ──────────────────────────────────────────────────────── -->
-  <p id="resultsMeta" class="results-meta">{data.commands.length} commands</p>
+  <!-- ── DIFFICULTY PILLS (own row, above category pills) ───────────────────── -->
+  <div class="diff-pills-row" id="diffPillsRow">
+    <button class="diff-pill diff-pill-beginner" data-difficulty="Beginner"><span class="diff-dot diff-dot-beginner" aria-hidden="true"></span>Beginner</button>
+    <button class="diff-pill diff-pill-intermediate" data-difficulty="Intermediate"><span class="diff-dot diff-dot-intermediate" aria-hidden="true"></span>Intermediate</button>
+    <button class="diff-pill diff-pill-advanced" data-difficulty="Advanced"><span class="diff-dot diff-dot-advanced" aria-hidden="true"></span>Advanced</button>
+  </div>
 
-  <!-- ── CATEGORY + DIFFICULTY PILLS (standalone row on first load) ────────── -->
+  <!-- ── CATEGORY PILLS (standalone row) ─────────────────────────────────────── -->
   <div class="pills-row-standalone" id="pillsRowStandalone">
     <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
     {visibleCategories.map((cat: any) => (
       <button class="cat-pill" data-category={cat.id} title={cat.title}>{cat.label} ({cat.count})</button>
     ))}
-    <span class="pills-divider" aria-hidden="true"></span>
-    <button class="diff-pill diff-pill-beginner" data-difficulty="Beginner">Beginner</button>
-    <button class="diff-pill diff-pill-intermediate" data-difficulty="Intermediate">Intermediate</button>
-    <button class="diff-pill diff-pill-advanced" data-difficulty="Advanced">Advanced</button>
   </div>
+
+  <!-- ── RESULTS META ──────────────────────────────────────────────────────── -->
+  <p id="resultsMeta" class="results-meta">{data.commands.length} commands</p>
 
   <!-- ── COMMAND CARDS GRID ────────────────────────────────────────────────── -->
   <section class="mb-6">
@@ -744,37 +783,57 @@ const visibleCategories = data.categories
 <!-- ── SLIM STICKY SEARCH BAR (hidden until scrolled past the large search) ── -->
 <div id="stickySearchBar" class="sticky-search-bar">
   <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 sticky-bar-inner">
-    <div class="sticky-search-wrap">
-      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input id="cmdSearchSlim" type="text" placeholder="Search commands, flags, use cases..." autocomplete="off" spellcheck="false" class="sticky-search-input" />
+    <div class="sticky-diff-pills" id="pillsRowStickyDiff">
+      <button class="diff-pill diff-pill-beginner" data-difficulty="Beginner"><span class="diff-dot diff-dot-beginner" aria-hidden="true"></span>Beginner</button>
+      <button class="diff-pill diff-pill-intermediate" data-difficulty="Intermediate"><span class="diff-dot diff-dot-intermediate" aria-hidden="true"></span>Intermediate</button>
+      <button class="diff-pill diff-pill-advanced" data-difficulty="Advanced"><span class="diff-dot diff-dot-advanced" aria-hidden="true"></span>Advanced</button>
     </div>
-    <div class="sticky-pills" id="pillsRowSticky">
-      <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
-      {visibleCategories.map((cat: any) => (
-        <button class="cat-pill" data-category={cat.id} title={cat.title}>{cat.label} ({cat.count})</button>
-      ))}
-      <span class="pills-divider" aria-hidden="true"></span>
-      <button class="diff-pill diff-pill-beginner" data-difficulty="Beginner">Beginner</button>
-      <button class="diff-pill diff-pill-intermediate" data-difficulty="Intermediate">Intermediate</button>
-      <button class="diff-pill diff-pill-advanced" data-difficulty="Advanced">Advanced</button>
+    <div class="sticky-bottom-row">
+      <div class="sticky-search-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="cmdSearchSlim" type="text" placeholder="Search commands, flags, use cases..." autocomplete="off" spellcheck="false" class="sticky-search-input" />
+      </div>
+      <div class="sticky-pills" id="pillsRowSticky">
+        <button class="cat-pill active" data-category="all">All Commands ({data.commands.length})</button>
+        {visibleCategories.map((cat: any) => (
+          <button class="cat-pill" data-category={cat.id} title={cat.title}>{cat.label} ({cat.count})</button>
+        ))}
+      </div>
     </div>
   </div>
 </div>
 
 <style>
+  /* ── Hero brand glow ─────────────────────────────────────────────────────── */
+  .hero-brand-glow {
+    background: linear-gradient(180deg, rgba(var(--brand-rgb), 0.05), transparent 200px);
+  }
+  .hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-brand-logo {
+    width: 40px;
+    height: 40px;
+    opacity: 0.9;
+    flex-shrink: 0;
+  }
+
   /* ── Hero badges ─────────────────────────────────────────────────────────── */
   .cs-cat-pill {
     display: inline-block;
     padding: 2px 8px;
-    border: 1px solid #F8FAFC;
+    border: 1px solid rgba(var(--brand-rgb), 0.4);
     border-radius: 4px;
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #F8FAFC;
+    color: var(--brand);
+    background: rgba(var(--brand-rgb), 0.15);
     font-family: 'JetBrains Mono', monospace;
   }
   .cs-updated-text {
@@ -867,7 +926,7 @@ const visibleCategories = data.categories
   /* ── Start Here section ──────────────────────────────────────────────────── */
   .start-here-section {
     margin-top: 18px;
-    border-left: 3px solid #3B82F6;
+    border-left: 3px solid var(--brand);
     background: rgba(59,130,246,0.05);
     border-radius: 0 12px 12px 0;
     padding: 16px 20px;
@@ -974,12 +1033,31 @@ const visibleCategories = data.categories
   }
   .earned-banner-close:hover { color: #F8FAFC; }
 
+  /* ── Difficulty pills row (own row, above category pills) ───────────────── */
+  .diff-pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 0;
+  }
+  @media (max-width: 640px) {
+    .diff-pills-row {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #333333 transparent;
+    }
+    .diff-pills-row::-webkit-scrollbar { height: 4px; }
+    .diff-pills-row::-webkit-scrollbar-track { background: transparent; }
+    .diff-pills-row::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
+  }
+
   /* ── Category pills (shared by standalone row and sticky row) ───────────── */
   .pills-row-standalone {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin: 14px 0 4px;
+    margin: 8px 0 4px;
   }
   @media (max-width: 640px) {
     .pills-row-standalone {
@@ -1008,9 +1086,9 @@ const visibleCategories = data.categories
   }
   .cat-pill:hover { border-color: #334155; color: #F8FAFC; }
   .cat-pill.active {
-    background: rgba(248,250,252,0.1);
-    border-color: #F8FAFC;
-    color: #F8FAFC;
+    background: rgba(var(--brand-rgb), 0.15);
+    border-color: var(--brand);
+    color: var(--brand);
   }
 
   .pills-divider {
@@ -1023,23 +1101,47 @@ const visibleCategories = data.categories
 
   /* ── Difficulty filter pills ─────────────────────────────────────────────── */
   .diff-pill {
-    font-size: 11.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 6px 12px;
+    padding: 6px 16px;
     border-radius: 20px;
-    background: transparent;
     cursor: pointer;
     white-space: nowrap;
     font-family: 'Inter', sans-serif;
     transition: all 0.15s;
     flex-shrink: 0;
   }
-  .diff-pill-beginner { color: #4ADE80; border: 1px solid rgba(74,222,128,0.35); }
-  .diff-pill-beginner.active { background: rgba(74,222,128,0.15); border-color: #4ADE80; }
-  .diff-pill-intermediate { color: #FBBF24; border: 1px solid rgba(251,191,36,0.35); }
-  .diff-pill-intermediate.active { background: rgba(251,191,36,0.15); border-color: #FBBF24; }
-  .diff-pill-advanced { color: #F472B6; border: 1px solid rgba(244,114,182,0.35); }
-  .diff-pill-advanced.active { background: rgba(244,114,182,0.15); border-color: #F472B6; }
+  .diff-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .diff-dot-beginner { background: #4ADE80; }
+  .diff-dot-intermediate { background: #FBBF24; }
+  .diff-dot-advanced { background: #F472B6; }
+  .diff-pill-beginner {
+    color: #4ADE80;
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.4);
+  }
+  .diff-pill-beginner.active { background: rgba(74,222,128,0.28); border-color: #4ADE80; }
+  .diff-pill-intermediate {
+    color: #FBBF24;
+    background: rgba(251,191,36,0.15);
+    border: 1px solid rgba(251,191,36,0.4);
+  }
+  .diff-pill-intermediate.active { background: rgba(251,191,36,0.28); border-color: #FBBF24; }
+  .diff-pill-advanced {
+    color: #F472B6;
+    background: rgba(244,114,182,0.15);
+    border: 1px solid rgba(244,114,182,0.4);
+  }
+  .diff-pill-advanced.active { background: rgba(244,114,182,0.28); border-color: #F472B6; }
 
   .results-meta {
     font-size: 12.5px;
@@ -1069,6 +1171,23 @@ const visibleCategories = data.categories
     pointer-events: auto;
   }
   .sticky-bar-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sticky-diff-pills {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
+  }
+  .sticky-diff-pills::-webkit-scrollbar { height: 4px; }
+  .sticky-diff-pills::-webkit-scrollbar-track { background: transparent; }
+  .sticky-diff-pills::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
+  .sticky-bottom-row {
     display: flex;
     align-items: center;
     gap: 14px;

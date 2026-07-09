@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import kubectlData from '../../data/cheatsheets/kubectl.json';
+import kubernetesData from '../../data/cheatsheets/kubernetes.json';
 import dockerData from '../../data/cheatsheets/docker.json';
 import gitData from '../../data/cheatsheets/git.json';
 import awsData from '../../data/cheatsheets/aws.json';
@@ -8,9 +8,41 @@ import terraformData from '../../data/cheatsheets/terraform.json';
 import helmData from '../../data/cheatsheets/helm.json';
 import linuxData from '../../data/cheatsheets/linux.json';
 
-const sheets = [kubectlData, dockerData, gitData, awsData, terraformData, helmData, linuxData];
+const sheets = [kubernetesData, dockerData, gitData, awsData, terraformData, helmData, linuxData];
 const totalCommands = sheets.reduce((sum, s) => sum + s.commands.length, 0);
 const totalSheets = sheets.length;
+
+// Brand colors + logos, sourced from files that actually exist in public/logos/.
+// Per-brand opacity overrides exist because some hues (AWS orange) need more
+// opacity to read clearly on a dark card, while others (Git red-orange) read
+// stronger than blues at the same opacity and need less to feel equally subtle.
+const brandMap: Record<string, { color: string; logo: string | null; borderOpacity?: number; tintOpacity?: number; pillOpacity?: number }> = {
+  kubernetes: { color: '#326CE5', logo: '/logos/kubernetes.svg' },
+  docker: { color: '#2496ED', logo: '/logos/docker.svg' },
+  git: { color: '#F05032', logo: '/logos/git.svg', tintOpacity: 0.04 },
+  aws: { color: '#FF9900', logo: '/logos/aws-logo.svg', borderOpacity: 0.5, pillOpacity: 0.2 },
+  terraform: { color: '#7B42BC', logo: '/logos/terraform.svg' },
+  helm: { color: '#277A9F', logo: '/logos/helm-light.svg' },
+  linux: { color: '#FCC624', logo: '/logos/linux.svg' },
+};
+
+const toolNames: Record<string, string> = {
+  kubernetes: 'Kubernetes',
+  docker: 'Docker',
+  git: 'Git',
+  aws: 'Amazon Web Services',
+  terraform: 'Terraform',
+  helm: 'Helm',
+  linux: 'Linux',
+};
+
+function hexToRgb(hex: string): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+}
 
 const webAppSchema = {
   "@context": "https://schema.org",
@@ -28,6 +60,7 @@ const webAppSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
 
+<!-- BRAND COLORS ADDED 2026-07-09 — revert this commit to remove all brand color changes -->
 <div style="background: var(--bg);">
 <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -60,25 +93,38 @@ const webAppSchema = {
   <!-- ── CARDS GRID ────────────────────────────────────────────────────────── -->
   <section class="pb-6">
     <div class="cs-grid" id="cardsGrid">
-      {sheets.map((sheet) => (
-        <a
-          href={`/cheatsheets/${sheet.slug}`}
-          class="cs-card"
-          data-search={`${sheet.title} ${sheet.description} ${sheet.category}`.toLowerCase()}
-        >
-          <div class="cs-card-top">
-            <span class="cs-cat-pill">{sheet.category}</span>
-          </div>
-          <h2 class="cs-card-title">{sheet.title}</h2>
-          <p class="cs-card-desc">{sheet.description}</p>
-          <div class="cs-card-meta">
-            <span>{sheet.commands.length} commands</span>
-            <span class="cs-meta-sep">·</span>
-            <span>Updated {sheet.lastUpdated}</span>
-          </div>
-          <span class="cs-ghost-btn">View Cheat Sheet →</span>
-        </a>
-      ))}
+      {sheets.map((sheet) => {
+        const brand = brandMap[sheet.slug] ?? { color: '#3B82F6', logo: null };
+        const borderOp = brand.borderOpacity ?? 0.35;
+        const tintOp = brand.tintOpacity ?? 0.06;
+        const pillOp = brand.pillOpacity ?? 0.15;
+        return (
+          <a
+            href={`/cheatsheets/${sheet.slug}`}
+            class="cs-card"
+            style={`--brand: ${brand.color}; --brand-rgb: ${hexToRgb(brand.color)}; --border-op: ${borderOp}; --tint-op: ${tintOp}; --pill-op: ${pillOp};`}
+            data-search={`${sheet.title} ${sheet.description} ${sheet.category}`.toLowerCase()}
+          >
+            <div class="cs-card-top">
+              <span class="cs-cat-pill">{sheet.category}</span>
+            </div>
+            <h2 class="cs-card-title">{sheet.title}</h2>
+            <p class="cs-card-desc">{sheet.description}</p>
+            <div class="cs-card-meta">
+              <span>{sheet.commands.length} commands</span>
+              <span class="cs-meta-sep">·</span>
+              <span>Updated {sheet.lastUpdated}</span>
+            </div>
+            <span class="cs-ghost-btn">View Cheat Sheet →</span>
+            {brand.logo && (
+              <div class="cs-card-logo-stack">
+                <img src={brand.logo} alt="" aria-hidden="true" class="cs-card-logo" width="32" height="32" loading="lazy" />
+                <span class="cs-card-logo-name">{toolNames[sheet.slug] ?? sheet.title}</span>
+              </div>
+            )}
+          </a>
+        );
+      })}
     </div>
     <p id="cardsNoResults" class="hidden text-center text-sm py-10" style="color: var(--fg3);">
       No cheat sheets match your search.
@@ -151,19 +197,20 @@ const webAppSchema = {
   }
 
   .cs-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background: #111111;
-    border: 1px solid #222222;
+    background: linear-gradient(rgba(var(--brand-rgb), var(--tint-op)), rgba(var(--brand-rgb), var(--tint-op))), #111111;
+    border: 1px solid rgba(var(--brand-rgb), var(--border-op));
     border-radius: 8px;
     padding: 20px;
     text-decoration: none;
     transition: all 200ms ease;
   }
   .cs-card:hover {
-    background: #1A1A1A;
-    border-color: #F8FAFC;
+    background: linear-gradient(rgba(var(--brand-rgb), var(--tint-op)), rgba(var(--brand-rgb), var(--tint-op))), #1A1A1A;
+    border-color: rgba(var(--brand-rgb), 0.6);
   }
   .cs-card-top {
     display: flex;
@@ -174,15 +221,49 @@ const webAppSchema = {
   .cs-cat-pill {
     display: inline-block;
     padding: 2px 8px;
-    border: 1px solid #F8FAFC;
+    margin-right: 56px;
+    border: 1px solid rgba(var(--brand-rgb), 0.4);
     border-radius: 4px;
     font-size: 9px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #F8FAFC;
+    color: var(--brand);
+    background: rgba(var(--brand-rgb), var(--pill-op));
     font-family: 'JetBrains Mono', monospace;
     white-space: nowrap;
+  }
+  .cs-card-logo-stack {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .cs-card-logo {
+    width: 32px;
+    height: 32px;
+    opacity: 0.85;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+  .cs-card:hover .cs-card-logo {
+    opacity: 1;
+  }
+  .cs-card-logo-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--brand);
+    text-align: center;
+    margin-top: 4px;
+    text-decoration: none;
+    max-width: 100px;
+    line-height: 1.3;
   }
   .cs-card-title {
     font-family: 'Inter', sans-serif;
@@ -190,6 +271,7 @@ const webAppSchema = {
     font-weight: 600;
     color: #F8FAFC;
     line-height: 1.3;
+    padding-right: 70px;
   }
   .cs-card-desc {
     font-family: 'Inter', sans-serif;
@@ -214,8 +296,9 @@ const webAppSchema = {
     margin-top: 6px;
     padding: 8px 14px;
     border-radius: 8px;
-    border: 1px solid #334155;
-    color: #F8FAFC;
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    opacity: 1;
     font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 500;
@@ -223,8 +306,7 @@ const webAppSchema = {
     transition: background 0.15s, border-color 0.15s;
   }
   .cs-card:hover .cs-ghost-btn {
-    background: rgba(248,250,252,0.08);
-    border-color: #F8FAFC;
+    background: rgba(var(--brand-rgb), 0.12);
   }
 </style>
 
