@@ -2,14 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import Terminal from '../components/Terminal.astro';
 import { getCollection } from 'astro:content';
-import kubernetesCheatsheet from '../data/cheatsheets/kubernetes.json';
-import dockerCheatsheet from '../data/cheatsheets/docker.json';
-import gitCheatsheet from '../data/cheatsheets/git.json';
-import awsCheatsheet from '../data/cheatsheets/aws.json';
-import terraformCheatsheet from '../data/cheatsheets/terraform.json';
-import helmCheatsheet from '../data/cheatsheets/helm.json';
-import linuxCheatsheet from '../data/cheatsheets/linux.json';
-import githubCheatsheet from '../data/cheatsheets/github.json';
+import kubernetesData from '../data/cheatsheets/kubernetes.json';
+import awsData from '../data/cheatsheets/aws.json';
+import linuxData from '../data/cheatsheets/linux.json';
+import githubData from '../data/cheatsheets/github.json';
+import dockerData from '../data/cheatsheets/docker.json';
+import gitData from '../data/cheatsheets/git.json';
 
 const allPosts   = await getCollection('blog');
 const recentPosts = allPosts
@@ -17,18 +15,34 @@ const recentPosts = allPosts
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .slice(0, 3);
 
-const cheatsheetCards = [kubernetesCheatsheet, dockerCheatsheet, gitCheatsheet, awsCheatsheet, terraformCheatsheet, helmCheatsheet, linuxCheatsheet, githubCheatsheet];
+const cheatsheetPreviewCards = [kubernetesData, awsData, linuxData, githubData, dockerData, gitData];
 
-const cheatsheetCardDescriptions: Record<string, string> = {
-  kubernetes: '78 commands for pods, deployments, debugging, and cluster management.',
-  docker: '49 commands for images, containers, volumes, and Docker Compose.',
-  git: '49 commands for branching, commits, remotes, and recovery.',
-  aws: '119 commands for S3, EC2, IAM, Lambda, and more.',
-  terraform: '100+ commands for init, plan, apply, state, workspaces, and import.',
-  helm: '80+ commands for install, upgrade, rollback, values, and debugging.',
-  linux: '180+ commands for files, text processing, networking, systemd, and pipelines.',
-  github: '180+ GitHub CLI commands and Actions workflow patterns. Includes a Failure Decoder.',
+// Brand colors + logos — copied from src/pages/cheatsheets/index.astro so these
+// 6 preview cards match the real cheat sheet cards exactly.
+const cheatsheetBrandMap: Record<string, { color: string; logo: string; borderOpacity?: number; tintOpacity?: number; pillOpacity?: number }> = {
+  kubernetes: { color: '#326CE5', logo: '/logos/kubernetes.svg' },
+  aws: { color: '#FF9900', logo: '/logos/aws-logo.svg', borderOpacity: 0.5, pillOpacity: 0.2 },
+  linux: { color: '#FCC624', logo: '/logos/linux.svg' },
+  github: { color: '#2DA44E', logo: '/logos/github.svg' },
+  docker: { color: '#2496ED', logo: '/logos/docker.svg' },
+  git: { color: '#F05032', logo: '/logos/git.svg', tintOpacity: 0.04 },
 };
+
+const cheatsheetToolNames: Record<string, string> = {
+  kubernetes: 'Kubernetes',
+  linux: 'Linux',
+  github: 'GitHub',
+  docker: 'Docker',
+  git: 'Git',
+};
+
+function hexToRgb(hex: string): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+}
 
 const trustItems = [
   '100% Client-Side',
@@ -124,6 +138,18 @@ const toolCards = [
     icon: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
   },
 ];
+
+const toolCategoryColors: Record<string, string> = {
+  Automation: '#60A5FA',
+  Networking: '#22D3EE',
+  Security: '#F87171',
+  Development: '#A78BFA',
+  Linux: '#FCC624',
+  Containers: '#2DD4BF',
+  Time: '#FB923C',
+  Encoding: '#4ADE80',
+  Kubernetes: '#326CE5',
+};
 ---
 
 <Layout
@@ -132,7 +158,12 @@ const toolCards = [
   canonicalURL="https://opsbash.com/"
 >
 
-<main>
+<main style="position:relative;z-index:1;">
+
+<div class="page-bg-effects" aria-hidden="true">
+  <div class="bg-blob-center"></div>
+  <div class="bg-dot-grid"></div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 <!-- HERO                                                                       -->
@@ -318,6 +349,32 @@ const toolCards = [
 
 
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- FOUNDER / BUILT BY                                                         -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<section class="max-w-[1280px] mx-auto px-5" style="padding-top:56px;padding-bottom:20px;">
+  <div style="max-width:1100px;margin:0 auto;padding:64px 24px;">
+    <div class="why-opsbash-grid">
+      <div>
+        <p style="display:block;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg2);margin-bottom:12px;">WHY OPSBASH</p>
+        <h2 style="font-size:28px;font-weight:700;color:var(--fg);margin-bottom:20px;line-height:1.3;">Tools that respect your time and your data</h2>
+        <p style="font-size:15px;line-height:1.8;color:var(--fg2);max-width:640px;margin-bottom:0;">
+          Every tool on this site runs entirely in your browser. No account to create, no data sent to a server, no features locked behind a paywall. The cron builder handles AWS EventBridge's six-field format. The CIDR calculator accounts for the five IPs AWS reserves per subnet. The JWT decoder explains the difference between decoding and verifying. Built for engineers who want the answer in under ten seconds.
+        </p>
+      </div>
+      <div>
+        <img
+          src="/cron-builder-demo.png"
+          alt="Cron Builder tool showing a visual schedule builder with plain English explanation of the cron expression running entirely in the browser"
+          style="display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.5);"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <!-- FROM THE BLOG                                                              -->
 <!-- ══════════════════════════════════════════════════════════════════════════ -->
 <section class="max-w-[1280px] mx-auto px-5" style="padding-top:56px;padding-bottom:20px;">
@@ -380,22 +437,44 @@ const toolCards = [
     <p style="font-size:15px;color:var(--text-secondary);">Searchable, copy-ready command references. Everything runs in your browser.</p>
   </div>
 
-  <div class="cheatsheet-grid">
-    {cheatsheetCards.map((sheet, i) => (
-      <a
-        href={`/cheatsheets/${sheet.slug}`}
-        class={'reveal cheatsheet-card' + (i === 1 ? ' reveal-delay-1' : i === 2 ? ' reveal-delay-2' : i === 3 ? ' reveal-delay-3' : '')}
-      >
-        <p class="cheatsheet-card-title">{sheet.title}</p>
-        <p class="cheatsheet-card-desc">{cheatsheetCardDescriptions[sheet.slug] ?? sheet.description}</p>
-        <p class="cheatsheet-card-count">{sheet.commands.length}+ commands</p>
-      </a>
-    ))}
+  <div class="hcs-grid">
+    {cheatsheetPreviewCards.map((sheet, i) => {
+      const brand = cheatsheetBrandMap[sheet.slug] ?? { color: '#3B82F6', logo: null };
+      const borderOp = brand.borderOpacity ?? 0.35;
+      const tintOp = brand.tintOpacity ?? 0.06;
+      const pillOp = brand.pillOpacity ?? 0.15;
+      return (
+        <a
+          href={`/cheatsheets/${sheet.slug}`}
+          class={'reveal hcs-card' + (i === 1 ? ' reveal-delay-1' : i === 2 ? ' reveal-delay-2' : i === 3 ? ' reveal-delay-3' : '')}
+          style={`--brand: ${brand.color}; --brand-rgb: ${hexToRgb(brand.color)}; --border-op: ${borderOp}; --tint-op: ${tintOp}; --pill-op: ${pillOp};`}
+        >
+          <div class="hcs-card-top">
+            <span class="hcs-cat-pill">{sheet.category}</span>
+          </div>
+          <h3 class="hcs-card-title">{sheet.title}</h3>
+          <div class="hcs-card-meta">
+            <span>{sheet.commands.length} commands</span>
+            <span class="hcs-meta-sep">·</span>
+            <span>Updated {sheet.lastUpdated}</span>
+          </div>
+          <span class="hcs-ghost-btn">View Cheat Sheet →</span>
+          {brand.logo && (
+            <div class="hcs-card-logo-stack">
+              <img src={brand.logo} alt="" aria-hidden="true" class="hcs-card-logo" width="36" height="36" loading="lazy" />
+              {cheatsheetToolNames[sheet.slug] && (
+                <span class="hcs-card-logo-name">{cheatsheetToolNames[sheet.slug]}</span>
+              )}
+            </div>
+          )}
+        </a>
+      );
+    })}
   </div>
 
   <div style="text-align:center;margin-top:36px;">
     <a href="/cheatsheets" class="browse-btn">
-      Browse all cheat sheets →
+      Browse all 8 cheat sheets →
     </a>
   </div>
 
@@ -415,29 +494,71 @@ const toolCards = [
   </div>
 
   <div class="tools-grid">
-    {toolCards.map((card, i) => (
-      <a
-        href={card.href}
-        class={'reveal tool-card' + (i % 3 === 1 ? ' reveal-delay-1' : i % 3 === 2 ? ' reveal-delay-2' : '')}
-      >
-        <div class="tool-card-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2">
-            <g set:html={card.icon}></g>
-          </svg>
-        </div>
-        <div class="tool-card-content">
-          <div class="tool-card-name">{card.name}</div>
-          <div class="tool-card-desc">{card.desc}</div>
-          <div class="tool-card-tag">{card.cat}</div>
-        </div>
-      </a>
-    ))}
+    {toolCards.map((card, i) => {
+      const catColor = toolCategoryColors[card.cat] ?? '#94A3B8';
+      const catRgb = hexToRgb(catColor);
+      return (
+        <a
+          href={card.href}
+          class={'reveal tool-card' + (i % 3 === 1 ? ' reveal-delay-1' : i % 3 === 2 ? ' reveal-delay-2' : '')}
+          style={`--cat: ${catColor}; --cat-rgb: ${catRgb};`}
+        >
+          <div class="tool-card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2">
+              <g set:html={card.icon}></g>
+            </svg>
+          </div>
+          <div class="tool-card-content">
+            <div class="tool-card-name">{card.name}</div>
+            <div class="tool-card-desc">{card.desc}</div>
+            <div class="tool-card-tag">{card.cat}</div>
+          </div>
+        </a>
+      );
+    })}
   </div>
 </section>
 
 </main>
 
 <style>
+  /* ── Homepage background effects — confined to the hero area at the top of  */
+  /* the page (not fixed to viewport) so they scroll away with the hero and   */
+  /* never show behind the tools grid or lower sections.                     */
+  .page-bg-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .bg-blob-center {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .bg-dot-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 40%, transparent 80%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 40%, transparent 80%);
+  }
+
   /* ── Browse Tools button ─────────────────────────────────────────────────── */
   .browse-btn {
     display: inline-flex;
@@ -456,6 +577,19 @@ const toolCards = [
     transition: all 200ms ease;
     white-space: nowrap;
   }
+  /* ── Why OpsBash two-column layout ──────────────────────────────────────── */
+  .why-opsbash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  @media (max-width: 768px) {
+    .why-opsbash-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .browse-btn:hover {
     background: rgba(248, 250, 252, 0.08);
     border-color: #F8FAFC;
@@ -513,51 +647,122 @@ const toolCards = [
     .home-blog-grid { grid-template-columns: 1fr; }
   }
 
-  /* ── Cheat sheet preview cards ──────────────────────────────────────────── */
-  .cheatsheet-grid {
+  /* ── Cheat sheet preview cards — mirrors /cheatsheets card styling exactly ── */
+  .hcs-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 24px;
   }
-  @media (max-width: 900px) {
-    .cheatsheet-grid { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 1023px) {
+    .hcs-grid { grid-template-columns: repeat(2, 1fr); }
   }
-  @media (max-width: 640px) {
-    .cheatsheet-grid { grid-template-columns: 1fr; }
+  @media (max-width: 639px) {
+    .hcs-grid { grid-template-columns: 1fr; }
   }
-  .cheatsheet-card {
+  .hcs-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    background: #111111;
-    border: 1px solid #222222;
+    background: linear-gradient(rgba(var(--brand-rgb), var(--tint-op)), rgba(var(--brand-rgb), var(--tint-op))), #111111;
+    border: 1px solid rgba(var(--brand-rgb), var(--border-op));
     border-radius: 8px;
     padding: 16px;
     text-decoration: none;
     transition: all 200ms ease;
   }
-  .cheatsheet-card:hover {
-    background: #1A1A1A;
-    border-color: #F8FAFC;
+  .hcs-card:hover {
+    background: linear-gradient(rgba(var(--brand-rgb), var(--tint-op)), rgba(var(--brand-rgb), var(--tint-op))), #1A1A1A;
+    border-color: rgba(var(--brand-rgb), 0.6);
   }
-  .cheatsheet-card-title {
+  .hcs-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .hcs-cat-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-right: 56px;
+    border: 1px solid rgba(var(--brand-rgb), 0.4);
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand);
+    background: rgba(var(--brand-rgb), var(--pill-op));
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .hcs-card-logo-stack {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .hcs-card-logo {
+    width: 36px;
+    height: 36px;
+    opacity: 0.85;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+  .hcs-card:hover .hcs-card-logo {
+    opacity: 1;
+  }
+  .hcs-card-logo-name {
     font-family: 'Inter', sans-serif;
-    font-size: 16px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--brand);
+    text-align: center;
+    margin-top: 4px;
+    text-decoration: none;
+    max-width: 100px;
+    line-height: 1.3;
+  }
+  .hcs-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
     font-weight: 600;
     color: #F8FAFC;
+    line-height: 1.3;
+    padding-right: 70px;
   }
-  .cheatsheet-card-desc {
+  .hcs-card-meta {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: #94A3B8;
-    line-height: 1.55;
-    flex: 1;
-  }
-  .cheatsheet-card-count {
-    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: #71717a;
-    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hcs-meta-sep { color: #334155; }
+  .hcs-ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    opacity: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    width: fit-content;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .hcs-card:hover .hcs-ghost-btn {
+    background: rgba(var(--brand-rgb), 0.12);
   }
 
   /* ── Tool cards ──────────────────────────────────────────────────────────── */
@@ -582,7 +787,8 @@ const toolCards = [
     width: 40px;
     height: 40px;
     min-width: 40px;
-    background: #1A1A1A;
+    background: rgba(var(--cat-rgb), 0.08);
+    border: 1px solid rgba(var(--cat-rgb), 0.15);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -608,10 +814,17 @@ const toolCards = [
     line-height: 1.5;
   }
   .tool-card-tag {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
     font-family: Inter, sans-serif;
-    font-size: 10px;
-    font-weight: 500;
-    color: #94A3B8;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cat);
+    background: rgba(var(--cat-rgb), 0.08);
+    border: 1px solid rgba(var(--cat-rgb), 0.25);
+    border-radius: 4px;
+    padding: 2px 8px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-top: 4px;

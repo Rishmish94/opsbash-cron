@@ -102,4 +102,9 @@ This is also a good moment to be explicit about what a browser based JWT decoder
 
 The [JWT Decoder](/jwt-decoder) on opsbash does exactly one thing. It takes the token you paste in, splits it on the dots, base64 decodes the header and payload, and shows you the JSON, including the exp, iat, and nbf claims so you can check at a glance whether a token has expired without writing a script. That's the entire job. It doesn't check the signature, because checking the signature requires a key that only your server has, and a tool running in your browser has no business asking for it.
 
+<figure style="margin: 32px 0;">
+  <img src="/images/blog/jwt-decoded-output.png" alt="OpsBash JWT Decoder showing a decoded token's header, payload, and expiry claims" style="border-radius: 8px; border: 1px solid #222222; width: 100%; display: block;" />
+  <figcaption style="font-size: 13px; color: var(--text-secondary); margin-top: 10px; text-align: center;">Decoded, not verified: the header, claims, and expiry are readable — the signature still needs a key to trust.</figcaption>
+</figure>
+
 If you're debugging why a token is being rejected, decode it here to confirm the claims look right, then check your server's verification logic, specifically the algorithms allowlist, for the actual answer. Decoding shows you what the token says. It was never going to tell you whether to trust it, and neither should your authorization code.

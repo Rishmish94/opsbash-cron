@@ -23,6 +23,11 @@ It works. That's the problem. chmod 777 doesn't fix the permission issue. It rem
 
 This makes the folder writable by everyone and anyone, which is a significant security vulnerability, especially for files exposed to the web. It's best avoided.
 
+<figure style="margin: 32px 0;">
+  <img src="/images/blog/chmod-777-calculator.png" alt="OpsBash chmod Calculator showing 777 as full read, write, and execute for owner, group, and others" style="border-radius: 8px; border: 1px solid #222222; width: 100%; display: block;" />
+  <figcaption style="font-size: 13px; color: var(--text-secondary); margin-top: 10px; text-align: center;">777 in full: read, write, and execute granted to owner, group, and everyone else, with nothing held back.</figcaption>
+</figure>
+
 ## What's actually happening: UIDs, not usernames
 
 The root cause of almost every permission denied error in Docker is a mismatch between two numbers that have nothing to do with the usernames you see in ls -la.

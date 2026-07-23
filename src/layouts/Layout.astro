@@ -6,10 +6,12 @@ const {
   canonicalURL = new URL(Astro.url.pathname, 'https://opsbash.com').href,
   ogTitle = title,
   ogDescription = description,
+  ogImage = 'https://opsbash.com/android-chrome-512x512.png',
 } = Astro.props;
 const year = new Date().getFullYear();
 const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
+const isHomePage = currentPath === '/';
 
 const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser', '/base64'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
@@ -20,7 +22,7 @@ const orgSchema = {
   "@type": "Organization",
   "name": "OpsBash",
   "url": "https://opsbash.com",
-  "logo": "https://opsbash.com/favicon-512x512.png",
+  "logo": "https://opsbash.com/android-chrome-512x512.png",
   "description": "Free DevOps tools for engineers. Cron expression generator, CIDR calculator and more.",
   "contactPoint": {
     "@type": "ContactPoint",
@@ -46,9 +48,11 @@ const orgSchema = {
   <meta property="og:title" content={ogTitle} />
   <meta property="og:description" content={ogDescription} />
   <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={ogImage} />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content={ogTitle} />
   <meta name="twitter:description" content={ogDescription} />
+  <meta name="twitter:image" content={ogImage} />
   <link rel="sitemap" href="/sitemap.xml" />
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
@@ -71,7 +75,7 @@ const orgSchema = {
     gtag('config', gaId);
   </script>
 </head>
-<body class="antialiased" style="background:var(--bg-primary);">
+<body class={'antialiased' + (isHomePage ? ' is-homepage' : '')} style="background:var(--bg-primary);">
 
   <!-- Command palette overlay -->
   <div id="cmd-overlay" role="dialog" aria-label="Command palette" aria-modal="true">
@@ -631,6 +635,33 @@ const orgSchema = {
   .nav-pill-cheatsheets.nav-pill-active {
     background: rgba(99, 102, 241, 0.20);
     color: #A5B4FC;
+  }
+
+  /* ── Homepage background glow blobs — scoped to body.is-homepage only ────── */
+  body.is-homepage::before {
+    content: '';
+    position: fixed;
+    top: -300px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 50%;
+  }
+
+  body.is-homepage::after {
+    content: '';
+    position: fixed;
+    bottom: -200px;
+    right: -150px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 50%;
   }
 </style>
 

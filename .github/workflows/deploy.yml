@@ -129,6 +129,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history, so sitemap.xml.ts can derive real per-page lastmod dates via `git log`
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4

@@ -225,6 +225,55 @@ data.commands.forEach((c: any) => {
   categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
 });
 
+// ── Command token explainer (explainshell-style breakdown) ────────────────
+const toolTokenDescriptions: Record<string, string> = {
+  kubectl: 'The Kubernetes command line tool for controlling clusters',
+  docker: 'The Docker container runtime CLI',
+  git: 'The distributed version control system CLI',
+  aws: 'The Amazon Web Services command line interface',
+  terraform: 'The HashiCorp infrastructure as code CLI',
+  helm: 'The Kubernetes package manager CLI',
+};
+
+function tokenizeCommand(cmdStr: string): string[] {
+  const cleaned = (cmdStr || '').trim().replace(/^\$\s*/, '');
+  return cleaned.match(/"[^"]*"|'[^']*'|\S+/g) || [];
+}
+
+function buildTokenMap(cmd: any, tokens: string[]): Record<string, string> {
+  const tool = tokens[0] || '';
+  const flagLookup = new Map<string, string>();
+  (cmd.flags || []).forEach((f: any) => {
+    const flagToken = String(f.flag).trim().split(/\s+/)[0];
+    if (!flagLookup.has(flagToken)) flagLookup.set(flagToken, f.description);
+  });
+
+  const map: Record<string, string> = {};
+  tokens.forEach((token: string, i: number) => {
+    if (map[token] !== undefined) return;
+    if (i === 0) {
+      map[token] = toolTokenDescriptions[token] || 'Command line tool';
+      return;
+    }
+    if (flagLookup.has(token)) {
+      map[token] = flagLookup.get(token) as string;
+      return;
+    }
+    const prev = tokens[i - 1];
+    if (flagLookup.has(prev) && !token.startsWith('-')) {
+      map[token] = `Value passed to ${prev} — ${flagLookup.get(prev)}`;
+      return;
+    }
+    if (!token.startsWith('-')) {
+      map[token] = cmd.title || `Part of the ${tool} command`;
+      return;
+    }
+    map[token] = `Part of the ${tool} command`;
+  });
+
+  return map;
+}
+
 const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef || data.hasDistroRosetta || data.hasFailureDecoder;
 
 // ── Start Here section ───────────────────────────────────────────────────
@@ -443,12 +492,18 @@ const visibleCategories = data.categories
           cmd.beginnerNote || '',
           ...(cmd.tags || []),
         ].join(' ').toLowerCase();
+        const hasFlags = cmd.flags && cmd.flags.length > 0;
+        const cmdTokens = tokenizeCommand(cmd.command);
+        const hasBreakdown = cmdTokens.length > 1;
+        const tokenMap = hasBreakdown ? buildTokenMap(cmd, cmdTokens) : null;
         return (
           <div
             class={`cmd-card${cmd.destructive ? ' destructive' : ''}`}
             data-category={cmd.category}
             data-difficulty={cmd.difficulty}
             data-search={searchBlob}
+            data-command={hasBreakdown ? cmd.command : undefined}
+            data-token-map={hasBreakdown ? JSON.stringify(tokenMap) : undefined}
           >
             <div class="cmd-card-top">
               <h3 class="cmd-card-title">{cmd.title}</h3>
@@ -460,11 +515,16 @@ const visibleCategories = data.categories
             </div>
 
             <div class="cmd-block">
-              <code class="cmd-text">{cmd.command}</code>
+              <code
+                class={`cmd-text${hasBreakdown ? ' cmd-expandable' : ''}`}
+                data-has-breakdown={hasBreakdown ? 'true' : undefined}
+              >{cmd.command}</code>
               <button class="copy-btn" data-copy={cmd.command}>Copy</button>
             </div>
 
-            {cmd.flags && cmd.flags.length > 0 && (
+            {hasBreakdown && <p class="explain-hint">↓ Click command to explain</p>}
+
+            {hasFlags && (
               <div class="cmd-flags">
                 {cmd.flags.map((f: any) => (
                   <div class="cmd-flag-row">
@@ -1433,6 +1493,166 @@ const visibleCategories = data.categories
     line-height: 1.5;
   }
 
+  /* ── Inline command explainer (explainshell-style, click-to-expand) ──────── */
+  .cmd-expandable {
+    cursor: pointer;
+  }
+
+  .cmd-expandable:hover {
+    opacity: 0.85;
+  }
+
+  .explain-hint {
+    font-size: 11px;
+    color: var(--fg2);
+    opacity: 0.5;
+    margin-top: 4px;
+  }
+
+  /* :global() below because the explainer DOM is built dynamically in
+     JavaScript, so it never receives Astro's data-astro-cid scoping
+     attribute and scoped selectors would silently fail to match it. */
+  :global(.cmd-explainer) {
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+  }
+
+  :global(.cmd-explainer.visible) {
+    opacity: 1;
+  }
+
+  :global(.explainer-tokens-row) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  :global(.explainer-token) {
+    position: relative;
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  :global(.explainer-token.token-tool) {
+    color: #94A3B8;
+    border-bottom: 2px solid #94A3B8;
+    background: rgba(148,163,184,0.06);
+  }
+
+  :global(.explainer-token.token-flag) {
+    color: #60A5FA;
+    border-bottom: 2px solid #60A5FA;
+    background: rgba(96,165,250,0.06);
+  }
+
+  :global(.explainer-token.token-subcommand) {
+    color: #4ADE80;
+    border-bottom: 2px solid #4ADE80;
+    background: rgba(74,222,128,0.06);
+  }
+
+  :global(.explainer-token.token-value) {
+    color: #FB923C;
+    border-bottom: 2px solid #FB923C;
+    background: rgba(251,146,60,0.06);
+  }
+
+  :global(.token-num) {
+    font-size: 9px;
+    margin-left: 1px;
+    opacity: 0.7;
+    vertical-align: super;
+    font-family: system-ui, sans-serif;
+  }
+
+  :global(.explainer-spacer) {
+    color: var(--fg2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  :global(.explainer-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  :global(.explainer-item) {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  :global(.explainer-num) {
+    font-size: 14px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+  }
+
+  :global(.explainer-num.token-tool) { color: #94A3B8; }
+  :global(.explainer-num.token-flag) { color: #60A5FA; }
+  :global(.explainer-num.token-subcommand) { color: #4ADE80; }
+  :global(.explainer-num.token-value) { color: #FB923C; }
+
+  :global(.explainer-token-name) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    flex-shrink: 0;
+    min-width: 120px;
+  }
+
+  :global(.explainer-token-name.token-tool) { color: #94A3B8; }
+  :global(.explainer-token-name.token-flag) { color: #60A5FA; }
+  :global(.explainer-token-name.token-subcommand) { color: #4ADE80; }
+  :global(.explainer-token-name.token-value) { color: #FB923C; }
+
+  :global(.explainer-arrow) {
+    color: var(--fg2);
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  :global(.explainer-desc) {
+    color: var(--fg2);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  :global(.explainer-close) {
+    font-size: 11px;
+    color: var(--fg2);
+    cursor: pointer;
+    float: right;
+    opacity: 0.6;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-bottom: 8px;
+  }
+
+  :global(.explainer-close:hover) {
+    opacity: 1;
+  }
+
+  /* Hide entirely on mobile */
+  @media (max-width: 767px) {
+    :global(.cmd-explainer) { display: none !important; }
+    .explain-hint { display: none !important; }
+    .cmd-expandable { cursor: default; }
+  }
+
   .cmd-usecase, .cmd-gotcha {
     border-radius: 8px;
     padding: 10px 12px;
@@ -2346,6 +2566,159 @@ const visibleCategories = data.categories
       chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
     });
   });
+
+  // ── Inline command explainer (explainshell-style breakdown) ───────────────
+  const EXPLAIN_SEEN_KEY = 'opsbash-explain-seen';
+
+  function tokenizeCommandClient(cmdStr: string): string[] {
+    const cleaned = (cmdStr || '').trim().replace(/^\$\s*/, '');
+    return cleaned.match(/"[^"]*"|'[^']*'|\S+/g) || [];
+  }
+
+  function classifyToken(token: string, i: number, tokens: string[]): 'tool' | 'flag' | 'subcommand' | 'value' {
+    if (i === 0) return 'tool';
+    if (token.startsWith('-')) return 'flag';
+    const prev = tokens[i - 1];
+    if (prev && prev.startsWith('-')) return 'value';
+    return 'subcommand';
+  }
+
+  const CIRCLED_NUMS = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+
+  function numberBadge(i: number): string {
+    return i < CIRCLED_NUMS.length ? CIRCLED_NUMS[i] : `${i + 1}.`;
+  }
+
+  function buildExplainer(cmdEl: HTMLElement, card: HTMLElement): HTMLElement {
+    const cmdStr = card.getAttribute('data-command') || '';
+    let tokenMap: Record<string, string> = {};
+    try {
+      tokenMap = JSON.parse(card.getAttribute('data-token-map') || '{}');
+    } catch (e) {
+      tokenMap = {};
+    }
+    const tokens = tokenizeCommandClient(cmdStr);
+    const tool = tokens[0] || '';
+
+    const explainer = document.createElement('div');
+    explainer.className = 'cmd-explainer';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'explainer-close';
+    closeBtn.textContent = 'Close ×';
+    explainer.appendChild(closeBtn);
+
+    // Zone 1 — annotated command: colored underline + superscript number, no boxes.
+    const tokensRow = document.createElement('div');
+    tokensRow.className = 'explainer-tokens-row';
+
+    // Zone 2 — vertical explanation list, one row per token, never overlaps.
+    const list = document.createElement('div');
+    list.className = 'explainer-list';
+
+    tokens.forEach((token, i) => {
+      const type = classifyToken(token, i, tokens);
+      const desc = tokenMap[token] || `Part of the ${tool} command`;
+
+      if (i > 0) {
+        const spacer = document.createElement('span');
+        spacer.className = 'explainer-spacer';
+        spacer.textContent = ' ';
+        tokensRow.appendChild(spacer);
+      }
+
+      const tokenSpan = document.createElement('span');
+      tokenSpan.className = `explainer-token token-${type}`;
+      tokenSpan.setAttribute('data-index', String(i));
+      tokenSpan.textContent = token;
+
+      const sup = document.createElement('sup');
+      sup.className = 'token-num';
+      sup.textContent = String(i + 1);
+      tokenSpan.appendChild(sup);
+
+      tokensRow.appendChild(tokenSpan);
+
+      const item = document.createElement('div');
+      item.className = 'explainer-item';
+
+      const num = document.createElement('span');
+      num.className = `explainer-num token-${type}`;
+      num.textContent = numberBadge(i);
+      item.appendChild(num);
+
+      const name = document.createElement('span');
+      name.className = `explainer-token-name token-${type}`;
+      name.textContent = token;
+      item.appendChild(name);
+
+      const arrow = document.createElement('span');
+      arrow.className = 'explainer-arrow';
+      arrow.textContent = '→';
+      item.appendChild(arrow);
+
+      const descEl = document.createElement('span');
+      descEl.className = 'explainer-desc';
+      descEl.textContent = desc;
+      item.appendChild(descEl);
+
+      list.appendChild(item);
+    });
+
+    explainer.appendChild(tokensRow);
+    explainer.appendChild(list);
+
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      collapseExplainer(card);
+    });
+
+    return explainer;
+  }
+
+  function collapseExplainer(card: HTMLElement) {
+    const explainer = card.querySelector('.cmd-explainer') as HTMLElement | null;
+    explainer?.classList.remove('visible');
+    if (explainer) {
+      setTimeout(() => explainer.remove(), 300);
+    }
+  }
+
+  function dismissExplainHint() {
+    if (localStorage.getItem(EXPLAIN_SEEN_KEY) === 'true') return;
+    localStorage.setItem(EXPLAIN_SEEN_KEY, 'true');
+    document.querySelectorAll('.explain-hint').forEach((el) => el.remove());
+  }
+
+  function handleCommandClick(cmdEl: HTMLElement) {
+    if (cmdEl.getAttribute('data-has-breakdown') !== 'true') return;
+    const card = cmdEl.closest('.cmd-card') as HTMLElement | null;
+    if (!card) return;
+
+    const existing = card.querySelector('.cmd-explainer') as HTMLElement | null;
+    if (existing) {
+      collapseExplainer(card);
+      return;
+    }
+
+    const explainer = buildExplainer(cmdEl, card);
+    const hint = card.querySelector('.explain-hint');
+    const anchor = hint || cmdEl.closest('.cmd-block');
+    anchor?.insertAdjacentElement('afterend', explainer);
+
+    requestAnimationFrame(() => explainer.classList.add('visible'));
+
+    dismissExplainHint();
+  }
+
+  document.querySelectorAll('.cmd-expandable[data-has-breakdown="true"]').forEach((el) => {
+    el.addEventListener('click', () => handleCommandClick(el as HTMLElement));
+  });
+
+  if (localStorage.getItem(EXPLAIN_SEEN_KEY) === 'true') {
+    document.querySelectorAll('.explain-hint').forEach((el) => el.remove());
+  }
 </script>
 
 </Layout>

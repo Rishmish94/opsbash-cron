@@ -22,9 +22,8 @@ const ogImage         = `https://opsbash.com${encodeURI(post.data.image)}`;
   canonicalURL={canonicalURL}
   ogTitle={post.data.title}
   ogDescription={post.data.description}
+  ogImage={ogImage}
 >
-  <!-- OG image injected via named head slot -->
-  <meta slot="head" property="og:image" content={ogImage} />
 
   <article style="max-width:720px;width:100%;min-width:0;margin:0 auto;padding:48px 20px 96px;box-sizing:border-box;">
 
