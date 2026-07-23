@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 User-agent: GPTBot
-Allow: /
+Disallow: /
 
 User-agent: OAI-SearchBot
 Allow: /
@@ -11,13 +11,13 @@ User-agent: ChatGPT-User
 Allow: /
 
 User-agent: ClaudeBot
-Allow: /
+Disallow: /
 
 User-agent: anthropic-ai
 Allow: /
 
 User-agent: Google-Extended
-Allow: /
+Disallow: /
 
 User-agent: PerplexityBot
 Allow: /
@@ -26,6 +26,6 @@ User-agent: cohere-ai
 Allow: /
 
 User-agent: Amazonbot
-Allow: /
+Disallow: /
 
 Sitemap: https://opsbash.com/sitemap.xml
