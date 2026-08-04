@@ -22,6 +22,7 @@ const PAGE_CONFIG: Record<string, { priority: string; changefreq: string; fallba
   '/k8s-secret-decoder': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
   '/log-sanitiser': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
   '/base64': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
+  '/aws-credential-chain': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-24' },
   '/cheatsheets': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-10' },
   '/blog': { priority: '0.8', changefreq: 'weekly', fallback: '2026-07-09' },
   '/about': { priority: '0.5', changefreq: 'monthly', fallback: '2026-07-08' },

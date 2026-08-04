@@ -579,6 +579,9 @@ const visibleCategories = data.categories
           </button>
           <div class="ref-tool-panel" id="panel-cred-debugger">
             <div class="ref-tool-panel-inner">
+              <a href="/aws-credential-chain" class="cred-dedicated-page-link" style="margin-top: 14px;">
+                This tool now has its own dedicated page with an interactive debugger → <strong>Visit AWS Credential Chain Debugger</strong>
+              </a>
               <p class="section-subtitle" style="margin-top: 14px;">{data.credentialDebugger.subtitle}</p>
               <div class="cred-steps-grid">
                 {data.credentialDebugger.steps.map((step: any) => (
@@ -2018,6 +2021,23 @@ const visibleCategories = data.categories
   }
 
   /* ── Credential chain debugger ───────────────────────────────────────────── */
+  .cred-dedicated-page-link {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #FF9900;
+    background: rgba(255,153,0,0.08);
+    border: 1px solid rgba(255,153,0,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-decoration: none;
+    line-height: 1.5;
+  }
+  .cred-dedicated-page-link:hover {
+    background: rgba(255,153,0,0.14);
+    border-color: rgba(255,153,0,0.5);
+  }
+  .cred-dedicated-page-link strong { color: #FF9900; }
   .cred-steps-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

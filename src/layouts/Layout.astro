@@ -13,7 +13,7 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 const isHomePage = currentPath === '/';
 
-const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser', '/base64'].includes(currentPath);
+const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser', '/base64', '/aws-credential-chain'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 const isCheatsheetsPage = currentPath === '/cheatsheets' || currentPath.startsWith('/cheatsheets/');
 
@@ -75,7 +75,9 @@ const orgSchema = {
     gtag('config', gaId);
   </script>
 </head>
-<body class={'antialiased' + (isHomePage ? ' is-homepage' : '')} style="background:var(--bg-primary);">
+<body class={'antialiased' + (isHomePage ? ' is-homepage' : '')} style="background:#050508;">
+
+  <canvas id="space-canvas" aria-hidden="true" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
 
   <!-- Command palette overlay -->
   <div id="cmd-overlay" role="dialog" aria-label="Command palette" aria-modal="true">
@@ -124,6 +126,7 @@ const orgSchema = {
           { href: '/jwt-decoder',   label: 'JWT Decoder' },
           { href: '/log-sanitiser', label: 'Log Sanitiser & PII Redactor' },
         ]},
+      { cat: 'AWS',         tools: [{ href: '/aws-credential-chain', label: 'AWS Credential Debugger' }] },
       { cat: 'Encoding',    tools: [{ href: '/base64', label: 'Base64 Encoder/Decoder' }] },
       { cat: 'Development', tools: [
           { href: '/json-yaml-converter',      label: 'JSON to YAML Converter' },
@@ -180,7 +183,7 @@ const orgSchema = {
   </div>
 
   <!-- Page wrapper -->
-  <div class="flex flex-col min-h-screen">
+  <div class="flex flex-col min-h-screen" style="position:relative;z-index:1;">
 
     <!-- ── NAV ── -->
     <header id="main-nav" class="fixed top-0 left-0 right-0 z-30">
@@ -219,6 +222,9 @@ const orgSchema = {
               <span class="dropdown-category">Security</span>
               <a href="/jwt-decoder" class="dropdown-item">JWT Decoder</a>
               <a href="/log-sanitiser" class="dropdown-item">Log Sanitiser & PII Redactor</a>
+
+              <span class="dropdown-category">AWS</span>
+              <a href="/aws-credential-chain" class="dropdown-item">AWS Credential Debugger</a>
 
               <span class="dropdown-category">Encoding</span>
               <a href="/base64" class="dropdown-item">Base64 Encoder/Decoder</a>
@@ -637,33 +643,290 @@ const orgSchema = {
     color: #A5B4FC;
   }
 
-  /* ── Homepage background glow blobs — scoped to body.is-homepage only ────── */
-  body.is-homepage::before {
-    content: '';
-    position: fixed;
-    top: -300px;
-    left: -200px;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    border-radius: 50%;
+  body {
+    background-color: #050508;
   }
 
-  body.is-homepage::after {
-    content: '';
-    position: fixed;
-    bottom: -200px;
-    right: -150px;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    border-radius: 50%;
-  }
 </style>
+
+<script>
+(function () {
+  const canvas = document.getElementById('space-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let W, H, CX, CY;
+  let stars = [];
+  let shootingStars = [];
+  let nebulae = [];
+  let animId;
+  let lastShot = 0;
+  let nextShotDelay = 7000;
+
+  const STAR_COUNT = 300;
+  const WARP_SPEED = 2.2;
+  const MAX_DEPTH = 1000;
+
+  // ── Resize ─────────────────────────────────────────────────────────────
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    CX = W / 2;
+    CY = H / 2;
+  }
+
+  // ── Stars ──────────────────────────────────────────────────────────────
+  // Each star has a 3D position. x and y are offsets from screen center.
+  // z is depth — starts far away at MAX_DEPTH and moves toward 0 (the viewer).
+  // As z decreases the star appears further from center, larger, and brighter.
+  function makeStar(randomDepth) {
+    const warm = Math.random();
+    return {
+      x  : (Math.random() - 0.5) * W * 2,
+      y  : (Math.random() - 0.5) * H * 2,
+      z  : randomDepth ? Math.random() * MAX_DEPTH : MAX_DEPTH,
+      pz : randomDepth ? MAX_DEPTH : MAX_DEPTH,
+      r  : 255,
+      g  : 255,
+      b  : warm < 0.12 ? 195 + Math.floor(Math.random() * 60)   // warm yellow-white
+         : warm < 0.22 ? 255                                      // pure white
+         :               230 + Math.floor(Math.random() * 25),   // slight blue-white
+    };
+  }
+
+  function resetStar(s) {
+    s.x  = (Math.random() - 0.5) * W * 0.6;
+    s.y  = (Math.random() - 0.5) * H * 0.6;
+    s.z  = MAX_DEPTH;
+    s.pz = MAX_DEPTH;
+  }
+
+  function initStars() {
+    stars = Array.from({ length: STAR_COUNT }, () => makeStar(true));
+  }
+
+  function drawStars() {
+    stars.forEach(s => {
+      s.pz  = s.z;
+      s.z  -= WARP_SPEED;
+
+      if (s.z <= 1) { resetStar(s); return; }
+
+      // Project to screen
+      const sx = (s.x / s.z) * W + CX;
+      const sy = (s.y / s.z) * H + CY;
+
+      if (sx < -20 || sx > W + 20 || sy < -20 || sy > H + 20) {
+        resetStar(s); return;
+      }
+
+      // Previous projected position — used for the motion-blur trail
+      const px = (s.x / s.pz) * W + CX;
+      const py = (s.y / s.pz) * H + CY;
+
+      // Progress 0 = far away, 1 = right in front of viewer
+      const progress  = 1 - s.z / MAX_DEPTH;
+      const size      = Math.max(0.25, progress * progress * 4.0);
+      const alpha     = Math.min(1,   progress * 2.0);
+
+      // Motion-blur trail — only draw once the star has moved a visible amount
+      const trailLen = Math.hypot(sx - px, sy - py);
+      if (trailLen > 0.5 && progress > 0.05) {
+        const tGrad = ctx.createLinearGradient(px, py, sx, sy);
+        tGrad.addColorStop(0, `rgba(${s.r},${s.g},${s.b},0)`);
+        tGrad.addColorStop(1, `rgba(${s.r},${s.g},${s.b},${alpha * 0.6})`);
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(sx, sy);
+        ctx.strokeStyle = tGrad;
+        ctx.lineWidth   = size * 0.75;
+        ctx.lineCap     = 'round';
+        ctx.stroke();
+      }
+
+      // Star core
+      ctx.beginPath();
+      ctx.arc(sx, sy, size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.r},${s.g},${s.b},${alpha})`;
+      ctx.fill();
+
+      // Glow halo for close stars
+      if (progress > 0.70) {
+        const glowR = size * 4;
+        const grd   = ctx.createRadialGradient(sx, sy, 0, sx, sy, glowR);
+        grd.addColorStop(0, `rgba(${s.r},${s.g},${s.b},${alpha * 0.28})`);
+        grd.addColorStop(1, `rgba(${s.r},${s.g},${s.b},0)`);
+        ctx.beginPath();
+        ctx.arc(sx, sy, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+
+        // Cross diffraction spike for the very brightest
+        if (progress > 0.88) {
+          const spikeLen = size * 7;
+          ctx.strokeStyle = `rgba(${s.r},${s.g},${s.b},${alpha * 0.3})`;
+          ctx.lineWidth   = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(sx - spikeLen, sy);
+          ctx.lineTo(sx + spikeLen, sy);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(sx, sy - spikeLen);
+          ctx.lineTo(sx, sy + spikeLen);
+          ctx.stroke();
+        }
+      }
+    });
+  }
+
+  // ── Nebulae ────────────────────────────────────────────────────────────
+  function makeNebula() {
+    const palette = [
+      [18,  8, 55],   // deep violet
+      [ 5, 28, 65],   // midnight blue
+      [ 8, 45, 40],   // dark teal
+      [45,  8, 38],   // deep magenta
+      [ 4, 18, 50],   // dark indigo
+    ];
+    const [r, g, b] = palette[Math.floor(Math.random() * palette.length)];
+    return {
+      x : Math.random() * W,
+      y : Math.random() * H,
+      rx: Math.random() * W * 0.45 + W * 0.15,
+      ry: Math.random() * H * 0.32 + H * 0.10,
+      a : Math.random() * 0.038 + 0.010,
+      r, g, b,
+      dx: (Math.random() - 0.5) * 0.007,
+      dy: (Math.random() - 0.5) * 0.005,
+    };
+  }
+
+  function initNebulae() {
+    nebulae = Array.from({ length: 5 }, makeNebula);
+  }
+
+  function drawNebulae() {
+    nebulae.forEach(n => {
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, Math.max(n.rx, n.ry));
+      g.addColorStop(0,   `rgba(${n.r},${n.g},${n.b},${n.a})`);
+      g.addColorStop(0.5, `rgba(${n.r},${n.g},${n.b},${n.a * 0.35})`);
+      g.addColorStop(1,   `rgba(${n.r},${n.g},${n.b},0)`);
+      ctx.save();
+      ctx.translate(n.x, n.y);
+      ctx.scale(1, n.ry / n.rx);
+      ctx.beginPath();
+      ctx.arc(0, 0, n.rx, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.restore();
+      n.x += n.dx;  if (n.x < -n.rx) n.x = W + n.rx;  if (n.x > W + n.rx) n.x = -n.rx;
+      n.y += n.dy;  if (n.y < -n.ry) n.y = H + n.ry;  if (n.y > H + n.ry) n.y = -n.ry;
+    });
+  }
+
+  // ── Shooting stars ─────────────────────────────────────────────────────
+  function makeShootingStar() {
+    const angle = (Math.random() * 45 + 8) * Math.PI / 180;
+    const speed = Math.random() * 14 + 12;
+    return {
+      x    : Math.random() * W * 0.8,
+      y    : Math.random() * H * 0.45,
+      vx   : Math.cos(angle) * speed,
+      vy   : Math.sin(angle) * speed,
+      len  : Math.random() * 200 + 80,
+      alpha: 1,
+      width: Math.random() * 1.6 + 0.5,
+      decay: Math.random() * 0.015 + 0.008,
+    };
+  }
+
+  function drawShootingStars() {
+    shootingStars = shootingStars.filter(s => s.alpha > 0.01);
+    shootingStars.forEach(s => {
+      const spd = Math.hypot(s.vx, s.vy);
+      const tx  = s.x - s.vx * (s.len / spd);
+      const ty  = s.y - s.vy * (s.len / spd);
+      const g   = ctx.createLinearGradient(tx, ty, s.x, s.y);
+      g.addColorStop(0,    `rgba(255,255,255,0)`);
+      g.addColorStop(0.60, `rgba(210,228,255,${s.alpha * 0.35})`);
+      g.addColorStop(1,    `rgba(255,255,255,${s.alpha})`);
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(s.x, s.y);
+      ctx.strokeStyle = g;
+      ctx.lineWidth   = s.width;
+      ctx.lineCap     = 'round';
+      ctx.stroke();
+      // bright head
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.width * 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+      ctx.fill();
+      s.x += s.vx;
+      s.y += s.vy;
+      s.alpha -= s.decay;
+    });
+  }
+
+  // ── Main render loop ───────────────────────────────────────────────────
+  function loop(t) {
+    // Semi-transparent clear — leaves ghost trails that fade naturally
+    // This is what makes the warp motion blur look realistic
+    ctx.fillStyle = 'rgba(5,5,8,0.20)';
+    ctx.fillRect(0, 0, W, H);
+
+    drawNebulae();
+    drawStars();
+
+    if (t - lastShot > nextShotDelay) {
+      shootingStars.push(makeShootingStar());
+      lastShot      = t;
+      nextShotDelay = Math.random() * 8000 + 5000;
+    }
+    drawShootingStars();
+
+    animId = requestAnimationFrame(loop);
+  }
+
+  // ── Init and event wiring ──────────────────────────────────────────────
+  function init() {
+    resize();
+    initStars();
+    initNebulae();
+    ctx.fillStyle = '#050508';
+    ctx.fillRect(0, 0, W, H);
+    animId = requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', () => { resize(); initStars(); initNebulae(); });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(animId);
+    else { animId = requestAnimationFrame(loop); }
+  });
+
+  // Respect reduced motion preference — show static star field only
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    resize();
+    initStars();
+    ctx.fillStyle = '#050508';
+    ctx.fillRect(0, 0, W, H);
+    stars.forEach(s => {
+      const progress = 1 - s.z / MAX_DEPTH;
+      const sx = (s.x / Math.max(s.z, 1)) * W + CX;
+      const sy = (s.y / Math.max(s.z, 1)) * H + CY;
+      if (sx < 0 || sx > W || sy < 0 || sy > H) return;
+      ctx.beginPath();
+      ctx.arc(sx, sy, Math.max(0.3, progress * 2), 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${progress * 0.55})`;
+      ctx.fill();
+    });
+    return;
+  }
+
+  init();
+})();
+</script>
 
 </body>
 </html>
