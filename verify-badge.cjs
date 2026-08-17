@@ -22,7 +22,7 @@ const { chromium } = require('playwright');
 
   // 3. Type a 19-digit timestamp way beyond 2038
   await page.fill('#epochInput', '');
-  await page.fill('#epochInput', '2147484647000000000');
+  await page.fill('#epochInput', '2147484647000000000'); 
   await page.waitForTimeout(200);
   results.beyond2038 = await getDisplay();
 

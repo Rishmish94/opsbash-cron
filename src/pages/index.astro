@@ -521,6 +521,20 @@ const toolCategoryColors: Record<string, string> = {
 </main>
 
 <style>
+  /* ── Optional hero vignette — separates headline/terminal from the         */
+  /* starfield behind them. Small, low-risk, single rule — delete this block */
+  /* (and its ::before selector) to remove entirely.                        */
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 38%, rgba(255,255,255,0.035) 0%, rgba(5,5,8,0) 45%),
+      radial-gradient(ellipse 90% 80% at 50% 50%, rgba(5,5,8,0) 50%, rgba(5,5,8,0.35) 100%);
+  }
+
   /* ── Homepage background effects — confined to the hero area at the top of  */
   /* the page (not fixed to viewport) so they scroll away with the hero and   */
   /* never show behind the tools grid or lower sections.                     */

@@ -1,31 +1,4 @@
 User-agent: *
 Allow: /
 
-User-agent: GPTBot
-Disallow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: ClaudeBot
-Disallow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: Google-Extended
-Disallow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: cohere-ai
-Allow: /
-
-User-agent: Amazonbot
-Disallow: /
-
 Sitemap: https://opsbash.com/sitemap.xml
