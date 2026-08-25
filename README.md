@@ -22,6 +22,7 @@ Free DevOps tools that run entirely in your browser — no login, no tracking, n
 | Kubernetes Secret Decoder | [/k8s-secret-decoder](https://opsbash.com/k8s-secret-decoder) | Decode Kubernetes Secret YAML and convert .env files to K8s Secrets |
 | Log Sanitiser and PII Redactor | [/log-sanitiser](https://opsbash.com/log-sanitiser) | Redact PII and sensitive data from logs before sharing with AI tools |
 | Base64 Encoder/Decoder | [/base64](https://opsbash.com/base64) | Encode and decode Base64 strings, files, and images entirely in the browser |
+| AWS Credential Chain Debugger | [/aws-credential-chain](https://opsbash.com/aws-credential-chain) | Interactive 6-step credential resolution visualizer and decision tree debugger |
 
 ---
 
