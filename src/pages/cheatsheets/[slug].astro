@@ -8,6 +8,7 @@ import terraformData from '../../data/cheatsheets/terraform.json';
 import helmData from '../../data/cheatsheets/helm.json';
 import linuxData from '../../data/cheatsheets/linux.json';
 import githubData from '../../data/cheatsheets/github.json';
+import ansibleData from '../../data/cheatsheets/ansible.json';
 
 export function getStaticPaths() {
   return [
@@ -19,6 +20,7 @@ export function getStaticPaths() {
     { params: { slug: 'helm' }, props: { data: helmData } },
     { params: { slug: 'linux' }, props: { data: linuxData } },
     { params: { slug: 'github' }, props: { data: githubData } },
+    { params: { slug: 'ansible' }, props: { data: ansibleData } },
   ];
 }
 
@@ -35,6 +37,7 @@ const brandColors: Record<string, string> = {
   helm: '#0F1689',
   linux: '#FCC624',
   github: '#2DA44E',
+  ansible: '#EE0000',
 };
 const brandColor = brandColors[slug] || '#3B82F6';
 
@@ -47,6 +50,7 @@ const brandLogos: Record<string, string | null> = {
   helm: '/logos/helm-light.svg',
   linux: '/logos/linux.svg',
   github: '/logos/github.svg',
+  ansible: '/logos/ansible.svg',
 };
 const brandLogo = brandLogos[slug] ?? null;
 
@@ -91,6 +95,10 @@ const relatedToolsMap: Record<string, { href: string; name: string; desc: string
   github: [
     { href: '/cheatsheets/git', name: 'Git Cheat Sheet', desc: 'Command reference for branching, commits, remotes, and recovery.' },
     { href: '/cron-builder', name: 'Cron Builder', desc: 'Build and validate cron expressions for Linux, AWS, Kubernetes, and GitHub Actions.' },
+  ],
+  ansible: [
+    { href: '/cron-builder', name: 'Cron Builder', desc: 'Build and validate cron expressions for Linux, AWS, Kubernetes, and GitHub Actions — a companion to the cron module.' },
+    { href: '/json-diff', name: 'JSON Diff & Schema Validator', desc: 'Compare ansible-inventory JSON output or vars files semantically, side by side.' },
   ],
 };
 
@@ -141,6 +149,12 @@ const seoContentMap: Record<string, string[]> = {
     "GitHub Actions changed continuous integration for small teams by removing the setup cost that used to keep CI out of reach for smaller projects. Before Actions, adding CI to a repository usually meant signing up for a separate service, connecting it to GitHub, and maintaining a second system with its own billing and its own configuration format. Actions ships inside the same repository as a YAML file in .github/workflows, triggered automatically by the same push and pull request events developers already generate, with a generous free tier for public repositories. A team can go from no CI at all to running tests on every pull request in the time it takes to commit one workflow file, which is a big part of why Actions became the default choice for new projects rather than an add-on decided later.",
     "The syntax of a GitHub Actions workflow trips up almost everyone the first few times, usually in the same handful of places. Mixing shell variable syntax with GitHub Actions expression syntax, writing $VAR instead of ${{ inputs.var }} or the reverse, silently produces an empty string instead of an error. Step ids that contain a hyphen cannot be referenced with dot notation in an expression, so a step named build-app makes steps.build-app.outputs.version return nothing until the id is changed to use an underscore or the reference switches to bracket notation. Composite actions are another common trap, since every run step inside one must declare its own shell explicitly, unlike a normal job where the shell is inherited automatically. None of these produce a clear error message, which is exactly why they show up so often in troubleshooting threads.",
     "The security model behind GITHUB_TOKEN and secrets is worth understanding before writing workflows that deploy anything or touch sensitive data. Every workflow run gets a GITHUB_TOKEN automatically, scoped to that single run, expiring when the run finishes, and since a security update in May 2021 defaulting to read-only access unless the workflow explicitly requests write permissions. Secrets referenced as ${{ secrets.NAME }} are masked in logs automatically, but a secret copied into a shell variable and echoed, or transformed through base64 or another encoding, may not be masked, which is why manual masking with the add-mask command matters for anything derived from a secret. Pull requests from forks never receive secrets on the pull_request event for the same reason, and switching to pull_request_target to get around that restriction requires real care since that event runs with access to secrets in the context of the base branch.",
+  ],
+  ansible: [
+    "Ansible is an agentless automation tool that configures servers over plain SSH, running small Python programs called modules on the remote host and then removing them, rather than requiring a permanently installed agent like some competing tools. A playbook describes the desired end state of a server in YAML, such as a package being installed or a service running, and Ansible figures out whether any change is actually needed before making it. This agentless design is a big part of why Ansible spread so quickly through operations teams: there is nothing to install or maintain on the managed hosts beyond Python and SSH, both of which almost every Linux server already has.",
+    "The reason ansible-playbook shows up in daily operations work so often is that server configuration drifts constantly. A manually patched package, a config file edited directly during an incident, or a cron job added by hand during a one-off fix all quietly pull a server away from its intended state. Running the same playbook repeatedly and safely, a property called idempotency, is what lets a team re-apply the source of truth on a schedule or after every incident and trust that only the actual drift gets corrected, not everything getting torn down and rebuilt from scratch.",
+    "The single most important mental model for working with Ansible is that almost every module describes a desired state, not a sequence of steps. The apt module's state: present does not mean run apt-get install, it means ensure this package ends up installed, checking first whether it already is. This is exactly why running a playbook twice in a row against an already-configured server reports no changes the second time: every module already checked the current state and found nothing left to do. Commands like ansible-playbook --check and --diff exist specifically to preview that comparison before committing to it.",
+    "Three mistakes account for most of the frustration engineers hit when learning Ansible. The first is reaching for the shell or command module for something a dedicated module already handles, which throws away idempotency and the clean check-mode diff a real module provides. The second is forgetting that handlers only fire once, at the end of a play, and only if the notifying task actually reported a change, which trips people up when they expect a handler to run immediately or every time. The third is not understanding variable precedence, so an override in group_vars gets silently beaten by a leftover -e flag from a previous command in shell history, and the wrong value wins with no error message pointing at why.",
   ],
 };
 
@@ -193,6 +207,12 @@ const faqMap: Record<string, { q: string; a: string }[]> = {
     { q: 'Why does my workflow get a 403 error when writing to packages or pull requests?', a: 'Since a GitHub security update in May 2021, the GITHUB_TOKEN a workflow receives defaults to read-only access. Writing to GitHub Packages, creating a release, commenting on a pull request, or deploying to Pages all require write permissions that are not granted by default. Add a permissions block to the job or workflow specifying exactly which scopes need write access, such as packages: write or pull-requests: write, and the 403 error goes away.' },
     { q: 'What is the difference between github.sha and github.event.pull_request.head.sha?', a: 'On a push event github.sha reliably refers to the commit that was pushed. On a pull_request event github.sha instead refers to a temporary merge commit that GitHub creates automatically to test what merging the PR would look like, which is not a commit that exists in your actual branch history. To get the real HEAD commit of the pull request branch on a pull_request event, use github.event.pull_request.head.sha instead, especially when tagging a Docker image or artifact with a commit SHA that needs to match what appears in git log.' },
   ],
+  ansible: [
+    { q: 'What is the difference between ansible and ansible-playbook?', a: 'ansible runs a single ad-hoc module against a set of hosts and stops, useful for quick one-off tasks like checking connectivity or restarting a service. ansible-playbook runs a full YAML playbook describing multiple ordered tasks, handlers, and variables. Ad-hoc commands are for quick checks and emergencies; playbooks are for anything you want to be repeatable, reviewable, and version controlled.' },
+    { q: 'What does idempotent mean in the context of Ansible modules?', a: 'An idempotent module checks the current state of the system before making any change, and only acts if the desired state does not already match. Running an idempotent task twice in a row produces a change the first time and reports no change the second time. Most real Ansible modules like apt, service, and file are idempotent by design; the shell and command modules are not, since Ansible has no way to know whether an arbitrary shell command already achieved its goal.' },
+    { q: 'Why did my handler not run even though I know something changed?', a: 'Handlers only run once, at the very end of a play, and only if a task actually notified them and reported changed: true. If the notifying task itself made no change, or if the play failed before reaching the end (and --force-handlers was not passed), the handler is silently skipped. Check the notify: name matches the handler name exactly, and confirm the notifying task actually shows as changed in the output.' },
+    { q: 'How do I debug why a variable is not the value I expect?', a: 'Run ansible <host> -m debug -a "var=hostvars[inventory_hostname]" to see every variable Ansible resolved for that host after merging all sources. The most common cause of a wrong value is precedence: extra vars passed with -e always win over group_vars, host_vars, and role defaults, so check your command line and any included vars files for a leftover override before assuming the inventory is wrong.' },
+  ],
 };
 
 const relatedTools = relatedToolsMap[slug];
@@ -233,6 +253,13 @@ const toolTokenDescriptions: Record<string, string> = {
   aws: 'The Amazon Web Services command line interface',
   terraform: 'The HashiCorp infrastructure as code CLI',
   helm: 'The Kubernetes package manager CLI',
+  ansible: 'The core Ansible ad-hoc command and module executor',
+  'ansible-playbook': 'Runs Ansible playbooks against your inventory',
+  'ansible-vault': 'Encrypts and manages secrets in Ansible files',
+  'ansible-galaxy': 'Installs and manages Ansible roles and collections',
+  'ansible-doc': 'Displays documentation for Ansible modules and plugins',
+  'ansible-config': 'Views and manages Ansible configuration settings',
+  'ansible-inventory': 'Inspects and exports Ansible inventory data',
 };
 
 function tokenizeCommand(cmdStr: string): string[] {
@@ -274,7 +301,7 @@ function buildTokenMap(cmd: any, tokens: string[]): Record<string, string> {
   return map;
 }
 
-const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef || data.hasDistroRosetta || data.hasFailureDecoder;
+const hasReferenceTools = data.hasCredentialDebugger || data.hasS3Picker || data.hasIncidentFlow || data.hasPodStatusDecoder || data.hasGoTemplateRef || data.hasDistroRosetta || data.hasFailureDecoder || data.hasModuleReference;
 
 // ── Start Here section ───────────────────────────────────────────────────
 const toolNameMap: Record<string, string> = {
@@ -286,6 +313,7 @@ const toolNameMap: Record<string, string> = {
   helm: 'Helm',
   linux: 'Linux',
   github: 'GitHub CLI',
+  ansible: 'Ansible',
 };
 const toolName = toolNameMap[slug] || data.title;
 
@@ -298,6 +326,7 @@ const startHereIdsMap: Record<string, string[]> = {
   helm: ['install', 'upgrade-install', 'list', 'rollback', 'uninstall'],
   linux: ['ls', 'cd', 'grep', 'chmod', 'ps'],
   github: ['gh-auth-login', 'gh-pr-create', 'gh-pr-merge', 'gh-run-watch', 'on-push-workflow-trigger'],
+  ansible: ['version', 'ping-all', 'playbook-check', 'doc-list', 'galaxy-init'],
 };
 const startHereCommands = (startHereIdsMap[slug] || [])
   .map((id) => data.commands.find((c: any) => c.id === id))
@@ -816,6 +845,43 @@ const visibleCategories = data.categories
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.hasModuleReference && (
+        <div class="ref-tool">
+          <button class="ref-tool-toggle" data-panel="panel-module-reference" aria-expanded="false">
+            <span class="ref-tool-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span class="ref-tool-info">
+              <span class="ref-tool-title">{data.moduleReference.title}</span>
+              <span class="ref-tool-desc">The most-used Ansible modules with a minimal usage example for each</span>
+            </span>
+            <svg class="ref-tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="ref-tool-panel" id="panel-module-reference">
+            <div class="ref-tool-panel-inner">
+              <p class="section-subtitle" style="margin-top: 14px;">{data.moduleReference.subtitle}</p>
+              <div class="error-lookup-search-wrap">
+                <svg class="error-lookup-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="moduleSearchInput" type="text" placeholder="Search modules by name or what they do..." autocomplete="off" spellcheck="false" class="error-lookup-search-input" aria-label="Search modules by name or what they do" />
+              </div>
+              <div class="module-ref-grid" id="moduleCardsList">
+                {data.moduleReference.modules.map((mod: any) => (
+                  <div class="module-ref-card" data-search={`${mod.name} ${mod.description}`.toLowerCase()}>
+                    <p class="module-ref-name">{mod.name}</p>
+                    <p class="module-ref-desc">{mod.description}</p>
+                    <div class="cmd-block" style="margin-bottom: 0;">
+                      <code class="cmd-text">{mod.example}</code>
+                      <button class="copy-btn" data-copy={mod.example}>Copy</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p class="error-no-results hidden" id="moduleNoResults">No modules match your search. Try a different module name or keyword.</p>
             </div>
           </div>
         </div>
@@ -1879,6 +1945,37 @@ const visibleCategories = data.categories
     margin-bottom: 12px;
   }
 
+  /* ── Ansible Module Quick-Reference (reuses error-lookup search styles) ──── */
+  .module-ref-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .module-ref-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .module-ref-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .module-ref-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #F8FAFC;
+  }
+  .module-ref-desc {
+    font-size: 12.5px;
+    color: var(--fg2);
+    line-height: 1.55;
+  }
+
   /* ── Go Template Quick Reference ─────────────────────────────────────────── */
   .gotpl-grid {
     display: grid;
@@ -2560,6 +2657,22 @@ const visibleCategories = data.categories
       if (matches) visibleCount++;
     });
     failureNoResults?.classList.toggle('hidden', visibleCount !== 0);
+  });
+
+  // ── Ansible Module Quick-Reference search filter ─────────────────────────
+  const moduleSearchInput = document.getElementById('moduleSearchInput') as HTMLInputElement | null;
+  const moduleCards = Array.from(document.querySelectorAll('.module-ref-card')) as HTMLElement[];
+  const moduleNoResults = document.getElementById('moduleNoResults') as HTMLElement | null;
+
+  moduleSearchInput?.addEventListener('input', () => {
+    const query = moduleSearchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+    moduleCards.forEach((card) => {
+      const matches = !query || (card.getAttribute('data-search') || '').indexOf(query) !== -1;
+      card.style.display = matches ? '' : 'none';
+      if (matches) visibleCount++;
+    });
+    moduleNoResults?.classList.toggle('hidden', visibleCount !== 0);
   });
 
   // ── Reference Tools expand/collapse ────────────────────────────────────────

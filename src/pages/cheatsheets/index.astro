@@ -8,8 +8,9 @@ import terraformData from '../../data/cheatsheets/terraform.json';
 import helmData from '../../data/cheatsheets/helm.json';
 import linuxData from '../../data/cheatsheets/linux.json';
 import githubData from '../../data/cheatsheets/github.json';
+import ansibleData from '../../data/cheatsheets/ansible.json';
 
-const sheets = [kubernetesData, dockerData, gitData, awsData, terraformData, helmData, linuxData, githubData];
+const sheets = [kubernetesData, dockerData, gitData, awsData, terraformData, helmData, linuxData, githubData, ansibleData];
 const totalCommands = sheets.reduce((sum, s) => sum + s.commands.length, 0);
 const totalSheets = sheets.length;
 
@@ -26,6 +27,7 @@ const brandMap: Record<string, { color: string; logo: string | null; borderOpaci
   helm: { color: '#277A9F', logo: '/logos/helm-light.svg' },
   linux: { color: '#FCC624', logo: '/logos/linux.svg' },
   github: { color: '#2DA44E', logo: '/logos/github.svg' },
+  ansible: { color: '#EE0000', logo: '/logos/ansible.svg' },
 };
 
 const toolNames: Record<string, string> = {
@@ -37,6 +39,7 @@ const toolNames: Record<string, string> = {
   helm: 'Helm',
   linux: 'Linux',
   github: 'GitHub',
+  ansible: 'Ansible',
 };
 
 function hexToRgb(hex: string): string {
@@ -52,13 +55,13 @@ const webAppSchema = {
   "@type": "CollectionPage",
   "name": "DevOps Cheat Sheets",
   "url": "https://opsbash.com/cheatsheets",
-  "description": "Searchable, copy-ready command references for kubectl, Docker, Git, AWS CLI, Terraform, Helm, Linux, and GitHub. No login, no download, everything runs in your browser.",
+  "description": "Searchable, copy-ready command references for kubectl, Docker, Git, AWS CLI, Terraform, Helm, Linux, GitHub, and Ansible. No login, no download, everything runs in your browser.",
 };
 ---
 
 <Layout
-  title="DevOps Cheat Sheets | kubectl, Docker, Git, AWS CLI, Terraform, Helm, Linux, GitHub | OpsBash"
-  description="Searchable, copy-ready cheat sheets for kubectl, Docker, Git, AWS CLI, Terraform, Helm, Linux, and GitHub. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
+  title="DevOps Cheat Sheets | kubectl, Docker, Git, AWS CLI, Terraform, Helm, Linux, GitHub, Ansible | OpsBash"
+  description="Searchable, copy-ready cheat sheets for kubectl, Docker, Git, AWS CLI, Terraform, Helm, Linux, GitHub, and Ansible. Real-world use cases, gotchas, and flags for every command. Free, runs entirely in your browser."
   canonicalURL="https://opsbash.com/cheatsheets"
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
@@ -131,13 +134,6 @@ const webAppSchema = {
     </div>
     <p id="cardsNoResults" class="hidden text-center text-sm py-10" style="color: var(--fg3);">
       No cheat sheets match your search.
-    </p>
-  </section>
-
-  <!-- ── COMING SOON ───────────────────────────────────────────────────────── -->
-  <section class="pb-20 text-center">
-    <p class="text-sm" style="color: var(--fg3);">
-      More cheat sheets coming soon including Ansible.
     </p>
   </section>
 

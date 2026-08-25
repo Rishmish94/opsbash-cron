@@ -1,0 +1,2190 @@
+{
+  "slug": "ansible",
+  "title": "Ansible Cheat Sheet",
+  "description": "150+ Ansible commands for ad-hoc tasks, playbooks, inventory, modules, vault, roles, and Galaxy. Includes an Ansible Module Quick-Reference. Verified against official Ansible docs.",
+  "category": "ANSIBLE",
+  "lastUpdated": "2026-08-25",
+  "hasIncidentFlow": false,
+  "hasPodStatusDecoder": false,
+  "hasCredentialDebugger": false,
+  "hasS3Picker": false,
+  "hasErrorLookup": false,
+  "hasGoTemplateRef": false,
+  "hasDistroRosetta": false,
+  "hasFailureDecoder": false,
+  "hasModuleReference": true,
+  "incidentFlow": null,
+  "podStatusDecoder": null,
+  "moduleReference": {
+    "title": "Ansible Module Quick-Reference",
+    "subtitle": "The most commonly used Ansible modules, each with a one-line description and the minimal syntax to use it inside a task. Search by module name or what it does.",
+    "modules": [
+      { "name": "copy", "description": "Copies a file from the control node to remote hosts.", "example": "copy: {src: app.conf, dest: /etc/app.conf, mode: '0644'}" },
+      { "name": "template", "description": "Renders a Jinja2 template file and copies the result to remote hosts.", "example": "template: {src: app.conf.j2, dest: /etc/app.conf}" },
+      { "name": "file", "description": "Manages file and directory properties: create, delete, permissions, symlinks.", "example": "file: {path: /opt/app, state: directory, mode: '0755'}" },
+      { "name": "service", "description": "Starts, stops, or restarts a system service using the host's native service manager.", "example": "service: {name: nginx, state: restarted, enabled: true}" },
+      { "name": "systemd", "description": "Manages services under systemd specifically, including reloading unit files after a change.", "example": "systemd: {name: nginx, state: started, enabled: true, daemon_reload: true}" },
+      { "name": "package", "description": "Installs or removes a package using whichever package manager the target OS actually has.", "example": "package: {name: curl, state: present}" },
+      { "name": "apt", "description": "Installs or removes packages on Debian and Ubuntu systems using apt.", "example": "apt: {name: nginx, state: present, update_cache: true}" },
+      { "name": "yum", "description": "Installs or removes packages on RHEL, CentOS, and Fedora systems using yum or dnf.", "example": "yum: {name: httpd, state: latest}" },
+      { "name": "user", "description": "Creates, modifies, or removes a user account on the remote host.", "example": "user: {name: deploy, shell: /bin/bash, groups: sudo, append: true}" },
+      { "name": "group", "description": "Creates or removes a group on the remote host.", "example": "group: {name: deployers, state: present}" },
+      { "name": "git", "description": "Clones or updates a Git repository on the remote host.", "example": "git: {repo: 'https://github.com/example/app.git', dest: /opt/app, version: main}" },
+      { "name": "cron", "description": "Manages a cron job entry in a user's crontab.", "example": "cron: {name: 'daily backup', minute: '0', hour: '2', job: /opt/scripts/backup.sh}" },
+      { "name": "command", "description": "Runs a command directly without a shell, so pipes, redirects, and env vars are not interpreted.", "example": "command: /usr/bin/systemctl status nginx" },
+      { "name": "shell", "description": "Runs a command through /bin/sh, so shell features like pipes and redirects actually work.", "example": "shell: ps aux | grep nginx" },
+      { "name": "debug", "description": "Prints a message or variable value during a playbook run, mainly for troubleshooting.", "example": "debug: {msg: 'Deployment starting'}" },
+      { "name": "set_fact", "description": "Sets a variable at runtime that is available to later tasks in the same play.", "example": "set_fact: {app_version: '1.2.3'}" },
+      { "name": "lineinfile", "description": "Ensures a specific line exists in a file, adding or replacing it as needed.", "example": "lineinfile: {path: /etc/hosts, line: '127.0.0.1 app.local'}" },
+      { "name": "blockinfile", "description": "Inserts or updates a marked, multi-line block of text in a file, safely re-runnable.", "example": "blockinfile: {path: /etc/motd, block: 'Managed by Ansible'}" },
+      { "name": "get_url", "description": "Downloads a file from HTTP, HTTPS, or FTP to the remote host.", "example": "get_url: {url: 'https://example.com/app.tar.gz', dest: /tmp/app.tar.gz, mode: '0644'}" },
+      { "name": "unarchive", "description": "Extracts a tar or zip archive on the remote host, optionally unpacking one already fetched with get_url.", "example": "unarchive: {src: /tmp/app.tar.gz, dest: /opt/app, remote_src: true}" },
+      { "name": "wait_for", "description": "Pauses playbook execution until a port, file, or string condition is met.", "example": "wait_for: {port: 8080, delay: 5, timeout: 60}" },
+      { "name": "uri", "description": "Sends an HTTP request and can validate the response, useful for health checks and API calls.", "example": "uri: {url: 'http://localhost/health', return_content: true}" },
+      { "name": "stat", "description": "Retrieves file or file system status information, commonly used with a when condition.", "example": "stat: {path: /etc/app.conf}" },
+      { "name": "assert", "description": "Fails the play with a clear message if a condition is not true, useful for pre-flight checks.", "example": "assert: {that: inventory_hostname is defined}" }
+    ]
+  },
+  "categories": [
+    {"id": "ad-hoc", "label": "Ad-hoc Commands"},
+    {"id": "playbooks", "label": "Playbooks"},
+    {"id": "inventory-variables", "label": "Inventory and Variables"},
+    {"id": "modules", "label": "Modules"},
+    {"id": "vault", "label": "Ansible Vault"},
+    {"id": "roles-galaxy", "label": "Roles and Galaxy"},
+    {"id": "handlers-templates", "label": "Handlers, Templates and Jinja2"},
+    {"id": "troubleshooting", "label": "Troubleshooting and Debugging"}
+  ],
+  "commands": [
+    {
+      "id": "version",
+      "title": "Check the installed Ansible version",
+      "command": "ansible --version",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Confirm which Ansible version, config file, and Python interpreter are actually being used before debugging anything else.",
+      "beginnerNote": "Ansible 2.10+ splits ansible-core from a much larger collection of community modules, so the version output also tells you whether a module you expect is bundled or needs installing separately.",
+      "tags": ["version", "sanity-check", "install"]
+    },
+    {
+      "id": "ping-all",
+      "title": "Test connectivity to every host",
+      "command": "ansible all -m ping",
+      "flags": [
+        {"flag": "-m", "description": "Specifies which module to run"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "The first command to run against any new inventory to confirm SSH connectivity and Python are working before anything else.",
+      "beginnerNote": "The ping module does not use ICMP at all. It just verifies Ansible can log in and execute a Python script on the remote host, which is a much more useful check.",
+      "tags": ["ping", "connectivity", "sanity-check", "ssh"]
+    },
+    {
+      "id": "ping-group",
+      "title": "Test connectivity to one group",
+      "command": "ansible webservers -m ping",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Narrow a connectivity check to a specific inventory group instead of the entire fleet.",
+      "beginnerNote": null,
+      "tags": ["ping", "connectivity", "group"]
+    },
+    {
+      "id": "doc-list",
+      "title": "List every available module",
+      "command": "ansible-doc -l",
+      "flags": [
+        {"flag": "-l", "description": "Lists all installed modules with a one-line summary"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Browse every module available in your current Ansible install and any collections you have installed, before writing a task from memory.",
+      "beginnerNote": "The list only includes modules from collections you actually have installed. A module documented online but missing from this list usually means the collection needs installing with ansible-galaxy collection install.",
+      "tags": ["doc", "modules", "reference", "list"]
+    },
+    {
+      "id": "doc-module",
+      "title": "Read documentation for one module",
+      "command": "ansible-doc apache2_module",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Read the full parameter list, defaults, and examples for a specific module directly in the terminal, without a browser.",
+      "beginnerNote": null,
+      "tags": ["doc", "module", "reference"]
+    },
+    {
+      "id": "doc-snippet",
+      "title": "Print a copy-paste task snippet for a module",
+      "command": "ansible-doc -s copy",
+      "flags": [
+        {"flag": "-s", "description": "Outputs a ready-to-use YAML task snippet with every parameter listed"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Generate a starter YAML task block for a module with every available parameter commented in, then delete what you do not need.",
+      "beginnerNote": null,
+      "tags": ["doc", "snippet", "yaml", "scaffold"]
+    },
+    {
+      "id": "config-list",
+      "title": "List every configuration setting Ansible understands",
+      "command": "ansible-config list",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "See every configuration option Ansible supports, its default value, and which environment variable or ini setting controls it.",
+      "beginnerNote": null,
+      "tags": ["config", "settings", "reference"]
+    },
+    {
+      "id": "config-dump",
+      "title": "Show the current effective configuration",
+      "command": "ansible-config dump",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "See exactly what configuration Ansible is actually using right now, merged from defaults, ansible.cfg, and environment variables.",
+      "beginnerNote": "This is the first command to run when a setting in ansible.cfg does not seem to be taking effect, since it shows exactly which source won.",
+      "tags": ["config", "dump", "debug", "settings"]
+    },
+    {
+      "id": "config-view",
+      "title": "Print the active ansible.cfg file",
+      "command": "ansible-config view",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "Print the exact ansible.cfg file currently in effect, useful when multiple config files exist across a project and a home directory.",
+      "beginnerNote": null,
+      "tags": ["config", "view", "cfg"]
+    },
+    {
+      "id": "adhoc-command-uptime",
+      "title": "Run a one-off command with the command module",
+      "command": "ansible all -m command -a 'uptime'",
+      "flags": [
+        {"flag": "-a", "description": "Passes arguments to the module being run"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Run a quick one-off command against the whole fleet without writing a playbook, such as checking uptime after a maintenance window.",
+      "beginnerNote": "command is the default module when -m is omitted, so ansible all -a 'uptime' does exactly the same thing.",
+      "tags": ["command", "adhoc", "uptime"]
+    },
+    {
+      "id": "adhoc-shell-df",
+      "title": "Run a shell one-liner with pipes",
+      "command": "ansible all -m shell -a 'df -h | grep /var'",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Run a command that needs shell features like pipes, redirects, or environment variable expansion, which the plain command module cannot do.",
+      "beginnerNote": "Reach for shell only when you actually need a shell feature. Prefer command, or better yet a dedicated module, for anything simpler since shell input is harder to make idempotent and safe.",
+      "tags": ["shell", "adhoc", "pipe"]
+    },
+    {
+      "id": "setup-facts",
+      "title": "Gather and display all facts about hosts",
+      "command": "ansible all -m setup",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Dump every fact Ansible can discover about a host: OS, memory, network interfaces, mounted disks, and more.",
+      "beginnerNote": "The full output is huge. Pipe it through a filter or use the filter= argument to narrow it down when you only care about one or two facts.",
+      "tags": ["setup", "facts", "gather"]
+    },
+    {
+      "id": "setup-filter",
+      "title": "Gather only specific facts",
+      "command": "ansible all -m setup -a 'filter=ansible_distribution*'",
+      "flags": [
+        {"flag": "filter=", "description": "Restricts the fact output to keys matching a glob pattern"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "Check just the OS distribution and version facts across a fleet without wading through hundreds of unrelated fact keys.",
+      "beginnerNote": null,
+      "tags": ["setup", "facts", "filter"]
+    },
+    {
+      "id": "adhoc-become-whoami",
+      "title": "Run a command as root with privilege escalation",
+      "command": "ansible all -m command -a 'whoami' --become",
+      "flags": [
+        {"flag": "--become", "description": "Escalates privileges on the remote host using sudo (or another become method)"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Confirm privilege escalation is configured correctly before running a task that actually needs root, such as installing a package.",
+      "beginnerNote": "whoami should print root when --become works. If it still prints your login user, check that your sudoers entry allows passwordless sudo or add --ask-become-pass.",
+      "tags": ["become", "sudo", "privilege-escalation"]
+    },
+    {
+      "id": "adhoc-limit-pattern",
+      "title": "Limit an ad-hoc command to specific hosts",
+      "command": "ansible webservers -m ping --limit 'web1.example.com'",
+      "flags": [
+        {"flag": "--limit", "description": "Further restricts execution to a subset of the matched hosts"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Test a single host inside a larger group before running the same command against the whole group.",
+      "beginnerNote": null,
+      "tags": ["limit", "pattern", "subset"]
+    },
+    {
+      "id": "adhoc-forks",
+      "title": "Increase parallelism with more forks",
+      "command": "ansible all -m ping --forks 20",
+      "flags": [
+        {"flag": "--forks", "description": "Sets how many hosts Ansible connects to in parallel, default is 5"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "Speed up a run across a large fleet by increasing how many hosts Ansible talks to simultaneously.",
+      "beginnerNote": "Raising forks too high can overwhelm the control node's file descriptors and CPU, or trigger rate limiting on the target infrastructure. Increase gradually and watch for connection errors.",
+      "tags": ["forks", "parallelism", "performance"]
+    },
+    {
+      "id": "adhoc-user-connection",
+      "title": "Connect as a specific remote user",
+      "command": "ansible all -m ping -u deploy",
+      "flags": [
+        {"flag": "-u", "description": "Sets the remote username to connect as, overriding the inventory or config default"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Connect as a non-default SSH user, such as a dedicated deploy account instead of your personal login.",
+      "beginnerNote": null,
+      "tags": ["user", "ssh", "connection"]
+    },
+    {
+      "id": "adhoc-private-key",
+      "title": "Use a specific SSH private key",
+      "command": "ansible all -m ping --private-key ~/.ssh/id_deploy",
+      "flags": [
+        {"flag": "--private-key", "description": "Points to a specific SSH private key file for this connection"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "Authenticate with a dedicated deploy key instead of whatever key is loaded in your SSH agent by default.",
+      "beginnerNote": null,
+      "tags": ["ssh", "private-key", "auth"]
+    },
+    {
+      "id": "adhoc-ask-pass",
+      "title": "Prompt for an SSH password instead of a key",
+      "command": "ansible all -m ping --ask-pass",
+      "flags": [
+        {"flag": "--ask-pass", "description": "Prompts interactively for the SSH password instead of using key-based auth"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "Connect to hosts that only accept password authentication, such as a freshly imaged box before your key has been deployed to it.",
+      "beginnerNote": "This requires the sshpass package to be installed on the control node, or Ansible will error out immediately.",
+      "tags": ["ssh", "password", "auth"]
+    },
+    {
+      "id": "adhoc-one-line",
+      "title": "Condense output to one line per host",
+      "command": "ansible all -a 'uptime' -o",
+      "flags": [
+        {"flag": "-o", "description": "Condenses each host's result onto a single line instead of a multi-line block"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Intermediate",
+      "useCase": "Scan results across a large fleet quickly by flattening each host's output to a single line.",
+      "beginnerNote": null,
+      "tags": ["output", "condensed", "format"]
+    },
+    {
+      "id": "list-hosts-adhoc",
+      "title": "List which hosts a pattern actually matches",
+      "command": "ansible all --list-hosts",
+      "flags": [
+        {"flag": "--list-hosts", "description": "Prints the matched hosts without running anything against them"}
+      ],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Sanity-check which hosts a pattern resolves to before running anything against them for real.",
+      "beginnerNote": null,
+      "tags": ["list-hosts", "pattern", "dry-run"]
+    },
+    {
+      "id": "adhoc-module-args-copy",
+      "title": "Copy a file to every host ad-hoc",
+      "command": "ansible all -m copy -a 'src=/etc/hosts dest=/tmp/hosts'",
+      "flags": [],
+      "destructive": false,
+      "category": "ad-hoc",
+      "difficulty": "Beginner",
+      "useCase": "Push a single file out to every matched host without writing a full playbook for a one-off task.",
+      "beginnerNote": null,
+      "tags": ["copy", "adhoc", "file"]
+    },
+
+    {
+      "id": "playbook-run",
+      "title": "Run a playbook",
+      "command": "ansible-playbook site.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Apply every play and task in a playbook file against the hosts it targets.",
+      "beginnerNote": "A minimal playbook is a YAML list of plays, each with a hosts key and a tasks list, for example: - hosts: webservers\\n  tasks:\\n    - name: Install nginx\\n      apt: {name: nginx, state: present}",
+      "tags": ["playbook", "run", "apply"]
+    },
+    {
+      "id": "playbook-check",
+      "title": "Dry-run a playbook without changing anything",
+      "command": "ansible-playbook site.yml --check",
+      "flags": [
+        {"flag": "--check", "description": "Runs in dry-run mode, reporting what would change without actually changing it"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Preview exactly what a playbook would change before committing to running it for real, especially on production.",
+      "beginnerNote": "Not every module fully supports check mode. Modules that shell out to external commands, like the command or shell module, cannot predict their own effect and are usually skipped or flagged as unsupported.",
+      "tags": ["check", "dry-run", "preview"]
+    },
+    {
+      "id": "playbook-diff",
+      "title": "Show a diff of file changes in check mode",
+      "command": "ansible-playbook site.yml --check --diff",
+      "flags": [
+        {"flag": "--diff", "description": "Shows a before/after diff for any file that template, copy, or lineinfile would change"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "See the exact line-by-line diff of every config file a playbook would touch, combined with --check for a full dry-run preview.",
+      "beginnerNote": null,
+      "tags": ["diff", "check", "preview"]
+    },
+    {
+      "id": "playbook-syntax-check",
+      "title": "Validate playbook YAML syntax",
+      "command": "ansible-playbook site.yml --syntax-check",
+      "flags": [
+        {"flag": "--syntax-check", "description": "Parses the playbook and reports syntax errors without connecting to any hosts"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Catch YAML indentation errors and structural mistakes before wasting time connecting to real infrastructure.",
+      "beginnerNote": "Syntax check only validates YAML structure. It does not catch a typo in a module name or an invalid parameter, those only surface once the playbook actually runs.",
+      "tags": ["syntax", "validate", "lint"]
+    },
+    {
+      "id": "playbook-limit",
+      "title": "Limit a playbook run to specific hosts",
+      "command": "ansible-playbook site.yml --limit webservers",
+      "flags": [
+        {"flag": "--limit", "description": "Restricts the run to a subset of hosts matched by the playbook's hosts key"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Run a playbook that targets a broad group against only one server first, to test it safely.",
+      "beginnerNote": null,
+      "tags": ["limit", "hosts", "subset"]
+    },
+    {
+      "id": "playbook-tags",
+      "title": "Run only tasks with specific tags",
+      "command": "ansible-playbook site.yml --tags 'config,deploy'",
+      "flags": [
+        {"flag": "--tags", "description": "Runs only tasks (and their handlers) tagged with one of the listed tag names"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Re-run just the deployment steps of a large playbook without re-running slow provisioning steps that already succeeded.",
+      "beginnerNote": null,
+      "tags": ["tags", "selective", "run"]
+    },
+    {
+      "id": "playbook-skip-tags",
+      "title": "Skip tasks with specific tags",
+      "command": "ansible-playbook site.yml --skip-tags 'slow'",
+      "flags": [
+        {"flag": "--skip-tags", "description": "Runs every task except those tagged with one of the listed tag names"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Skip a known slow or optional section of a playbook, such as a full package cache refresh, during a quick iteration loop.",
+      "beginnerNote": null,
+      "tags": ["skip-tags", "selective", "run"]
+    },
+    {
+      "id": "playbook-extra-vars",
+      "title": "Pass a variable on the command line",
+      "command": "ansible-playbook site.yml -e 'env=production'",
+      "flags": [
+        {"flag": "-e", "description": "Sets extra variables, which take the highest precedence of any variable source"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Override a variable at run time, such as switching a playbook between staging and production without editing any file.",
+      "beginnerNote": "Extra vars set with -e override every other variable source, including group_vars, host_vars, and role defaults. This is exactly why it is the right tool for a one-off override.",
+      "tags": ["extra-vars", "variables", "override"]
+    },
+    {
+      "id": "playbook-extra-vars-file",
+      "title": "Pass variables from a file",
+      "command": "ansible-playbook site.yml -e '@vars.yml'",
+      "flags": [
+        {"flag": "-e @file", "description": "Loads extra variables from a YAML or JSON file, the @ prefix marks it as a file path"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Pass a whole set of environment-specific variables from a file instead of listing them individually on the command line.",
+      "beginnerNote": null,
+      "tags": ["extra-vars", "file", "variables"]
+    },
+    {
+      "id": "playbook-verbose",
+      "title": "Increase output verbosity",
+      "command": "ansible-playbook site.yml -v",
+      "flags": [
+        {"flag": "-v", "description": "Shows the result data for each task, not just its status"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "See the actual result data returned by each task, useful when a task succeeds but you want to confirm exactly what it did.",
+      "beginnerNote": null,
+      "tags": ["verbose", "output", "debug"]
+    },
+    {
+      "id": "playbook-list-tasks",
+      "title": "List every task a playbook would run",
+      "command": "ansible-playbook site.yml --list-tasks",
+      "flags": [
+        {"flag": "--list-tasks", "description": "Prints every task in the playbook, in order, without executing anything"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Review the full task list of a playbook you did not write before running it, without needing to open every file.",
+      "beginnerNote": null,
+      "tags": ["list-tasks", "preview", "review"]
+    },
+    {
+      "id": "playbook-list-hosts",
+      "title": "List which hosts a playbook targets",
+      "command": "ansible-playbook site.yml --list-hosts",
+      "flags": [
+        {"flag": "--list-hosts", "description": "Prints every host the playbook's plays would target, without executing anything"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Confirm exactly which hosts a playbook resolves to across all of its plays before running it.",
+      "beginnerNote": null,
+      "tags": ["list-hosts", "preview", "review"]
+    },
+    {
+      "id": "playbook-list-tags",
+      "title": "List every tag defined in a playbook",
+      "command": "ansible-playbook site.yml --list-tags",
+      "flags": [
+        {"flag": "--list-tags", "description": "Prints every tag referenced anywhere in the playbook"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Discover which tags a playbook actually supports before deciding what to pass to --tags or --skip-tags.",
+      "beginnerNote": null,
+      "tags": ["list-tags", "tags", "discovery"]
+    },
+    {
+      "id": "playbook-step",
+      "title": "Confirm each task interactively before running it",
+      "command": "ansible-playbook site.yml --step",
+      "flags": [
+        {"flag": "--step", "description": "Prompts to confirm, skip, or continue before each task runs"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Walk through a playbook one task at a time on a production host, confirming each step before it executes.",
+      "beginnerNote": null,
+      "tags": ["step", "interactive", "confirm"]
+    },
+    {
+      "id": "playbook-start-at-task",
+      "title": "Resume a playbook from a specific task",
+      "command": "ansible-playbook site.yml --start-at-task='Install packages'",
+      "flags": [
+        {"flag": "--start-at-task", "description": "Skips every task before the one matching this name and starts there"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Resume a long playbook from the task that failed last time, instead of re-running everything from the beginning.",
+      "beginnerNote": "The task name must match exactly, including case. Earlier tasks are still parsed for variables and roles but their actions are not executed.",
+      "tags": ["start-at-task", "resume", "recovery"]
+    },
+    {
+      "id": "playbook-inventory-flag",
+      "title": "Run a playbook against a specific inventory",
+      "command": "ansible-playbook site.yml -i inventory/production",
+      "flags": [
+        {"flag": "-i", "description": "Points to a specific inventory file or directory instead of the configured default"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Target the production inventory explicitly when a project keeps separate inventory files per environment.",
+      "beginnerNote": null,
+      "tags": ["inventory", "environment", "target"]
+    },
+    {
+      "id": "playbook-become",
+      "title": "Run a playbook with privilege escalation and a password prompt",
+      "command": "ansible-playbook site.yml --become --ask-become-pass",
+      "flags": [
+        {"flag": "--become", "description": "Escalates privileges for every task in the play"},
+        {"flag": "--ask-become-pass", "description": "Prompts interactively for the sudo password instead of assuming passwordless sudo"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Beginner",
+      "useCase": "Run a playbook that needs root access on hosts where sudo requires a password rather than being passwordless.",
+      "beginnerNote": null,
+      "tags": ["become", "sudo", "password"]
+    },
+    {
+      "id": "playbook-forks",
+      "title": "Run a playbook with more parallelism",
+      "command": "ansible-playbook site.yml --forks 50",
+      "flags": [
+        {"flag": "--forks", "description": "Sets how many hosts are processed in parallel for this run"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Speed up a large fleet-wide rollout by raising parallelism above the default of 5 hosts at a time.",
+      "beginnerNote": null,
+      "tags": ["forks", "parallelism", "performance"]
+    },
+    {
+      "id": "playbook-connection-local",
+      "title": "Run a playbook against the control node itself",
+      "command": "ansible-playbook site.yml --connection=local",
+      "flags": [
+        {"flag": "--connection=local", "description": "Executes tasks directly on the control node instead of connecting over SSH"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Run a playbook that configures the machine Ansible itself is running on, skipping SSH entirely.",
+      "beginnerNote": null,
+      "tags": ["connection", "local", "localhost"]
+    },
+    {
+      "id": "playbook-vault-password-file",
+      "title": "Run a playbook that includes vault-encrypted files",
+      "command": "ansible-playbook site.yml --vault-password-file ~/.vault_pass",
+      "flags": [
+        {"flag": "--vault-password-file", "description": "Reads the vault password from a file instead of prompting interactively"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Intermediate",
+      "useCase": "Run a playbook non-interactively in CI when it references vault-encrypted variable files.",
+      "beginnerNote": "Never commit the vault password file itself to version control. Store it as a CI secret and write it to a temp file at pipeline run time.",
+      "tags": ["vault", "password-file", "ci"]
+    },
+    {
+      "id": "playbook-become-user",
+      "title": "Escalate privileges as a specific user",
+      "command": "ansible-playbook site.yml --become-user=deploy",
+      "flags": [
+        {"flag": "--become-user", "description": "Sets which user to become, default is root"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Advanced",
+      "useCase": "Run tasks as a dedicated service account instead of root, when the target application should not run privileged.",
+      "beginnerNote": null,
+      "tags": ["become-user", "sudo", "service-account"]
+    },
+    {
+      "id": "playbook-flush-cache",
+      "title": "Clear cached facts before running",
+      "command": "ansible-playbook site.yml --flush-cache",
+      "flags": [
+        {"flag": "--flush-cache", "description": "Clears any cached facts before gathering fresh ones for this run"}
+      ],
+      "destructive": false,
+      "category": "playbooks",
+      "difficulty": "Advanced",
+      "useCase": "Force fresh fact gathering when fact caching is enabled and stale cached facts are causing a playbook to behave unexpectedly.",
+      "beginnerNote": "Only relevant when fact caching (fact_caching in ansible.cfg) is enabled. Without it, facts are already gathered fresh on every run.",
+      "tags": ["flush-cache", "facts", "caching"]
+    },
+
+    {
+      "id": "inventory-ini-syntax",
+      "title": "Static inventory in INI format",
+      "command": "[webservers]\nweb1.example.com\nweb2.example.com ansible_host=10.0.1.5\n\n[databases]\ndb1.example.com",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Beginner",
+      "useCase": "The classic static inventory format, grouping hosts under bracketed group names. Still the most common format for small, fixed environments.",
+      "beginnerNote": "A per-host variable like ansible_host can be set inline after the hostname, useful when the inventory name differs from the actual address to connect to.",
+      "tags": ["inventory", "ini", "static", "groups"]
+    },
+    {
+      "id": "inventory-yaml-syntax",
+      "title": "Static inventory in YAML format",
+      "command": "all:\n  children:\n    webservers:\n      hosts:\n        web1.example.com:\n        web2.example.com:\n          ansible_host: 10.0.1.5\n    databases:\n      hosts:\n        db1.example.com:",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Beginner",
+      "useCase": "The YAML equivalent of an INI inventory, preferred in larger projects since it nests more naturally with group_vars and host_vars.",
+      "beginnerNote": null,
+      "tags": ["inventory", "yaml", "static", "groups"]
+    },
+    {
+      "id": "inventory-group-vars-inline",
+      "title": "Set group variables inline in INI inventory",
+      "command": "[webservers:vars]\nhttp_port=8080\nenv=production",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "Attach variables to every host in a group directly inside the INI inventory file, without a separate group_vars file.",
+      "beginnerNote": "This works but does not scale well. Most teams move group variables into a dedicated group_vars/<groupname>.yml file once there are more than a couple of them.",
+      "tags": ["inventory", "group-vars", "ini"]
+    },
+    {
+      "id": "inventory-children-groups",
+      "title": "Nest groups with children",
+      "command": "[production:children]\nwebservers\ndatabases",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "Build a parent group made up of other groups, so a single pattern like production can target every host in both webservers and databases.",
+      "beginnerNote": null,
+      "tags": ["inventory", "children", "nested-groups"]
+    },
+    {
+      "id": "inventory-list",
+      "title": "Print the full resolved inventory as JSON",
+      "command": "ansible-inventory --list",
+      "flags": [
+        {"flag": "--list", "description": "Outputs the entire inventory, all groups and hosts, as JSON"}
+      ],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Beginner",
+      "useCase": "See exactly how Ansible has parsed and merged your inventory sources into one structure, including all variables.",
+      "beginnerNote": null,
+      "tags": ["inventory", "list", "json"]
+    },
+    {
+      "id": "inventory-graph",
+      "title": "Visualize inventory as a group tree",
+      "command": "ansible-inventory --graph",
+      "flags": [
+        {"flag": "--graph", "description": "Prints groups and their child groups and hosts as an indented tree"}
+      ],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Beginner",
+      "useCase": "Get a quick, human-readable view of how groups nest inside each other, much easier to scan than the raw JSON output.",
+      "beginnerNote": null,
+      "tags": ["inventory", "graph", "tree"]
+    },
+    {
+      "id": "inventory-host",
+      "title": "Print resolved variables for one host",
+      "command": "ansible-inventory --host web1.example.com",
+      "flags": [
+        {"flag": "--host", "description": "Prints every variable resolved for a single named host"}
+      ],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Beginner",
+      "useCase": "Check exactly which variables a specific host will see once group_vars, host_vars, and inventory variables are all merged together.",
+      "beginnerNote": null,
+      "tags": ["inventory", "host", "variables"]
+    },
+    {
+      "id": "inventory-yaml-output",
+      "title": "Print the resolved inventory as YAML",
+      "command": "ansible-inventory --list --yaml",
+      "flags": [
+        {"flag": "--yaml", "description": "Formats the --list output as YAML instead of the default JSON"}
+      ],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "Read the full resolved inventory in a more readable format than raw JSON, useful for a quick manual review.",
+      "beginnerNote": null,
+      "tags": ["inventory", "yaml", "output"]
+    },
+    {
+      "id": "all-group",
+      "title": "Target the implicit all group",
+      "command": "ansible all --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Beginner",
+      "useCase": "all is a built-in group containing every host in the inventory, useful for fleet-wide checks like connectivity or fact gathering.",
+      "beginnerNote": null,
+      "tags": ["pattern", "all", "group"]
+    },
+    {
+      "id": "ungrouped-group",
+      "title": "Target hosts that belong to no group",
+      "command": "ansible ungrouped --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "ungrouped is a built-in group for any host defined in inventory but not assigned to a named group, useful for catching inventory hygiene mistakes.",
+      "beginnerNote": null,
+      "tags": ["pattern", "ungrouped", "group"]
+    },
+    {
+      "id": "pattern-exclude",
+      "title": "Target a group excluding another group",
+      "command": "ansible webservers:!staging --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Advanced",
+      "useCase": "Target every webserver except the ones also in the staging group, useful for production-only fleet-wide operations.",
+      "beginnerNote": "The exclude operator only removes hosts that are also matched by an earlier part of the pattern. It does not work as a standalone negative pattern on its own.",
+      "tags": ["pattern", "exclude", "negation"]
+    },
+    {
+      "id": "pattern-intersect",
+      "title": "Target hosts in both of two groups",
+      "command": "ansible webservers:&staging --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Advanced",
+      "useCase": "Target only the hosts that appear in both webservers and staging, a true intersection of two groups.",
+      "beginnerNote": null,
+      "tags": ["pattern", "intersect", "and"]
+    },
+    {
+      "id": "pattern-wildcard",
+      "title": "Target hosts by wildcard hostname",
+      "command": "ansible 'web*' --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "Target every host whose name matches a shell-style wildcard, useful when hosts are not all in one clean group.",
+      "beginnerNote": null,
+      "tags": ["pattern", "wildcard", "hostname"]
+    },
+    {
+      "id": "pattern-regex",
+      "title": "Target hosts by regular expression",
+      "command": "ansible '~web[0-9]+\\.example\\.com' --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Advanced",
+      "useCase": "Target hosts by a full regular expression when a wildcard is not precise enough, marked with a leading tilde.",
+      "beginnerNote": null,
+      "tags": ["pattern", "regex", "hostname"]
+    },
+    {
+      "id": "dynamic-inventory-aws",
+      "title": "Use a dynamic inventory plugin",
+      "command": "ansible-inventory -i inventory/aws_ec2.yml --graph",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Advanced",
+      "useCase": "Pull inventory live from a cloud provider's API using an inventory plugin config file instead of maintaining a static host list by hand.",
+      "beginnerNote": "A dynamic inventory source is still just a file, but its extension and a plugin: key inside it tell Ansible to run a plugin instead of parsing it as static INI or YAML.",
+      "tags": ["inventory", "dynamic", "aws", "plugin"]
+    },
+    {
+      "id": "group-vars-dir-example",
+      "title": "Group variables in a dedicated file",
+      "command": "# group_vars/webservers.yml\nhttp_port: 8080\nmax_clients: 200",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "The standard way to attach variables to a group at scale: a YAML file named after the group under a group_vars directory next to the inventory.",
+      "beginnerNote": null,
+      "tags": ["group-vars", "yaml", "variables"]
+    },
+    {
+      "id": "host-vars-dir-example",
+      "title": "Host variables in a dedicated file",
+      "command": "# host_vars/web1.example.com.yml\nansible_host: 10.0.1.5\nansible_user: deploy",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "The standard way to attach variables to a single host at scale: a YAML file named after the host under a host_vars directory next to the inventory.",
+      "beginnerNote": null,
+      "tags": ["host-vars", "yaml", "variables"]
+    },
+    {
+      "id": "var-precedence-cli-override",
+      "title": "Override a variable at the command line",
+      "command": "ansible-playbook site.yml -e 'env=staging'",
+      "flags": [
+        {"flag": "-e", "description": "Sets an extra variable, the highest-precedence variable source in Ansible"}
+      ],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "Override any variable defined anywhere else, since extra vars sit at the very top of Ansible's variable precedence order.",
+      "beginnerNote": "The simplified precedence order, lowest to highest: role defaults, inventory group_vars and host_vars, play vars, role vars, task vars, then extra vars (-e) last and highest. When two definitions of the same variable conflict, the higher one always wins.",
+      "tags": ["variables", "precedence", "override"]
+    },
+    {
+      "id": "extra-vars-json",
+      "title": "Pass structured JSON as extra vars",
+      "command": "ansible-playbook site.yml -e '{\"key\":\"value\"}'",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Advanced",
+      "useCase": "Pass a nested structure of variables directly on the command line using inline JSON instead of a flat key=value pair.",
+      "beginnerNote": null,
+      "tags": ["extra-vars", "json", "variables"]
+    },
+    {
+      "id": "debug-hostvars",
+      "title": "Inspect a host's fully resolved variables",
+      "command": "ansible web1.example.com -m debug -a 'var=hostvars[inventory_hostname]'",
+      "flags": [],
+      "destructive": false,
+      "category": "inventory-variables",
+      "difficulty": "Intermediate",
+      "useCase": "Print every variable Ansible has resolved for a specific host at run time, combining inventory, group_vars, host_vars, and facts.",
+      "beginnerNote": null,
+      "tags": ["debug", "hostvars", "variables"]
+    },
+
+    {
+      "id": "module-copy",
+      "title": "Copy a file with the copy module",
+      "command": "ansible all -m copy -a 'src=app.conf dest=/etc/app.conf mode=0644'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Push a static file from the control node to every matched host, setting its permissions in the same task.",
+      "beginnerNote": null,
+      "tags": ["copy", "module", "file"]
+    },
+    {
+      "id": "module-template",
+      "title": "Render a Jinja2 template with the template module",
+      "command": "ansible all -m template -a 'src=app.conf.j2 dest=/etc/app.conf'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Render a config file from a Jinja2 template, substituting variables per host, instead of copying an identical static file everywhere.",
+      "beginnerNote": "The source path is always relative to a templates/ directory next to the playbook or role, not an arbitrary filesystem path.",
+      "tags": ["template", "jinja2", "module", "config"]
+    },
+    {
+      "id": "module-file-dir",
+      "title": "Create a directory with the file module",
+      "command": "ansible all -m file -a 'path=/opt/app state=directory mode=0755'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Ensure a directory exists with specific permissions before deploying application files into it.",
+      "beginnerNote": null,
+      "tags": ["file", "directory", "module"]
+    },
+    {
+      "id": "module-file-absent",
+      "title": "Remove a file with the file module",
+      "command": "ansible all -m file -a 'path=/tmp/old.log state=absent'",
+      "flags": [],
+      "destructive": true,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Remove a file or directory, including recursively for a directory, cleanly and idempotently.",
+      "beginnerNote": "state=absent on a directory removes it and everything inside it, with no confirmation prompt. Double-check the path before running this against a real fleet.",
+      "tags": ["file", "absent", "delete", "module"]
+    },
+    {
+      "id": "module-file-symlink",
+      "title": "Create a symlink with the file module",
+      "command": "ansible all -m file -a 'src=/opt/app/current dest=/opt/app/releases/1 state=link'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Point a stable path at a versioned release directory, the classic pattern for atomic, symlink-based deployments.",
+      "beginnerNote": null,
+      "tags": ["file", "symlink", "deployment", "module"]
+    },
+    {
+      "id": "module-service-restart",
+      "title": "Restart a service with the service module",
+      "command": "ansible all -m service -a 'name=nginx state=restarted'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Restart a service using whichever init system the host actually runs, without hardcoding systemctl or service commands.",
+      "beginnerNote": null,
+      "tags": ["service", "restart", "module"]
+    },
+    {
+      "id": "module-systemd-enable",
+      "title": "Enable and start a service with systemd",
+      "command": "ansible all -m systemd -a 'name=nginx enabled=yes state=started'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Ensure a service is both running now and set to start on boot, specifically on hosts using systemd.",
+      "beginnerNote": null,
+      "tags": ["systemd", "service", "enable", "module"]
+    },
+    {
+      "id": "module-systemd-daemon-reload",
+      "title": "Reload systemd unit files",
+      "command": "ansible all -m systemd -a 'daemon_reload=yes'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Reload systemd's configuration after deploying a new or changed .service unit file, so systemd picks up the change.",
+      "beginnerNote": "Forgetting daemon_reload after editing a unit file is one of the most common causes of 'I changed the service file but nothing happened' confusion.",
+      "tags": ["systemd", "daemon-reload", "module"]
+    },
+    {
+      "id": "module-package",
+      "title": "Install a package with the generic package module",
+      "command": "ansible all -m package -a 'name=curl state=present'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Install a package across a mixed fleet of Debian and RHEL-family hosts without branching logic, since package delegates to the right backend automatically.",
+      "beginnerNote": null,
+      "tags": ["package", "install", "module"]
+    },
+    {
+      "id": "module-apt-update",
+      "title": "Refresh the apt package cache",
+      "command": "ansible all -m apt -a 'update_cache=yes'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Refresh apt's package index before installing packages, the equivalent of apt-get update.",
+      "beginnerNote": null,
+      "tags": ["apt", "update-cache", "module"]
+    },
+    {
+      "id": "module-apt-install",
+      "title": "Install a package with apt",
+      "command": "ansible all -m apt -a 'name=nginx state=present'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Install a package on Debian or Ubuntu hosts specifically, with access to apt-only parameters like update_cache.",
+      "beginnerNote": null,
+      "tags": ["apt", "install", "module", "debian"]
+    },
+    {
+      "id": "module-apt-upgrade",
+      "title": "Upgrade every package with apt",
+      "command": "ansible all -m apt -a 'upgrade=dist'",
+      "flags": [],
+      "destructive": true,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Apply every available package upgrade across a fleet, equivalent to apt-get dist-upgrade.",
+      "beginnerNote": "A full dist upgrade can restart services or even require a reboot depending on what was updated. Run this with --check first and schedule it deliberately, never as a surprise.",
+      "tags": ["apt", "upgrade", "module", "debian"]
+    },
+    {
+      "id": "module-yum-install",
+      "title": "Install a package with yum",
+      "command": "ansible all -m yum -a 'name=httpd state=latest'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Install or update a package on RHEL, CentOS, or Fedora hosts using yum (dnf is used automatically where yum is just an alias).",
+      "beginnerNote": null,
+      "tags": ["yum", "install", "module", "rhel"]
+    },
+    {
+      "id": "module-user-create",
+      "title": "Create a user account with the user module",
+      "command": "ansible all -m user -a 'name=deploy shell=/bin/bash groups=sudo append=yes'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Create a deploy or service account with a specific shell and group membership as part of server bootstrapping.",
+      "beginnerNote": "Always pass append=yes when adding to groups, otherwise groups= replaces the user's entire group list instead of adding to it.",
+      "tags": ["user", "create", "module"]
+    },
+    {
+      "id": "module-user-remove",
+      "title": "Remove a user account with the user module",
+      "command": "ansible all -m user -a 'name=olduser state=absent remove=yes'",
+      "flags": [],
+      "destructive": true,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Fully deprovision a user account, including their home directory, when decommissioning access.",
+      "beginnerNote": "state=absent alone leaves the home directory behind. Add remove=yes to actually delete the home directory and mail spool along with the account.",
+      "tags": ["user", "remove", "deprovision", "module"]
+    },
+    {
+      "id": "module-group",
+      "title": "Create a group with the group module",
+      "command": "ansible all -m group -a 'name=deployers state=present'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Ensure a group exists before assigning users to it, useful when provisioning permissions ahead of the accounts that need them.",
+      "beginnerNote": null,
+      "tags": ["group", "module"]
+    },
+    {
+      "id": "module-git-clone",
+      "title": "Clone a Git repository with the git module",
+      "command": "ansible all -m git -a 'repo=https://github.com/example/app.git dest=/opt/app version=main'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Deploy application code by cloning or updating a Git repository directly to a target directory on the remote host.",
+      "beginnerNote": null,
+      "tags": ["git", "clone", "deploy", "module"]
+    },
+    {
+      "id": "module-cron-add",
+      "title": "Add a cron job with the cron module",
+      "command": "ansible all -m cron -a 'name=\"daily backup\" minute=0 hour=2 job=\"/opt/scripts/backup.sh\"'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Manage a crontab entry idempotently, identified by its name comment so re-running the task never creates duplicate entries.",
+      "beginnerNote": "The name parameter is not just a label. Ansible uses it as the marker comment to find and update the entry on future runs, so keep it stable once set.",
+      "tags": ["cron", "scheduling", "module"]
+    },
+    {
+      "id": "module-cron-remove",
+      "title": "Remove a cron job with the cron module",
+      "command": "ansible all -m cron -a 'name=\"old job\" state=absent'",
+      "flags": [],
+      "destructive": true,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Remove a previously managed cron entry cleanly by its name, without disturbing any other jobs in the same crontab.",
+      "beginnerNote": null,
+      "tags": ["cron", "remove", "module"]
+    },
+    {
+      "id": "module-command",
+      "title": "Run a command with the command module",
+      "command": "ansible all -m command -a 'systemctl status nginx'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Run a single command directly, without shell interpretation, which is safer and the recommended default over shell.",
+      "beginnerNote": "command does not process shell operators like |, >, or &&. If the command needs any of those, use shell instead.",
+      "tags": ["command", "module"]
+    },
+    {
+      "id": "module-shell-pipe",
+      "title": "Run a piped command with the shell module",
+      "command": "ansible all -m shell -a 'ps aux | grep nginx'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Run a command that specifically needs shell features like pipes, which the command module cannot process.",
+      "beginnerNote": null,
+      "tags": ["shell", "pipe", "module"]
+    },
+    {
+      "id": "module-raw-python-check",
+      "title": "Run a raw command with no Python dependency",
+      "command": "ansible all -m raw -a 'which python3'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Advanced",
+      "useCase": "Run a bare SSH command on a host that has no Python interpreter yet, most commonly used to bootstrap Python itself on a fresh image.",
+      "beginnerNote": "raw is the one module that does not require Python on the target at all, since it skips Ansible's usual module machinery entirely and just runs the command over SSH.",
+      "tags": ["raw", "bootstrap", "module"]
+    },
+    {
+      "id": "module-debug-var",
+      "title": "Print a variable's value with debug",
+      "command": "ansible all -m debug -a 'var=ansible_facts'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Print the current value of a variable or fact during troubleshooting, without modifying anything.",
+      "beginnerNote": null,
+      "tags": ["debug", "var", "module"]
+    },
+    {
+      "id": "module-debug-msg",
+      "title": "Print a custom message with debug",
+      "command": "ansible all -m debug -a \"msg='deployment starting'\"",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Print a plain custom message during a run, often used to mark a checkpoint or explain what a following task is about to do.",
+      "beginnerNote": null,
+      "tags": ["debug", "msg", "module"]
+    },
+    {
+      "id": "module-set-fact",
+      "title": "Set a runtime variable with set_fact",
+      "command": "ansible all -m set_fact -a 'app_version=1.2.3'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Compute or set a variable during a run that later tasks in the same play can reference, without it needing to exist in inventory or group_vars.",
+      "beginnerNote": "A fact set with set_fact only persists for the current play by default. Add cacheable=yes with fact caching enabled if it needs to survive into a later play or run.",
+      "tags": ["set_fact", "variables", "module"]
+    },
+    {
+      "id": "module-lineinfile",
+      "title": "Ensure a line exists in a file",
+      "command": "ansible all -m lineinfile -a \"path=/etc/hosts line='127.0.0.1 app.local'\"",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Add or update a single line in an existing config file without touching the rest of its contents.",
+      "beginnerNote": null,
+      "tags": ["lineinfile", "config", "module"]
+    },
+    {
+      "id": "module-lineinfile-regex",
+      "title": "Replace a matching line with lineinfile",
+      "command": "ansible all -m lineinfile -a \"path=/etc/ssh/sshd_config regexp='^PermitRootLogin' line='PermitRootLogin no'\"",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Replace whatever an existing setting currently is, rather than blindly appending, by matching it with a regular expression first.",
+      "beginnerNote": "Without regexp, lineinfile only checks for an exact match of line and will append a duplicate rather than replacing a differently-formatted existing line.",
+      "tags": ["lineinfile", "regexp", "config", "module"]
+    },
+    {
+      "id": "module-blockinfile",
+      "title": "Manage a multi-line block in a file",
+      "command": "ansible all -m blockinfile -a \"path=/etc/motd block='Managed by Ansible'\"",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Insert or update a multi-line block of text wrapped in marker comments, so re-running the task updates the block instead of duplicating it.",
+      "beginnerNote": null,
+      "tags": ["blockinfile", "config", "module"]
+    },
+    {
+      "id": "module-get-url",
+      "title": "Download a file with get_url",
+      "command": "ansible all -m get_url -a 'url=https://example.com/app.tar.gz dest=/tmp/app.tar.gz mode=0644'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Download a file directly on the remote host from an HTTP, HTTPS, or FTP URL, skipping the control node entirely.",
+      "beginnerNote": null,
+      "tags": ["get_url", "download", "module"]
+    },
+    {
+      "id": "module-unarchive",
+      "title": "Extract an archive with unarchive",
+      "command": "ansible all -m unarchive -a 'src=/tmp/app.tar.gz dest=/opt/app remote_src=yes'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Extract a tar or zip archive that already exists on the remote host, commonly chained right after get_url.",
+      "beginnerNote": "remote_src=yes is essential here. Without it, unarchive assumes src is a path on the control node and tries to copy it over first.",
+      "tags": ["unarchive", "extract", "module"]
+    },
+    {
+      "id": "module-wait-for-port",
+      "title": "Wait for a port to become open",
+      "command": "ansible all -m wait_for -a 'port=8080 delay=5 timeout=60'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Pause a playbook until an application has actually started listening on its port, before running a health check task against it.",
+      "beginnerNote": null,
+      "tags": ["wait_for", "port", "module"]
+    },
+    {
+      "id": "module-wait-for-file",
+      "title": "Wait for a file to disappear",
+      "command": "ansible all -m wait_for -a 'path=/tmp/deploy.lock state=absent'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Advanced",
+      "useCase": "Pause until a lock file created by a deploy script is removed, coordinating Ansible with an external process.",
+      "beginnerNote": null,
+      "tags": ["wait_for", "file", "lock", "module"]
+    },
+    {
+      "id": "module-uri-check",
+      "title": "Call an HTTP endpoint with uri",
+      "command": "ansible all -m uri -a 'url=http://localhost/health return_content=yes'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Hit a health check or API endpoint and inspect the response, useful right after a deploy to confirm the app came up healthy.",
+      "beginnerNote": null,
+      "tags": ["uri", "http", "health-check", "module"]
+    },
+    {
+      "id": "module-stat",
+      "title": "Check if a file exists with stat",
+      "command": "ansible all -m stat -a 'path=/etc/app.conf'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Beginner",
+      "useCase": "Check whether a file exists and inspect its permissions or checksum, typically registered into a variable and used in a later when condition.",
+      "beginnerNote": null,
+      "tags": ["stat", "file", "module"]
+    },
+    {
+      "id": "module-assert",
+      "title": "Fail fast with a pre-flight assertion",
+      "command": "ansible all -m assert -a \"that='ansible_memtotal_mb > 512'\"",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Advanced",
+      "useCase": "Fail a play early and loudly if a required condition is not met, such as a minimum amount of memory before installing a memory-hungry service.",
+      "beginnerNote": null,
+      "tags": ["assert", "validation", "module"]
+    },
+    {
+      "id": "module-fetch",
+      "title": "Fetch a file from a remote host to the control node",
+      "command": "ansible all -m fetch -a 'src=/var/log/app.log dest=/tmp/logs/ flat=yes'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Pull a file from every matched host back to the control node, the reverse direction of copy, commonly used to collect logs.",
+      "beginnerNote": "Without flat=yes, fetch nests each file under a per-host directory on the control node so files from different hosts never collide.",
+      "tags": ["fetch", "logs", "module"]
+    },
+    {
+      "id": "module-synchronize",
+      "title": "Sync a directory tree with rsync",
+      "command": "ansible all -m synchronize -a 'src=/local/dir/ dest=/remote/dir/'",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Advanced",
+      "useCase": "Sync a whole directory tree efficiently using rsync under the hood, much faster than copy for large numbers of files.",
+      "beginnerNote": "synchronize requires rsync to be installed on both the control node and the target host, unlike copy which has no such dependency.",
+      "tags": ["synchronize", "rsync", "module"]
+    },
+    {
+      "id": "module-authorized-key",
+      "title": "Add an SSH public key with authorized_key",
+      "command": "ansible all -m authorized_key -a \"user=deploy key={{ lookup('file', '~/.ssh/id_rsa.pub') }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Advanced",
+      "useCase": "Add a public key to a user's authorized_keys file idempotently, commonly used when bootstrapping a new deploy account.",
+      "beginnerNote": null,
+      "tags": ["authorized_key", "ssh", "module"]
+    },
+    {
+      "id": "module-reboot",
+      "title": "Reboot a host and wait for it to come back",
+      "command": "ansible all -m reboot -a 'reboot_timeout=300' --become",
+      "flags": [],
+      "destructive": true,
+      "category": "modules",
+      "difficulty": "Advanced",
+      "useCase": "Reboot a host as part of a kernel or system update, and block until it has actually come back online and is reachable again.",
+      "beginnerNote": "Always run this with --limit against a small batch first. Rebooting an entire fleet in one pass with high forks can take down a service simultaneously across every instance.",
+      "tags": ["reboot", "module"]
+    },
+    {
+      "id": "module-package-facts",
+      "title": "Gather the list of installed packages",
+      "command": "ansible all -m package_facts",
+      "flags": [],
+      "destructive": false,
+      "category": "modules",
+      "difficulty": "Intermediate",
+      "useCase": "Discover exactly which packages and versions are installed on a host, useful for an inventory audit or a when condition based on package presence.",
+      "beginnerNote": null,
+      "tags": ["package_facts", "audit", "module"]
+    },
+
+    {
+      "id": "vault-create",
+      "title": "Create a new encrypted file",
+      "command": "ansible-vault create secrets.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Beginner",
+      "useCase": "Create a brand-new file that is encrypted from the moment it is saved, opening your default editor to write its contents.",
+      "beginnerNote": "The editor used is whatever your EDITOR environment variable points to. If nothing happens when you run this, EDITOR is probably unset.",
+      "tags": ["vault", "create", "secrets"]
+    },
+    {
+      "id": "vault-edit",
+      "title": "Edit an existing encrypted file",
+      "command": "ansible-vault edit secrets.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Beginner",
+      "useCase": "Decrypt a vault file into your editor, let you make changes, and re-encrypt it on save, without ever leaving plaintext on disk.",
+      "beginnerNote": null,
+      "tags": ["vault", "edit", "secrets"]
+    },
+    {
+      "id": "vault-view",
+      "title": "View an encrypted file without editing",
+      "command": "ansible-vault view secrets.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Beginner",
+      "useCase": "Read the contents of a vault-encrypted file to your terminal without opening an editor or risking an accidental save.",
+      "beginnerNote": null,
+      "tags": ["vault", "view", "secrets"]
+    },
+    {
+      "id": "vault-encrypt",
+      "title": "Encrypt an existing plaintext file",
+      "command": "ansible-vault encrypt vars/prod.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Beginner",
+      "useCase": "Encrypt a file that already exists as plaintext, turning it into a vault-protected file in place.",
+      "beginnerNote": null,
+      "tags": ["vault", "encrypt", "secrets"]
+    },
+    {
+      "id": "vault-encrypt-multiple",
+      "title": "Encrypt multiple files at once",
+      "command": "ansible-vault encrypt vars/prod.yml vars/staging.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Intermediate",
+      "useCase": "Encrypt several related variable files in a single command, all with the same vault password.",
+      "beginnerNote": null,
+      "tags": ["vault", "encrypt", "batch"]
+    },
+    {
+      "id": "vault-decrypt",
+      "title": "Permanently decrypt a file",
+      "command": "ansible-vault decrypt secrets.yml",
+      "flags": [],
+      "destructive": true,
+      "category": "vault",
+      "difficulty": "Intermediate",
+      "useCase": "Remove vault encryption from a file entirely, leaving it as plain, readable text on disk.",
+      "beginnerNote": "This leaves real secrets sitting in plaintext on disk. Only do this briefly and intentionally, and never commit the decrypted file to version control.",
+      "tags": ["vault", "decrypt", "secrets"]
+    },
+    {
+      "id": "vault-rekey",
+      "title": "Change a vault file's password",
+      "command": "ansible-vault rekey secrets.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Intermediate",
+      "useCase": "Rotate the password protecting a vault file without needing to fully decrypt and re-encrypt it manually.",
+      "beginnerNote": "Rekeying only changes the password for that one file. Every other vault file encrypted with the old password still needs rekeying separately, or a shared vault ID setup.",
+      "tags": ["vault", "rekey", "rotate", "secrets"]
+    },
+    {
+      "id": "vault-encrypt-string",
+      "title": "Encrypt a single value inline",
+      "command": "ansible-vault encrypt_string 'S3cr3tP@ss' --name 'db_password'",
+      "flags": [
+        {"flag": "--name", "description": "Names the resulting encrypted variable, formatting the output ready to paste into a YAML file"}
+      ],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Intermediate",
+      "useCase": "Encrypt just one secret value, like a single password, so it can be pasted directly into an otherwise plaintext variables file.",
+      "beginnerNote": null,
+      "tags": ["vault", "encrypt_string", "secrets"]
+    },
+    {
+      "id": "vault-encrypt-string-stdin",
+      "title": "Encrypt a value piped from stdin",
+      "command": "echo -n 'S3cr3tP@ss' | ansible-vault encrypt_string --stdin-name 'db_password'",
+      "flags": [
+        {"flag": "--stdin-name", "description": "Reads the value to encrypt from stdin instead of a command-line argument"}
+      ],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Advanced",
+      "useCase": "Encrypt a secret without it ever appearing in your shell history, which passing it directly as a command-line argument would risk.",
+      "beginnerNote": "echo -n is important here. A trailing newline from a plain echo becomes part of the encrypted value and can silently break comparisons or authentication.",
+      "tags": ["vault", "stdin", "secrets", "encrypt_string"]
+    },
+    {
+      "id": "vault-password-file",
+      "title": "Decrypt using a password file",
+      "command": "ansible-playbook site.yml --vault-password-file ~/.vault_pass",
+      "flags": [
+        {"flag": "--vault-password-file", "description": "Reads the vault password from a file, or from a script's stdout if the file is executable"}
+      ],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Intermediate",
+      "useCase": "Supply the vault password non-interactively, most commonly needed for CI/CD pipelines running playbooks unattended.",
+      "beginnerNote": null,
+      "tags": ["vault", "password-file", "ci"]
+    },
+    {
+      "id": "vault-ask-pass",
+      "title": "Prompt interactively for the vault password",
+      "command": "ansible-playbook site.yml --ask-vault-pass",
+      "flags": [
+        {"flag": "--ask-vault-pass", "description": "Prompts interactively for the vault password at run time"}
+      ],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Beginner",
+      "useCase": "Run a playbook that touches vault-encrypted files interactively, typing the password once at the start of the run.",
+      "beginnerNote": null,
+      "tags": ["vault", "ask-pass", "interactive"]
+    },
+    {
+      "id": "vault-id-encrypt",
+      "title": "Encrypt a file under a named vault ID",
+      "command": "ansible-vault encrypt secrets.yml --vault-id prod@prompt",
+      "flags": [
+        {"flag": "--vault-id", "description": "Encrypts under a named vault identity, prompting interactively for that identity's password"}
+      ],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Advanced",
+      "useCase": "Encrypt a file under a labeled identity like prod, so different environments can use entirely separate vault passwords.",
+      "beginnerNote": null,
+      "tags": ["vault", "vault-id", "secrets"]
+    },
+    {
+      "id": "vault-id-playbook",
+      "title": "Run a playbook using a named vault ID",
+      "command": "ansible-playbook site.yml --vault-id prod@~/.vault_pass_prod",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Advanced",
+      "useCase": "Decrypt files that were encrypted under a specific named vault identity, pairing the identity with its password file.",
+      "beginnerNote": null,
+      "tags": ["vault", "vault-id", "playbook"]
+    },
+    {
+      "id": "vault-multiple-ids",
+      "title": "Run a playbook with multiple vault IDs at once",
+      "command": "ansible-playbook site.yml --vault-id dev@~/.vault_dev --vault-id prod@~/.vault_prod",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Advanced",
+      "useCase": "Decrypt files encrypted under different vault identities in a single run, such as a playbook that references both dev and prod secrets.",
+      "beginnerNote": "Ansible tries each supplied vault-id against each encrypted file until one works, so the order does not need to match which file uses which identity.",
+      "tags": ["vault", "vault-id", "multiple"]
+    },
+    {
+      "id": "vault-create-with-id",
+      "title": "Create a new file under a named vault ID",
+      "command": "ansible-vault create --vault-id prod@prompt secrets_prod.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "vault",
+      "difficulty": "Advanced",
+      "useCase": "Create a brand-new secrets file that is encrypted from the start under a specific named vault identity.",
+      "beginnerNote": null,
+      "tags": ["vault", "vault-id", "create"]
+    },
+
+    {
+      "id": "galaxy-init",
+      "title": "Scaffold a new role",
+      "command": "ansible-galaxy init my_role",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "Generate the standard role directory structure (tasks, handlers, defaults, templates, and more) instead of building it by hand.",
+      "beginnerNote": "The generated defaults/main.yml is where role variables meant to be easily overridden should live, since role defaults have the lowest variable precedence of any source.",
+      "tags": ["galaxy", "init", "role", "scaffold"]
+    },
+    {
+      "id": "galaxy-install",
+      "title": "Install a role from Galaxy",
+      "command": "ansible-galaxy install geerlingguy.nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "Install a community-maintained role directly from Ansible Galaxy instead of writing one from scratch.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "install", "role"]
+    },
+    {
+      "id": "galaxy-install-requirements",
+      "title": "Install every role listed in requirements.yml",
+      "command": "ansible-galaxy install -r requirements.yml",
+      "flags": [
+        {"flag": "-r", "description": "Reads a list of roles (and their versions and sources) from a requirements file"}
+      ],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "Install every external role a project depends on in one command, keeping dependencies version-pinned and reproducible.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "requirements", "install"]
+    },
+    {
+      "id": "galaxy-list",
+      "title": "List installed roles",
+      "command": "ansible-galaxy list",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "See every role currently installed locally along with its version, useful before upgrading or auditing dependencies.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "list", "role"]
+    },
+    {
+      "id": "galaxy-remove",
+      "title": "Remove an installed role",
+      "command": "ansible-galaxy remove geerlingguy.nginx",
+      "flags": [],
+      "destructive": true,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "Remove a role that is no longer needed from the local roles directory.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "remove", "role"]
+    },
+    {
+      "id": "galaxy-search",
+      "title": "Search Galaxy for a role",
+      "command": "ansible-galaxy search nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "Search the public Galaxy registry for roles matching a keyword before deciding whether to write one yourself.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "search", "role"]
+    },
+    {
+      "id": "galaxy-info",
+      "title": "Show details about a Galaxy role",
+      "command": "ansible-galaxy info geerlingguy.nginx",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Intermediate",
+      "useCase": "Check a role's available versions, dependencies, and last update date before pinning it in requirements.yml.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "info", "role"]
+    },
+    {
+      "id": "galaxy-collection-install",
+      "title": "Install a collection",
+      "command": "ansible-galaxy collection install community.general",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "Install a collection, a bundle of modules, plugins, and roles from a single namespace, most commonly community.general for modules not in ansible-core.",
+      "beginnerNote": "Collections and roles are installed separately with different subcommands. A missing module usually means the collection needs installing, not just a role.",
+      "tags": ["galaxy", "collection", "install"]
+    },
+    {
+      "id": "galaxy-collection-install-requirements",
+      "title": "Install collections from a requirements file",
+      "command": "ansible-galaxy collection install -r requirements.yml",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Intermediate",
+      "useCase": "Install every collection dependency a project needs in one command, version-pinned and reproducible across machines.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "collection", "requirements"]
+    },
+    {
+      "id": "galaxy-collection-list",
+      "title": "List installed collections",
+      "command": "ansible-galaxy collection list",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Beginner",
+      "useCase": "See every collection currently installed and its version, useful for confirming a required collection is actually present.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "collection", "list"]
+    },
+    {
+      "id": "galaxy-collection-verify",
+      "title": "Verify an installed collection against its checksums",
+      "command": "ansible-galaxy collection verify community.general",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Advanced",
+      "useCase": "Confirm an installed collection has not been modified locally, comparing its files against the checksums published to Galaxy.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "collection", "verify", "security"]
+    },
+    {
+      "id": "galaxy-collection-build",
+      "title": "Build a collection into a distributable archive",
+      "command": "ansible-galaxy collection build",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Advanced",
+      "useCase": "Package a collection you maintain into a tarball ready to publish or install elsewhere, run from inside the collection's root directory.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "collection", "build"]
+    },
+    {
+      "id": "galaxy-collection-publish",
+      "title": "Publish a collection to Galaxy",
+      "command": "ansible-galaxy collection publish my_namespace-my_collection-1.0.0.tar.gz",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Advanced",
+      "useCase": "Publish a built collection tarball to Ansible Galaxy or a private Automation Hub so others can install it.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "collection", "publish"]
+    },
+    {
+      "id": "galaxy-role-install-version",
+      "title": "Install a specific version of a role",
+      "command": "ansible-galaxy install geerlingguy.nginx,3.1.0",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Intermediate",
+      "useCase": "Pin a role to an exact version rather than always installing latest, keeping a project's dependencies reproducible.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "role", "version", "pin"]
+    },
+    {
+      "id": "galaxy-role-install-path",
+      "title": "Install a role into a specific directory",
+      "command": "ansible-galaxy install geerlingguy.nginx -p ./roles",
+      "flags": [
+        {"flag": "-p", "description": "Sets the directory roles are installed into, instead of the default roles path"}
+      ],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Intermediate",
+      "useCase": "Install a role directly into a project-local roles directory so it can be committed and versioned alongside the playbook.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "role", "path"]
+    },
+    {
+      "id": "galaxy-init-collection",
+      "title": "Scaffold a new collection",
+      "command": "ansible-galaxy collection init my_namespace.my_collection",
+      "flags": [],
+      "destructive": false,
+      "category": "roles-galaxy",
+      "difficulty": "Advanced",
+      "useCase": "Generate the standard collection directory structure when starting a new collection to hold custom modules, plugins, or roles.",
+      "beginnerNote": null,
+      "tags": ["galaxy", "collection", "init", "scaffold"]
+    },
+
+    {
+      "id": "handler-notify-pattern",
+      "title": "Trigger a handler with notify",
+      "command": "tasks:\n  - name: Update nginx config\n    template:\n      src: nginx.conf.j2\n      dest: /etc/nginx/nginx.conf\n    notify: Restart nginx\n\nhandlers:\n  - name: Restart nginx\n    service:\n      name: nginx\n      state: restarted",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Intermediate",
+      "useCase": "Restart a service only when the config that feeds it actually changed, instead of restarting it unconditionally on every run.",
+      "beginnerNote": "A handler is matched to notify by its name, not by which task called it. Renaming a handler without updating every notify that references it silently breaks the trigger.",
+      "tags": ["handlers", "notify", "yaml"]
+    },
+    {
+      "id": "handler-multiple-order",
+      "title": "Handlers run in the order they are defined",
+      "command": "handlers:\n  - name: Restart nginx\n    service:\n      name: nginx\n      state: restarted\n  - name: Reload firewall\n    service:\n      name: firewalld\n      state: reloaded",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Intermediate",
+      "useCase": "Handlers always run in the order they are listed under handlers, regardless of the order in which tasks notified them.",
+      "beginnerNote": null,
+      "tags": ["handlers", "order", "yaml"]
+    },
+    {
+      "id": "handler-force-handlers",
+      "title": "Run notified handlers even if a later task fails",
+      "command": "ansible-playbook site.yml --force-handlers",
+      "flags": [
+        {"flag": "--force-handlers", "description": "Runs any handlers that were already notified even if a later task in the play fails"}
+      ],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Advanced",
+      "useCase": "Ensure a service still restarts to pick up a config change even if an unrelated later task in the same play fails.",
+      "beginnerNote": "By default, handlers only run at the very end of a successful play. A failure anywhere in the play normally skips every pending handler entirely.",
+      "tags": ["handlers", "force-handlers", "flags"]
+    },
+    {
+      "id": "when-conditional-basic",
+      "title": "Run a task only when a condition is true",
+      "command": "- name: Install nginx on Debian family\n  apt:\n    name: nginx\n    state: present\n  when: ansible_facts['os_family'] == \"Debian\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Beginner",
+      "useCase": "Run a task only on hosts matching a condition, most commonly branching behavior based on OS family or a variable.",
+      "beginnerNote": "when is evaluated as a raw Jinja2 expression, so it should not be wrapped in {{ }} the way a value elsewhere in a task would be.",
+      "tags": ["when", "conditional", "yaml"]
+    },
+    {
+      "id": "when-conditional-multiple",
+      "title": "Combine multiple conditions with when",
+      "command": "- name: Restart app only in production\n  service:\n    name: myapp\n    state: restarted\n  when:\n    - env == \"production\"\n    - deploy_enabled | bool",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Intermediate",
+      "useCase": "A list of conditions under when is implicitly ANDed together, all must be true for the task to run.",
+      "beginnerNote": null,
+      "tags": ["when", "conditional", "list", "yaml"]
+    },
+    {
+      "id": "loop-basic",
+      "title": "Loop a task over a simple list",
+      "command": "- name: Create multiple users\n  user:\n    name: \"{{ item }}\"\n    state: present\n  loop:\n    - alice\n    - bob\n    - carol",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Beginner",
+      "useCase": "Run the same task once per item in a list, referencing the current item with {{ item }}, instead of writing one task per user.",
+      "beginnerNote": null,
+      "tags": ["loop", "iteration", "yaml"]
+    },
+    {
+      "id": "loop-with-items-legacy",
+      "title": "Loop with the older with_items syntax",
+      "command": "- name: Install packages\n  apt:\n    name: \"{{ item }}\"\n  with_items:\n    - nginx\n    - curl\n    - git",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Intermediate",
+      "useCase": "The older looping syntax, still common in existing playbooks and still fully supported.",
+      "beginnerNote": "with_items still works but loop is the modern recommended syntax, and it composes more predictably with filters and lookups than the older with_ family.",
+      "tags": ["with_items", "loop", "legacy", "yaml"]
+    },
+    {
+      "id": "loop-dict",
+      "title": "Loop over a list of dictionaries",
+      "command": "- name: Create users with groups\n  user:\n    name: \"{{ item.name }}\"\n    groups: \"{{ item.groups }}\"\n  loop:\n    - { name: 'alice', groups: 'sudo' }\n    - { name: 'bob', groups: 'developers' }",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Advanced",
+      "useCase": "Loop over structured data instead of plain strings, accessing each item's fields with dot notation like item.name.",
+      "beginnerNote": null,
+      "tags": ["loop", "dictionary", "iteration", "yaml"]
+    },
+    {
+      "id": "jinja-default-filter",
+      "title": "Fall back to a default value with the default filter",
+      "command": "ansible localhost -m debug -a \"msg={{ myvar | default('fallback') }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Beginner",
+      "useCase": "Provide a fallback value for a variable that might be undefined, avoiding an undefined variable error.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "default", "filter"]
+    },
+    {
+      "id": "jinja-upper-filter",
+      "title": "Transform text case with upper and lower",
+      "command": "ansible localhost -m debug -a \"msg={{ 'hello world' | upper }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Beginner",
+      "useCase": "Transform string case inside a template or task, useful for normalizing values like environment names before comparing them.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "upper", "lower", "filter"]
+    },
+    {
+      "id": "jinja-join-filter",
+      "title": "Join a list into a delimited string",
+      "command": "ansible localhost -m debug -a \"msg={{ ['a','b','c'] | join(',') }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Intermediate",
+      "useCase": "Turn a list variable into a single delimited string, commonly used when rendering a config value that expects a comma or space separated list.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "join", "filter", "list"]
+    },
+    {
+      "id": "jinja-to-nice-yaml",
+      "title": "Pretty-print a variable as YAML",
+      "command": "ansible localhost -m debug -a \"msg={{ myvar | to_nice_yaml }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Intermediate",
+      "useCase": "Render a complex variable as readable, indented YAML inside a template or debug message, instead of a single-line dump.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "to_nice_yaml", "filter"]
+    },
+    {
+      "id": "jinja-regex-replace",
+      "title": "Replace text with a regular expression",
+      "command": "ansible localhost -m debug -a \"msg={{ 'foo123' | regex_replace('[0-9]+', '') }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Advanced",
+      "useCase": "Strip or replace parts of a string using a regular expression, useful for cleaning up a value pulled from facts before using it elsewhere.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "regex_replace", "filter"]
+    },
+    {
+      "id": "jinja-ternary",
+      "title": "Pick one of two values with ternary",
+      "command": "ansible localhost -m debug -a \"msg={{ (env == 'prod') | ternary('production','staging') }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Advanced",
+      "useCase": "Pick between two values based on a boolean condition in a single expression, a compact alternative to a multi-line when/set_fact pair.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "ternary", "filter", "conditional"]
+    },
+    {
+      "id": "jinja-selectattr",
+      "title": "Filter a list of dictionaries with selectattr",
+      "command": "ansible localhost -m debug -a \"msg={{ users | selectattr('active') | list }}\"",
+      "flags": [],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Advanced",
+      "useCase": "Filter a list of dictionaries down to only the items matching an attribute condition, such as only active users.",
+      "beginnerNote": null,
+      "tags": ["jinja2", "selectattr", "filter", "list"]
+    },
+    {
+      "id": "template-validate",
+      "title": "Validate a rendered template before saving it",
+      "command": "ansible all -m template -a \"src=sudoers.j2 dest=/etc/sudoers validate='visudo -cf %s'\"",
+      "flags": [
+        {"flag": "validate=", "description": "Runs a validation command against a temp copy of the rendered file before overwriting the real destination"}
+      ],
+      "destructive": false,
+      "category": "handlers-templates",
+      "difficulty": "Advanced",
+      "useCase": "Validate a rendered config file with its own tool, like visudo, before it ever overwrites the live file, so a broken render never lands on disk.",
+      "beginnerNote": "The %s in the validate command is replaced with the path to the temporary rendered file, not the real destination, which is exactly what makes this safe.",
+      "tags": ["template", "validate", "safety"]
+    },
+
+    {
+      "id": "verbosity-vvv",
+      "title": "Run with connection-level verbosity",
+      "command": "ansible-playbook site.yml -vvv",
+      "flags": [
+        {"flag": "-vvv", "description": "Shows connection details including the actual SSH command being executed"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Debug a connection failure by seeing the exact SSH command Ansible is running under the hood, including which key and user it picked.",
+      "beginnerNote": null,
+      "tags": ["verbosity", "debug", "ssh"]
+    },
+    {
+      "id": "verbosity-vvvv",
+      "title": "Run with maximum verbosity",
+      "command": "ansible-playbook site.yml -vvvv",
+      "flags": [
+        {"flag": "-vvvv", "description": "Adds connection plugin debugging on top of -vvv, the most detailed verbosity level"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Advanced",
+      "useCase": "Debug the deepest connection-layer problems, such as an SSH multiplexing or ControlPath issue that -vvv does not fully expose.",
+      "beginnerNote": null,
+      "tags": ["verbosity", "debug", "connection"]
+    },
+    {
+      "id": "debug-ping-vvv",
+      "title": "Debug a connectivity failure",
+      "command": "ansible all -m ping -vvv",
+      "flags": [],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Combine the simplest possible module with high verbosity to isolate whether a failure is about connectivity at all, before suspecting anything else.",
+      "beginnerNote": null,
+      "tags": ["ping", "verbosity", "connectivity"]
+    },
+    {
+      "id": "debug-become-whoami-vvv",
+      "title": "Debug a privilege escalation failure",
+      "command": "ansible all -m command -a 'whoami' --become -vvv",
+      "flags": [],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Isolate whether a task failure is actually a sudo or become configuration problem, separate from the task's own logic.",
+      "beginnerNote": null,
+      "tags": ["become", "verbosity", "sudo"]
+    },
+    {
+      "id": "debug-python-interpreter",
+      "title": "Confirm which Python interpreter Ansible is using",
+      "command": "ansible all -m setup -a 'filter=ansible_python_interpreter'",
+      "flags": [],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Diagnose a module failure caused by Ansible picking an unexpected Python interpreter on a host with multiple Python versions installed.",
+      "beginnerNote": null,
+      "tags": ["python", "interpreter", "facts"]
+    },
+    {
+      "id": "debug-connection-paramiko",
+      "title": "Fall back to the paramiko connection plugin",
+      "command": "ansible all -m ping -c paramiko",
+      "flags": [
+        {"flag": "-c", "description": "Selects a specific connection plugin instead of the default openssh-based one"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Advanced",
+      "useCase": "Work around an issue specific to the system OpenSSH client by switching to Ansible's Python-based paramiko connection plugin.",
+      "beginnerNote": null,
+      "tags": ["connection", "paramiko", "ssh"]
+    },
+    {
+      "id": "debug-ssh-common-args",
+      "title": "Pass extra SSH arguments for a difficult connection",
+      "command": "ansible all -m ping --ssh-common-args='-o StrictHostKeyChecking=no'",
+      "flags": [
+        {"flag": "--ssh-common-args", "description": "Passes extra arguments through to every SSH invocation Ansible makes"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Advanced",
+      "useCase": "Work around a host key checking failure or pass a jump host argument when connecting through a bastion.",
+      "beginnerNote": "Disabling StrictHostKeyChecking removes a real security check. Fine for short-lived lab or CI environments, but avoid it as a permanent fix for real infrastructure.",
+      "tags": ["ssh", "connection", "troubleshooting"]
+    },
+    {
+      "id": "debug-timeout",
+      "title": "Increase the connection timeout",
+      "command": "ansible all -m ping --timeout=30",
+      "flags": [
+        {"flag": "--timeout", "description": "Sets the connection timeout in seconds, default is 10"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Give slow or high-latency hosts more time to respond before Ansible gives up on the connection.",
+      "beginnerNote": null,
+      "tags": ["timeout", "connection", "troubleshooting"]
+    },
+    {
+      "id": "debug-retry-file-limit",
+      "title": "Re-run only the hosts that failed last time",
+      "command": "ansible-playbook site.yml --limit @site.retry",
+      "flags": [
+        {"flag": "--limit @file.retry", "description": "Limits the run to only the hosts listed in an auto-generated .retry file from the previous failed run"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Advanced",
+      "useCase": "Re-run a playbook against only the hosts that failed last time, instead of the entire fleet, after fixing the underlying issue.",
+      "beginnerNote": "Retry files are only generated when a run actually fails, and only if retry_files_enabled is not disabled in ansible.cfg.",
+      "tags": ["retry", "limit", "troubleshooting"]
+    },
+    {
+      "id": "debug-become-method",
+      "title": "Use a non-sudo privilege escalation method",
+      "command": "ansible all -m ping --become --become-method=su",
+      "flags": [
+        {"flag": "--become-method", "description": "Selects which privilege escalation method to use, default is sudo"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Advanced",
+      "useCase": "Work around a host where sudo is not configured but su is available, or another become plugin like doas or pbrun is required.",
+      "beginnerNote": null,
+      "tags": ["become", "su", "privilege-escalation"]
+    },
+    {
+      "id": "debug-config-only-changed",
+      "title": "Show only non-default configuration values",
+      "command": "ansible-config dump --only-changed",
+      "flags": [
+        {"flag": "--only-changed", "description": "Shows only settings that differ from their built-in default value"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Cut through hundreds of default settings and see only the handful your project has actually overridden.",
+      "beginnerNote": null,
+      "tags": ["config", "debug", "settings"]
+    },
+    {
+      "id": "debug-doc-json",
+      "title": "Get module documentation as JSON",
+      "command": "ansible-doc --json apt",
+      "flags": [
+        {"flag": "--json", "description": "Outputs module documentation as machine-readable JSON instead of formatted text"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Get a module's parameter list as structured JSON, useful for scripting or building tooling around Ansible's own module metadata.",
+      "beginnerNote": null,
+      "tags": ["doc", "json", "reference"]
+    },
+    {
+      "id": "debug-list-modules-by-type",
+      "title": "List modules by plugin type",
+      "command": "ansible-doc -l -t module",
+      "flags": [
+        {"flag": "-t", "description": "Restricts the listing to a specific plugin type, such as module, lookup, or filter"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Beginner",
+      "useCase": "List only modules and exclude other plugin types like lookups or filters when browsing what is available.",
+      "beginnerNote": null,
+      "tags": ["doc", "list", "modules"]
+    },
+    {
+      "id": "debug-list-hosts-pattern",
+      "title": "Test a limit pattern before running for real",
+      "command": "ansible-playbook site.yml --limit 'web*' --list-hosts",
+      "flags": [],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Beginner",
+      "useCase": "Confirm a wildcard or complex limit pattern resolves to exactly the hosts you expect before actually running the playbook against them.",
+      "beginnerNote": null,
+      "tags": ["limit", "list-hosts", "pattern"]
+    },
+    {
+      "id": "debug-step-through",
+      "title": "Step through from a specific task",
+      "command": "ansible-playbook site.yml --step --start-at-task='Restart service'",
+      "flags": [],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Advanced",
+      "useCase": "Combine resuming from a specific task with interactive step confirmation, useful for carefully walking through the exact section of a playbook that failed.",
+      "beginnerNote": null,
+      "tags": ["step", "start-at-task", "debug"]
+    },
+    {
+      "id": "debug-facts-tree",
+      "title": "Dump gathered facts to files for offline inspection",
+      "command": "ansible all -m setup --tree /tmp/facts",
+      "flags": [
+        {"flag": "--tree", "description": "Writes each host's output to its own file under the given directory instead of printing to the terminal"}
+      ],
+      "destructive": false,
+      "category": "troubleshooting",
+      "difficulty": "Intermediate",
+      "useCase": "Capture full facts for every host into separate files for offline diffing or review, instead of scrolling through terminal output for a large fleet.",
+      "beginnerNote": null,
+      "tags": ["setup", "tree", "facts", "debug"]
+    }
+  ]
+}
