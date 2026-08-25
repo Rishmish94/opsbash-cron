@@ -300,6 +300,16 @@ const webAppSchema = {
       </div>
 
       <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Why Your Containers Can't Find Each Other After Converting</h2>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          docker run on the default bridge network gives containers no name-based way to find each other at all. You either hardcode IP addresses, use the deprecated --link flag, or explicitly run docker network create and attach every container to that network with --network before name resolution works. That docker network create step is easy to lose when converting, because it isn't a flag on either docker run command. It's a separate command that already ran before either container started, so a flag-by-flag translation has nothing to map it to.
+        </p>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Compose replaces all of that with a network it creates automatically, where every service in the file can resolve every other service by its service name through Docker's built-in DNS. That's the trap: DNS resolves by service name, not by the --name you gave the container. If your original setup named a container redis-test and another container's environment variable reads HOST=redis-test, converting to a Compose service named redis breaks that lookup, because nothing in the new file is named redis-test anymore. Either pin the old name with container_name: redis-test, or update the environment variable to HOST=redis to match the service name, which is the more idiomatic Compose approach. This is the single most common surprise after a docker run to Compose conversion, and it's why translating the topology, not just the flags, is what actually matters.
+        </p>
+      </div>
+
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Docker Compose Best Practices</h2>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
           Keep secrets out of your Compose file by using environment variable substitution with a .env file rather than hardcoding passwords directly in the YAML. Use named volumes for any data you want to persist across container recreations rather than bind-mounting a specific host path, since named volumes work consistently across machines. Pin your image tags to a specific version like postgres:15-alpine rather than latest so you know exactly what you are running. If you have multiple services, use depends_on with service_healthy to make sure dependent services wait until their dependencies are actually ready, not just started.

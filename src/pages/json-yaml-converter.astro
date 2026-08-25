@@ -303,6 +303,19 @@ const webAppSchema = {
     </div>
 
     <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
+      <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">The YAML Norway Problem: Why Unquoted NO, Yes, and 1.10 Change Type</h2>
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+        YAML 1.1 parsers treat a set of unquoted words as booleans instead of strings: yes, no, on, off, y, n, true, and false, all case-insensitive. The most famous casualty is the country code NO. Build a list of country codes such as NO, SE, DK, and FI and a YAML 1.1 parser hands your application the boolean false instead of the string "NO" for the first one. Norway becomes false. This passes YAML syntax validation cleanly, because false is a perfectly valid value, so nothing errors. The value is just silently the wrong type, and the bug only surfaces once your code tries to use it as a string.
+      </p>
+      <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+        The same implicit typing reaches version strings and leading zeros too. Write appVersion: 1.10 in a Helm values.yaml file and a YAML 1.1 parser can hand your code the float 1.1, silently dropping the trailing zero that distinguishes version 1.10 from 1.1. Write a port or account number as 0123 and it gets read as octal, becoming 83 in decimal. None of this is consistent across tooling, either: PyYAML defaults to YAML 1.1 behavior, while js-yaml's newer versions default to the stricter YAML 1.2 rules that recognize far fewer implicit booleans. The same file can produce a different value depending on which parser reads it, at different stages of the same pipeline, without the YAML itself ever changing.
+      </p>
+      <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+        The fix is to quote anything that could be misread — "NO", "1.10", "0123" — since YAML never applies implicit typing to a quoted scalar, and to stick to lowercase true and false for real booleans, which both spec versions agree on. This is also where converting through JSON first helps: JSON has no implicit typing at all, a JSON string is always a string, so converting JSON to YAML with the tool above quotes ambiguous-looking values automatically, and "NO" comes out as the string "NO" instead of quietly becoming false. Converting an existing YAML file to JSON works as a check in the other direction, showing you exactly what type each value actually resolved to before it reaches kubectl apply.
+      </p>
+    </div>
+
+    <div class="reveal mb-10 rounded-2xl p-6 sm:p-8" style="background: var(--card); border: 1px solid var(--border);">
       <h2 class="text-xl font-bold mb-4" style="color: var(--fg);">How to Convert JSON to YAML on the Command Line</h2>
       <p class="text-sm leading-relaxed mb-5" style="color: var(--fg2);">
         The <code style="font-family: 'Fira Code', monospace; font-size: 0.8em; padding: 2px 5px; border-radius: 4px; background: var(--code-bg); color: var(--fg);">yq</code> tool handles both directions cleanly and fits naturally into automated pipelines and bash scripts. Install it once and use it in any CI workflow that needs format conversion.

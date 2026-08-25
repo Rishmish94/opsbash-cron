@@ -459,6 +459,19 @@ const webAppSchema = {
         </p>
       </div>
 
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Why chmod 777 Shows Up in Dockerfiles (and the UID Fix)</h2>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          chmod 777 in a Dockerfile almost always traces back to one specific cause: a UID mismatch, not a genuine need for world-writable files. Linux doesn't check usernames, it checks numeric user and group IDs. Bind mount a host directory into a container with something like -v ./data:/app/data and the files keep their host ownership. If your host user is UID 1000 but the process inside the container runs as UID 999, or as a different UID entirely, the container has no write access to those files from its own perspective. chmod 777 makes the permission denied error disappear by removing ownership checks from the directory entirely, not by fixing the mismatch that caused it.
+        </p>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          The real fix is matching the UIDs instead of disabling permissions. Build the image with a UID and GID that match the host user, passed in at build time with an ARG and --build-arg UID=$(id -u) --build-arg GID=$(id -g), and files created by the container end up owned by you on the host with no chmod needed. When you don't need host-side access to the files at all, because they're application state or a database's data directory, use a named Docker volume instead of a bind mount. Named volumes are managed entirely by Docker and sidestep the UID problem since there's no host ownership to conflict with. If you don't control the image, changing the host directory's ownership to match the container's expected UID with a one-line chown works too.
+        </p>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          Any of these three is a meaningfully smaller blast radius than 777, which opens the directory to every user, process, and container sharing that filesystem, not just the one that needed access. It's the kind of fix that costs nothing extra to type up front and is genuinely cheaper than the alternative: a security review eighteen months later asking why /app is world writable in production. Once the UIDs are matched, or you've decided the directory genuinely needs a shared permission, the calculator above gives you the exact octal or symbolic value for that specific case instead of reaching for 777 because it was the first thing that worked.
+        </p>
+      </div>
+
       <div class="further-reading reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h3 class="text-base font-semibold mb-2" style="color: var(--fg);">Further reading</h3>
         <p class="text-sm" style="margin: 0; color: var(--fg2);"><a href="/blog/chmod-777-dockerfile-code-smell" style="color: var(--accent); text-decoration: underline;">Why chmod 777 in Your Dockerfile Is a Code Smell</a></p>

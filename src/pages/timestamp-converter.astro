@@ -376,8 +376,14 @@ const webAppSchema = {
 
       <div class="rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
         <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">Why Timestamps Show Up in Logs</h2>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          Structured logs, distributed traces, and database rows almost always record time as epoch milliseconds or seconds rather than a formatted date string, and that's a deliberate choice, not a missing feature. Comparing two integers is faster than parsing and comparing two date strings, and at the scale of millions of log events per second, or billions of rows accumulated over time, that difference adds up to real CPU time and real storage cost. A 10-digit integer is smaller than a formatted datetime string repeated across every row in a table.
+        </p>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          The deeper reason is timezone neutrality. An epoch number has no timezone attached to it: 1718400000 means the exact same instant whether it's read in Mumbai, London, or São Paulo. The moment you format that as a string like 2024-06-14 16:00:00 you've introduced a question the raw number never had, which timezone is that, UTC, IST, local server time. Epoch sidesteps the question entirely by being an absolute value with no regional interpretation, which is also why a timestamp written by a Go service can be read by a Python pipeline without any format negotiation between them.
+        </p>
         <p class="text-sm leading-relaxed" style="color: var(--fg2);">
-          Structured logs, distributed traces, and database rows almost always record time as epoch milliseconds or seconds rather than a formatted date string. This keeps log lines timezone independent and trivially sortable, but it pushes the burden of conversion onto whoever is reading the logs. Pasting the raw number into a converter like this one is the fastest way to find out exactly when an event occurred.
+          That convenience pushes a real cost onto whoever reads the logs later: figuring out which precision you're looking at. A 10-digit number is seconds, 13 digits is milliseconds, 16 is microseconds, 19 is nanoseconds, the same instant expressed at different resolutions. The classic mistake is treating a millisecond value as seconds. Paste a 13-digit timestamp into a naive converter without dividing by 1000 first and you land on a date somewhere around the year 56,000 instead of today. Checking the digit count before converting takes two seconds and saves the confused debugging session that follows from getting it wrong. Pasting the raw number into the converter above does that digit-counting for you automatically.
         </p>
       </div>
 

@@ -311,6 +311,19 @@ const webAppSchema = {
         </p>
       </div>
 
+      <div class="reveal rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
+        <h2 class="text-base font-semibold mb-3" style="color: var(--fg);">The alg: none Attack: Why Decoding Isn't the Same as Trusting</h2>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          The JWT specification includes an algorithm value called none, meaning literally no signature. A verifier that naively trusts whatever algorithm a token's own header claims can be tricked into skipping signature checking entirely. The attack: take any token, Base64 decode the header, change "alg": "RS256" to "alg": "none", edit the payload to whatever claims grant access such as "role": "admin", re-encode both pieces, and join them with a trailing dot and an empty signature. If the server's verification code accepts alg none, that forged token is treated as valid.
+        </p>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg2);">
+          This isn't a hypothetical. Auth0 had a critical authentication bypass tied to exactly this in 2015, multiple WordPress plugins were vulnerable to the identical attack, and a popular LLM proxy project disclosed the same root cause in a security report as recently as February 2026. The fix is one parameter: never trust the algorithm a token declares about itself. Verification code should hardcode an explicit allowlist of accepted algorithms and reject everything else, including none, no matter what the payload contains.
+        </p>
+        <p class="text-sm leading-relaxed" style="color: var(--fg2);">
+          This is exactly why decoding a JWT, which is what this tool does, is not the same as verifying one. Decoding reads the header and payload and tells you what a token claims. Verifying checks the signature against a secret key only your server holds, which tells you whether those claims can be trusted. Use this decoder to confirm a token's claims and expiry while debugging, then check your server's verification logic, specifically its algorithms allowlist, for the answer to whether it should actually be trusted.
+        </p>
+      </div>
+
     </div>
 
     <div class="reveal mt-6 rounded-2xl p-6" style="background: var(--card); border: 1px solid var(--border);">
