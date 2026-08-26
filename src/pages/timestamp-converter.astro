@@ -650,6 +650,8 @@ const webAppSchema = {
     outLocal.textContent    = fmtZoned(date, localTz);
     outIso.textContent      = date.toISOString();
     outRelative.textContent = relativeTime(date);
+
+    if ((window as any).showKofiPrompt) (window as any).showKofiPrompt();
   }
 
   epochInput.addEventListener('input', updateEpochToHuman);
@@ -708,6 +710,10 @@ const webAppSchema = {
     [outSec, outMs, outUs, outNs].forEach((el) => { if (el) el.textContent = '—'; });
   }
 
+  // Section 2 auto-fills "now" and runs once on load, so a plain success hook
+  // would fire before the user has touched anything — gate on real interaction.
+  let section2UserInteracted = false;
+
   function updateHumanToEpoch() {
     const d = dateFromZoned(dateInput.value, timeInput.value, tzSelect.value);
     if (!d || isNaN(d.getTime())) { clearEpochOutputsSection2(); return; }
@@ -716,7 +722,13 @@ const webAppSchema = {
     outMs.textContent  = String(ms);
     outUs.textContent  = String(ms * 1000);
     outNs.textContent  = String(ms * 1e6);
+
+    if (section2UserInteracted && (window as any).showKofiPrompt) (window as any).showKofiPrompt();
   }
+
+  [dateInput, timeInput, tzSelect].forEach((el) => {
+    el.addEventListener(el === tzSelect ? 'change' : 'input', () => { section2UserInteracted = true; }, { once: true });
+  });
 
   populateTimezones();
   setDefaultDateTime();

@@ -761,6 +761,7 @@ const webAppSchema = {
     const output = urlSafeToggle.checked ? toUrlSafe(encoded) : encoded;
     b64Input.value = output;
     updateB64Meta(output);
+    if ((window as any).showKofiPrompt) (window as any).showKofiPrompt();
   }
 
   function syncFromB64() {
@@ -777,6 +778,7 @@ const webAppSchema = {
       const decoded = b64DecodeUtf8(result.standard);
       plainInput.value = decoded;
       updatePlainMeta(decoded);
+      if ((window as any).showKofiPrompt) (window as any).showKofiPrompt();
     } catch (e) {
       b64Badge.textContent = 'Invalid';
       b64Badge.className = 'status-badge badge-invalid';

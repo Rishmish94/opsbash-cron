@@ -517,6 +517,7 @@ const webAppSchema = {
       previewContent.textContent = content;
       var count = content.split('\n').length;
       lineCount.textContent = count + (count === 1 ? ' line' : ' lines');
+      if (window.showKofiPrompt) window.showKofiPrompt();
     }
   }
 

@@ -458,6 +458,8 @@ const webAppSchema = {
     renderSpecialClaims(payload);
     payloadOutput.textContent   = JSON.stringify(payload, null, 2);
     signatureOutput.textContent = parts[2];
+
+    if (window.showKofiPrompt) window.showKofiPrompt();
   }
 
   function showError(msg) {

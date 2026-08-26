@@ -549,6 +549,10 @@ const webAppSchema = {
   }
 
   // ── Full render ───────────────────────────────────────────────────────────
+  // updateAll() also runs once on load with a default 755 permission, so a
+  // plain success hook there would fire on page load — gate on interaction.
+  var hasUserInteracted = false;
+
   function updateAll(skipOctal, skipSymbolic) {
     var oct = calcOctal();
     var sym = calcSymbolic();
@@ -574,6 +578,8 @@ const webAppSchema = {
 
     var cmdEl = document.getElementById('chmodCmd');
     if (cmdEl) cmdEl.textContent = 'chmod ' + oct + ' ' + fn;
+
+    if (hasUserInteracted && window.showKofiPrompt) window.showKofiPrompt();
   }
 
   // ── Parsers ───────────────────────────────────────────────────────────────
@@ -602,6 +608,7 @@ const webAppSchema = {
     var card = document.getElementById('card-' + key);
     if (!card) return;
     card.addEventListener('click', function () {
+      hasUserInteracted = true;
       state[key] = !state[key];
       updateAll(false, false);
     });
@@ -623,6 +630,7 @@ const webAppSchema = {
   var octalInput = document.getElementById('octalInput');
   if (octalInput) {
     octalInput.addEventListener('input', function () {
+      hasUserInteracted = true;
       var val = this.value.replace(/[^0-7]/g, '');
       if (val !== this.value) this.value = val;
       if (val.length === 3 && setFromOctal(val)) updateAll(true, false);
@@ -642,6 +650,7 @@ const webAppSchema = {
   var symbolicInput = document.getElementById('symbolicInput');
   if (symbolicInput) {
     symbolicInput.addEventListener('input', function () {
+      hasUserInteracted = true;
       if (this.value.length === 9 && setFromSymbolic(this.value)) updateAll(false, true);
     });
     symbolicInput.addEventListener('focus', function () {
@@ -658,7 +667,7 @@ const webAppSchema = {
   // ── Filename input ────────────────────────────────────────────────────────
   var filenameInput = document.getElementById('filenameInput');
   if (filenameInput) {
-    filenameInput.addEventListener('input', function () { updateAll(false, false); });
+    filenameInput.addEventListener('input', function () { hasUserInteracted = true; updateAll(false, false); });
     filenameInput.addEventListener('focus', function () {
       this.style.borderColor = '#F8FAFC';
       this.style.boxShadow   = '0 0 0 3px rgba(100,116,139,0.2)';
@@ -672,6 +681,7 @@ const webAppSchema = {
   // ── Preset buttons ────────────────────────────────────────────────────────
   document.querySelectorAll('.preset-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
+      hasUserInteracted = true;
       if (setFromOctal(this.getAttribute('data-octal'))) updateAll(false, false);
     });
   });

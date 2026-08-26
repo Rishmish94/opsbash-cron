@@ -413,6 +413,10 @@ tags:
   const indent2Btn    = document.getElementById('indent2Btn')!;
   const indent4Btn    = document.getElementById('indent4Btn')!;
 
+  // convert() also runs once on load with a bundled sample, so a plain
+  // success hook there would fire on page load — gate on real interaction.
+  let hasUserInteracted = false;
+
   function updateLineNums(ta: HTMLTextAreaElement, el: HTMLElement) {
     const n = ta.value ? ta.value.split('\n').length : 1;
     el.textContent = Array.from({ length: n }, (_, i) => i + 1).join('\n');
@@ -440,6 +444,7 @@ tags:
       outputArea.value = result.trimEnd();
       inputError.style.display = 'none';
       inputWrapper.style.borderColor = 'var(--border)';
+      if (hasUserInteracted && (window as any).showKofiPrompt) (window as any).showKofiPrompt();
     } catch (e: unknown) {
       outputArea.value = '';
       const msg = (e instanceof Error ? e.message : String(e))
@@ -479,6 +484,7 @@ tags:
 
   // ── Input events ──────────────────────────────────────────────────────────────
   inputArea.addEventListener('input', () => {
+    hasUserInteracted = true;
     updateLineNums(inputArea, inputLineNums);
     convert();
   });
@@ -492,6 +498,7 @@ tags:
   // Tab key inserts spaces
   inputArea.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Tab') {
+      hasUserInteracted = true;
       e.preventDefault();
       const s = inputArea.selectionStart;
       const spaces = ' '.repeat(indentSize);
@@ -504,6 +511,7 @@ tags:
 
   // ── Button events ─────────────────────────────────────────────────────────────
   dirToggle.addEventListener('click', () => {
+    hasUserInteracted = true;
     const newDir: Direction = direction === 'json2yaml' ? 'yaml2json' : 'json2yaml';
     const currentInput = inputArea.value;
 
@@ -561,6 +569,7 @@ tags:
   });
 
   loadSampleBtn.addEventListener('click', () => {
+    hasUserInteracted = true;
     inputArea.value = direction === 'yaml2json' ? SAMPLE_YAML : SAMPLE_JSON;
     updateLineNums(inputArea, inputLineNums);
     convert();
@@ -575,8 +584,8 @@ tags:
     updateLineNums(outputArea, outputLineNums);
   });
 
-  indent2Btn.addEventListener('click', () => setIndent(2));
-  indent4Btn.addEventListener('click', () => setIndent(4));
+  indent2Btn.addEventListener('click', () => { hasUserInteracted = true; setIndent(2); });
+  indent4Btn.addEventListener('click', () => { hasUserInteracted = true; setIndent(4); });
 
   // ── FAQ accordion ─────────────────────────────────────────────────────────────
   document.querySelectorAll<HTMLElement>('.faq-q').forEach(btn => {

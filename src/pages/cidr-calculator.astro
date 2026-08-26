@@ -1089,6 +1089,9 @@ var vpcInput    = document.getElementById('vpcInput');
 var vpcError    = document.getElementById('vpcError');
 var currentSplitCount = 2;
 var currentVPCCount   = 2;
+// doCalc() also runs once on load with a default CIDR, so a plain success
+// hook there would fire on page load — gate on real interaction.
+var hasUserInteracted = false;
 
 // ─── MAIN CALC UPDATE ────────────────────────────────────────────────────────
 function doCalc(val) {
@@ -1111,6 +1114,7 @@ function doCalc(val) {
     cidrError.classList.add('hidden');
     cidrInput.style.borderColor = '#F8FAFC';
     updateMainCalc(data);
+    if (hasUserInteracted && window.showKofiPrompt) window.showKofiPrompt();
   } catch(e) {
     cidrError.textContent = e.message;
     cidrError.classList.remove('hidden');
@@ -1119,8 +1123,8 @@ function doCalc(val) {
   }
 }
 
-cidrInput.addEventListener('input',  function() { doCalc(this.value); });
-cidrInput.addEventListener('change', function() { doCalc(this.value); });
+cidrInput.addEventListener('input',  function() { hasUserInteracted = true; doCalc(this.value); });
+cidrInput.addEventListener('change', function() { hasUserInteracted = true; doCalc(this.value); });
 
 // ─── SPLITTER ────────────────────────────────────────────────────────────────
 function doSplit() {
@@ -1210,6 +1214,7 @@ document.querySelectorAll('.vpc-count-btn').forEach(function(btn) {
 // ─── EXAMPLES ────────────────────────────────────────────────────────────────
 document.querySelectorAll('.example-card').forEach(function(card) {
   card.addEventListener('click', function() {
+    hasUserInteracted = true;
     var cidr = this.dataset.cidr;
     cidrInput.value = cidr;
     doCalc(cidr);
@@ -1278,6 +1283,7 @@ document.querySelectorAll('.faq-trigger').forEach(function(btn) {
 // ─── RFC 1918 CLICKABLE ROWS ──────────────────────────────────────────────────
 document.querySelectorAll('.rfc-row').forEach(function(row) {
   row.addEventListener('click', function() {
+    hasUserInteracted = true;
     var cidr = this.dataset.cidr;
     cidrInput.value = cidr;
     doCalc(cidr);

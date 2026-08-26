@@ -365,6 +365,10 @@ const webAppSchema = {
   var mode = 'run2compose';
 
   // ── DOM refs ─────────────────────────────────────────────────────────────
+  // convert() also runs once on load with a sample command, so a plain
+  // success hook there would fire on page load — gate on real interaction.
+  var hasUserInteracted = false;
+
   var btnRun2Compose = document.getElementById('btn-run2compose');
   var btnCompose2Run = document.getElementById('btn-compose2run');
   var inputArea      = document.getElementById('inputArea');
@@ -916,6 +920,7 @@ const webAppSchema = {
         highlighted = highlightDockerRun(raw);
       }
       setOutput(highlighted, raw);
+      if (hasUserInteracted && window.showKofiPrompt) window.showKofiPrompt();
     } catch (e) {
       setOutput('', '');
       setError(e.message);
@@ -941,7 +946,7 @@ const webAppSchema = {
     setError('');
   });
 
-  inputArea.addEventListener('input', function () { convert(); });
+  inputArea.addEventListener('input', function () { hasUserInteracted = true; convert(); });
 
   clearBtn.addEventListener('click', function () {
     inputArea.value = '';
@@ -950,6 +955,7 @@ const webAppSchema = {
   });
 
   sampleBtn.addEventListener('click', function () {
+    hasUserInteracted = true;
     inputArea.value = mode === 'run2compose' ? SAMPLE_RUN : SAMPLE_COMPOSE;
     convert();
   });
@@ -958,7 +964,7 @@ const webAppSchema = {
     btn.addEventListener('click', function () {
       var key = btn.getAttribute('data-preset');
       var data = mode === 'run2compose' ? PRESETS_RUN[key] : PRESETS_COMPOSE[key];
-      if (data) { inputArea.value = data; convert(); }
+      if (data) { hasUserInteracted = true; inputArea.value = data; convert(); }
     });
     btn.addEventListener('mouseover', function () {
       btn.style.borderColor = '#F8FAFC';

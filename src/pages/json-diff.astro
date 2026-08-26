@@ -576,6 +576,7 @@ const webAppSchema = {
 
     diffOutputEl.innerHTML = html;
     diffResultEl.classList.remove('hidden');
+    if (window.showKofiPrompt) window.showKofiPrompt();
   });
 
   // ── Section 2: Schema Validator ──────────────────────────────────────────
@@ -751,6 +752,7 @@ const webAppSchema = {
     }
 
     schemaResultEl.classList.remove('hidden');
+    if (window.showKofiPrompt) window.showKofiPrompt();
   });
 
   // ── Section 3: JSON Formatter ─────────────────────────────────────────────
@@ -805,6 +807,7 @@ const webAppSchema = {
       var parsed = JSON.parse(raw);
       fmtOutputEl.value = pretty ? JSON.stringify(parsed, null, 2) : JSON.stringify(parsed);
       fmtOutputWrap.classList.remove('hidden');
+      if (window.showKofiPrompt) window.showKofiPrompt();
     } catch(e) {
       // live badge already shows error
     }

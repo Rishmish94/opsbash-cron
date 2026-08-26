@@ -1748,6 +1748,9 @@ const PLATFORMS = {
 let currentPlatform  = 'linux';
 let currentExpr      = '* * * * *';
 let syncingDropdowns = false;
+// updateUI() also runs once on load with a default expression, so a plain
+// success hook there would fire on page load — gate on real interaction.
+let hasUserInteracted = false;
 
 // ─── DOM REFS ────────────────────────────────────────────────────────────────
 
@@ -1862,6 +1865,8 @@ function updateUI(expr) {
   }
 
   syncDropdowns(expr);
+
+  if (hasUserInteracted && window.showKofiPrompt) window.showKofiPrompt();
 }
 
 function syncDropdowns(expr) {
@@ -1885,20 +1890,22 @@ function exprFromDropdowns() {
 // ─── EVENT HANDLERS ──────────────────────────────────────────────────────────
 
 [selMinute, selHour, selDay, selMonth, selWeekday].forEach(sel =>
-  sel.addEventListener('change', () => { if (!syncingDropdowns) updateUI(exprFromDropdowns()); })
+  sel.addEventListener('change', () => { hasUserInteracted = true; if (!syncingDropdowns) updateUI(exprFromDropdowns()); })
 );
 
 cronInput.addEventListener('input', () => {
+  hasUserInteracted = true;
   const v = cronInput.value.trim();
   if (v) updateUI(v);
 });
 
 document.querySelectorAll('[data-preset]').forEach(btn =>
-  btn.addEventListener('click', () => updateUI(btn.dataset.preset))
+  btn.addEventListener('click', () => { hasUserInteracted = true; updateUI(btn.dataset.preset); })
 );
 
 document.querySelectorAll('.platform-tab').forEach(tab =>
   tab.addEventListener('click', () => {
+    hasUserInteracted = true;
     document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active-tab'));
     tab.classList.add('active-tab');
     currentPlatform = tab.dataset.platform;

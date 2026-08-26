@@ -774,6 +774,9 @@ function runSanitise() {
   const { out, stats } = sanitise(logInput.value, rules, customPatternInput.value.trim(), customLabelInput.value.trim());
   logOutput.value = out;
   updateStats(stats, logInput.value, out);
+
+  const totalRedacted = Object.values(stats).reduce((a, b) => a + b, 0);
+  if (totalRedacted > 0 && (window as any).showKofiPrompt) (window as any).showKofiPrompt();
 }
 
 let debounceTimer: ReturnType<typeof setTimeout>;
