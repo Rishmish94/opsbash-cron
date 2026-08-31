@@ -1,0 +1,1057 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqs = [
+  {
+    q: 'How does Kubernetes resolve effective RBAC permissions?',
+    a: 'Kubernetes RBAC is purely additive. There is no deny rule at the RBAC layer. Every RoleBinding and ClusterRoleBinding that names a subject grants whatever rules its roleRef contains, and a subject\'s effective permissions are simply the union of every rule granted by every binding that applies to it. Nothing can be subtracted, only added.',
+  },
+  {
+    q: 'Does a RoleBinding to a ClusterRole grant cluster-wide access?',
+    a: 'No — this is the single most common RBAC misunderstanding. A RoleBinding always scopes the rules it grants to its own namespace, even when its roleRef points to a ClusterRole. Binding a ClusterRole via a RoleBinding is a normal, supported pattern for reusing a rule set across many namespaces without granting anything cluster-wide. Only a ClusterRoleBinding grants access across every namespace.',
+  },
+  {
+    q: 'What is an aggregated ClusterRole?',
+    a: 'An aggregated ClusterRole has an aggregationRule.clusterRoleSelectors field with label selectors instead of (or in addition to) its own rules. The Kubernetes control plane watches for any other ClusterRole whose metadata.labels match those selectors and automatically merges that ClusterRole\'s rules into the aggregating one. This lets add-ons and operators extend built-in roles like admin or edit by simply labeling their own ClusterRole, without editing the original object.',
+  },
+  {
+    q: 'Is my pasted YAML sent to a server?',
+    a: 'No. Parsing, resolution, and rendering all happen in your browser with JavaScript. Nothing you paste is uploaded anywhere. The only network activity this tool ever creates is if you click Copy shareable link, which encodes your input into the URL itself so it can be pasted and shared — it still never touches a server.',
+  },
+  {
+    q: 'What is the difference between a Role and a ClusterRole?',
+    a: 'A Role\'s rules only ever apply within the single namespace it is defined in, and it can only be bound with a RoleBinding in that same namespace. A ClusterRole is not namespaced — it can be bound cluster-wide with a ClusterRoleBinding, or bound to a single namespace with a RoleBinding (see the previous question). ClusterRoles are also required for cluster-scoped resources like nodes or persistentvolumes, since those have no namespace to scope a Role to.',
+  },
+  {
+    q: 'Can Kubernetes RBAC explicitly deny a permission?',
+    a: 'No. Native Kubernetes RBAC has no deny rules, no negation, and no priority ordering between bindings. If any binding grants a permission to a subject, that subject has it, full stop, regardless of how many other bindings exist. Explicit deny requires a separate admission control layer such as a ValidatingAdmissionPolicy, OPA Gatekeeper, or Kyverno policy — RBAC itself is additive-only by design.',
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map((f) => ({
+    "@type": "Question",
+    "name": f.q,
+    "acceptedAnswer": { "@type": "Answer", "text": f.a },
+  })),
+};
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kubernetes RBAC Effective Permissions Visualizer",
+  "url": "https://opsbash.com/k8s-rbac-visualizer",
+  "description": "Paste Role, ClusterRole, RoleBinding and ClusterRoleBinding YAML and instantly see every subject's effective permissions, resolved correctly across namespace scoping and aggregated ClusterRoles. Runs entirely in your browser, with shareable permalinks.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+};
+---
+
+<Layout
+  title="Kubernetes RBAC Visualizer — Effective Permissions from Role & Binding YAML | OpsBash"
+  description="Paste Role, ClusterRole, RoleBinding and ClusterRoleBinding YAML and see exactly what each subject can do — resolved correctly for namespace-scoped ClusterRole bindings and aggregated ClusterRoles. Free, client-side, with shareable permalinks."
+  canonicalURL="https://opsbash.com/k8s-rbac-visualizer"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+<div style="background: var(--bg);">
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+
+  <!-- ── HERO ─────────────────────────────────────────────────────────────── -->
+  <section class="pt-8 pb-5">
+    <span class="k8s-cat-pill">Kubernetes</span>
+    <h1 class="text-3xl sm:text-4xl font-bold mt-4 mb-3 tracking-tight" style="color: #F8FAFC;">
+      RBAC Effective Permissions Visualizer
+    </h1>
+    <p class="text-base max-w-2xl mb-5" style="color: var(--fg2);">
+      Paste any combination of Role, ClusterRole, RoleBinding and ClusterRoleBinding YAML. This tool resolves the effective, additive permissions for every subject, and shows exactly which binding granted each one — including correct namespace scoping for RoleBinding-to-ClusterRole and resolved aggregated ClusterRoles.
+    </p>
+    <p class="security-line">Everything runs in your browser. Your manifests are never uploaded anywhere.</p>
+  </section>
+
+  <!-- ── INPUT CARD ───────────────────────────────────────────────────────── -->
+  <div class="rounded-[14px] mb-6 overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+    <div class="px-5 py-4 flex items-center justify-between flex-wrap gap-2" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+      <h2 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--fg2);">Paste RBAC YAML (multi-document, --- separated)</h2>
+      <button id="loadExampleBtn" class="btn-secondary">Load example</button>
+    </div>
+    <div class="p-5">
+      <textarea id="rbacInput" class="k8s-textarea" spellcheck="false" autocomplete="off"
+        placeholder={`apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  name: pod-reader\n  namespace: staging\nrules:\n  - apiGroups: [""]\n    resources: ["pods"]\n    verbs: ["get", "list", "watch"]\n---\napiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: pod-reader-binding\n  namespace: staging\nsubjects:\n  - kind: ServiceAccount\n    name: staging-app\n    namespace: staging\nroleRef:\n  kind: Role\n  name: pod-reader\n  apiGroup: rbac.authorization.k8s.io`}></textarea>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button id="visualizeBtn" class="btn-primary">Visualize</button>
+        <button id="copyLinkBtn" class="btn-secondary">Copy shareable link</button>
+      </div>
+      <div id="rbacError" class="err-box mt-3 hidden"></div>
+      <div id="rbacWarning" class="warn-box mt-3 hidden"></div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS CARD ─────────────────────────────────────────────────────── -->
+  <div id="resultsCard" class="rounded-[14px] mb-10 overflow-hidden hidden" style="background: var(--card); border: 1px solid var(--border);">
+    <div class="px-5 py-4" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+      <h2 class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--fg2);">Effective Permissions by Subject</h2>
+      <input id="subjectSearch" type="text" class="k8s-input" spellcheck="false" autocomplete="off" placeholder="Filter by subject name or kind…" />
+    </div>
+    <div id="resultsBody" class="subject-list"></div>
+    <div id="noResults" class="p-5 text-sm hidden" style="color: var(--fg2);">No subjects match your filter.</div>
+  </div>
+
+  <!-- ── SECTION: ADDITIVE MODEL ─────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">RBAC Is Purely Additive — There Is No Deny Rule</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">Kubernetes RBAC has exactly one operation: grant. A subject's effective permission for any (namespace, resource, verb) combination is the union of every rule granted by every RoleBinding or ClusterRoleBinding that names that subject. There is no explicit deny, no rule priority, and no way for one binding to override or subtract from another. If any single binding grants <code class="ic">delete</code> on <code class="ic">pods</code>, that subject can delete pods, even if ten other bindings say nothing about pods at all. This tool implements exactly that: it never treats a missing rule as a deny, only ever as "not yet granted," and it unions every applicable rule from every binding you paste in.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION: GOTCHA A ────────────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Gotcha: A RoleBinding to a ClusterRole Is Still Namespace-Scoped</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">It is completely normal, and common, to bind a ClusterRole using a RoleBinding rather than a ClusterRoleBinding — this is the standard way to reuse one rule set (like a built-in <code class="ic">edit</code> or <code class="ic">view</code> ClusterRole) across many namespaces without duplicating YAML. The part that trips engineers up is what scope that grants: <strong style="color: var(--fg);">a RoleBinding always scopes whatever it grants to its own namespace, regardless of whether roleRef points to a Role or a ClusterRole.</strong> Binding the cluster-admin ClusterRole via a RoleBinding in the <code class="ic">staging</code> namespace grants admin rights inside <code class="ic">staging</code> only, not cluster-wide. Only a ClusterRoleBinding grants access across every namespace. This tool resolves that scoping correctly and flags it inline wherever it applies.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION: GOTCHA B ────────────────────────────────────────────────── -->
+  <section class="mb-10">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Gotcha: Aggregated ClusterRoles Merge Rules From Elsewhere</h2>
+      </div>
+      <div class="p-5">
+        <p class="seo-p">A ClusterRole can define <code class="ic">aggregationRule.clusterRoleSelectors</code> instead of (or alongside) its own <code class="ic">rules</code>. The control plane continuously scans for any other ClusterRole whose <code class="ic">metadata.labels</code> match those selectors and merges that role's rules in automatically — this is exactly how add-ons extend the built-in <code class="ic">admin</code> and <code class="ic">edit</code> ClusterRoles without anyone editing them directly. Reading an aggregating ClusterRole's own YAML in isolation is misleading: its real, effective permissions live partly in whatever ClusterRoles elsewhere in the cluster happen to carry the matching label. This tool resolves aggregation across everything you paste, in any order, and clearly warns you when a selector matches nothing in your input so you know the picture may be incomplete.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────────────────────── -->
+  <section class="mb-6">
+    <div class="overflow-hidden rounded-[14px]" style="background: var(--card); border: 1px solid var(--border);">
+      <div class="p-5" style="border-bottom: 1px solid var(--border); background: var(--bg);">
+        <h2 class="text-base font-semibold" style="color: var(--fg);">Frequently Asked Questions</h2>
+      </div>
+      {faqs.map((faq, i) => (
+        <div class="faq-item" style={i === faqs.length - 1 ? 'border-bottom: none;' : ''}>
+          <button class="faq-trigger w-full flex items-center justify-between p-5 text-left gap-3">
+            <span class="text-sm font-medium" style="color: var(--fg);">{faq.q}</span>
+            <svg class="faq-chevron w-4 h-4 shrink-0 transition-transform duration-200" style="color: var(--fg3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-content hidden px-5 pb-5 text-sm leading-relaxed" style="color: var(--fg2);">
+            {faq.a}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── RELATED TOOLS ────────────────────────────────────────────────────── -->
+  <section class="pb-16">
+    <div class="related-card">
+      <h2 class="section-title" style="margin-bottom: 14px;">Related Tools</h2>
+      <div class="related-grid">
+        <a href="/k8s-secret-decoder" class="related-item">
+          <div>
+            <p class="related-name">Kubernetes Secret Decoder</p>
+            <p class="related-desc">Decode Kubernetes Secret YAML and reveal base64 encoded values</p>
+          </div>
+          <span class="related-arrow">→</span>
+        </a>
+        <a href="/cheatsheets/kubernetes" class="related-item">
+          <div>
+            <p class="related-name">Kubernetes Cheat Sheet</p>
+            <p class="related-desc">Command reference for pods, deployments, debugging, and cluster management</p>
+          </div>
+          <span class="related-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<style>
+  /* ── Hero ───────────────────────────────────────────────────────────────── */
+  .k8s-cat-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border: 1px solid rgba(50,108,229,0.4);
+    background: rgba(50,108,229,0.12);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6C8EEF;
+    font-family: 'Inter', sans-serif;
+  }
+  .security-line { font-size: 12.5px; color: var(--fg2); }
+
+  /* ── Textareas / inputs (shared with K8s Secret Decoder) ───────────────── */
+  .k8s-textarea {
+    width: 100%;
+    min-height: 260px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    tab-size: 2;
+  }
+  .k8s-textarea:focus { border-color: #64748B; box-shadow: 0 0 0 3px rgba(100,116,139,0.15); }
+  .k8s-textarea::placeholder { color: var(--fg3); opacity: 0.8; }
+
+  .k8s-input {
+    width: 100%;
+    max-width: 420px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #F8FAFC;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .k8s-input:focus { border-color: #64748B; box-shadow: 0 0 0 3px rgba(100,116,139,0.2); }
+
+  /* ── Buttons ────────────────────────────────────────────────────────────── */
+  .btn-primary {
+    background: #334155;
+    color: #F8FAFC;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { background: #475569; }
+  .btn-secondary {
+    background: rgba(248,250,252,0.06);
+    color: var(--fg2);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover { background: rgba(248,250,252,0.12); color: #F8FAFC; }
+  .btn-secondary.copied { color: #4ADE80 !important; background: rgba(74,222,128,0.12) !important; }
+
+  /* ── Error / warning boxes ──────────────────────────────────────────────── */
+  .err-box {
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(239,68,68,0.08);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,0.25);
+    word-break: break-word;
+    line-height: 1.6;
+  }
+  .warn-box {
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(245,158,11,0.08);
+    color: #F59E0B;
+    border: 1px solid rgba(245,158,11,0.3);
+    word-break: break-word;
+    line-height: 1.6;
+  }
+
+  /* ── Inline code ────────────────────────────────────────────────────────── */
+  .ic {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: #F8FAFC;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── Subject accordion list ─────────────────────────────────────────────── */
+  .subject-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .subject-card {
+    background: #0A0A0A;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .subject-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+  .subject-toggle:hover { background: rgba(248,250,252,0.04); }
+  .subject-kind-badge {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(50,108,229,0.12);
+    border: 1px solid rgba(50,108,229,0.4);
+    color: #6C8EEF;
+  }
+  .subject-kind-User { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.35); color: #4ADE80; }
+  .subject-kind-Group { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.35); color: #fbbf24; }
+  .subject-info { flex: 1; min-width: 0; }
+  .subject-name { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: #F8FAFC; }
+  .subject-ns { font-size: 12px; color: var(--fg3); font-weight: 400; }
+  .subject-count { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--fg2); }
+  .subject-chevron { flex-shrink: 0; color: var(--fg3); transition: transform 0.25s ease; }
+  .subject-toggle[aria-expanded="true"] .subject-chevron { transform: rotate(180deg); }
+  .subject-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
+  .subject-panel.expanded { grid-template-rows: 1fr; }
+  .subject-panel-inner { overflow: hidden; min-height: 0; }
+  .subject-panel.expanded .subject-panel-inner { padding-bottom: 4px; }
+
+  .ns-block { padding: 4px 16px 12px; border-top: 1px solid #1a1a1a; }
+  .ns-block:first-child { border-top: none; }
+  .ns-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg3);
+    margin: 12px 0 8px;
+  }
+
+  .perm-row {
+    background: #111111;
+    border: 1px solid #1f1f1f;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .perm-row:last-child { margin-bottom: 0; }
+  .perm-row-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .perm-resource { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #4ADE80; background: rgba(74,222,128,0.08); padding: 2px 7px; border-radius: 5px; }
+  .perm-verbs { font-size: 12.5px; color: var(--fg2); font-family: 'JetBrains Mono', monospace; }
+  .scope-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(96,165,250,0.1);
+    color: #60A5FA;
+    border: 1px solid rgba(96,165,250,0.3);
+    white-space: nowrap;
+  }
+  .perm-why { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #222222; }
+  .why-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg3); margin-bottom: 5px; }
+  .grant-source { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; margin-bottom: 4px; }
+  .grant-source:last-child { margin-bottom: 0; }
+  .grant-arrow { color: var(--fg3); }
+  .gotcha-inline {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(251,191,36,0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.3);
+    white-space: nowrap;
+  }
+
+  /* ── Section headings / SEO ─────────────────────────────────────────────── */
+  .section-title { font-size: 20px; font-weight: 700; color: #F8FAFC; font-family: 'Inter', sans-serif; }
+  .seo-p { font-size: 14px; color: var(--fg2); line-height: 1.7; margin-bottom: 0; }
+
+  /* ── FAQ ────────────────────────────────────────────────────────────────── */
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-trigger { background: transparent; border: none; cursor: pointer; transition: background 0.12s; }
+  .faq-trigger:hover { background: rgba(248,250,252,0.04); }
+
+  /* ── Related tools ─────────────────────────────────────────────────────── */
+  .related-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 640px) { .related-grid { grid-template-columns: 1fr; } }
+  .related-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: #0A0A0A; border: 1px solid #222222; border-radius: 10px; padding: 16px;
+    text-decoration: none; transition: border-color 0.15s, background 0.15s;
+  }
+  .related-item:hover { border-color: #F8FAFC; background: #111111; }
+  .related-name { font-size: 14px; font-weight: 600; color: #F8FAFC; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+  .related-desc { font-size: 12.5px; color: var(--fg2); line-height: 1.5; font-family: 'Inter', sans-serif; }
+  .related-arrow { color: #F8FAFC; font-size: 18px; flex-shrink: 0; }
+</style>
+
+<script>
+import jsyaml from 'js-yaml';
+
+// ─── TYPES ──────────────────────────────────────────────────────────────────
+
+interface PolicyRule {
+  apiGroups: string[];
+  resources: string[];
+  verbs: string[];
+  resourceNames?: string[];
+}
+interface RoleObj { kind: 'Role'; name: string; namespace: string; rules: PolicyRule[]; }
+interface ClusterRoleObj {
+  kind: 'ClusterRole';
+  name: string;
+  rules: PolicyRule[];
+  labels: Record<string, string>;
+  aggregationRule?: { clusterRoleSelectors?: { matchLabels?: Record<string, string> }[] };
+  effectiveRules?: PolicyRule[];
+  unresolvedSelectors?: Record<string, string>[];
+}
+interface Subject { kind: string; name: string; namespace?: string; }
+interface BindingObj {
+  kind: 'RoleBinding' | 'ClusterRoleBinding';
+  name: string;
+  namespace?: string;
+  roleRefKind: 'Role' | 'ClusterRole';
+  roleRefName: string;
+  subjects: Subject[];
+}
+interface ParseResult {
+  roles: Map<string, RoleObj>;
+  clusterRoles: Map<string, ClusterRoleObj>;
+  roleBindings: BindingObj[];
+  clusterRoleBindings: BindingObj[];
+  errors: string[];
+  warnings: string[];
+}
+interface Grant {
+  subjectKey: string;
+  subject: Subject;
+  namespace: string;
+  apiGroup: string;
+  resource: string;
+  verbs: string[];
+  resourceNames?: string[];
+  bindingKind: 'RoleBinding' | 'ClusterRoleBinding';
+  bindingName: string;
+  roleRefKind: 'Role' | 'ClusterRole';
+  roleRefName: string;
+}
+interface DisplayRow {
+  apiGroup: string;
+  resource: string;
+  verbs: Set<string>;
+  resourceNames?: string[];
+  bindings: { kind: string; name: string; roleRefKind: string; roleRefName: string }[];
+}
+
+// ─── HELPERS ────────────────────────────────────────────────────────────────
+
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function copyText(text: string, btn: HTMLElement) {
+  function flash() {
+    btn.classList.add('copied');
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = original; }, 1500);
+  }
+  function fallback() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(flash).catch(() => { fallback(); flash(); });
+  } else {
+    fallback(); flash();
+  }
+}
+
+// ─── PARSING ────────────────────────────────────────────────────────────────
+
+function splitDocs(text: string): string[] {
+  const lines = text.split(/\r?\n/);
+  const docs: string[] = [];
+  let current: string[] = [];
+  for (const line of lines) {
+    if (/^---\s*$/.test(line)) {
+      docs.push(current.join('\n'));
+      current = [];
+    } else {
+      current.push(line);
+    }
+  }
+  docs.push(current.join('\n'));
+  return docs.map((d) => d.trim()).filter((d) => d.length > 0);
+}
+
+function normalizeRule(r: any): PolicyRule | null {
+  if (!r || typeof r !== 'object') return null;
+  const apiGroups = Array.isArray(r.apiGroups) ? r.apiGroups.map(String) : [''];
+  const resources = Array.isArray(r.resources) ? r.resources.map(String) : [];
+  const verbs = Array.isArray(r.verbs) ? r.verbs.map(String) : [];
+  const resourceNames = Array.isArray(r.resourceNames) && r.resourceNames.length ? r.resourceNames.map(String) : undefined;
+  if (resources.length === 0 || verbs.length === 0) return null;
+  return { apiGroups, resources, verbs, resourceNames };
+}
+
+function parseInput(text: string): ParseResult {
+  const result: ParseResult = {
+    roles: new Map(), clusterRoles: new Map(), roleBindings: [], clusterRoleBindings: [],
+    errors: [], warnings: [],
+  };
+  const docs = splitDocs(text);
+
+  docs.forEach((doc, i) => {
+    let obj: any;
+    try {
+      obj = jsyaml.load(doc);
+    } catch (e: any) {
+      result.errors.push(`Document ${i + 1}: invalid YAML — ${e?.message || 'could not parse the input.'}`);
+      return;
+    }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      result.errors.push(`Document ${i + 1}: empty or not a YAML object, skipped.`);
+      return;
+    }
+    const kind = obj.kind;
+    if (!kind || !['Role', 'ClusterRole', 'RoleBinding', 'ClusterRoleBinding'].includes(kind)) {
+      result.errors.push(`Document ${i + 1}: unrecognized or missing "kind" (${kind || 'none'}) — only Role, ClusterRole, RoleBinding and ClusterRoleBinding are supported, skipped.`);
+      return;
+    }
+    const name = obj.metadata && obj.metadata.name;
+    if (!name) {
+      result.errors.push(`Document ${i + 1}: ${kind} is missing metadata.name, skipped.`);
+      return;
+    }
+
+    if (kind === 'Role' || kind === 'ClusterRole') {
+      const rulesRaw = Array.isArray(obj.rules) ? obj.rules : [];
+      const rules = rulesRaw.map(normalizeRule).filter((r: PolicyRule | null): r is PolicyRule => !!r);
+      if (kind === 'Role') {
+        const namespace = obj.metadata && obj.metadata.namespace;
+        const ns = namespace || 'default';
+        if (!namespace) result.warnings.push(`Role "${name}" has no metadata.namespace — assuming "default".`);
+        result.roles.set(`${ns}/${name}`, { kind: 'Role', name, namespace: ns, rules });
+      } else {
+        const labels = (obj.metadata && obj.metadata.labels) || {};
+        result.clusterRoles.set(name, { kind: 'ClusterRole', name, rules, labels, aggregationRule: obj.aggregationRule });
+      }
+    } else {
+      const roleRef = obj.roleRef;
+      if (!roleRef || !roleRef.kind || !roleRef.name) {
+        result.errors.push(`Document ${i + 1}: ${kind} "${name}" is missing a valid roleRef, skipped.`);
+        return;
+      }
+      const subjectsRaw = Array.isArray(obj.subjects) ? obj.subjects : [];
+      const subjects: Subject[] = subjectsRaw
+        .map((s: any) => ({ kind: (s && s.kind) || 'User', name: s && s.name, namespace: s && s.namespace }))
+        .filter((s: Subject) => !!s.name);
+      if (subjects.length === 0) {
+        result.warnings.push(`${kind} "${name}" has no valid subjects — it grants nothing.`);
+      }
+      if (kind === 'RoleBinding') {
+        const namespace = obj.metadata && obj.metadata.namespace;
+        const ns = namespace || 'default';
+        if (!namespace) result.warnings.push(`RoleBinding "${name}" has no metadata.namespace — assuming "default".`);
+        result.roleBindings.push({ kind: 'RoleBinding', name, namespace: ns, roleRefKind: roleRef.kind, roleRefName: roleRef.name, subjects });
+      } else {
+        if (roleRef.kind !== 'ClusterRole') {
+          result.warnings.push(`ClusterRoleBinding "${name}" has roleRef.kind "${roleRef.kind}" — only ClusterRole is valid here, treating it as a ClusterRole reference.`);
+        }
+        result.clusterRoleBindings.push({ kind: 'ClusterRoleBinding', name, roleRefKind: 'ClusterRole', roleRefName: roleRef.name, subjects });
+      }
+    }
+  });
+
+  return result;
+}
+
+function resolveAggregation(result: ParseResult) {
+  for (const cr of result.clusterRoles.values()) {
+    const effective: PolicyRule[] = cr.rules.slice();
+    const selectors = (cr.aggregationRule && cr.aggregationRule.clusterRoleSelectors) || [];
+    const unresolved: Record<string, string>[] = [];
+
+    for (const selector of selectors) {
+      const matchLabels = selector.matchLabels || {};
+      let matched = false;
+      for (const other of result.clusterRoles.values()) {
+        if (other.name === cr.name) continue;
+        const isMatch = Object.entries(matchLabels).every(([k, v]) => other.labels && other.labels[k] === v);
+        if (isMatch) {
+          matched = true;
+          effective.push(...other.rules);
+        }
+      }
+      if (!matched) unresolved.push(matchLabels);
+    }
+
+    cr.effectiveRules = effective;
+    cr.unresolvedSelectors = unresolved;
+  }
+
+  for (const cr of result.clusterRoles.values()) {
+    if (cr.unresolvedSelectors && cr.unresolvedSelectors.length) {
+      for (const sel of cr.unresolvedSelectors) {
+        const selStr = Object.entries(sel).map(([k, v]) => `${k}=${v}`).join(', ') || '(empty selector)';
+        result.warnings.push(`ClusterRole "${cr.name}" aggregates from ClusterRoles matching label ${selStr} — none found in your input, so its effective permissions shown here may be incomplete.`);
+      }
+    }
+  }
+}
+
+function subjectKeyOf(s: Subject): string {
+  if (s.kind === 'ServiceAccount') return `ServiceAccount:${s.namespace || 'default'}:${s.name}`;
+  return `${s.kind}:${s.name}`;
+}
+
+function buildGrants(result: ParseResult): Grant[] {
+  const grants: Grant[] = [];
+
+  function pushGrants(rules: PolicyRule[], namespace: string, subjects: Subject[], bindingKind: 'RoleBinding' | 'ClusterRoleBinding', bindingName: string, roleRefKind: 'Role' | 'ClusterRole', roleRefName: string, bindingNamespace?: string) {
+    for (const rawSubject of subjects) {
+      let subject = rawSubject;
+      if (subject.kind === 'ServiceAccount' && !subject.namespace) {
+        if (bindingNamespace) {
+          subject = { ...subject, namespace: bindingNamespace };
+        } else {
+          result.warnings.push(`Subject ServiceAccount "${subject.name}" in ${bindingKind} "${bindingName}" has no namespace — assuming "default".`);
+          subject = { ...subject, namespace: 'default' };
+        }
+      }
+      const subjectKey = subjectKeyOf(subject);
+      for (const rule of rules) {
+        for (const apiGroup of rule.apiGroups) {
+          for (const resource of rule.resources) {
+            grants.push({
+              subjectKey, subject, namespace, apiGroup, resource,
+              verbs: rule.verbs, resourceNames: rule.resourceNames,
+              bindingKind, bindingName, roleRefKind, roleRefName,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  for (const rb of result.roleBindings) {
+    let rules: PolicyRule[] = [];
+    if (rb.roleRefKind === 'Role') {
+      const role = result.roles.get(`${rb.namespace}/${rb.roleRefName}`);
+      if (!role) {
+        result.warnings.push(`RoleBinding "${rb.name}" references Role "${rb.roleRefName}" in namespace "${rb.namespace}" — not found in your input.`);
+        continue;
+      }
+      rules = role.rules;
+    } else {
+      const cr = result.clusterRoles.get(rb.roleRefName);
+      if (!cr) {
+        result.warnings.push(`RoleBinding "${rb.name}" references ClusterRole "${rb.roleRefName}" — not found in your input.`);
+        continue;
+      }
+      rules = cr.effectiveRules || cr.rules;
+    }
+    pushGrants(rules, rb.namespace!, rb.subjects, 'RoleBinding', rb.name, rb.roleRefKind, rb.roleRefName, rb.namespace);
+  }
+
+  for (const crb of result.clusterRoleBindings) {
+    const cr = result.clusterRoles.get(crb.roleRefName);
+    if (!cr) {
+      result.warnings.push(`ClusterRoleBinding "${crb.name}" references ClusterRole "${crb.roleRefName}" — not found in your input.`);
+      continue;
+    }
+    pushGrants(cr.effectiveRules || cr.rules, '*', crb.subjects, 'ClusterRoleBinding', crb.name, 'ClusterRole', crb.roleRefName);
+  }
+
+  return grants;
+}
+
+function groupGrants(grants: Grant[]): Map<string, { subject: Subject; byNamespace: Map<string, Map<string, DisplayRow>> }> {
+  const bySubject = new Map<string, { subject: Subject; byNamespace: Map<string, Map<string, DisplayRow>> }>();
+
+  for (const g of grants) {
+    if (!bySubject.has(g.subjectKey)) bySubject.set(g.subjectKey, { subject: g.subject, byNamespace: new Map() });
+    const subjEntry = bySubject.get(g.subjectKey)!;
+    if (!subjEntry.byNamespace.has(g.namespace)) subjEntry.byNamespace.set(g.namespace, new Map());
+    const nsMap = subjEntry.byNamespace.get(g.namespace)!;
+    const rowKey = `${g.apiGroup}|${g.resource}|${(g.resourceNames || []).slice().sort().join(',')}`;
+    if (!nsMap.has(rowKey)) {
+      nsMap.set(rowKey, { apiGroup: g.apiGroup, resource: g.resource, verbs: new Set(), resourceNames: g.resourceNames, bindings: [] });
+    }
+    const row = nsMap.get(rowKey)!;
+    g.verbs.forEach((v) => row.verbs.add(v));
+    const sig = `${g.bindingKind}:${g.bindingName}`;
+    if (!row.bindings.some((b) => `${b.kind}:${b.name}` === sig)) {
+      row.bindings.push({ kind: g.bindingKind, name: g.bindingName, roleRefKind: g.roleRefKind, roleRefName: g.roleRefName });
+    }
+  }
+
+  return bySubject;
+}
+
+// ─── RENDERING ──────────────────────────────────────────────────────────────
+
+function renderRow(row: DisplayRow): string {
+  const groupLabel = row.apiGroup === '' ? 'core' : row.apiGroup === '*' ? 'all API groups' : row.apiGroup;
+  const resourceLabel = row.resource === '*' ? 'All resources (*)' : row.resource;
+  const verbsArr = Array.from(row.verbs);
+  const verbLabel = verbsArr.includes('*') ? 'All verbs (*)' : verbsArr.slice().sort().join(', ');
+  const namesBadge = row.resourceNames && row.resourceNames.length
+    ? `<span class="scope-badge">scoped to: ${row.resourceNames.map(escapeHtml).join(', ')}</span>`
+    : '';
+
+  const bindingsHtml = row.bindings.map((b) => {
+    const gotchaNote = b.kind === 'RoleBinding' && b.roleRefKind === 'ClusterRole'
+      ? `<span class="gotcha-inline" title="A RoleBinding to a ClusterRole grants namespace-scoped access only, never cluster-wide.">via ClusterRole — namespace-scoped only</span>`
+      : '';
+    return `<div class="grant-source">
+      <code class="ic">${escapeHtml(b.kind)}/${escapeHtml(b.name)}</code>
+      <span class="grant-arrow">&rarr;</span>
+      <code class="ic">${escapeHtml(b.roleRefKind)}/${escapeHtml(b.roleRefName)}</code>
+      ${gotchaNote}
+    </div>`;
+  }).join('');
+
+  return `<div class="perm-row">
+    <div class="perm-row-head">
+      <code class="perm-resource">${escapeHtml(groupLabel)}/${escapeHtml(resourceLabel)}</code>
+      <span class="perm-verbs">${escapeHtml(verbLabel)}</span>
+      ${namesBadge}
+    </div>
+    <div class="perm-why">
+      <p class="why-label">Granted by</p>
+      ${bindingsHtml}
+    </div>
+  </div>`;
+}
+
+function renderSubject(entry: { subject: Subject; byNamespace: Map<string, Map<string, DisplayRow>> }): string {
+  const { subject, byNamespace } = entry;
+  const nsKeys = Array.from(byNamespace.keys()).sort((a, b) => (a === '*' ? -1 : b === '*' ? 1 : a.localeCompare(b)));
+  let totalPerms = 0;
+  byNamespace.forEach((nsMap) => (totalPerms += nsMap.size));
+
+  const nsBlocks = nsKeys.map((ns) => {
+    const nsMap = byNamespace.get(ns)!;
+    const nsLabel = ns === '*' ? 'Cluster-wide (all namespaces)' : `Namespace: ${ns}`;
+    const rows = Array.from(nsMap.values())
+      .sort((a, b) => (a.apiGroup + a.resource).localeCompare(b.apiGroup + b.resource))
+      .map(renderRow)
+      .join('');
+    return `<div class="ns-block"><p class="ns-label">${escapeHtml(nsLabel)}</p>${rows}</div>`;
+  }).join('');
+
+  const subjectLabel = subject.kind === 'ServiceAccount'
+    ? `${escapeHtml(subject.name)} <span class="subject-ns">(ns: ${escapeHtml(subject.namespace || 'default')})</span>`
+    : escapeHtml(subject.name);
+
+  const searchBlob = `${subject.name} ${subject.kind}`.toLowerCase();
+
+  return `<div class="subject-card" data-search="${escapeHtml(searchBlob)}">
+    <button class="subject-toggle" aria-expanded="false">
+      <span class="subject-kind-badge subject-kind-${escapeHtml(subject.kind)}">${escapeHtml(subject.kind)}</span>
+      <span class="subject-info">
+        <span class="subject-name">${subjectLabel}</span>
+        <span class="subject-count"> — ${totalPerms} permission${totalPerms === 1 ? '' : 's'}</span>
+      </span>
+      <svg class="subject-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="subject-panel"><div class="subject-panel-inner">${nsBlocks}</div></div>
+  </div>`;
+}
+
+// ─── PERMALINK ENCODING ─────────────────────────────────────────────────────
+
+function base64UrlEncode(bytes: Uint8Array): string {
+  let binary = '';
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function base64UrlDecode(str: string): Uint8Array {
+  let s = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  const binary = atob(s);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+async function encodeStateToParam(text: string): Promise<string> {
+  const bytes = new TextEncoder().encode(text);
+  if (typeof (window as any).CompressionStream !== 'undefined') {
+    try {
+      const cs = new (window as any).CompressionStream('gzip');
+      const writer = cs.writable.getWriter();
+      writer.write(bytes);
+      writer.close();
+      const compressed = await new Response(cs.readable).arrayBuffer();
+      return 'gz.' + base64UrlEncode(new Uint8Array(compressed));
+    } catch { /* fall through to plain base64 */ }
+  }
+  return 'b64.' + base64UrlEncode(bytes);
+}
+
+async function decodeStateFromParam(param: string): Promise<string | null> {
+  const sepIdx = param.indexOf('.');
+  if (sepIdx === -1) return null;
+  const tag = param.slice(0, sepIdx);
+  const data = param.slice(sepIdx + 1);
+  if (!data) return null;
+  const bytes = base64UrlDecode(data);
+  if (tag === 'gz' && typeof (window as any).DecompressionStream !== 'undefined') {
+    try {
+      const ds = new (window as any).DecompressionStream('gzip');
+      const writer = ds.writable.getWriter();
+      writer.write(bytes);
+      writer.close();
+      const decompressed = await new Response(ds.readable).arrayBuffer();
+      return new TextDecoder('utf-8').decode(decompressed);
+    } catch { return null; }
+  }
+  if (tag === 'b64') return new TextDecoder('utf-8').decode(bytes);
+  return null;
+}
+
+// ─── WIRING ─────────────────────────────────────────────────────────────────
+
+const input = document.getElementById('rbacInput') as HTMLTextAreaElement;
+const visualizeBtn = document.getElementById('visualizeBtn') as HTMLButtonElement;
+const loadExampleBtn = document.getElementById('loadExampleBtn') as HTMLButtonElement;
+const copyLinkBtn = document.getElementById('copyLinkBtn') as HTMLButtonElement;
+const errorBox = document.getElementById('rbacError') as HTMLDivElement;
+const warnBox = document.getElementById('rbacWarning') as HTMLDivElement;
+const resultsCard = document.getElementById('resultsCard') as HTMLDivElement;
+const resultsBody = document.getElementById('resultsBody') as HTMLDivElement;
+const noResults = document.getElementById('noResults') as HTMLDivElement;
+const subjectSearch = document.getElementById('subjectSearch') as HTMLInputElement;
+
+const EXAMPLE_YAML = `apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: staging
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+    resourceNames: ["app-config"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader-binding
+  namespace: staging
+subjects:
+  - kind: ServiceAccount
+    name: staging-app
+    namespace: staging
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secret-admin-cluster
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: secret-admin-in-staging
+  namespace: staging
+subjects:
+  - kind: User
+    name: alice@example.com
+roleRef:
+  kind: ClusterRole
+  name: secret-admin-cluster
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-aggregate
+  labels:
+    rbac.example.com/aggregate-to-monitoring: "true"
+aggregationRule:
+  clusterRoleSelectors:
+    - matchLabels:
+        rbac.example.com/aggregate-to-monitoring: "true"
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: metrics-reader
+  labels:
+    rbac.example.com/aggregate-to-monitoring: "true"
+rules:
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-team-binding
+subjects:
+  - kind: Group
+    name: monitoring-team
+roleRef:
+  kind: ClusterRole
+  name: monitoring-aggregate
+  apiGroup: rbac.authorization.k8s.io
+`;
+
+function wireAccordions() {
+  resultsBody.querySelectorAll('.subject-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const panel = btn.parentElement!.querySelector('.subject-panel') as HTMLElement;
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+      panel.classList.toggle('expanded', !isExpanded);
+    });
+  });
+}
+
+function runVisualize() {
+  errorBox.classList.add('hidden'); errorBox.innerHTML = '';
+  warnBox.classList.add('hidden'); warnBox.innerHTML = '';
+  resultsCard.classList.add('hidden');
+  resultsBody.innerHTML = '';
+
+  const raw = input.value;
+  if (!raw.trim()) return;
+
+  const result = parseInput(raw);
+  resolveAggregation(result);
+  const grants = buildGrants(result);
+
+  if (result.errors.length) {
+    errorBox.innerHTML = result.errors.map((e) => `<div>${escapeHtml(e)}</div>`).join('');
+    errorBox.classList.remove('hidden');
+  }
+  if (result.warnings.length) {
+    warnBox.innerHTML = result.warnings.map((w) => `<div>${escapeHtml(w)}</div>`).join('');
+    warnBox.classList.remove('hidden');
+  }
+
+  if (grants.length === 0) return;
+
+  const bySubject = groupGrants(grants);
+  const subjectsArr = Array.from(bySubject.values()).sort((a, b) => a.subject.name.localeCompare(b.subject.name));
+  resultsBody.innerHTML = subjectsArr.map(renderSubject).join('');
+  wireAccordions();
+
+  subjectSearch.value = '';
+  noResults.classList.add('hidden');
+
+  resultsCard.classList.remove('hidden');
+  if ((window as any).showKofiPrompt) (window as any).showKofiPrompt();
+}
+
+visualizeBtn.addEventListener('click', runVisualize);
+
+loadExampleBtn.addEventListener('click', () => {
+  input.value = EXAMPLE_YAML;
+  runVisualize();
+});
+
+copyLinkBtn.addEventListener('click', async () => {
+  if (!input.value.trim()) return;
+  const param = await encodeStateToParam(input.value);
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.searchParams.set('y', param);
+  copyText(url.toString(), copyLinkBtn);
+});
+
+subjectSearch.addEventListener('input', () => {
+  const q = subjectSearch.value.trim().toLowerCase();
+  const cards = Array.from(resultsBody.querySelectorAll('.subject-card')) as HTMLElement[];
+  let visible = 0;
+  cards.forEach((card) => {
+    const matches = !q || (card.getAttribute('data-search') || '').indexOf(q) !== -1;
+    card.style.display = matches ? '' : 'none';
+    if (matches) visible++;
+  });
+  noResults.classList.toggle('hidden', visible !== 0 || cards.length === 0);
+});
+
+// ─── FAQ ACCORDION ───────────────────────────────────────────────────────────
+
+document.querySelectorAll('.faq-trigger').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item') as HTMLElement;
+    const content = item.querySelector('.faq-content') as HTMLElement;
+    const chevron = btn.querySelector('.faq-chevron') as HTMLElement;
+    const isOpen = !content.classList.contains('hidden');
+    content.classList.toggle('hidden', isOpen);
+    (chevron as HTMLElement).style.transform = isOpen ? '' : 'rotate(180deg)';
+  });
+});
+
+// ─── PERMALINK LOAD-ON-BOOT ──────────────────────────────────────────────────
+
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const y = params.get('y');
+  if (!y) return;
+  const decoded = await decodeStateFromParam(y);
+  if (decoded) {
+    input.value = decoded;
+    runVisualize();
+  }
+})();
+</script>
+
+</Layout>

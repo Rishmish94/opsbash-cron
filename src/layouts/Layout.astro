@@ -13,7 +13,7 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
 const currentPath = Astro.url.pathname;
 const isHomePage = currentPath === '/';
 
-const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/log-sanitiser', '/base64', '/aws-credential-chain'].includes(currentPath);
+const isDropdownPage = ['/json-yaml-converter', '/chmod-calculator', '/gitignore-generator', '/docker-compose-converter', '/timestamp-converter', '/json-diff', '/k8s-secret-decoder', '/k8s-rbac-visualizer', '/log-sanitiser', '/base64', '/aws-credential-chain'].includes(currentPath);
 const isBlogPage = currentPath === '/blog' || currentPath.startsWith('/blog/');
 const isCheatsheetsPage = currentPath === '/cheatsheets' || currentPath.startsWith('/cheatsheets/');
 
@@ -135,7 +135,10 @@ const orgSchema = {
           { href: '/json-diff',                label: 'JSON Diff & Schema'      },
         ]},
       { cat: 'Containers',  tools: [{ href: '/docker-compose-converter', label: 'Docker Run to Compose'    }] },
-      { cat: 'Kubernetes',  tools: [{ href: '/k8s-secret-decoder',       label: 'Kubernetes Secret Decoder' }] },
+      { cat: 'Kubernetes',  tools: [
+          { href: '/k8s-secret-decoder',   label: 'Kubernetes Secret Decoder' },
+          { href: '/k8s-rbac-visualizer',  label: 'RBAC Permissions Visualizer' },
+        ]},
       { cat: 'Linux',       tools: [{ href: '/chmod-calculator',         label: 'chmod Calculator'          }] },
       { cat: 'Time',        tools: [{ href: '/timestamp-converter',      label: 'Timestamp Converter'       }] },
     ].map(({ cat, tools }) => (
@@ -240,6 +243,7 @@ const orgSchema = {
 
               <span class="dropdown-category">Kubernetes</span>
               <a href="/k8s-secret-decoder" class="dropdown-item">Kubernetes Secret Decoder</a>
+              <a href="/k8s-rbac-visualizer" class="dropdown-item">RBAC Permissions Visualizer</a>
 
               <span class="dropdown-category">Linux</span>
               <a href="/chmod-calculator" class="dropdown-item">chmod Calculator</a>
@@ -321,6 +325,7 @@ const orgSchema = {
               <li><a href="/docker-compose-converter"  class="footer-link" style="font-size:13px;">Docker Compose</a></li>
               <li><a href="/json-diff"                 class="footer-link" style="font-size:13px;">JSON Diff &amp; Schema</a></li>
               <li><a href="/k8s-secret-decoder"        class="footer-link" style="font-size:13px;">Kubernetes Secret Decoder</a></li>
+              <li><a href="/k8s-rbac-visualizer"       class="footer-link" style="font-size:13px;">RBAC Permissions Visualizer</a></li>
               <li><a href="/log-sanitiser"             class="footer-link" style="font-size:13px;">Log Sanitiser and PII Redactor</a></li>
               <li><a href="/base64"                    class="footer-link" style="font-size:13px;">Base64 Encoder/Decoder</a></li>
               <li><a href="/aws-credential-chain"       class="footer-link" style="font-size:13px;">AWS Credential Chain Debugger</a></li>
@@ -450,6 +455,8 @@ const orgSchema = {
         icon:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>' },
       { name:'Kubernetes Secret Decoder', desc:'Decode Kubernetes Secret YAML and convert .env files to K8s Secrets', url:'/k8s-secret-decoder', cat:'Kubernetes',
         icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+      { name:'Kubernetes RBAC Visualizer', desc:'Paste Role, ClusterRole, RoleBinding and ClusterRoleBinding YAML and see effective permissions per subject', url:'/k8s-rbac-visualizer', cat:'Kubernetes',
+        icon:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>' },
       { name:'Log Sanitiser & PII Redactor', desc:'Redact PII and secrets from logs before sharing with AI tools', url:'/log-sanitiser', cat:'Security',
         icon:'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>' },
       { name:'Unix Timestamp Converter', desc:'Convert epoch timestamps to human dates and back, with batch conversion', url:'/timestamp-converter', cat:'Time',

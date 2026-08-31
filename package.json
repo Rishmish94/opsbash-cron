@@ -19,7 +19,8 @@
     "test:chmod": "playwright test tests/chmod-calculator.spec.ts",
     "test:gitignore": "playwright test tests/gitignore-generator.spec.ts",
     "test:docker": "playwright test tests/docker-compose-converter.spec.ts",
-    "test:json-diff": "playwright test tests/json-diff.spec.ts"
+    "test:json-diff": "playwright test tests/json-diff.spec.ts",
+    "test:rbac": "playwright test tests/k8s-rbac-visualizer.spec.ts"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.9",

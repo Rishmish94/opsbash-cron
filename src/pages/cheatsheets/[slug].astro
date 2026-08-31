@@ -66,6 +66,7 @@ const brandRgb = hexToRgb(brandColor);
 const relatedToolsMap: Record<string, { href: string; name: string; desc: string }[]> = {
   kubernetes: [
     { href: '/k8s-secret-decoder', name: 'Kubernetes Secret Decoder', desc: 'Decode Kubernetes Secret YAML and convert .env files into ready-to-apply Secret manifests.' },
+    { href: '/k8s-rbac-visualizer', name: 'Kubernetes RBAC Visualizer', desc: 'Paste Role, ClusterRole, RoleBinding and ClusterRoleBinding YAML and see effective permissions per subject.' },
     { href: '/docker-compose-converter', name: 'Docker Run to Compose', desc: 'Convert docker run commands into docker-compose.yml, and back again.' },
   ],
   docker: [

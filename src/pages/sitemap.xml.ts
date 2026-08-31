@@ -20,6 +20,7 @@ const PAGE_CONFIG: Record<string, { priority: string; changefreq: string; fallba
   '/timestamp-converter': { priority: '0.9', changefreq: 'weekly', fallback: '2026-06-22' },
   '/json-diff': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
   '/k8s-secret-decoder': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
+  '/k8s-rbac-visualizer': { priority: '0.9', changefreq: 'weekly', fallback: '2026-08-31' },
   '/log-sanitiser': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
   '/base64': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-08' },
   '/aws-credential-chain': { priority: '0.9', changefreq: 'weekly', fallback: '2026-07-24' },
