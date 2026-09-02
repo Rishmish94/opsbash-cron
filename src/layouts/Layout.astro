@@ -314,7 +314,7 @@ const orgSchema = {
           <!-- Tools -->
           <div>
             <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-secondary);margin-bottom:14px;">Tools</p>
-            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">
+            <ul class="footer-tools-list columns-1 md:columns-2 md:gap-x-8" style="list-style:none;padding:0;margin:0;">
               <li><a href="/cron-builder"              class="footer-link" style="font-size:13px;">Cron Builder</a></li>
               <li><a href="/cidr-calculator"           class="footer-link" style="font-size:13px;">CIDR Calculator</a></li>
               <li><a href="/jwt-decoder"               class="footer-link" style="font-size:13px;">JWT Decoder</a></li>
@@ -659,6 +659,12 @@ const orgSchema = {
 
   body {
     background-color: #050508;
+  }
+
+  /* ── Footer Tools column (CSS multi-column) ──────────────────────────────── */
+  .footer-tools-list li {
+    margin-bottom: 8px;
+    break-inside: avoid;
   }
 
 </style>
